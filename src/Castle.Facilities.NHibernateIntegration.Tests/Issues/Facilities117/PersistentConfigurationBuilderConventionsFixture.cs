@@ -40,7 +40,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children[Constants.SessionFactory_ConfigurationElementName];
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName)
+                                                       .Children[Constants.SessionFactories_ConfigurationElementName]
+                                                       .Children[Constants.SessionFactory_ConfigurationElementName];
         }
 
         [Test]

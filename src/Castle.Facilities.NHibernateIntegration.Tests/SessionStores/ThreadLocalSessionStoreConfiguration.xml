@@ -11,18 +11,20 @@
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
               sessionStoreType="Castle.Facilities.NHibernateIntegration.SessionStores.ThreadLocalSessionStore, Castle.Facilities.NHibernateIntegration">
-      <sessionFactory id="sessionFactory1">
-        <settings>
-          <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
-          <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
-          <item key="connection.driver_class">NHibernate.Driver.MicrosoftDataSqlClientDriver</item>
-          <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
-        </settings>
+      <sessionFactories>
+        <sessionFactory id="sessionFactory1">
+          <settings>
+            <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
+            <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
+            <item key="connection.driver_class">NHibernate.Driver.MicrosoftDataSqlClientDriver</item>
+            <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
+          </settings>
 
-        <assemblies>
-          <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
-        </assemblies>
-      </sessionFactory>
+          <assemblies>
+            <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
+          </assemblies>
+        </sessionFactory>
+      </sessionFactories>
     </facility>
   </facilities>
 </configuration>

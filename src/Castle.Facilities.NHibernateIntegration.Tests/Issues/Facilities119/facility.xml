@@ -4,28 +4,30 @@
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               configurationBuilderType="Castle.Facilities.NHibernateIntegration.Builders.DefaultConfigurationBuilder, Castle.Facilities.NHibernateIntegration">
-      <sessionFactory id="sessionFactory1">
-        <settings>
-          <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI; TrustServerCertificate=true</item>
-          <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
-          <item key="connection.driver_class">NHibernate.Driver.MicrosoftDataSqlClientDriver</item>
-          <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
-        </settings>
+      <sessionFactories>
+        <sessionFactory id="sessionFactory1">
+          <settings>
+            <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI; TrustServerCertificate=true</item>
+            <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
+            <item key="connection.driver_class">NHibernate.Driver.MicrosoftDataSqlClientDriver</item>
+            <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
+          </settings>
 
-        <assemblies>
-          <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
-        </assemblies>
-      </sessionFactory>
+          <assemblies>
+            <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
+          </assemblies>
+        </sessionFactory>
 
-      <sessionFactory id="sessionFactory2"
-                      alias="sessionFactory2"
-                      configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119.TestConfigurationBuilder2, Castle.Facilities.NHibernateIntegration.Tests">
-      </sessionFactory>
+        <sessionFactory id="sessionFactory2"
+                        alias="sessionFactory2"
+                        configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119.TestConfigurationBuilder2, Castle.Facilities.NHibernateIntegration.Tests">
+        </sessionFactory>
 
-      <sessionFactory id="sessionFactory3"
-                      alias="sessionFactory3"
-                      configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119.TestConfigurationBuilder3, Castle.Facilities.NHibernateIntegration.Tests">
-      </sessionFactory>
+        <sessionFactory id="sessionFactory3"
+                        alias="sessionFactory3"
+                        configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119.TestConfigurationBuilder3, Castle.Facilities.NHibernateIntegration.Tests">
+        </sessionFactory>
+      </sessionFactories>
     </facility>
   </facilities>
 </configuration>

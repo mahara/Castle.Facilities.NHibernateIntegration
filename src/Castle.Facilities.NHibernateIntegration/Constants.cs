@@ -25,17 +25,24 @@ namespace Castle.Facilities.NHibernateIntegration
     {
         public const string DefaultAlias = "nhibernate.facility.alias.default";
 
+        public const string MicrosoftConfigurationMapper_ComponentName = "nhibernate.facility.configuration.microsoftConfigurationMapper";
+
+        public const string NHibernateFacility_ConfigurationSectionName = "NHibernateIntegration";
+
         public const string Facility_ConfigurationElementName = "facility";
 
         public const string FacilityType_ConfigurationElementAttributeName = "type";
+        public const string FacilityType_ConfigurationSectionName = "type";
 
         public const string TransactionManager_ComponentName = "nhibernate.facility.transactionManager";
 
         public const string ConfigurationBuilder_ComponentName = "nhibernate.facility.configuration.configurationBuilder";
         public const string ConfigurationBuilderType_ComponentNameFormat = "nhibernate.facility.configuration.configurationBuilder.{0}.configurationBuilderType";
         public const string ConfigurationBuilderType_ConfigurationElementAttributeName = "configurationBuilderType";
+        public const string ConfigurationBuilderType_ConfigurationSectionName = "configurationBuilderType";
 
-        //public const string SessionFactories_ConfigurationElementName = "sessionFactories";
+        public const string SessionFactories_ConfigurationElementName = "sessionFactories";
+        public const string SessionFactories_ConfigurationSectionName = "sessionFactories";
 
         public const string SessionFactoryResolver_ComponentName = "nhibernate.facility.sessionFactory.sessionFactoryResolver";
         public const string SessionFactoryInterceptor_ComponentName = "nhibernate.facility.sessionFactory.sessionFactoryInterceptor";
@@ -44,11 +51,15 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         public const string SessionFactory_Configuration_ComponentPropertyName = "nhibernate.facility.sessionFactory.configuration";
         public const string SessionFactory_ConfigurationElementName = "sessionFactory";
+        public const string SessionFactory_ConfigurationSectionName = "sessionFactory";
         public const string SessionFactory_Id_ConfigurationElementAttributeName = "id";
         public const string SessionFactory_Alias_ConfigurationElementAttributeName = "alias";
+        public const string SessionFactory_Alias_ConfigurationSectionName = "alias";
         public const string SessionFactory_FileName_ConfigurationElementAttributeName = "fileName";
         public const string SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName = "nhibernateConfigurationFilePath";
         public const string SessionFactory_Settings_ConfigurationElementName = "settings";
+        public const string SessionFactory_Settings_ConfigurationSectionName = "settings";
+        public const string SessionFactory_Settings_Item_ConfigurationElementAttributeName = "item";
         public const string SessionFactory_Settings_Key_ConfigurationElementAttributeName = "key";
         public const string SessionFactory_Assemblies_ConfigurationElementName = "assemblies";
         public const string SessionFactory_DependsOn_ConfigurationElementName = "dependsOn";
@@ -67,17 +78,21 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public const string SessionStore_ComponentName = "nhibernate.facility.sessionStore";
         public const string SessionStoreType_ConfigurationElementAttributeName = "sessionStoreType";
+        public const string SessionStoreType_ConfigurationSectionName = "sessionStoreType";
         public const string SessionStore_IsWeb_ConfigurationElementAttributeName = "isWeb";
+        public const string SessionStore_IsWeb_ConfigurationSectionName = "isWeb";
         public const string SessionStore_SessionStacks_SlotNameFormat = "nhibernate.facility.sessionStore.stacks.session.{0}";
         public const string SessionStore_StatelessSessionStacks_SlotNameFormat = "nhibernate.facility.sessionStore.stacks.statelessSession.{0}";
 
         public const string Session_TransactionEnlistment_TransactionContextKey = "nhibernate.facility.session.transactionEnlistment";
         public const string StatelessSession_TransactionEnlistment_TransactionContextKey = "nhibernate.facility.statelessSession.transactionEnlistment";
         public const string Session_DefaultFlushMode_ConfigurationElementAttributeName = "defaultFlushMode";
+        public const string Session_DefaultFlushMode_ConfigurationSectionName = "defaultFlushMode";
 
         public const string SessionInterceptor_ComponentName = "nhibernate.facility.session.sessionInterceptor";
         public const string SessionInterceptor_ComponentNameFormat = "nhibernate.facility.session.sessionInterceptor.{0}";
 
         public const string UseReflectionOptimizer_ConfigurationElementAttributeName = "useReflectionOptimizer";
+        public const string UseReflectionOptimizer_ConfigurationSectionName = "useReflectionOptimizer";
     }
 }
