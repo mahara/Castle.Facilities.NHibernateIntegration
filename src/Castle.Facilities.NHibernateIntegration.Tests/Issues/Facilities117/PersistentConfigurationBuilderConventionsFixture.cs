@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;
 using Castle.MicroKernel;
@@ -25,12 +24,14 @@ using Moq;
 
 using NUnit.Framework;
 
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
 {
     [TestFixture]
     public class PersistentConfigurationBuilderConventionsFixture
     {
-        private IConfiguration _facilityConfiguration;
+        private CastleConfiguration _facilityConfiguration;
 
         [SetUp]
         public void SetUp()

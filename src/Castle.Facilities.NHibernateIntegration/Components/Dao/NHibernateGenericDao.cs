@@ -94,7 +94,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindAll)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -115,7 +115,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindById)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -130,7 +130,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(Create)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(Create)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -145,7 +145,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(Save)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(Save)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -160,7 +160,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(Update)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(Update)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -175,7 +175,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(Delete)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(Delete)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -192,7 +192,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(DeleteAll)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -226,7 +226,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindAllStateless)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -247,7 +247,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindByIdStateless)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -262,7 +262,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(CreateStateless)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(CreateStateless)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -277,7 +277,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(UpdateStateless)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(UpdateStateless)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -292,7 +292,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(DeleteStateless)}' for '{instance.GetType().Name}'.";
+                var message = $"Unable to execute '{nameof(DeleteStateless)}' for '{instance.GetType().Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -309,7 +309,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -373,7 +373,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindAll)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -410,7 +410,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
+                var message = $"Unable to execute '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -448,7 +448,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
+                var message = $"Unable to execute '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -508,7 +508,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                var message = $"Unable to execute '{nameof(FindAllStateless)}' for '{type.Name}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -545,7 +545,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
+                var message = $"Unable to execute '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
                 throw new DataException(message, ex);
             }
         }
@@ -583,7 +583,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
             catch (Exception ex)
             {
-                var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
+                var message = $"Unable to execute '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
                 throw new DataException(message, ex);
             }
         }

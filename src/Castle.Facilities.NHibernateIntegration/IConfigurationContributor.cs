@@ -15,20 +15,21 @@
 #endregion
 
 using NHibernate;
-using NHibernate.Cfg;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Allows implementors to modify NHibernate <see cref="Configuration" /> instance.
+    /// Allows implementors to modify NHibernate <see cref="NHibernateConfiguration" /> instance.
     /// </summary>
     public interface IConfigurationContributor
     {
         /// <summary>
-        /// Modifies available NHibernate <see cref="Configuration" /> instances.
+        /// Modifies available NHibernate <see cref="NHibernateConfiguration" /> instances.
         /// </summary>
         /// <param name="sessionFactoryName">The name of the <see cref="ISessionFactory" />.</param>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" /> for <see cref="ISessionFactory" />.</param>
-        void Process(string sessionFactoryName, Configuration configuration);
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" /> for <see cref="ISessionFactory" />.</param>
+        void Process(string sessionFactoryName, NHibernateConfiguration configuration);
     }
 }

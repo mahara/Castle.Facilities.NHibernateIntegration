@@ -14,21 +14,21 @@
 // limitations under the License.
 #endregion
 
-using NHibernate.Cfg;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
-        private readonly IObjectPersister<Configuration> _persister =
-            ObjectPersisterFactory.Create<Configuration>();
+        private readonly IObjectPersister<NHibernateConfiguration> _persister =
+            ObjectPersisterFactory.Create<NHibernateConfiguration>();
 
-        public virtual Configuration ReadConfiguration(string filePath)
+        public virtual NHibernateConfiguration ReadConfiguration(string filePath)
         {
             return _persister.Read(filePath);
         }
 
-        public virtual void WriteConfiguration(string filePath, Configuration configuration)
+        public virtual void WriteConfiguration(string filePath, NHibernateConfiguration configuration)
         {
             _persister.Write(filePath, configuration);
         }

@@ -16,7 +16,6 @@
 
 using System.Configuration;
 
-using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;
 using Castle.Facilities.NHibernateIntegration.Persisters;
@@ -26,7 +25,8 @@ using Castle.Windsor.Configuration.Interpreters;
 
 using NUnit.Framework;
 
-using Configuration = NHibernate.Cfg.Configuration;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 {
@@ -35,11 +35,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
     {
         private const string FilePath = "myconfig.dat";
 
-        private readonly Func<IObjectPersister<Configuration>> _objectPersister =
-            ObjectPersisterFactory.Create<Configuration>;
+        private readonly Func<IObjectPersister<NHibernateConfiguration>> _objectPersister =
+            ObjectPersisterFactory.Create<NHibernateConfiguration>;
 
-        private IConfiguration _facilityConfiguration = null!;
-        private IConfigurationBuilder _facilityConfigurationBuilder = null!;
+        private CastleConfiguration _facilityConfiguration = null!;
+        private IConfigurationBuilder _configurationBuilder = null!;
 
         protected override string ConfigurationFilePath =>
             "EmptyConfiguration.xml";
@@ -53,7 +53,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
             _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children[Constants.SessionFactory_ConfigurationElementName];
-            _facilityConfigurationBuilder = new PersistentConfigurationBuilder();
+            _configurationBuilder = new PersistentConfigurationBuilder();
         }
 
         protected override void OnTearDown()
@@ -74,7 +74,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(File.Exists(FilePath), Is.False);
 
-            _facilityConfigurationBuilder.GetConfiguration(_facilityConfiguration);
+            _configurationBuilder.GetConfiguration(_facilityConfiguration);
 
             Assert.That(File.Exists(FilePath));
 
@@ -93,9 +93,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(File.Exists(FilePath), Is.False);
 
-            Configuration configuration;
+            NHibernateConfiguration configuration;
 
-            configuration = _facilityConfigurationBuilder.GetConfiguration(_facilityConfiguration);
+            configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
 
             Assert.That(File.Exists(FilePath));
 
@@ -103,7 +103,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
             Thread.Sleep(1000);
 
-            configuration = _facilityConfigurationBuilder.GetConfiguration(_facilityConfiguration);
+            configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
 
             Assert.That(dateTime, Is.EqualTo(File.GetLastWriteTime(FilePath)));
             Assert.That(_facilityConfiguration, Is.Not.Null);
@@ -118,9 +118,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(File.Exists(FilePath), Is.False);
 
-            Configuration configuration;
+            NHibernateConfiguration configuration;
 
-            configuration = _facilityConfigurationBuilder.GetConfiguration(_facilityConfiguration);
+            configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
 
             Assert.That(File.Exists(FilePath));
 
@@ -132,7 +132,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             var dependentFilePath = "SampleDllFile.dll";
             File.Create(dependentFilePath).Dispose();
             File.SetLastWriteTime(dependentFilePath, dateTime2);
-            configuration = _facilityConfigurationBuilder.GetConfiguration(_facilityConfiguration);
+            configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
 
             Assert.That(File.GetLastWriteTime(FilePath), Is.GreaterThan(dateTime1));
             Assert.That(_facilityConfiguration, Is.Not.Null);
@@ -142,7 +142,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             configuration.BuildSessionFactory();
         }
 
-        private static void ConfigureConnectionSettings(Configuration configuration)
+        private static void ConfigureConnectionSettings(NHibernateConfiguration configuration)
         {
             configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];

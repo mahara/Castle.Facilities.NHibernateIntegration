@@ -19,9 +19,10 @@ using Castle.MicroKernel.Registration;
 using Moq;
 
 using NHibernate;
-using NHibernate.Cfg;
 
 using NUnit.Framework;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
 {
@@ -45,7 +46,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
                          .Named("c2")
                          .Instance(configurator2));
 
-            var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
+            var configuration = Container.Resolve<NHibernateConfiguration>("sessionFactory1.cfg");
             Container.Resolve<ISessionFactory>("sessionFactory1");
 
             Mock.Get(configurator1).Verify(x => x.Process("sessionFactory1", configuration));

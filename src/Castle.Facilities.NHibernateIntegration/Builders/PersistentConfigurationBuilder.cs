@@ -16,17 +16,17 @@
 
 using System.Text.RegularExpressions;
 
-using Castle.Core.Configuration;
 using Castle.Core.Logging;
 using Castle.Facilities.NHibernateIntegration.Persisters;
 using Castle.Services.Transaction.Utilities;
 
-using NHibernate.Cfg;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// Serializes the NHibernate <see cref="Configuration" /> instance for subsequent initializations.
+    /// Serializes the NHibernate <see cref="NHibernateConfiguration" /> instance for subsequent initializations.
     /// </summary>
     public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
     {
@@ -51,18 +51,18 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         public ILogger Logger { get; set; } = NullLogger.Instance;
 
         /// <summary>
-        /// Returns a deserialized NHibernate <see cref="Configuration" /> instance.
+        /// Returns a deserialized NHibernate <see cref="NHibernateConfiguration" /> instance.
         /// </summary>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-        public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="NHibernateConfiguration" />.</returns>
+        public override NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
             Logger.Debug("Building NHibernate configuration.");
 
             var filePath = GetFilePathFrom(facilityConfiguration);
             var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
 
-            Configuration configuration;
+            NHibernateConfiguration configuration;
 
             if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
             {
@@ -82,22 +82,24 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return configuration;
         }
 
-        private static string GetFilePathFrom(IConfiguration facilityConfiguration)
+        private static string GetFilePathFrom(CastleConfiguration facilityConfiguration)
         {
             var fileName = facilityConfiguration.Attributes[Constants.SessionFactory_FileName_ConfigurationElementAttributeName];
 
-            fileName = !fileName.IsNullOrEmpty() ?
-                       fileName :
-                       $"{facilityConfiguration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName]}{DefaultFileExtension}";
+            if (fileName.IsNullOrEmpty())
+            {
+                fileName = $"{facilityConfiguration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName]}{DefaultFileExtension}";
+            }
 
             return StripInvalidFileNameChars(fileName);
         }
 
-        private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
+        private static List<string> GetDependentFilePathsFrom(CastleConfiguration facilityConfiguration)
         {
             List<string> list = [];
 
             var assemblies = facilityConfiguration.Children[Constants.SessionFactory_Assemblies_ConfigurationElementName];
+
             if (assemblies is not null)
             {
                 foreach (var assembly in assemblies.Children)
@@ -107,6 +109,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             }
 
             var dependsOn = facilityConfiguration.Children[Constants.SessionFactory_DependsOn_ConfigurationElementName];
+
             if (dependsOn is not null)
             {
                 foreach (var fileName in dependsOn.Children)

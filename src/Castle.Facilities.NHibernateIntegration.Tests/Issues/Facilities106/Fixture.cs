@@ -33,8 +33,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
             var facilityConfiguration = new MutableConfiguration("myConfig");
             facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName] =
                 "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/SessionFactory1.xml";
-            var facilityConfigurationBuilder = new XmlConfigurationBuilder();
-            var configuration = facilityConfigurationBuilder.GetConfiguration(facilityConfiguration);
+            var configurationBuilder = new NHibernateCfgXmlConfigurationBuilder();
+            var configuration = configurationBuilder.GetConfiguration(facilityConfiguration);
 
             Assert.That(configuration, Is.Not.Null);
 

@@ -3,7 +3,6 @@
 <configuration>
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-              alias="sessionFactory3"
               configurationBuilderType="Castle.Facilities.NHibernateIntegration.Builders.DefaultConfigurationBuilder, Castle.Facilities.NHibernateIntegration">
       <sessionFactory id="sessionFactory1">
         <settings>

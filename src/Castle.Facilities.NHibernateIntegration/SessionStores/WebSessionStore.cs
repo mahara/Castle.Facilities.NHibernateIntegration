@@ -92,7 +92,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             if (context is null)
             {
-                var message = $"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.";
+                var message = $"'{nameof(WebSessionStore)}': Unable to obtain a reference to '{nameof(HttpContext)}'.";
                 throw new FacilityException(message);
             }
 
@@ -105,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             if (context is null)
             {
-                var message = $"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.";
+                var message = $"'{nameof(WebSessionStore)}': Unable to obtain a reference to '{nameof(HttpContext)}'.";
                 throw new FacilityException(message);
             }
 

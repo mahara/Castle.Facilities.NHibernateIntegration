@@ -6,6 +6,7 @@
     <PackageReference Include="Castle.Services.Transaction" />
     <PackageReference Include="Castle.Windsor" />
     <PackageReference Include="Iesi.Collections" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
     <PackageReference Include="NHibernate" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">

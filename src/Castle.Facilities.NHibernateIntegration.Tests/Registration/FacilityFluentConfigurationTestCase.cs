@@ -14,15 +14,15 @@
 // limitations under the License.
 #endregion
 
-using Castle.Core.Configuration;
 using Castle.Facilities.AutoTx;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.MicroKernel.Facilities;
 using Castle.Windsor;
 
-using NHibernate.Cfg;
-
 using NUnit.Framework;
+
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 {
@@ -45,7 +45,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<NHibernateFacility>(
                 static f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(DummyConfigurationBuilder)));
+            Assert.That(
+                container.Resolve<IConfigurationBuilder>().GetType(),
+                Is.EqualTo(typeof(DummyConfigurationBuilder)));
         }
 
         [Test]
@@ -125,7 +127,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
         }
 
         [Test]
-        public void ShouldBeAbleToResolve_ISessionManager()
+        public void ShouldResolve_ISessionManager()
         {
             var container = new WindsorContainer();
 
@@ -136,15 +138,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
             sessionManager.OpenSession();
 
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(TestConfigurationBuilder)));
+            Assert.That(
+                container.Resolve<IConfigurationBuilder>().GetType(),
+                Is.EqualTo(typeof(TestConfigurationBuilder)));
         }
     }
 
     internal class DummyConfigurationBuilder : IConfigurationBuilder
     {
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        public NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
-            return new Configuration();
+            return new NHibernateConfiguration();
         }
     }
 

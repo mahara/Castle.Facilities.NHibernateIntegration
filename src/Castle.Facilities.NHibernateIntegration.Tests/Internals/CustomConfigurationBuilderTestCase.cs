@@ -16,7 +16,6 @@
 
 using System.Configuration;
 
-using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;
 using Castle.MicroKernel.Facilities;
@@ -25,17 +24,18 @@ using Castle.Windsor.Configuration.Interpreters;
 
 using NUnit.Framework;
 
-using Configuration = NHibernate.Cfg.Configuration;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
     public class CustomConfigurationBuilder : IConfigurationBuilder
     {
-        public int ConfigurationsCreated { get; private set; }
+        public int ConfigurationsCreatedCount { get; private set; }
 
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        public NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
-            ConfigurationsCreated++;
+            ConfigurationsCreatedCount++;
 
             var configuration = new DefaultConfigurationBuilder().GetConfiguration(facilityConfiguration);
 
@@ -74,7 +74,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             var configurationBuilder = (CustomConfigurationBuilder) Container.Resolve<IConfigurationBuilder>();
 
-            Assert.That(configurationBuilder.ConfigurationsCreated, Is.EqualTo(1));
+            Assert.That(configurationBuilder.ConfigurationsCreatedCount, Is.EqualTo(1));
 
             session.Close();
         }
@@ -120,8 +120,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             Assert.That(
                 Method,
-                Throws.InstanceOf<FacilityException>()
-                      .With.Message.EqualTo("'ConfigurationBuilder' of type 'InvalidType' is invalid or can not be found."));
+                Throws.TypeOf<FacilityException>()
+                      .With.Message.EqualTo("The 'ConfigurationBuilder' of type 'InvalidType' could not be resolved."));
         }
     }
 }

@@ -95,8 +95,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
         {
             if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
             {
-                var message = $"You must extend the '{nameof(HttpApplication)}' in your web project " +
-                              $"and implement the '{nameof(IContainerAccessor)}' to properly expose your container instance.";
+                var message = $"You must derive from '{nameof(HttpApplication)}' in your web project " +
+                              $"and implement '{nameof(IContainerAccessor)}' to properly expose your container instance.";
                 throw new FacilityException(message);
             }
 
@@ -104,7 +104,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
 
             if (container is null)
             {
-                var message = $"The container seems to be unavailable (null) in your '{nameof(HttpApplication)}' subclass.";
+                var message = $"The container is unavailable in your '{nameof(HttpApplication)}' subclass.";
                 throw new FacilityException(message);
             }
 

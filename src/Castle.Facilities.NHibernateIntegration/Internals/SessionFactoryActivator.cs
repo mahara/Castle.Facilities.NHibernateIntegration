@@ -21,7 +21,8 @@ using Castle.MicroKernel.ComponentActivator;
 using Castle.MicroKernel.Context;
 
 using NHibernate;
-using NHibernate.Cfg;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Internals
 {
@@ -49,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
         {
             RaiseCreatingSessionFactory();
 
-            var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName];
+            var configuration = (NHibernateConfiguration) Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName];
 
             var sessionFactory = configuration.BuildSessionFactory();
 
@@ -63,7 +64,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
         /// </summary>
         protected virtual void RaiseCreatingSessionFactory()
         {
-            if (Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName] is Configuration configuration)
+            if (Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName] is NHibernateConfiguration configuration)
             {
                 var contributors = Kernel.ResolveAll<IConfigurationContributor>();
                 foreach (var contributor in contributors)

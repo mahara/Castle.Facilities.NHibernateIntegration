@@ -25,6 +25,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             object
 #endif
             _sessionLock = new();
+
         private readonly
 #if NET9_0_OR_GREATER
             Lock

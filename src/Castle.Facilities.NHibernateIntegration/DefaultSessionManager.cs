@@ -313,7 +313,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (sessionFactory is null)
             {
-                var message = $"No '{nameof(ISessionFactory)}' implementation associated with the given '{nameof(ISession)}' alias: '{alias}'.";
+                var message = $"No '{nameof(ISessionFactory)}' implementation is associated with the given '{nameof(ISession)}' alias: '{alias}'.";
                 throw new FacilityException(message);
             }
 
@@ -353,7 +353,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (sessionFactory is null)
             {
-                var message = $"No '{nameof(ISessionFactory)}' implementation associated with the given '{nameof(IStatelessSession)}' alias: '{alias}'.";
+                var message = $"No '{nameof(ISessionFactory)}' implementation is associated with the given '{nameof(IStatelessSession)}' alias: '{alias}'.";
                 throw new FacilityException(message);
             }
 

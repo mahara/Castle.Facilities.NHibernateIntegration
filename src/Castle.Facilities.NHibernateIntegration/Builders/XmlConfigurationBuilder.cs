@@ -16,39 +16,41 @@
 
 using System.Xml;
 
-using Castle.Core.Configuration;
-
 using Castle.Facilities.NHibernateIntegration.Internals;
 using Castle.Services.Transaction.Utilities;
 
-using NHibernate.Cfg;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using ConfigurationErrorsException = System.Configuration.ConfigurationErrorsException;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
     /// The configuration builder for NHibernate's cfg.xml.
     /// </summary>
-    public class XmlConfigurationBuilder : IConfigurationBuilder
+    public class NHibernateCfgXmlConfigurationBuilder : IConfigurationBuilder
     {
         /// <summary>
-        /// Returns the NHibernate <see cref="Configuration" /> instance for the given XML.
+        /// Returns the NHibernate <see cref="NHibernateConfiguration" /> instance for the given XML.
         /// </summary>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="NHibernateConfiguration" />.</returns>
+        public NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
             const string FilePathAttributeName = Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName;
 
             var filePath = facilityConfiguration.Attributes[FilePathAttributeName];
 
-            filePath = !filePath.IsNullOrEmpty() ?
-                       filePath :
-                       throw new System.Configuration.ConfigurationErrorsException($"'{FilePathAttributeName}' cannot be null or empty.");
+            if (filePath.IsNullOrEmpty())
+            {
+                const string Message = $"'{FilePathAttributeName}' cannot be null or empty.";
+                throw new ConfigurationErrorsException(Message);
+            }
 
             using var configurationResource = new FileAssemblyResource(filePath);
             using var reader = XmlReader.Create(configurationResource.GetStreamReader());
 
-            var configuration = new Configuration();
+            var configuration = new NHibernateConfiguration();
 
             configuration.Configure(reader);
 

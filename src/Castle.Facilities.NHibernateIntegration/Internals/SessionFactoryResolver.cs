@@ -52,6 +52,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+
             if (id is null)
             {
                 throw new ArgumentNullException(nameof(id));

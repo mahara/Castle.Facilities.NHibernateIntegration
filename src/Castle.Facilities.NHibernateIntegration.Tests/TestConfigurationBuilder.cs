@@ -16,10 +16,10 @@
 
 using System.Configuration;
 
-using Castle.Core.Configuration;
 using Castle.Facilities.NHibernateIntegration.Builders;
 
-using Configuration = NHibernate.Cfg.Configuration;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
@@ -32,7 +32,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             _configurationBuilder = new DefaultConfigurationBuilder();
         }
 
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        public NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
             var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
 

@@ -14,37 +14,37 @@
 // limitations under the License.
 #endregion
 
-using NHibernate.Cfg;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// An interface for reading/writing an NHibernate <see cref="Configuration" /> instance
+    /// An interface for reading/writing an NHibernate <see cref="NHibernateConfiguration" /> instance
     /// from/to a given file path,
     /// and whether that file should be trusted or a new configuration should be built.
     /// </summary>
     public interface IConfigurationPersister
     {
         /// <summary>
-        /// Gets the NHibernate <see cref="Configuration" /> instance from the file.
+        /// Gets the NHibernate <see cref="NHibernateConfiguration" /> instance from the file.
         /// </summary>
         /// <param name="filePath">The path of the file to read from.</param>
-        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-        Configuration ReadConfiguration(string filePath);
+        /// <returns>An NHibernate <see cref="NHibernateConfiguration" />.</returns>
+        NHibernateConfiguration ReadConfiguration(string filePath);
 
         /// <summary>
-        /// Writes the NHibernate <see cref="Configuration" /> instance to the file.
+        /// Writes the NHibernate <see cref="NHibernateConfiguration" /> instance to the file.
         /// </summary>
         /// <param name="filePath">The path of the file to write to.</param>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
-        void WriteConfiguration(string filePath, Configuration configuration);
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
+        void WriteConfiguration(string filePath, NHibernateConfiguration configuration);
 
         /// <summary>
-        /// Checks if a new NHibernate <see cref="Configuration" /> instance is required or a serialized one should be used.
+        /// Checks if a new NHibernate <see cref="NHibernateConfiguration" /> instance is required or a serialized one should be used.
         /// </summary>
-        /// <param name="filePath">The path of the file containing the NHibernate <see cref="Configuration" />.</param>
-        /// <param name="dependentFilePaths">The paths of the files that the serialized NHibernate <see cref="Configuration" /> depends on.</param>
-        /// <returns>Whether the NHibernate <see cref="Configuration" /> should be created or not.</returns>
+        /// <param name="filePath">The path of the file containing the NHibernate <see cref="NHibernateConfiguration" />.</param>
+        /// <param name="dependentFilePaths">The paths of the files that the serialized NHibernate <see cref="NHibernateConfiguration" /> depends on.</param>
+        /// <returns>Whether the NHibernate <see cref="NHibernateConfiguration" /> should be created or not.</returns>
         bool IsNewConfigurationRequired(string filePath, IList<string> dependentFilePaths);
     }
 }

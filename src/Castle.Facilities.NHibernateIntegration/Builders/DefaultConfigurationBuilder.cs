@@ -17,25 +17,27 @@
 using System.Configuration;
 using System.Reflection;
 
-using Castle.Core.Configuration;
 using Castle.Services.Transaction.Utilities;
 
 using NHibernate.Event;
 
-using Configuration = NHibernate.Cfg.Configuration;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// Default implementation of <see cref="IConfigurationBuilder" />.
+    /// Default implementation of <see cref="IConfigurationBuilder" />
+    /// that uses the facility <see cref="CastleConfiguration" />
+    /// as the source of the NHibernate <see cref="NHibernateConfiguration" />.
     /// </summary>
     public class DefaultConfigurationBuilder : IConfigurationBuilder
     {
         private const string NHibernateMappingAttributesAssemblyName = "NHibernate.Mapping.Attributes";
 
-        public virtual Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        public virtual NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
-            var configuration = new Configuration();
+            var configuration = new NHibernateConfiguration();
 
             ApplyConfigurationSettings(configuration, facilityConfiguration.Children[Constants.SessionFactory_Settings_ConfigurationElementName]);
             RegisterAssemblies(configuration, facilityConfiguration.Children[Constants.SessionFactory_Assemblies_ConfigurationElementName]);
@@ -48,9 +50,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// Applies the configuration settings.
         /// </summary>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected static void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        protected static void ApplyConfigurationSettings(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
             if (facilityConfiguration is null)
             {
@@ -69,9 +71,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// Registers the assemblies.
         /// </summary>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected static void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        protected static void RegisterAssemblies(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
             if (facilityConfiguration is null)
             {
@@ -90,7 +92,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
         /// <summary>
         /// If <paramref name="targetAssemblyName" /> has a reference on <c>NHibernate.Mapping.Attributes</c>,
-        /// then use the NHibernate mapping attributes contained in that assembly to update NHibernate <see cref="Configuration" /> instance (<paramref name="configuration" />);
+        /// then use the NHibernate mapping attributes contained in that assembly to update NHibernate <see cref="NHibernateConfiguration" /> instance (<paramref name="configuration" />);
         /// otherwise, do nothing.
         /// </summary>
         /// <remarks>
@@ -98,9 +100,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// when using this facility without NHibernate mapping attributes,
         /// all calls to that library are made using reflection.
         /// </remarks>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
         /// <param name="targetAssemblyName">The target assembly name.</param>
-        protected static void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssemblyName)
+        protected static void GenerateMappingFromAttributesIfNeeded(NHibernateConfiguration configuration, string targetAssemblyName)
         {
             // Get all assemblies referenced by targetAssembly.
             var referencedAssemblies = Assembly.Load(targetAssemblyName).GetReferencedAssemblies();
@@ -136,9 +138,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// Registers the resources.
         /// </summary>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected static void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        protected static void RegisterResources(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
             if (facilityConfiguration is null)
             {
@@ -164,9 +166,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// Registers the listeners.
         /// </summary>
-        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected static void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        protected static void RegisterListeners(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
             if (facilityConfiguration is null)
             {
@@ -180,17 +182,28 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
                 if (!Enum.TryParse<ListenerType>(listenerTypeEnumName, out var listenerTypeEnum))
                 {
-                    var message = $"An invalid '{nameof(ListenerType)}' of type '{listenerTypeEnumName}' was specified.";
+                    var message = $"An invalid '{nameof(ListenerType)}' enum value '{listenerTypeEnumName}' was specified.";
                     throw new ConfigurationErrorsException(message);
                 }
 
                 if (listenerTypeFullName.IsNullOrEmpty())
                 {
-                    throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
+                    const string Message = "The listener type's full name must be specified.";
+                    throw new ConfigurationErrorsException(Message);
                 }
 
-                var listenerType = Type.GetType(listenerTypeFullName) ??
-                                   throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
+                Type listenerType = null!;
+
+                try
+                {
+                    listenerType = Type.GetType(listenerTypeFullName)!;
+                }
+                catch (Exception ex)
+                {
+                    const string Message = "The listener type specified by its full name could not be resolved.";
+                    throw new ConfigurationErrorsException(Message, ex);
+                }
+
                 var listener = Activator.CreateInstance(listenerType);
 
                 configuration.SetListener(listenerTypeEnum, listener);

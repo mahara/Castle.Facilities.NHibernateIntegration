@@ -83,7 +83,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             if (session != currentSession)
             {
-                var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' tried to remove a session which is not on the top or not in the stack at all.";
+                var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' tried to remove a session that is not at the top of the stack or is not in the stack at all.";
                 throw new InvalidOperationException(message);
             }
 
@@ -138,7 +138,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             if (session != currentSession)
             {
-                var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' tried to remove a session which is not on the top or not in the stack at all.";
+                var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' tried to remove a session that is not at the top of the stack or is not in the stack at all.";
                 throw new InvalidOperationException(message);
             }
 

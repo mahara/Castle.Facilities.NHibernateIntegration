@@ -19,10 +19,11 @@ using Castle.Facilities.AutoTx;
 using Castle.Windsor;
 using Castle.Windsor.Configuration.Interpreters;
 
-using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
 
 using NUnit.Framework;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
@@ -68,7 +69,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             Container.AddFacility<AutoTxFacility>();
 
             ConfigureContainer();
+
             CreateDatabaseSchema();
+
             OnSetUp();
         }
 
@@ -80,6 +83,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         public virtual void TearDown()
         {
             OnTearDown();
+
             DropDatabaseSchema();
 
             Container.Dispose();
@@ -101,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         protected virtual void CreateDatabaseSchema()
         {
-            var configurations = Container.ResolveAll<Configuration>();
+            var configurations = Container.ResolveAll<NHibernateConfiguration>();
 
             foreach (var configuration in configurations)
             {
@@ -112,7 +116,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         protected virtual void DropDatabaseSchema()
         {
-            var configurations = Container.ResolveAll<Configuration>();
+            var configurations = Container.ResolveAll<NHibernateConfiguration>();
 
             foreach (var configuration in configurations)
             {

@@ -125,8 +125,8 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Gets the current Unit of Work and returns the associated <see cref="ITransaction" /> instance.
         /// </summary>
         /// <remarks>
-        /// This property getter is implemented explicitly in <see cref="Castle.Facilities.NHibernateIntegration.Utilities.SessionExtensions.GetCurrentTransaction(ISession)" />,
-        /// as opposed to simply calling <see cref="NHibernate.SessionExtensions.GetCurrentTransaction(ISession)" />
+        /// This property getter is implemented explicitly in <see cref="Utilities.SessionExtensions.GetCurrentTransaction(ISession)" />,
+        /// as opposed to simply calling <see cref="SessionExtensions.GetCurrentTransaction(ISession)" />
         /// because <see cref="ISession.GetSessionImplementation()" /> can be <see langword="null" />.
         /// </remarks>
         public ITransaction? Transaction => Utilities.SessionExtensions.GetCurrentTransaction(_innerSession);

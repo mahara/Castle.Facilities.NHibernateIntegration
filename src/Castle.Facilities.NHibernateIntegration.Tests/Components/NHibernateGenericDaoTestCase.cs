@@ -93,7 +93,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         }
 
         [Test]
-        public void SetUppedCorrectly()
+        public void SetUpCorrectly()
         {
             Assert.That(_nhGenericDao1.SessionFactoryAlias, Is.Null);
             Assert.That(_nhGenericDao2.SessionFactoryAlias, Is.EqualTo("sessionFactory1"));

@@ -15,19 +15,20 @@
 #endregion
 
 using NHibernate;
-using NHibernate.Cfg;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
 {
     public class MyDao
     {
-        public MyDao(Configuration configuration, ISessionFactory sessionFactory)
+        public MyDao(NHibernateConfiguration configuration, ISessionFactory sessionFactory)
         {
             Configuration = configuration;
             SessionFactory = sessionFactory;
         }
 
-        public Configuration Configuration { get; }
+        public NHibernateConfiguration Configuration { get; }
 
         public ISessionFactory SessionFactory { get; }
     }
