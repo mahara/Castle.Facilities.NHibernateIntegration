@@ -41,6 +41,9 @@ Breaking Changes:
 
 ## 5.3.0 (2022-09-17)
 
+Improvements:
+- Added **`appsettings.json`** (```Microsoft.Extensions.Configuration```) support.
+
 Breaking Changes:
 - Upgraded to **`.NET 6.0`** and **`.NET Framework 4.8`**.
 - Updated **`Castle.Services.Transaction`** version to 5.3.0.
