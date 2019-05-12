@@ -9,22 +9,23 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>Castle.Services.Transaction.Tests</AssemblyName>
-    <RootNamespace>Castle.Tests</RootNamespace>
+    <AssemblyName>Castle.Facilities.NHibernateIntegration.Tests</AssemblyName>
+    <RootNamespace>Castle.Facilities.NHibernateIntegration.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.0" />
     <PackageReference Include="Castle.Core-log4net" Version="4.4.0" />
     <PackageReference Include="Castle.Core-NLog" Version="4.4.0" />
+    <PackageReference Include="Castle.LoggingFacility" Version="5.0.0" />
     <PackageReference Include="Castle.Services.Transaction" Version="5.0.0" />
     <PackageReference Include="Castle.Facilities.AutoTx" Version="5.0.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
     <PackageReference Include="NHibernate" Version="5.2.5" />
     <PackageReference Include="NUnit" Version="3.11.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-    <PackageReference Include="Rhino.Mocks" Version="3.6.1" />
- </ItemGroup>
+    <PackageReference Include="RhinoMocks" Version="3.6.1" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net472'">
     <Reference Include="System.Configuration" />
@@ -42,13 +43,13 @@
     <EmbeddedResource Include=".\Common\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include=".\Internals\*\*.xml">
+    <EmbeddedResource Include=".\Internals\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include=".\Issues\*\*.xml">
+    <EmbeddedResource Include=".\Issues\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include=".\Transactions\*\*.xml">
+    <EmbeddedResource Include=".\Transactions\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

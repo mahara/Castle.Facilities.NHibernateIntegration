@@ -1,8 +1,7 @@
 <configuration>
 	<facilities>
-		<facility id="nhibernatefacility"
-				  type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-				  configurationBuilder="InvalidType">
+		<facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
+		          configurationBuilder="InvalidType">
 
 			<factory id="sessionFactory1">
 				<settings>

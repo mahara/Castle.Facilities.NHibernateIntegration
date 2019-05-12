@@ -1,15 +1,26 @@
+#region Using Directives
+
 using Castle.Core.Configuration;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.Core.Resource;
 using Castle.MicroKernel.Facilities;
+
 using NHibernate.Cfg;
+
 using NUnit.Framework;
+
 using Castle.Windsor;
 using Castle.Windsor.Configuration.Interpreters;
 
+#endregion
+
 namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 {
+	#region Using Directives
+
 	using Castle.Facilities.AutoTx;
+
+	#endregion
 
 	[TestFixture]
 	public class FacilityFluentConfigTestCase
@@ -26,7 +37,21 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			Assert.AreEqual(typeof(TestConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
 		}
 
-		[Test, Ignore]
+		[Test]
+		public void Should_not_accept_non_implementors_of_IConfigurationBuilder_for_override()
+		{
+			void Method()
+			{
+				var container = new WindsorContainer();
+
+				container.AddFacility<NHibernateFacility>(f => f.ConfigurationBuilder(this.GetType()));
+			}
+
+			Assert.That(Method, Throws.TypeOf<FacilityException>());
+		}
+
+		[Test]
+		[Ignore("TODO: .NET Core Migration")]
 		public void Should_override_DefaultConfigurationBuilder()
 		{
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";
@@ -39,7 +64,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			Assert.AreEqual(typeof(DummyConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
 		}
 
-		[Test, Ignore]
+		[Test]
+		[Ignore("TODO: .NET Core Migration")]
 		public void Should_override_IsWeb()
 		{
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";
@@ -54,12 +80,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
 		}
 
-		[Test, ExpectedException(typeof(FacilityException))]
-		public void Should_not_accept_non_implementors_of_IConfigurationBuilder_for_override()
+		[Test]
+		public void ShouldOverrideDefaultSessionStore()
 		{
 			var container = new WindsorContainer();
+			container.AddFacility<AutoTxFacility>();
 
-			container.AddFacility<NHibernateFacility>(f => f.ConfigurationBuilder(GetType()));
+			container.AddFacility<NHibernateFacility>(
+				f => f.IsWeb()
+				      .SessionStore<CallContextSessionStore>()
+				      .ConfigurationBuilder<DummyConfigurationBuilder>());
+
+			var sessionStore = container.Resolve<ISessionStore>();
+
+			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
 		}
 
 		[Test]
@@ -75,25 +109,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
 			Assert.IsInstanceOf(typeof(LogicalCallContextSessionStore), sessionStore);
 		}
-		[Test]
-		public void ShouldOverrideDefaultSessionStore()
-		{
-			var container = new WindsorContainer();
-			container.AddFacility<AutoTxFacility>();
-
-			container.AddFacility<NHibernateFacility>(
-				f => f.IsWeb()
-					.SessionStore<CallContextSessionStore>()
-					.ConfigurationBuilder<DummyConfigurationBuilder>());
-
-			var sessionStore = container.Resolve<ISessionStore>();
-
-			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
-		}
 	}
 
-
-	class DummyConfigurationBuilder : IConfigurationBuilder
+	internal class DummyConfigurationBuilder : IConfigurationBuilder
 	{
 		public Configuration GetConfiguration(IConfiguration config)
 		{

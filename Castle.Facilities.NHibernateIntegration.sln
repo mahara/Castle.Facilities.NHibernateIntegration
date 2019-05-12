@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Buil
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{BD34B69B-47CF-44C1-9CC0-B028833437C9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{42590326-8064-4EAC-ABF2-A2A4D1127653}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42590326-8064-4EAC-ABF2-A2A4D1127653}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42590326-8064-4EAC-ABF2-A2A4D1127653}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42590326-8064-4EAC-ABF2-A2A4D1127653}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42590326-8064-4EAC-ABF2-A2A4D1127653}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
