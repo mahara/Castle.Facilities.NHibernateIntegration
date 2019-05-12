@@ -63,6 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 		public override object Instantiate(string clazz, object id)
 		{
 			this._instantiationCall = true;
+
 			return null;
 		}
 
@@ -82,6 +83,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 		                            IType[] types)
 		{
 			this._onSaveCall = true;
+
 			return false;
 		}
 
