@@ -2,14 +2,14 @@
 
 ## Unreleased (5.0.0) (2019-05-xx)
 
+Improvements:
+- Added .NET Core support
+
 Breaking Changes:
 - Removed .NET 3.5, .NET 4.0, and .NET 4.0 Client Profile support
 - Updated Castle.Core dependency to 4.4.0
 - Updated Castle.Windsor dependency to 5.0.0
 - Updated NHibernate dependency to 5.2.5
-
-Enhancements:
-- Added .NET Core support
 
 ## 4.0.0 (2018-09-18)
 
