@@ -1,538 +1,464 @@
-﻿namespace Castle.Facilities.NHibernateIntegration
+#region License
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+#endregion
+
+using System;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
+
+using NHibernate;
+using NHibernate.Engine;
+
+namespace Castle.Facilities.NHibernateIntegration
 {
-	using System;
-	using System.Data;
-	using System.Linq.Expressions;
+    /// <summary>
+    /// Proxies an IStatelessSession so the user cannot close a stateless session which is controlled by a transaction,
+    /// or, when this is not the case, make sure to remove the session from the storage.
+    /// <seealso cref="ISessionStore" />
+    /// <seealso cref="ISessionManager" />
+    /// </summary>
+    [Serializable]
+    public class StatelessSessionDelegate : MarshalByRefObject, IStatelessSession
+    {
+        private readonly bool _canClose;
+        private readonly ISessionStore _sessionStore;
+        private object _cookie;
+        private bool _disposed;
 
-	using NHibernate;
-	using NHibernate.Engine;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatelessSessionDelegate" /> class.
+        /// </summary>
+        /// <param name="canClose">if set to <c>true</c> [can close].</param>
+        /// <param name="innerSession">The inner session.</param>
+        /// <param name="sessionStore">The session store.</param>
+        /// <remarks>
+        /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0618
+        /// <code>
+        /// #pragma warning disable 0618, 0612
+        /// #pragma warning restore 0618, 0612
+        /// </code>
+        /// </remarks>
+        public StatelessSessionDelegate(bool canClose, IStatelessSession innerSession, ISessionStore sessionStore)
+        {
+            InnerSession = innerSession;
+            _sessionStore = sessionStore;
+            _canClose = canClose;
+        }
 
-	/// <summary>
-	/// Proxies an IStatelessSession so the user cannot close a stateless session
-	/// which is controlled by a transaction, or, when this is not the case, 
-	/// make sure to remove the session from the storage.
-	/// <seealso cref="ISessionStore"/>
-	/// <seealso cref="ISessionManager"/>
-	/// </summary>
-	[Serializable]
-	public class StatelessSessionDelegate : MarshalByRefObject, IStatelessSession
-	{
-		private readonly IStatelessSession _innerSession;
-		private readonly ISessionStore _sessionStore;
-		private readonly bool _canClose;
-		private bool _disposed;
-		private object _cookie;
+        /// <summary>
+        /// Gets the inner session.
+        /// </summary>
+        /// <value>The inner session.</value>
+        public IStatelessSession InnerSession { get; }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="StatelessSessionDelegate"/> class.
-		/// </summary>
-		/// <param name="canClose">if set to <c>true</c> [can close].</param>
-		/// <param name="innerSession">The inner session.</param>
-		/// <param name="sessionStore">The session store.</param>
-		public StatelessSessionDelegate(bool canClose, IStatelessSession innerSession, ISessionStore sessionStore)
-		{
-			this._innerSession = innerSession;
-			this._sessionStore = sessionStore;
-			this._canClose = canClose;
-		}
+        /// <summary>
+        /// Gets or sets the session store cookie.
+        /// </summary>
+        /// <value>The session store cookie.</value>
+        public object SessionStoreCookie
+        {
+            get => _cookie;
+            set => _cookie = value;
+        }
 
-		/// <summary>
-		/// Gets the inner session.
-		/// </summary>
-		/// <value>The inner session.</value>
-		public IStatelessSession InnerSession
-		{
-			get { return this._innerSession; }
-		}
+        #region IDisposable delegation
 
-		/// <summary>
-		/// Gets or sets the session store cookie.
-		/// </summary>
-		/// <value>The session store cookie.</value>
-		public object SessionStoreCookie
-		{
-			get { return this._cookie; }
-			set { this._cookie = value; }
-		}
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            DoClose(false);
+        }
 
-		#region IStatelessSession delegation
+        #endregion
 
-		/// <summary>
-		/// Returns the current ADO.NET connection associated with this instance.
-		/// </summary>
-		/// <remarks>
-		/// If the session is using aggressive connection release (as in a
-		/// CMT environment), it is the application's responsibility to
-		/// close the connection returned by this call. Otherwise, the
-		/// application should not close the connection.
-		/// </remarks>
-		public IDbConnection Connection
-		{
-			get { return this._innerSession.Connection; }
-		}
+        /// <summary>
+        /// Does the close.
+        /// </summary>
+        /// <param name="closing">if set to <c>true</c> [closing].</param>
+        /// <returns></returns>
+        protected IDbConnection DoClose(bool closing)
+        {
+            if (_disposed)
+            {
+                return null;
+            }
 
-		/// <summary>
-		/// Is the <c>IStatelessSession</c> currently connected?
-		/// </summary>
-		public bool IsConnected
-		{
-			get
-			{
-				return this._innerSession.IsConnected;
-			}
-		}
+            if (_canClose)
+            {
+                return InternalClose(closing);
+            }
 
-		/// <summary>
-		/// Is the <c>IStatelessSession</c> still open?
-		/// </summary>
-		public bool IsOpen
-		{
-			get
-			{
-				return this._innerSession.IsOpen;
-			}
-		}
+            return null;
+        }
 
-		/// <summary>
-		/// Get the current Hibernate transaction.
-		/// </summary>
-		public ITransaction Transaction
-		{
-			get { return this._innerSession.Transaction; }
-		}
+        internal IDbConnection InternalClose(bool closing)
+        {
+            IDbConnection connection = null;
 
-		/// <summary>
-		/// Begin a NHibernate transaction.
-		/// </summary>
-		public ITransaction BeginTransaction()
-		{
-			return this._innerSession.BeginTransaction();
-		}
+            _sessionStore.Remove(this);
 
-		/// <summary>
-		/// Begin a NHibernate transaction with the specified isolation level
-		/// </summary>
-		/// <param name="isolationLevel">The isolation level</param>
-		/// <returns>
-		/// A NHibernate transaction
-		/// </returns>
-		public ITransaction BeginTransaction(IsolationLevel isolationLevel)
-		{
-			return this._innerSession.BeginTransaction(isolationLevel);
-		}
+            if (closing)
+            {
+                connection = InnerSession.Connection;
+                InnerSession.Close();
+            }
 
-		/// <summary>
-		/// Close the stateless session and release the ADO.NET connection.
-		/// </summary>
-		public void Close()
-		{
-			this._innerSession.Close();
-		}
+            InnerSession.Dispose();
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity class,
-		/// or a superclass of an entity class. 
-		/// </summary>
-		/// <typeparam name="T">A class, which is persistent, or has persistent subclasses</typeparam>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria<T>() where T : class
-		{
-			return this._innerSession.CreateCriteria<T>();
-		}
+            _disposed = true;
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity class,
-		/// or a superclass of an entity class, with the given alias. 
-		/// </summary>
-		/// <typeparam name="T">A class, which is persistent, or has persistent subclasses</typeparam>
-		/// <param name="alias">The alias of the entity</param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria<T>(string alias) where T : class
-		{
-			return this._innerSession.CreateCriteria<T>(alias);
-		}
+            return connection;
+        }
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity class,
-		/// or a superclass of an entity class. 
-		/// </summary>
-		/// <param name="entityType">A class, which is persistent, or has persistent subclasses</param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria(Type entityType)
-		{
-			return this._innerSession.CreateCriteria(entityType);
-		}
+        /// <summary>
+        /// Returns <see langword="true" /> if the supplied stateless sessions are equal, <see langword="false" /> otherwise.
+        /// </summary>
+        /// <param name="left">The left.</param>
+        /// <param name="right">The right.</param>
+        /// <returns></returns>
+        public static bool AreEqual(IStatelessSession left, IStatelessSession right)
+        {
+            if (left is StatelessSessionDelegate ssdLeft
+                && right is StatelessSessionDelegate ssdRight)
+            {
+                return ReferenceEquals(ssdLeft.InnerSession, ssdRight.InnerSession);
+            }
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity class,
-		/// or a superclass of an entity class, with the given alias. 
-		/// </summary>
-		/// <param name="entityType">A class, which is persistent, or has persistent subclasses</param>
-		/// <param name="alias">The alias of the entity</param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria(Type entityType, string alias)
-		{
-			return this._innerSession.CreateCriteria(entityType, alias);
-		}
+            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
+        }
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity name.
-		/// </summary>
-		/// <param name="entityName">The entity name. </param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria(string entityName)
-		{
-			return this._innerSession.CreateCriteria(entityName);
-		}
+        #region IStatelessSession delegation
 
-		/// <summary>
-		/// Create a new <see cref="T:NHibernate.ICriteria"/> instance, for the given entity name,
-		/// with the given alias.  
-		/// </summary>
-		/// <param name="entityName">The entity name. </param>
-		/// <param name="alias">The alias of the entity</param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ICriteria"/>. 
-		/// </returns>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public ICriteria CreateCriteria(string entityName, string alias)
-		{
-			return this._innerSession.CreateCriteria(entityName, alias);
-		}
+        /// <summary>
+        /// Returns the current ADO.NET connection associated with this instance.
+        /// </summary>
+        /// <remarks>
+        /// If the session is using aggressive connection release (as in a CMT environment),
+        /// it is the application's responsibility to close the connection returned by this call.
+        /// Otherwise, the application should not close the connection.
+        /// </remarks>
+        public DbConnection Connection =>
+            InnerSession.Connection;
 
-		/// <summary>
-		/// Create a new instance of <tt>Query</tt> for the given HQL query string.
-		/// </summary>
-		/// <remarks>
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public IQuery CreateQuery(string queryString)
-		{
-			return this._innerSession.CreateQuery(queryString);
-		}
+        /// <inheritdoc />
+        public bool IsOpen =>
+            InnerSession.IsOpen;
 
-		/// <summary>
-		/// Create a new instance of <see cref="T:NHibernate.ISQLQuery"/> for the given SQL query string.
-		/// Entities returned by the query are detached.
-		/// </summary>
-		/// <param name="queryString">a SQL query </param>
-		/// <returns>
-		/// The <see cref="T:NHibernate.ISQLQuery"/>
-		/// </returns>
-		public ISQLQuery CreateSQLQuery(string queryString)
-		{
-			return this._innerSession.CreateSQLQuery(queryString);
-		}
+        /// <inheritdoc />
+        public bool IsConnected =>
+            InnerSession.IsConnected;
 
-		/// <summary>
-		/// Delete a entity. 
-		/// </summary>
-		/// <param name="entity">a detached entity instance </param>
-		public void Delete(object entity)
-		{
-			this._innerSession.Delete(entity);
-		}
+        /// <inheritdoc />
+        /// <remarks>
+        /// This method is implemented explicitly, as opposed to simply calling
+        /// <see cref="StatelessSessionExtensions.GetCurrentTransaction(IStatelessSession)" />,
+        /// because <see cref="IStatelessSession.GetSessionImplementation()" /> can return <see langword="null" />.
+        /// </remarks>
+        public ITransaction Transaction =>
+            InnerSession?.GetSessionImplementation()?
+                         .ConnectionManager?
+                         .CurrentTransaction;
 
-		/// <summary>
-		/// Delete a entity. 
-		/// </summary>
-		/// <param name="entityName">The entityName for the entity to be deleted </param>
-		/// <param name="entity">a detached entity instance </param>
-		public void Delete(string entityName, object entity)
-		{
-			this._innerSession.Delete(entityName, entity);
-		}
+        /// <inheritdoc />
+        public ISessionImplementor GetSessionImplementation()
+        {
+            return InnerSession.GetSessionImplementation();
+        }
 
-		/// <summary>
-		/// Retrieve a entity. 
-		/// </summary>
-		/// <returns>
-		/// a detached entity instance 
-		/// </returns>
-		public object Get(string entityName, object id)
-		{
-			return this._innerSession.Get(entityName, id);
-		}
+        /// <inheritdoc />
+        public void Close()
+        {
+            DoClose(true);
+        }
 
-		/// <summary>
-		/// Retrieve a entity.
-		/// </summary>
-		/// <returns>
-		/// a detached entity instance
-		/// </returns>
-		public T Get<T>(object id)
-		{
-			return this._innerSession.Get<T>(id);
-		}
+        /// <inheritdoc />
+        public ITransaction BeginTransaction()
+        {
+            return InnerSession.BeginTransaction();
+        }
 
-		/// <summary>
-		/// Retrieve a entity, obtaining the specified lock mode. 
-		/// </summary>
-		/// <returns>
-		/// a detached entity instance 
-		/// </returns>
-		public object Get(string entityName, object id, LockMode lockMode)
-		{
-			return this._innerSession.Get(entityName, id, lockMode);
-		}
+        /// <inheritdoc />
+        public ITransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
+            return InnerSession.BeginTransaction(isolationLevel);
+        }
 
-		/// <summary>
-		/// Retrieve a entity, obtaining the specified lock mode. 
-		/// </summary>
-		/// <returns>
-		/// a detached entity instance 
-		/// </returns>
-		public T Get<T>(object id, LockMode lockMode)
-		{
-			return this._innerSession.Get<T>(id, lockMode);
-		}
+        /// <inheritdoc />
+        public void JoinTransaction()
+        {
+            InnerSession.JoinTransaction();
+        }
 
-		/// <summary>
-		/// Obtain an instance of <see cref="T:NHibernate.IQuery"/> for a named query string defined in
-		/// the mapping file.
-		/// </summary>
-		/// <remarks>
-		/// The query can be either in <c>HQL</c> or <c>SQL</c> format.
-		/// Entities returned by the query are detached.
-		/// </remarks>
-		public IQuery GetNamedQuery(string queryName)
-		{
-			return this._innerSession.GetNamedQuery(queryName);
-		}
+        /// <inheritdoc />
+        public IStatelessSession SetBatchSize(int batchSize)
+        {
+            return InnerSession.SetBatchSize(batchSize);
+        }
 
-		/// <summary>
-		/// Gets the stateless session implementation.
-		/// </summary>
-		/// <remarks>
-		/// This method is provided in order to get the <b>NHibernate</b> implementation of the session from wrapper implementations.
-		///             Implementors of the <seealso cref="T:NHibernate.IStatelessSession"/> interface should return the NHibernate implementation of this method.
-		/// </remarks>
-		/// <returns>
-		/// An NHibernate implementation of the <see cref="T:NHibernate.Engine.ISessionImplementor"/> interface
-		/// </returns>
-		public ISessionImplementor GetSessionImplementation()
-		{
-			return this._innerSession.GetSessionImplementation();
-		}
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>()
+        {
+            return InnerSession.Query<T>();
+        }
 
-		/// <summary>
-		/// Insert a entity.
-		/// </summary>
-		/// <param name="entity">A new transient instance </param>
-		/// <returns>
-		/// the identifier of the instance 
-		/// </returns>
-		public object Insert(object entity)
-		{
-			return this._innerSession.Insert(entity);
-		}
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>(string entityName)
+        {
+            return InnerSession.Query<T>(entityName);
+        }
 
-		/// <summary>
-		/// Insert a row. 
-		/// </summary>
-		/// <param name="entityName">The entityName for the entity to be inserted </param>
-		/// <param name="entity">a new transient instance </param>
-		/// <returns>
-		/// the identifier of the instance 
-		/// </returns>
-		public object Insert(string entityName, object entity)
-		{
-			return this._innerSession.Insert(entityName, entity);
-		}
+        /// <inheritdoc />
+        public IQuery GetNamedQuery(string queryName)
+        {
+            return InnerSession.GetNamedQuery(queryName);
+        }
 
-		/// <summary>
-		/// Creates a new <c>IQueryOver&lt;T&gt;</c> for the entity class.
-		/// </summary>
-		/// <typeparam name="T">The entity class</typeparam>
-		/// <returns>
-		/// An ICriteria&lt;T&gt; object
-		/// </returns>
-		public IQueryOver<T, T> QueryOver<T>() where T : class
-		{
-			return this._innerSession.QueryOver<T>();
-		}
+        /// <inheritdoc />
+        public IQueryOver<T, T> QueryOver<T>() where T : class
+        {
+            return InnerSession.QueryOver<T>();
+        }
 
-		/// <summary>
-		/// Creates a new <c>IQueryOver&lt;T&gt;</c> for the entity class.
-		/// </summary>
-		/// <typeparam name="T">The entity class</typeparam>
-		/// <returns>
-		/// An ICriteria&lt;T&gt; object
-		/// </returns>
-		public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
-		{
-			return this._innerSession.QueryOver(alias);
-		}
+        /// <inheritdoc />
+        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+        {
+            return InnerSession.QueryOver(alias);
+        }
 
-		/// <summary>
-		/// Refresh the entity instance state from the database. 
-		/// </summary>
-		/// <param name="entity">The entity to be refreshed. </param>
-		public void Refresh(object entity)
-		{
-			this._innerSession.Refresh(entity);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria<T>() where T : class
+        {
+            return InnerSession.CreateCriteria<T>();
+        }
 
-		/// <summary>
-		/// Refresh the entity instance state from the database. 
-		/// </summary>
-		/// <param name="entityName">The entityName for the entity to be refreshed. </param>
-		/// <param name="entity">The entity to be refreshed.</param>
-		public void Refresh(string entityName, object entity)
-		{
-			this._innerSession.Refresh(entityName, entity);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria<T>(string alias) where T : class
+        {
+            return InnerSession.CreateCriteria<T>(alias);
+        }
 
-		/// <summary>
-		/// Refresh the entity instance state from the database. 
-		/// </summary>
-		/// <param name="entity">The entity to be refreshed. </param>
-		/// <param name="lockMode">The LockMode to be applied.</param>
-		public void Refresh(object entity, LockMode lockMode)
-		{
-			this._innerSession.Refresh(entity, lockMode);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(Type entityType)
+        {
+            return InnerSession.CreateCriteria(entityType);
+        }
 
-		/// <summary>
-		/// Refresh the entity instance state from the database. 
-		/// </summary>
-		/// <param name="entityName">The entityName for the entity to be refreshed. </param>
-		/// <param name="entity">The entity to be refreshed. </param>
-		/// <param name="lockMode">The LockMode to be applied. </param>
-		public void Refresh(string entityName, object entity, LockMode lockMode)
-		{
-			this._innerSession.Refresh(entityName, entity, lockMode);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(Type entityType, string alias)
+        {
+            return InnerSession.CreateCriteria(entityType, alias);
+        }
 
-		/// <summary>
-		/// Sets the batch size of the session
-		/// </summary>
-		/// <param name="batchSize">The batch size.</param>
-		/// <returns>
-		/// The same instance of the session for methods chain.
-		/// </returns>
-		public IStatelessSession SetBatchSize(int batchSize)
-		{
-			return this._innerSession.SetBatchSize(batchSize);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(string entityName)
+        {
+            return InnerSession.CreateCriteria(entityName);
+        }
 
-		/// <summary>
-		/// Update a entity.
-		/// </summary>
-		/// <param name="entity">a detached entity instance </param>
-		public void Update(object entity)
-		{
-			this._innerSession.Update(entity);
-		}
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(string entityName, string alias)
+        {
+            return InnerSession.CreateCriteria(entityName, alias);
+        }
 
-		/// <summary>
-		/// Update a entity.
-		/// </summary>
-		/// <param name="entityName">The entityName for the entity to be updated </param>
-		/// <param name="entity">a detached entity instance </param>
-		public void Update(string entityName, object entity)
-		{
-			this._innerSession.Update(entityName, entity);
-		}
+        /// <inheritdoc />
+        public IQuery CreateQuery(string queryString)
+        {
+            return InnerSession.CreateQuery(queryString);
+        }
 
-		#endregion
+        /// <inheritdoc />
+        public ISQLQuery CreateSQLQuery(string queryString)
+        {
+            return InnerSession.CreateSQLQuery(queryString);
+        }
 
-		#region IDisposable delegation
+        /// <inheritdoc />
+        public T Get<T>(object id)
+        {
+            return InnerSession.Get<T>(id);
+        }
 
-		/// <summary>
-		/// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-		/// </summary>
-		/// <filterpriority>2</filterpriority>
-		public void Dispose()
-		{
-			this.DoClose(false);
-		}
+        /// <inheritdoc />
+        public T Get<T>(object id, LockMode lockMode)
+        {
+            return InnerSession.Get<T>(id, lockMode);
+        }
 
-		#endregion
+        /// <inheritdoc />
+        public object Get(string entityName, object id)
+        {
+            return InnerSession.Get(entityName, id);
+        }
 
-		/// <summary>
-		/// Does the close.
-		/// </summary>
-		/// <param name="closing">if set to <c>true</c> [closing].</param>
-		/// <returns></returns>
-		protected IDbConnection DoClose(bool closing)
-		{
-			if (this._disposed) return null;
+        /// <inheritdoc />
+        public object Get(string entityName, object id, LockMode lockMode)
+        {
+            return InnerSession.Get(entityName, id, lockMode);
+        }
 
-			if (this._canClose)
-			{
-				return this.InternalClose(closing);
-			}
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync<T>(id, cancellationToken);
+        }
 
-			return null;
-		}
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync<T>(id, lockMode, cancellationToken);
+        }
 
-		internal IDbConnection InternalClose(bool closing)
-		{
-			IDbConnection conn = null;
+        /// <inheritdoc />
+        public Task<object> GetAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync(entityName, id, lockMode, cancellationToken);
+        }
 
-			this._sessionStore.Remove(this);
+        /// <inheritdoc />
+        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync(entityName, id, cancellationToken);
+        }
 
-			if (closing)
-			{
-				conn = this._innerSession.Connection;
-				this._innerSession.Close();
-			}
+        /// <inheritdoc />
+        public void Refresh(object entity)
+        {
+            InnerSession.Refresh(entity);
+        }
 
-			this._innerSession.Dispose();
+        /// <inheritdoc />
+        public void Refresh(object entity, LockMode lockMode)
+        {
+            InnerSession.Refresh(entity, lockMode);
+        }
 
-			this._disposed = true;
+        /// <inheritdoc />
+        public void Refresh(string entityName, object entity)
+        {
+            InnerSession.Refresh(entityName, entity);
+        }
 
-			return conn;
-		}
+        /// <inheritdoc />
+        public void Refresh(string entityName, object entity, LockMode lockMode)
+        {
+            InnerSession.Refresh(entityName, entity, lockMode);
+        }
 
-		/// <summary>
-		/// Returns <see langword="true"/> if the supplied stateless sessions are equal, <see langword="false"/> otherwise.
-		/// </summary>
-		/// <param name="left">The left.</param>
-		/// <param name="right">The right.</param>
-		/// <returns></returns>
-		public static bool AreEqual(IStatelessSession left, IStatelessSession right)
-		{
-			StatelessSessionDelegate ssdLeft = left as StatelessSessionDelegate;
-			StatelessSessionDelegate ssdRight = right as StatelessSessionDelegate;
+        /// <inheritdoc />
+        public Task RefreshAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entity, cancellationToken);
+        }
 
-			if (ssdLeft != null && ssdRight != null)
-			{
-				return Object.ReferenceEquals(ssdLeft._innerSession, ssdRight._innerSession);
-			}
-			else
-			{
-				throw new NotSupportedException("AreEqual: left is " +
-												left.GetType().Name + " and right is " + right.GetType().Name);
-			}
-		}
-	}
+        /// <inheritdoc />
+        public Task RefreshAsync(object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entity, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(string entityName, object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entityName, entity, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public object Insert(object entity)
+        {
+            return InnerSession.Insert(entity);
+        }
+
+        /// <inheritdoc />
+        public object Insert(string entityName, object entity)
+        {
+            return InnerSession.Insert(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task<object> InsertAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.InsertAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> InsertAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.InsertAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Update(object entity)
+        {
+            InnerSession.Update(entity);
+        }
+
+        /// <inheritdoc />
+        public void Update(string entityName, object entity)
+        {
+            InnerSession.Update(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Delete(object entity)
+        {
+            InnerSession.Delete(entity);
+        }
+
+        /// <inheritdoc />
+        public void Delete(string entityName, object entity)
+        {
+            InnerSession.Delete(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entityName, entity, cancellationToken);
+        }
+
+        #endregion
+    }
 }

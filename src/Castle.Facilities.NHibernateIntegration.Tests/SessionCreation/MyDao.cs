@@ -1,108 +1,106 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
+
+using NHibernate;
+
+using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-	using NHibernate;
-	using NUnit.Framework;
+    public class MyDao
+    {
+        private readonly ISessionManager _sessionManager;
+        private readonly MySecondDao _otherDao;
 
-	public class MyDao
-	{
-		private readonly MySecondDao otherDao;
-		private readonly ISessionManager sessManager;
+        public MyDao(ISessionManager sessionManager, MySecondDao otherDao)
+        {
+            _sessionManager = sessionManager;
+            _otherDao = otherDao;
+        }
 
-		public MyDao(MySecondDao otherDao, ISessionManager sessManager)
-		{
-			this.sessManager = sessManager;
-			this.otherDao = otherDao;
-		}
+        public void PerformComplexOperation1()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsNotNull(session);
 
-		public void PerformComplexOperation1()
-		{
-			using (ISession sess = sessManager.OpenSession())
-			{
-				Assert.IsNotNull(sess);
+                _otherDao.PerformPieceOfOperation(session);
+            }
+        }
 
-				otherDao.PerformPieceOfOperation(sess);
-			}
-		}
+        public void PerformComplexOperation2()
+        {
+            ISession previousSession = null;
 
-		public void PerformComplexOperation2()
-		{
-			ISession prev = null;
+            using (var session = _sessionManager.OpenSession())
+            {
+                previousSession = session;
+            }
 
-			using (ISession sess = sessManager.OpenSession())
-			{
-				prev = sess;
-			}
+            _otherDao.PerformPieceOfOperation2(previousSession);
+        }
 
-			otherDao.PerformPieceOfOperation2(prev);
-		}
+        public void DoOpenCloseAndDispose()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsTrue(session.IsConnected);
+                Assert.IsTrue(session.IsOpen);
 
-		public void DoOpenCloseAndDispose()
-		{
-			using (ISession sess = sessManager.OpenSession())
-			{
-				Assert.IsTrue(sess.IsConnected);
-				Assert.IsTrue(sess.IsOpen);
+                session.Close();
 
-				sess.Close();
+                Assert.IsFalse(session.IsConnected);
+                Assert.IsFalse(session.IsOpen);
+            }
+        }
 
-				Assert.IsFalse(sess.IsConnected);
-				Assert.IsFalse(sess.IsOpen);
-			}
-		}
+        public void PerformStatelessComplexOperation1()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsNotNull(session);
 
-		public void PerformStatelessComplexOperation1()
-		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				Assert.IsNotNull(session);
+                _otherDao.PerformStatelessPieceOfOperation(session);
+            }
+        }
 
-				otherDao.PerformStatelessPieceOfOperation(session);
-			}
-		}
+        public void PerformStatelessComplexOperation2()
+        {
+            IStatelessSession previousSession = null;
 
-		public void PerformStatelessComplexOperation2()
-		{
-			IStatelessSession previousSession = null;
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                previousSession = session;
+            }
 
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				previousSession = session;
-			}
+            _otherDao.PerformStatelessPieceOfOperation2(previousSession);
+        }
 
-			otherDao.PerformStatelessPieceOfOperation2(previousSession);
-		}
+        public void DoStatelessOpenCloseAndDispose()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsTrue(session.IsConnected);
+                Assert.IsTrue(session.IsOpen);
 
-		public void DoStatelessOpenCloseAndDispose()
-		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				Assert.IsTrue(session.IsConnected);
-				Assert.IsTrue(session.IsOpen);
+                session.Close();
 
-				session.Close();
-
-				Assert.IsFalse(session.IsConnected);
-				Assert.IsFalse(session.IsOpen);
-			}
-		}
-	}
+                Assert.IsFalse(session.IsConnected);
+                Assert.IsFalse(session.IsOpen);
+            }
+        }
+    }
 }

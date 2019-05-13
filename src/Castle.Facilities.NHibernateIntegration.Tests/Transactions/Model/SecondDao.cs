@@ -1,152 +1,165 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
+
+using System;
+
+using Castle.Services.Transaction;
+
+using NHibernate;
+
+using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using System;
-	using NHibernate;
-	using Services.Transaction;
+    [Transactional]
+    public class SecondDao
+    {
+        private readonly ISessionManager _sessionManager;
 
-	[Transactional]
-	public class SecondDao
-	{
-		private readonly ISessionManager sessManager;
+        public SecondDao(ISessionManager sessionManager)
+        {
+            _sessionManager = sessionManager;
+        }
 
-		public SecondDao(ISessionManager sessManager)
-		{
-			this.sessManager = sessManager;
-		}
+        [Transaction]
+        public virtual BlogItem Create(Blog blog)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-		[Transaction]
-		public virtual BlogItem Create(Blog blog)
-		{
-			using (ISession session = sessManager.OpenSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Save(item);
 
-				BlogItem item = new BlogItem();
+                return item;
+            }
+        }
 
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
+        [Transaction]
+        public virtual BlogItem CreateWithException(Blog blog)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				session.Save(item);
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
 
-				return item;
-			}
-		}
+                throw new NotSupportedException("I don't feel like supporting this");
+            }
+        }
 
-		[Transaction]
-		public virtual BlogItem CreateWithException(Blog blog)
-		{
-			using (ISession session = sessManager.OpenSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+        [Transaction]
+        public virtual BlogItem CreateWithException2(Blog blog)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var transaction = session.GetCurrentTransaction();
 
-				BlogItem item = new BlogItem();
+                Assert.IsNotNull(transaction);
 
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Save(item);
 
-				throw new NotSupportedException("I dont feel like supporting this");
-			}
-		}
+                throw new NotSupportedException("I don't feel like supporting this");
+            }
+        }
 
-		[Transaction]
-		public virtual BlogItem CreateWithException2(Blog blog)
-		{
-			using (ISession session = sessManager.OpenSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+        [Transaction]
+        public virtual BlogItem CreateStateless(Blog blog)
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                var transaction = session.GetCurrentTransaction();
 
-				BlogItem item = new BlogItem();
+                Assert.IsNotNull(transaction);
 
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Insert(item);
 
-				session.Save(item);
+                return item;
+            }
+        }
 
-				throw new NotSupportedException("I dont feel like supporting this");
-			}
-		}
+        [Transaction]
+        public virtual BlogItem CreateWithExceptionStateless(Blog blog)
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                var transaction = session.GetCurrentTransaction();
 
-		[Transaction]
-		public virtual BlogItem CreateStateless(Blog blog)
-		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.IsNotNull(transaction);
 
-				BlogItem item = new BlogItem();
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
 
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
+                throw new NotSupportedException("I don't feel like supporting this");
+            }
+        }
 
-				session.Insert(item);
+        [Transaction]
+        public virtual BlogItem CreateWithExceptionStateless2(Blog blog)
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                var transaction = session.GetCurrentTransaction();
 
-				return item;
-			}
-		}
+                Assert.IsNotNull(transaction);
 
-		[Transaction]
-		public virtual BlogItem CreateWithExceptionStateless(Blog blog)
-		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Insert(item);
 
-				BlogItem item = new BlogItem();
-
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
-
-				throw new NotSupportedException("I dont feel like supporting this");
-			}
-		}
-
-		[Transaction]
-		public virtual BlogItem CreateWithExceptionStateless2(Blog blog)
-		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
-			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
-
-				BlogItem item = new BlogItem();
-
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
-
-				session.Insert(item);
-
-				throw new NotSupportedException("I dont feel like supporting this");
-			}
-		}
-	}
+                throw new NotSupportedException("I don't feel like supporting this");
+            }
+        }
+    }
 }
