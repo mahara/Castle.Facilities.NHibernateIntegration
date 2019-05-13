@@ -1,10 +1,22 @@
-/build
-AssemblyInfo.cs
-src/*/obj
-src/*/bin
+## https://github.com/github/gitignore
+
+
+.vs/
+.idea/
+artifacts/
+build/
+bin/
+obj/
+packages/
+testresults/
+log/
+data/
+
 *.suo
 *.user
-_ReSharper*
-*.ReSharper
+*.log
+*.binlog
 *.cache
-* Thumbs.db
+*.dbmdl
+*.dbconfig
+Thumbs.db
