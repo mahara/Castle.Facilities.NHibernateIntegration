@@ -14,7 +14,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM ****************************************************************************
 
-@call .\buildscripts\BuildPackages.cmd "config=Release" "version=5.0.0"
+@CALL .\buildscripts\BuildPackages.cmd "config=Release" "version=5.0.0"
 
 
 

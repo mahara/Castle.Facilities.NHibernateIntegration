@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Buil
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildScripts", "buildscripts\BuildScripts.csproj", "{2F4E9C73-D076-43C1-BC18-82DC48E4A904}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{BD34B69B-47CF-44C1-9CC0-B028833437C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{42590326-8064-4EAC-ABF2-A2A4D1127653}"
@@ -25,6 +27,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2F4E9C73-D076-43C1-BC18-82DC48E4A904}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F4E9C73-D076-43C1-BC18-82DC48E4A904}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F4E9C73-D076-43C1-BC18-82DC48E4A904}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F4E9C73-D076-43C1-BC18-82DC48E4A904}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD34B69B-47CF-44C1-9CC0-B028833437C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,6 +42,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2F4E9C73-D076-43C1-BC18-82DC48E4A904} = {7E507A42-984B-470D-8A0C-648B9AF8E1DC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6848FFAB-1C3C-4E95-9AAA-7D0EE910DC3E}
