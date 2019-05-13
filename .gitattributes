@@ -1,64 +1,83 @@
-﻿# Auto detect text files and perform LF normalization
-*           text eol=auto
+## https://git-scm.com/docs/gitattributes
+## https://git-scm.com/book/en/v2/Customizing-Git-Git-Attributes
+## https://github.com/gitattributes/gitattributes
+## https://github.com/alexkaratarakis/gitattributes
 
+
+# Set default behavior to automatically normalize line endings.
+# Auto detect text files and perform LF normalization
+*                   text=auto
+
+# Project and solution files
 # Files that will always have CRLF line endings on checkout.
-*.targets   text eol=crlf
-*.sln       text eol=crlf
-*.csproj    text eol=crlf
-*.proj      text eol=crlf
-*.config    text eol=crlf
-*.cs        text eol=crlf
-*.xml       text eol=crlf
-*.xaml      text eol=crlf
-*.html      text eol=crlf
-*.js        text eol=crlf
-*.map       text eol=crlf
-*.css       text eol=crlf
-*.less      text eol=crlf
-*.resx      text eol=crlf
-*.manifest  text eol=crlf
-*.txt       text eol=crlf
-*.cpp       text eol=crlf
-*.c         text eol=crlf
-*.h         text eol=crlf
-SOURCES     text eol=crlf
-MAKEFILE    text eol=crlf
+*.sln               text    eol=crlf    merge=union
+*.manifest          text    eol=crlf
+*.props             text    eol=crlf
+*.targets           text    eol=crlf
+*.json              text
+*.config            text    eol=crlf
+*.ruleset           text    eol=crlf
+*.resx              text    eol=crlf
+*.xaml              text    eol=crlf                    diff=html
+*.csproj            text    eol=crlf    merge=union
+*.cs                text    eol=crlf                    diff=csharp
+*.csx               text    eol=crlf                    diff=csharp
+*.cshtml            text    eol=crlf                    diff=html
+*.vbproj            text    eol=crlf    merge=union
+*.vb                text    eol=crlf
+*.vbx               text    eol=crlf
+*.vbhtml            text    eol=crlf                    diff=html
+*.vcxproj           text    eol=crlf    merge=union
+*.vcproj            text    eol=crlf    merge=union
+*.h                 text                                diff=cpp
+*.c                 text                                diff=cpp
+*.cpp               text                                diff=cpp
+SOURCES             text
+MAKEFILE            text
+*.fsproj            text    eol=crlf    merge=union
+*.fs                text    eol=crlf
+*.sqlproj           text    eol=crlf    merge=union
+*.dbproj            text    eol=crlf    merge=union
+*.sql               text
+*.sqlgen            text    eol=crlf
+*.wixproj           text    eol=crlf    merge=union
+*.shproj            text    eol=crlf    merge=union
+*.proj              text    eol=crlf    merge=union
+*.xml               text                                diff=html
+*.xsd               text                                diff=html
+*.html              text                                diff=html
+*.htm               text                                diff=html
+*.css               text                                diff=css
+*.less              text                                diff=css
+*.ts                text
+*.js                text
+*.map               text
+*.ps1               text    eol=crlf
+*.psm1              text    eol=crlf
+*.psd1              text    eol=crlf
+*.ps1xml            text    eol=crlf
+*.cmd               text    eol=crlf
+*.bat               text    eol=crlf
+*.yml               text
+*.yaml              text
+*.licenseheader     text    eol=crlf
+*.pubxml            text    eol=crlf
+*.md                text                                diff=markdown
+*.txt               text
 
-# Binary files that should not be modified.
-*.exe       binary
-*.dll       binary
-*.pdb       binary
-*.xap       binary
-*.snk       binary
-*.png       binary
-*.ico       binary
-*.jpg       binary
-*.gif       binary
-*.bmp       binary
-*.cur       binary
-*.sys       binary
-*.chm       binary
-
-# Custom for Visual Studio
-*.cs        diff=csharp
-*.js        diff=astextplain
-*.sln       merge=union
-*.csproj    merge=union
-*.vbproj    merge=union
-*.fsproj    merge=union
-*.dbproj    merge=union
-
-# Standard to msysgit
-*.doc       diff=astextplain
-*.DOC       diff=astextplain
-*.docx      diff=astextplain
-*.DOCX      diff=astextplain
-*.dot       diff=astextplain
-*.DOT       diff=astextplain
-*.pdf       diff=astextplain
-*.PDF       diff=astextplain
-*.rtf       diff=astextplain
-*.RTF       diff=astextplain
-
-
-
+# Binary files
+*.exe               binary
+*.dll               binary
+*.pdb               binary
+*.xap               binary
+*.snk               binary
+*.png               binary
+*.jpg               binary
+*.jpeg              binary
+*.gif               binary
+*.bmp               binary
+*.webp              binary
+*.ico               binary
+*.cur               binary
+*.sys               binary
+*.chm               binary
