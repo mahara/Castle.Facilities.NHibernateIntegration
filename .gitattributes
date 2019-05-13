@@ -1,12 +1,14 @@
 ﻿# Auto detect text files and perform LF normalization
-*           text eol=auto
+*           text=auto
 
 # Files that will always have CRLF line endings on checkout.
 *.targets   text eol=crlf
+*.props     text eol=crlf
 *.sln       text eol=crlf
 *.csproj    text eol=crlf
 *.proj      text eol=crlf
 *.config    text eol=crlf
+*.json      text eol=crlf
 *.cs        text eol=crlf
 *.xml       text eol=crlf
 *.xaml      text eol=crlf
@@ -17,12 +19,12 @@
 *.less      text eol=crlf
 *.resx      text eol=crlf
 *.manifest  text eol=crlf
-*.txt       text eol=crlf
 *.cpp       text eol=crlf
 *.c         text eol=crlf
 *.h         text eol=crlf
 SOURCES     text eol=crlf
 MAKEFILE    text eol=crlf
+*.txt       text eol=crlf
 
 # Binary files that should not be modified.
 *.exe       binary
@@ -33,6 +35,7 @@ MAKEFILE    text eol=crlf
 *.png       binary
 *.ico       binary
 *.jpg       binary
+*.jpeg      binary
 *.gif       binary
 *.bmp       binary
 *.cur       binary

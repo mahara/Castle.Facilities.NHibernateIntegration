@@ -2,9 +2,8 @@
 
 <castle>
 	<facilities>
-		<facility id="nhibernatefacility"
-				  type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-				  configurationBuilder="Castle.Facilities.NHibernateIntegration.Internal.PersistentConfigurationBuilder, Castle.Facilities.NHibernateIntegration">
+		<facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
+		          configurationBuilder="Castle.Facilities.NHibernateIntegration.Internal.PersistentConfigurationBuilder, Castle.Facilities.NHibernateIntegration">
 
 			<factory id="sessionFactory1">
 				<settings>

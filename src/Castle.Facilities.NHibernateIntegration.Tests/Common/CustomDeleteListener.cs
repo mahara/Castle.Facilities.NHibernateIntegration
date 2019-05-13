@@ -19,27 +19,37 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-#if DOTNET40
-	using System.Collections.Generic;
-#endif
+	#region Using Directives
 
-#if DOTNET35
-	using Iesi.Collections;
-#endif
+	using System.Collections.Generic;
+	using System.Threading;
+	using System.Threading.Tasks;
 
 	using NHibernate.Event;
 
+	#endregion
+
 	public class CustomDeleteListener : IDeleteEventListener
 	{
+		/// <inheritdoc />
+		public Task OnDeleteAsync(DeleteEvent @event, CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+		/// <inheritdoc />
+		public Task OnDeleteAsync(DeleteEvent @event, ISet<object> transientEntities, CancellationToken cancellationToken)
+		{
+			return Task.CompletedTask;
+		}
+
+		/// <inheritdoc />
 		public void OnDelete(DeleteEvent @event)
 		{
 		}
-#if DOTNET35
-		public void OnDelete(DeleteEvent @event, ISet transientEntities)
-#endif
-#if DOTNET40
+
+		/// <inheritdoc />
 		public void OnDelete(DeleteEvent @event, ISet<object> transientEntities)
-#endif
 		{
 		}
 	}

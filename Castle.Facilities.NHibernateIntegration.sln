@@ -1,56 +1,56 @@
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4850DCAD-4122-4D91-A33C-31ED7B3006BF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Build", "{31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}"
 	ProjectSection(SolutionItems) = preProject
-		Changes.txt = Changes.txt
-		License.txt = License.txt
-		Readme.txt = Readme.txt
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		appveyor.yml = appveyor.yml
+		build.cmd = build.cmd
+		BuildPackages.cmd = BuildPackages.cmd
+		CHANGELOG.md = CHANGELOG.md
+		CleanPackages.cmd = CleanPackages.cmd
+		CONTRIBUTING.md = CONTRIBUTING.md
+		LICENSE = LICENSE
+		README.md = README.md
 		Running the tests.txt = Running the tests.txt
-		Settings.proj = Settings.proj
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{A3135261-0009-4F9C-A339-2900143E20F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuildScripts", "buildscripts\BuildScripts.csproj", "{278CCEA9-2BCC-40B5-9614-B673F0B475AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{1D68E0C9-FFC1-4271-8194-1AD17C318433}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		NET35-Debug|Any CPU = NET35-Debug|Any CPU
-		NET35-Release|Any CPU = NET35-Release|Any CPU
-		NET40-Debug|Any CPU = NET40-Debug|Any CPU
-		NET40-Release|Any CPU = NET40-Release|Any CPU
-		NET45-Debug|Any CPU = NET45-Debug|Any CPU
-		NET45-Release|Any CPU = NET45-Release|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET35-Debug|Any CPU.ActiveCfg = NET35-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET35-Debug|Any CPU.Build.0 = NET35-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET35-Release|Any CPU.ActiveCfg = NET35-Release|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET35-Release|Any CPU.Build.0 = NET35-Release|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET40-Debug|Any CPU.ActiveCfg = NET40-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET40-Debug|Any CPU.Build.0 = NET40-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET40-Release|Any CPU.ActiveCfg = NET40-Release|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET40-Release|Any CPU.Build.0 = NET40-Release|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET45-Debug|Any CPU.ActiveCfg = NET45-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET45-Debug|Any CPU.Build.0 = NET45-Debug|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET45-Release|Any CPU.ActiveCfg = NET45-Release|Any CPU
-		{A3135261-0009-4F9C-A339-2900143E20F0}.NET45-Release|Any CPU.Build.0 = NET45-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET35-Debug|Any CPU.ActiveCfg = NET35-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET35-Debug|Any CPU.Build.0 = NET35-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET35-Release|Any CPU.ActiveCfg = NET35-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET35-Release|Any CPU.Build.0 = NET35-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET40-Debug|Any CPU.ActiveCfg = NET40-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET40-Debug|Any CPU.Build.0 = NET40-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET40-Release|Any CPU.ActiveCfg = NET40-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET40-Release|Any CPU.Build.0 = NET40-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET45-Debug|Any CPU.ActiveCfg = NET45-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET45-Debug|Any CPU.Build.0 = NET45-Debug|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET45-Release|Any CPU.ActiveCfg = NET45-Release|Any CPU
-		{BAD20F91-0A6C-401C-8368-B8FFF7E256BA}.NET45-Release|Any CPU.Build.0 = NET45-Release|Any CPU
+		{278CCEA9-2BCC-40B5-9614-B673F0B475AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{278CCEA9-2BCC-40B5-9614-B673F0B475AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{278CCEA9-2BCC-40B5-9614-B673F0B475AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{278CCEA9-2BCC-40B5-9614-B673F0B475AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{278CCEA9-2BCC-40B5-9614-B673F0B475AF} = {31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A4EC0140-6DD7-4D6D-8F91-38F891D8DC44}
 	EndGlobalSection
 EndGlobal

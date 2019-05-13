@@ -19,33 +19,37 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+	#region Using Directives
+
 	using System.Configuration;
-	using Builders;
-	using Core.Configuration;
-	using Core.Resource;
-	using MicroKernel.Facilities;
+
+	using Castle.Facilities.NHibernateIntegration.Builders;
+	using Castle.Core.Configuration;
+	using Castle.Core.Resource;
+	using Castle.MicroKernel.Facilities;
+
 	using NHibernate;
+
 	using NUnit.Framework;
-	using Windsor;
-	using Windsor.Configuration.Interpreters;
+
+	using Castle.Windsor;
+	using Castle.Windsor.Configuration.Interpreters;
+
 	using Configuration = NHibernate.Cfg.Configuration;
+
+	#endregion
 
 	public class CustomConfigurationBuilder : IConfigurationBuilder
 	{
-		private int _configurationsCreated;
-
-		public int ConfigurationsCreated
-		{
-			get { return _configurationsCreated; }
-		}
+		public int ConfigurationsCreated { get; private set; }
 
 		#region IConfigurationBuilder Members
 
 		public Configuration GetConfiguration(IConfiguration config)
 		{
-			_configurationsCreated++;
+			this.ConfigurationsCreated++;
 
-			Configuration nhConfig = new DefaultConfigurationBuilder().GetConfiguration(config);
+			var nhConfig = new DefaultConfigurationBuilder().GetConfiguration(config);
 			nhConfig.Properties["dialect"] = ConfigurationManager.AppSettings["nhf.dialect"];
 			nhConfig.Properties["connection.driver_class"] = ConfigurationManager.AppSettings["nhf.connection.driver_class"];
 			nhConfig.Properties["connection.provider"] = ConfigurationManager.AppSettings["nhf.connection.provider"];
@@ -56,6 +60,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				nhConfig.Properties["connection.connection_string"] =
 					ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
 			}
+
 			return nhConfig;
 		}
 
@@ -75,9 +80,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Test]
 		public void Invoked()
 		{
-			ISession session = container.Resolve<ISessionManager>().OpenSession();
-			CustomConfigurationBuilder configurationBuilder =
-				(CustomConfigurationBuilder) container.Resolve<IConfigurationBuilder>();
+			var session = this.container.Resolve<ISessionManager>().OpenSession();
+			var configurationBuilder =
+				(CustomConfigurationBuilder) this.container.Resolve<IConfigurationBuilder>();
 			Assert.AreEqual(1, configurationBuilder.ConfigurationsCreated);
 			session.Close();
 		}
@@ -86,32 +91,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	[TestFixture]
 	public class CustomConfigurationBuilderTestCase : AbstractCustomConfigurationBuilderTestCase
 	{
-		protected override string ConfigurationFile
-		{
-			get { return "customConfigurationBuilder.xml"; }
-		}
+		protected override string ConfigurationFile => "customConfigurationBuilder.xml";
 	}
 
 	[TestFixture]
-	public class CustomConfigurationBulderRegressionTestCase : AbstractCustomConfigurationBuilderTestCase
+	public class CustomConfigurationBuilderRegressionTestCase : AbstractCustomConfigurationBuilderTestCase
 	{
-		protected override string ConfigurationFile
-		{
-			get { return "configurationBuilderRegression.xml"; }
-		}
+		protected override string ConfigurationFile => "configurationBuilderRegression.xml";
 	}
 
 	[TestFixture]
 	public class InvalidCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
 	{
-		[Test]
-		[ExpectedException(typeof (FacilityException),
-			ExpectedMessage = "ConfigurationBuilder type 'InvalidType' invalid or not found")]
-		public void ThrowsWithMessage()
-		{
-			container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
-		}
-
 		public override void SetUp()
 		{
 		}
@@ -120,9 +111,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		{
 		}
 
-		protected override string ConfigurationFile
+		protected override string ConfigurationFile => "invalidConfigurationBuilder.xml";
+
+		[Test]
+		public void ThrowsWithMessage()
 		{
-			get { return "invalidConfigurationBuilder.xml"; }
+			void Method()
+			{
+				this.container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(this.GetContainerFile())));
+			}
+
+			Assert.That(Method, Throws.TypeOf<FacilityException>()
+			                          .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' invalid or not found"));
 		}
 	}
 }
