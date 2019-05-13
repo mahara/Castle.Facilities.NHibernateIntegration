@@ -13,6 +13,9 @@ Enhancements:
 
 ## 4.0.0 (2018-09-18)
 
+Improvements:
+- Allow the facility to work with async methods and TPL/multithreading (#1)
+
 Breaking Changes:
 - Updated NHibernate dependency to 4.0.0 GA and 3.3.4 GA
 
