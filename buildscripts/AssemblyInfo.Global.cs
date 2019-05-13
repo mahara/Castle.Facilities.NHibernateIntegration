@@ -1,4 +1,5 @@
-﻿// Copyright 2004-2013 Castle Project - http://www.castleproject.org/
+#region License
+// Copyright 2004-2019 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,8 +12,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#endregion
 
-using System.Reflection;
+using System;
 
-[assembly: AssemblyCompany("Castle Project")]
-[assembly: AssemblyCopyright("Copyright (c) 2004-2013 Castle Project - http://www.castleproject.org")]
+[assembly: CLSCompliant(true)]

@@ -5,7 +5,7 @@ Committers
 (ordered by the date when joined the project)
 
 - hammett/Hamilton Verissimo
-- Henry Conceição
+- Henry ConceiÃ§Ã£o
 - Kevin Williams
 - Craig Neuwirt
 - Gilles Bayon
@@ -21,7 +21,7 @@ Committers
 - Ayende Rahien
 - G. Richard Bellamy
 - Roelof Blom
-- Ahmed Ghandour 
+- Ahmed Ghandour
 - Josh Robb
 - Ernst Naezer
 - Marc-Andre Cournoyer
@@ -32,12 +32,12 @@ Committers
 - Ken Egozi
 - Chris Ortman
 - Jonathon Rossi
-- Tuna Toksöz
+- Tuna ToksÃ¶z
 - Krzysztof Kozmic
 - Mauricio Scheffer
 - John Simons
 
-Managers 
+Managers
 ========
 
   Patch Manager
@@ -48,15 +48,15 @@ Managers
   Documentation Manager
   ---------------------
 
-  - 
+  -
 
 
-PMC Members 
+PMC Members
 ===========
 (ordered by the date when joined the PMC)
 
 - hammett/Hamilton Verissimo (Chair)
-- Henry Conceição
+- Henry ConceiÃ§Ã£o
 - Kevin Williams
 - Craig Neuwirt
 - Gilles Bayon
@@ -67,7 +67,7 @@ PMC Members
 - Josh Robb
 - Jonathon Rossi
 
-Emeritus 
+Emeritus
 ========
 (no longer active committers)
 
@@ -77,4 +77,4 @@ Emeritus
 - John Morales
 - CobraLord
 - Tatham Oddie
-- Ahmed Ghandour 
+- Ahmed Ghandour
