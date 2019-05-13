@@ -1,0 +1,105 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties
+    https://learn.microsoft.com/en-us/cpp/build/reference/common-macros-for-build-commands-and-properties
+    https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
+  -->
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net472</WinExeTargetFrameworks>
+    <WinExeTestTargetFrameworks Condition="'$(WinExeTestTargetFrameworks)' == ''">net472</WinExeTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net472</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net472</ExeTargetFrameworks>
+    <ExeTestTargetFrameworks Condition="'$(ExeTestTargetFrameworks)' == ''">net472</ExeTestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net472</LibTargetFrameworks>
+
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ReportAnalyzer>false</ReportAnalyzer>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors)</WarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildVersion>0.0.0</BuildVersion>
+    <BuildVersion Condition="'$(PACKAGE_BUILD_VERSION)' != ''">$(PACKAGE_BUILD_VERSION)</BuildVersion>
+    <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
+    <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+
+    <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
+    <AssemblyOriginatorKeyFile>..\..\buildscripts\$(AssemblyOriginatorKeyFileName)</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
+  </PropertyGroup>
+
+  <!--
+    https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
+  -->
+  <PropertyGroup>
+    <Product Condition="'$(Product)' == ''">Castle.Facilities.NHibernateIntegration</Product>
+    <Title Condition="'$(Title)' == ''">$(Product)</Title>
+    <Description Condition="'$(Description)' == ''">$(Product)</Description>
+    <Authors Condition="'$(Authors)' == ''">Castle Project Contributors</Authors>
+    <CurrentYear Condition="'$(CurrentYear)' == ''">$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright Condition="'$(Copyright)' == ''">Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+
+    <VersionPrefix>$(BuildVersion)</VersionPrefix>
+    <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
+    <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
+
+    <PackageLicenseUrl Condition="'$(PackageLicenseUrl)' == ''">http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
+    <PackageIcon Condition="'$(PackageIcon)' == ''">castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+    <PackageTags Condition="'$(PackageTags)' == ''">$(Product)</PackageTags>
+    <PackageOutputPath>..\..\build\</PackageOutputPath>
+    <PackageVersion>$(BuildVersion)</PackageVersion>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <ContentTargetFolders>.</ContentTargetFolders>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DiagnosticsConstants>DEBUG</DiagnosticsConstants>
+    <NetFrameworkConstants>TRACE;FEATURE_APPDOMAIN;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_SERIALIZATION;FEATURE_SYSTEM_CONFIGURATION</NetFrameworkConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net472|Debug'">
+    <DefineConstants>$(DiagnosticsConstants);$(NetFrameworkConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net472|Release'">
+    <DefineConstants>$(NetFrameworkConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\buildscripts\AssemblyInfo.Global.cs" Link="Properties\AssemblyInfo.Global.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Link="Properties\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" PackagePath="\" />
+    <None Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" PackagePath="\" />
+    <None Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_services_transactions-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
