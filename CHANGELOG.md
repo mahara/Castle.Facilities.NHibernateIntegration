@@ -14,7 +14,7 @@ Enhancements:
 ## 4.0.0 (2018-09-18)
 
 Improvements:
-- Allow the facility to work with async methods and TPL/multithreading (https://github.com/mahara/Castle.Facilities.NHibernateIntegration/issues/1)
+- Allow the facility to work with async methods and TPL/multithreading [#1](https://github.com/mahara/Castle.Facilities.NHibernateIntegration/issues/1)
 
 Breaking Changes:
 - Updated NHibernate dependency to 4.0.0 GA and 3.3.4 GA
