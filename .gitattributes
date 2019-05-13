@@ -3,6 +3,7 @@
 
 # Files that will always have CRLF line endings on checkout.
 *.targets   text eol=crlf
+*.props     text eol=crlf
 *.sln       text eol=crlf
 *.csproj    text eol=crlf
 *.proj      text eol=crlf

@@ -19,108 +19,453 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+	#region Using Directives
+
 	using System;
-	using Common;
-	using MicroKernel.Facilities;
+
+	using Castle.Facilities.NHibernateIntegration.Tests.Common;
+	using Castle.MicroKernel.Facilities;
+
 	using NHibernate;
+
 	using NUnit.Framework;
-	using Services.Transaction;
-	using ITransaction = Services.Transaction.ITransaction;
+
+	using Castle.Services.Transaction;
+
+	using ITransaction = Castle.Services.Transaction.ITransaction;
+
+	#endregion
 
 	/// <summary>
-	/// Tests the default implementation of ISessionStore
+	///     Tests the default implementation of ISessionStore
 	/// </summary>
 	[TestFixture]
 	public class SessionManagerTestCase : AbstractNHibernateTestCase
 	{
-		protected override string ConfigurationFile
-		{
-			get { return "Internals/TwoDatabaseConfiguration.xml"; }
-		}
+		protected override string ConfigurationFile => "Internals/TwoDatabaseConfiguration.xml";
 
 		[Test]
-		public void TwoDatabases()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ISession session1 = manager.OpenSession();
-			ISession session2 = manager.OpenSession("db2");
-
-			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session2);
-
-			Assert.IsFalse(Object.ReferenceEquals(session1, session2));
-
-			session2.Dispose();
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		[Test]
-		public void NonInterceptedSession()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			string sessionAlias = "db2";
-
-			ISession session = manager.OpenSession(sessionAlias);
-			Order o = new Order();
-			o.Value = 9.3f;
-			session.SaveOrUpdate(o);
-			session.Close();
-
-			session = manager.OpenSession(sessionAlias);
-			session.Get(typeof (Order), 1);
-			session.Close();
-
-			TestInterceptor interceptor = container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
-			Assert.IsNotNull(interceptor);
-			Assert.IsFalse(interceptor.ConfirmOnSaveCall());
-			Assert.IsFalse(interceptor.ConfirmInstantiationCall());
-			interceptor.ResetState();
-		}
-
-		[Test]
+		[Ignore("TODO: .NET Core Migration")]
 		public void InterceptedSessionByConfiguration()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
-			string sessionAlias = "intercepted";
+			var sessionAlias = "intercepted";
 
-			ISession session = manager.OpenSession(sessionAlias);
-			Order o = new Order();
+			var session = manager.OpenSession(sessionAlias);
+			var o = new Order();
 			o.Value = 9.3f;
 			session.SaveOrUpdate(o);
 			session.Close();
 
 			session = manager.OpenSession(sessionAlias);
-			session.Get(typeof (Order), 1);
+			session.Get(typeof(Order), 1);
 			session.Close();
 
-			TestInterceptor interceptor = container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+			var interceptor = this.container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
 			Assert.IsNotNull(interceptor);
 			Assert.IsTrue(interceptor.ConfirmOnSaveCall());
 			Assert.IsTrue(interceptor.ConfirmInstantiationCall());
 			interceptor.ResetState();
 		}
 
+		/// <summary>
+		///     In this case the transaction should not take
+		///     ownership of the session (not dispose it at the
+		///     end of the transaction)
+		/// </summary>
+		[Test]
+		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		public void NewTransactionAfterUsingSession()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var session1 = manager.OpenSession();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires, IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			// Nested
+			using (var session2 = manager.OpenSession())
+			{
+				Assert.IsNotNull(session2);
+
+				Assert.IsNotNull(session1);
+				Assert.IsNotNull(session1.Transaction,
+				                 "After requesting compatible session, first session is enlisted in transaction too.");
+				Assert.IsTrue(session1.Transaction.IsActive,
+				              "After requesting compatible session, first session is enlisted in transaction too.");
+
+				using (var session3 = manager.OpenSession())
+				{
+					Assert.IsNotNull(session3);
+					Assert.IsNotNull(session3.Transaction);
+					Assert.IsTrue(session3.Transaction.IsActive);
+				}
+
+				var delegate1 = (SessionDelegate) session1;
+				var delegate2 = (SessionDelegate) session2;
+				Assert.AreSame(delegate1.InnerSession, delegate2.InnerSession);
+			}
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			Assert.IsTrue(session1.IsConnected);
+
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     In this case the transaction should not take
+		///     ownership of the session (not dispose it at the
+		///     end of the transaction)
+		/// </summary>
+		[Test]
+		public void NewTransactionAfterUsingStatelessSession()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var session1 = manager.OpenStatelessSession();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires,
+				IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			// Nested			
+			using (var session2 = manager.OpenStatelessSession())
+			{
+				Assert.IsNotNull(session2);
+
+				Assert.IsNotNull(session1);
+				Assert.IsNotNull(session1.Transaction,
+				                 "After requesting compatible session, first session is enlisted in transaction too.");
+				Assert.IsTrue(session1.Transaction.IsActive,
+				              "After requesting compatible session, first session is enlisted in transaction too.");
+
+				using (var session3 = manager.OpenSession())
+				{
+					Assert.IsNotNull(session3);
+					Assert.IsNotNull(session3.Transaction);
+					Assert.IsTrue(session3.Transaction.IsActive);
+				}
+
+				var delegate1 = (StatelessSessionDelegate) session1;
+				var delegate2 = (StatelessSessionDelegate) session2;
+				Assert.AreSame(delegate1.InnerSession, delegate2.InnerSession);
+			}
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			Assert.IsTrue(session1.IsConnected);
+
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     This test ensures that the transaction takes
+		///     ownership of the session and disposes it at the end
+		///     of the transaction
+		/// </summary>
+		[Test]
+		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		public void NewTransactionBeforeUsingSession()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires, IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			var session = manager.OpenSession();
+
+			Assert.IsNotNull(session);
+			Assert.IsNotNull(session.Transaction);
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session.Transaction.WasCommitted);
+			// Assert.IsTrue(session.IsConnected); 
+
+			session.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     This test ensures that the transaction enlists the
+		///     the sessions of both database connections
+		/// </summary>
+		[Test]
+		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		public void NewTransactionBeforeUsingSessionWithTwoDatabases()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires, IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			var session1 = manager.OpenSession();
+			Assert.IsNotNull(session1);
+			Assert.IsNotNull(session1.Transaction);
+
+			var session2 = manager.OpenSession("db2");
+			Assert.IsNotNull(session2);
+			Assert.IsNotNull(session2.Transaction);
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			// Assert.IsTrue(session1.IsConnected);
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session2.Transaction.WasCommitted);
+			// Assert.IsTrue(session2.IsConnected);
+
+			session2.Dispose();
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     This test ensures that the transaction takes
+		///     ownership of the session and disposes it at the end
+		///     of the transaction
+		/// </summary>
+		[Test]
+		public void NewTransactionBeforeUsingStatelessSession()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires,
+				IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			var session = manager.OpenStatelessSession();
+
+			Assert.IsNotNull(session);
+			Assert.IsNotNull(session.Transaction);
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session.Transaction.WasCommitted);
+			// Assert.IsTrue(session.IsConnected); 
+
+			session.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     This test ensures that the transaction enlists the
+		///     the sessions of both database connections
+		/// </summary>
+		[Test]
+		public void NewTransactionBeforeUsingStatelessSessionWithTwoDatabases()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires,
+				IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			var session1 = manager.OpenStatelessSession();
+			Assert.IsNotNull(session1);
+			Assert.IsNotNull(session1.Transaction);
+
+			var session2 = manager.OpenStatelessSession("db2");
+			Assert.IsNotNull(session2);
+			Assert.IsNotNull(session2.Transaction);
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			// Assert.IsTrue(session1.IsConnected);
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session2.Transaction.WasCommitted);
+			// Assert.IsTrue(session2.IsConnected);
+
+			session2.Dispose();
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
 		[Test]
 		public void NonExistentAlias()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
 			Assert.Throws<FacilityException>(() => manager.OpenSession("something in the way she moves"));
 		}
 
 		[Test]
+		public void NonExistentAliasStateless()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			Assert.Throws<FacilityException>(() => manager.OpenStatelessSession("something in the way she moves"));
+		}
+
+		[Test]
+		[Ignore("TODO: .NET Core Migration")]
+		public void NonInterceptedSession()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var sessionAlias = "db2";
+
+			var session = manager.OpenSession(sessionAlias);
+			var o = new Order();
+			o.Value = 9.3f;
+			session.SaveOrUpdate(o);
+			session.Close();
+
+			session = manager.OpenSession(sessionAlias);
+			session.Get(typeof(Order), 1);
+			session.Close();
+
+			var interceptor = this.container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+			Assert.IsNotNull(interceptor);
+			Assert.IsFalse(interceptor.ConfirmOnSaveCall());
+			Assert.IsFalse(interceptor.ConfirmInstantiationCall());
+			interceptor.ResetState();
+		}
+
+		/// <summary>
+		///     This test ensures that the session is enlisted in actual transaction
+		///     only once for second database session
+		/// </summary>
+		[Test]
+		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		public void SecondDatabaseSessionEnlistedOnlyOnceInActualTransaction()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires, IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			// open connection to first database and enlist session in running transaction
+			var session1 = manager.OpenSession();
+
+			// open connection to second database and enlist session in running transaction
+			using (var session2 = manager.OpenSession("db2"))
+			{
+				Assert.IsNotNull(session2);
+				Assert.IsNotNull(session2.Transaction);
+			}
+			// "real" NH session2 was not disposed because its in active transaction
+
+			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
+			using (var session3 = manager.OpenSession("db2"))
+			{
+				Assert.IsNotNull(session3);
+				Assert.IsTrue(session3.Transaction.IsActive);
+			}
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			// Assert.IsTrue(session1.IsConnected); 
+
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		/// <summary>
+		///     This test ensures that the session is enlisted in actual transaction
+		///     only once for second database session
+		/// </summary>
+		[Test]
+		public void SecondDatabaseStatelessSessionEnlistedOnlyOnceInActualTransaction()
+		{
+			var manager = this.container.Resolve<ISessionManager>();
+
+			var transactionManager = this.container.Resolve<ITransactionManager>();
+
+			var transaction = transactionManager.CreateTransaction(
+				TransactionMode.Requires,
+				IsolationMode.Serializable);
+
+			transaction.Begin();
+
+			// open connection to first database and enlist session in running transaction
+			var session1 = manager.OpenStatelessSession();
+
+			// open connection to second database and enlist session in running transaction
+			using (var session2 = manager.OpenStatelessSession("db2"))
+			{
+				Assert.IsNotNull(session2);
+				Assert.IsNotNull(session2.Transaction);
+			}
+			// "real" NH session2 was not disposed because its in active transaction
+
+			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
+			using (var session3 = manager.OpenStatelessSession("db2"))
+			{
+				Assert.IsNotNull(session3);
+				Assert.IsTrue(session3.Transaction.IsActive);
+			}
+
+			transaction.Commit();
+
+			// TODO: Assert transaction was committed
+			// Assert.IsTrue(session1.Transaction.WasCommitted);
+			// Assert.IsTrue(session1.IsConnected); 
+
+			session1.Dispose();
+
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+		}
+
+		[Test]
 		public void SharedSession()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
-			ISession session1 = manager.OpenSession();
-			ISession session2 = manager.OpenSession();
-			ISession session3 = manager.OpenSession();
+			var session1 = manager.OpenSession();
+			var session2 = manager.OpenSession();
+			var session3 = manager.OpenSession();
 
 			Assert.IsNotNull(session1);
 			Assert.IsNotNull(session2);
@@ -133,218 +478,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// This test ensures that the transaction takes 
-		/// ownership of the session and disposes it at the end
-		/// of the transaction
-		/// </summary>
-		[Test]
-		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
-		public void NewTransactionBeforeUsingSession()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			ISession session = manager.OpenSession();
-
-			Assert.IsNotNull(session);
-			Assert.IsNotNull(session.Transaction);
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session.Transaction.WasCommitted);
-			// Assert.IsTrue(session.IsConnected); 
-
-			session.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// In this case the transaction should not take
-		/// ownership of the session (not dipose it at the 
-		/// end of the transaction)
-		/// </summary>
-		[Test]
-		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
-		public void NewTransactionAfterUsingSession()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ISession session1 = manager.OpenSession();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			// Nested			
-			using (ISession session2 = manager.OpenSession())
-			{
-				Assert.IsNotNull(session2);
-
-				Assert.IsNotNull(session1);
-				Assert.IsNotNull(session1.Transaction,
-				                 "After requesting compatible session, first session is enlisted in transaction too.");
-				Assert.IsTrue(session1.Transaction.IsActive,
-				              "After requesting compatible session, first session is enlisted in transaction too.");
-
-				using (ISession session3 = manager.OpenSession())
-				{
-					Assert.IsNotNull(session3);
-					Assert.IsNotNull(session3.Transaction);
-					Assert.IsTrue(session3.Transaction.IsActive);
-				}
-
-				SessionDelegate delagate1 = (SessionDelegate) session1;
-				SessionDelegate delagate2 = (SessionDelegate) session2;
-				Assert.AreSame(delagate1.InnerSession, delagate2.InnerSession);
-			}
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			Assert.IsTrue(session1.IsConnected);
-
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// This test ensures that the transaction enlists the 
-		/// the sessions of both database connections
-		/// </summary>
-		[Test]
-		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
-		public void NewTransactionBeforeUsingSessionWithTwoDatabases()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			ISession session1 = manager.OpenSession();
-			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session1.Transaction);
-
-			ISession session2 = manager.OpenSession("db2");
-			Assert.IsNotNull(session2);
-			Assert.IsNotNull(session2.Transaction);
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected);
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session2.Transaction.WasCommitted);
-			// Assert.IsTrue(session2.IsConnected);
-
-			session2.Dispose();
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// This test ensures that the session is enlisted in actual transaction 
-		/// only once for second database session
-		/// </summary>
-		[Test]
-		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
-		public void SecondDatabaseSessionEnlistedOnlyOnceInActualTransaction()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			// open connection to first database and enlist session in running transaction
-			ISession session1 = manager.OpenSession();
-
-			// open connection to second database and enlist session in running transaction
-			using (ISession session2 = manager.OpenSession("db2"))
-			{
-				Assert.IsNotNull(session2);
-				Assert.IsNotNull(session2.Transaction);
-			}
-			// "real" NH session2 was not disposed because its in active transaction
-
-			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
-			using (ISession session3 = manager.OpenSession("db2"))
-			{
-				Assert.IsNotNull(session3);
-				Assert.IsTrue(session3.Transaction.IsActive);
-			}
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected); 
-
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		[Test]
-		public void TwoDatabasesStateless()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			IStatelessSession session1 = manager.OpenStatelessSession();
-			IStatelessSession session2 = manager.OpenStatelessSession("db2");
-
-			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session2);
-
-			Assert.IsFalse(Object.ReferenceEquals(session1, session2));
-
-			session2.Dispose();
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		[Test]
-		public void NonExistentAliasStateless()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			Assert.Throws<FacilityException>(() => manager.OpenStatelessSession("something in the way she moves"));
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void SharedStatelessSession()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
-			IStatelessSession session1 = manager.OpenStatelessSession();
-			IStatelessSession session2 = manager.OpenStatelessSession();
-			IStatelessSession session3 = manager.OpenStatelessSession();
+			var session1 = manager.OpenStatelessSession();
+			var session2 = manager.OpenStatelessSession();
+			var session3 = manager.OpenStatelessSession();
 
 			Assert.IsNotNull(session1);
 			Assert.IsNotNull(session2);
@@ -357,181 +501,45 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
-		/// <summary>
-		/// This test ensures that the transaction takes 
-		/// ownership of the session and disposes it at the end
-		/// of the transaction
-		/// </summary>
 		[Test]
-		public void NewTransactionBeforeUsingStatelessSession()
+		public void TwoDatabases()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
+			var session1 = manager.OpenSession();
+			var session2 = manager.OpenSession("db2");
 
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			IStatelessSession session = manager.OpenStatelessSession();
-
-			Assert.IsNotNull(session);
-			Assert.IsNotNull(session.Transaction);
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session.Transaction.WasCommitted);
-			// Assert.IsTrue(session.IsConnected); 
-
-			session.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// In this case the transaction should not take
-		/// ownership of the session (not dipose it at the 
-		/// end of the transaction)
-		/// </summary>
-		[Test]
-		public void NewTransactionAfterUsingStatelessSession()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			IStatelessSession session1 = manager.OpenStatelessSession();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			// Nested			
-			using (IStatelessSession session2 = manager.OpenStatelessSession())
-			{
-				Assert.IsNotNull(session2);
-
-				Assert.IsNotNull(session1);
-				Assert.IsNotNull(session1.Transaction,
-								 "After requesting compatible session, first session is enlisted in transaction too.");
-				Assert.IsTrue(session1.Transaction.IsActive,
-							  "After requesting compatible session, first session is enlisted in transaction too.");
-
-				using (ISession session3 = manager.OpenSession())
-				{
-					Assert.IsNotNull(session3);
-					Assert.IsNotNull(session3.Transaction);
-					Assert.IsTrue(session3.Transaction.IsActive);
-				}
-
-				StatelessSessionDelegate delagate1 = (StatelessSessionDelegate) session1;
-				StatelessSessionDelegate delagate2 = (StatelessSessionDelegate) session2;
-				Assert.AreSame(delagate1.InnerSession, delagate2.InnerSession);
-			}
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			Assert.IsTrue(session1.IsConnected);
-
-			session1.Dispose();
-
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-		}
-
-		/// <summary>
-		/// This test ensures that the transaction enlists the 
-		/// the sessions of both database connections
-		/// </summary>
-		[Test]
-		public void NewTransactionBeforeUsingStatelessSessionWithTwoDatabases()
-		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
-
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
-
-			transaction.Begin();
-
-			IStatelessSession session1 = manager.OpenStatelessSession();
 			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session1.Transaction);
-
-			IStatelessSession session2 = manager.OpenStatelessSession("db2");
 			Assert.IsNotNull(session2);
-			Assert.IsNotNull(session2.Transaction);
 
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected);
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session2.Transaction.WasCommitted);
-			// Assert.IsTrue(session2.IsConnected);
+			Assert.IsFalse(ReferenceEquals(session1, session2));
 
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
-		/// <summary>
-		/// This test ensures that the session is enlisted in actual transaction 
-		/// only once for second database session
-		/// </summary>
 		[Test]
-		public void SecondDatabaseStatelessSessionEnlistedOnlyOnceInActualTransaction()
+		public void TwoDatabasesStateless()
 		{
-			ISessionManager manager = container.Resolve<ISessionManager>();
+			var manager = this.container.Resolve<ISessionManager>();
 
-			ITransactionManager tmanager = container.Resolve<ITransactionManager>();
+			var session1 = manager.OpenStatelessSession();
+			var session2 = manager.OpenStatelessSession("db2");
 
-			ITransaction transaction = tmanager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
+			Assert.IsNotNull(session1);
+			Assert.IsNotNull(session2);
 
-			transaction.Begin();
+			Assert.IsFalse(ReferenceEquals(session1, session2));
 
-			// open connection to first database and enlist session in running transaction
-			IStatelessSession session1 = manager.OpenStatelessSession();
-
-			// open connection to second database and enlist session in running transaction
-			using (IStatelessSession session2 = manager.OpenStatelessSession("db2"))
-			{
-				Assert.IsNotNull(session2);
-				Assert.IsNotNull(session2.Transaction);
-			}
-			// "real" NH session2 was not disposed because its in active transaction
-
-			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
-			using (IStatelessSession session3 = manager.OpenStatelessSession("db2"))
-			{
-				Assert.IsNotNull(session3);
-				Assert.IsTrue(session3.Transaction.IsActive);
-			}
-
-			transaction.Commit();
-
-			// TODO: Assert transaction was committed
-			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected); 
-
+			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 	}
 }
