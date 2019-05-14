@@ -19,8 +19,7 @@ on_success:
 - ps: >-
     if ($env:APPVEYOR_REPO_TAG -eq "true")
     {
-        nuget push ".\build\Castle.Services.Transaction.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
-        nuget push ".\build\Castle.Facilities.AutoTx.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+        nuget push ".\build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
     }
 
 build_script:
@@ -28,5 +27,6 @@ build_script:
 
 artifacts:
  - path: build\*.nupkg
+
 
 
