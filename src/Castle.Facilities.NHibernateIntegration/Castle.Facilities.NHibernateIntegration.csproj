@@ -15,7 +15,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>$(NoWarn);NU5125</NoWarn> <!-- remove once tools are truly ready for NuGet's new 'license' element -->
     <AssemblyName>Castle.Facilities.NHibernateIntegration</AssemblyName>
-    <RootNamespace>Castle</RootNamespace>
+    <RootNamespace>Castle.Facilities.NHibernateIntegration</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,9 +31,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net472'">
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net472'">
+    <DefineConstants>$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
 
 </Project>

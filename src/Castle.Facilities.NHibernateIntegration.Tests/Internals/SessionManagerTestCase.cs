@@ -45,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		protected override string ConfigurationFile => "Internals/TwoDatabaseConfiguration.xml";
 
 		[Test]
-		[Ignore("TODO: .NET Core Migration")]
+		[Ignore("TODO: .NET Core Migration Issue")]
 		public void InterceptedSessionByConfiguration()
 		{
 			var manager = this.container.Resolve<ISessionManager>();
@@ -58,6 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.SaveOrUpdate(o);
 			session.Close();
 
+			// The session is somehow cannot be reopened here after just previously closed.
 			session = manager.OpenSession(sessionAlias);
 			session.Get(typeof(Order), 1);
 			session.Close();
@@ -342,7 +343,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		[Test]
-		[Ignore("TODO: .NET Core Migration")]
+		[Ignore("TODO: .NET Core Migration Issue")]
 		public void NonInterceptedSession()
 		{
 			var manager = this.container.Resolve<ISessionManager>();
@@ -355,6 +356,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.SaveOrUpdate(o);
 			session.Close();
 
+			// The session is somehow cannot be reopened here after just previously closed.
 			session = manager.OpenSession(sessionAlias);
 			session.Get(typeof(Order), 1);
 			session.Close();
