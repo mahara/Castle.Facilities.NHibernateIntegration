@@ -11,6 +11,7 @@ Breaking Changes:
 - Updated Castle.Windsor dependency to 5.0.0
 - Updated NHibernate dependency to 5.2.5
 
+
 ## 4.0.0 (2018-09-18)
 
 Improvements:
@@ -19,6 +20,7 @@ Improvements:
 Breaking Changes:
 - Updated NHibernate dependency to 4.0.0 GA and 3.3.4 GA
 
+
 ## 3.3.3 (2014-08-18)
 
 Breaking Changes:
@@ -26,4 +28,6 @@ Breaking Changes:
 - Updated Castle.Windsor dependency to 3.3.0
 - Updated Castle.Services.Transaction dependency to 3.3.0
 - Updated Castle.Facilities.AutoTx dependency to 3.3.0
+
+
 

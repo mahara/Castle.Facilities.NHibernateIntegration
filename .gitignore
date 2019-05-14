@@ -1,7 +1,9 @@
 # User-specific files
+.vs/
+lib/packages/
+packages/
 *.suo
 *.user
-.vs
 _ReSharper*/
 *.csproj.ReSharper
 *.cache
