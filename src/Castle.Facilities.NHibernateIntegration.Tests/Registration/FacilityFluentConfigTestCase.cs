@@ -51,7 +51,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		}
 
 		[Test]
-		[Ignore("TODO: .NET Core Migration")]
+		[Ignore("TODO: .NET Core Migration Issue")]
 		public void Should_override_DefaultConfigurationBuilder()
 		{
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";
@@ -65,7 +65,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		}
 
 		[Test]
-		[Ignore("TODO: .NET Core Migration")]
+		[Ignore("TODO: .NET Core Migration Issue")]
 		public void Should_override_IsWeb()
 		{
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";

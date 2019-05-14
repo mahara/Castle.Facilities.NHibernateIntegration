@@ -2,7 +2,8 @@
 
 <castle>
 	<facilities>
-		<facility isWeb="false">
+		<facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
+		          isWeb="false">
 
 			<factory id="sessionFactory1">
 				<settings>
