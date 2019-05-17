@@ -51,7 +51,7 @@ GOTO RESTORE_PACKAGES
 
 
 :RESTORE_PACKAGES
-dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
+REM dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
 dotnet restore .\buildscripts\BuildScripts.csproj
 dotnet restore .\src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj
 dotnet restore .\src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj
@@ -60,7 +60,7 @@ GOTO BUILD
 
 
 :BUILD
-dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
+REM dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
 dotnet build Castle.Facilities.NHibernateIntegration.sln -c %CONFIGURATION% /p:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
 
 GOTO TEST
