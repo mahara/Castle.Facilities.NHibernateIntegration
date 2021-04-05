@@ -19,60 +19,67 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using System;
+	#region Using Directives
+
+	using Castle.Services.Transaction;
+
 	using NHibernate;
-	using Services.Transaction;
+
+	using NUnit.Framework;
+
+	#endregion
 
 	[Transactional]
 	public class FirstDao
 	{
-		private readonly ISessionManager sessManager;
+		private readonly ISessionManager _sessionManager;
 
-		public FirstDao(ISessionManager sessManager)
+		public FirstDao(ISessionManager sessionManager)
 		{
-			this.sessManager = sessManager;
+			this._sessionManager = sessionManager;
 		}
 
 		[Transaction]
 		public virtual Blog Create()
 		{
-			return Create("xbox blog");
+			return this.Create("xbox blog");
 		}
 
 		[Transaction]
-		public virtual Blog Create(String name)
+		public virtual Blog Create(string name)
 		{
-			NHibernate.ITransaction tran;
-
-			using (ISession session = sessManager.OpenSession())
+			using (var session = this._sessionManager.OpenSession())
 			{
-				tran = session.Transaction;
+				var transaction = session.GetCurrentTransaction();
 
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
-				NUnit.Framework.Assert.IsTrue(session.Transaction.IsActive);
+				Assert.IsNotNull(transaction);
+				Assert.IsTrue(transaction.IsActive);
 
-				Blog blog = new Blog();
+				var blog = new Blog();
 				blog.Name = name;
 				session.Save(blog);
+
 				return blog;
 			}
 		}
 
 		[Transaction]
-		public virtual void Delete(String name)
+		public virtual void Delete(string name)
 		{
-			using (ISession session = sessManager.OpenSession())
+			using (var session = this._sessionManager.OpenSession())
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				Assert.IsNotNull(transaction);
+
 				session.Delete("from Blog b where b.Name ='" + name + "'");
 				session.Flush();
 			}
 		}
 
-
 		public virtual void AddBlogRef(BlogRef blogRef)
 		{
-			using (ISession session = sessManager.OpenSession())
+			using (var session = this._sessionManager.OpenSession())
 			{
 				session.Save(blogRef);
 			}
@@ -81,22 +88,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Transaction]
 		public virtual Blog CreateStateless()
 		{
-			return CreateStateless("xbox blog");
+			return this.CreateStateless("xbox blog");
 		}
 
 		[Transaction]
-		public virtual Blog CreateStateless(String name)
+		public virtual Blog CreateStateless(string name)
 		{
-			NHibernate.ITransaction tran;
-
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = this._sessionManager.OpenStatelessSession())
 			{
-				tran = session.Transaction;
+				var transaction = session.GetCurrentTransaction();
 
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
-				NUnit.Framework.Assert.IsTrue(session.Transaction.IsActive);
+				Assert.IsNotNull(transaction);
+				Assert.IsTrue(transaction.IsActive);
 
-				Blog blog = new Blog();
+				var blog = new Blog();
 				blog.Name = name;
 				session.Insert(blog);
 				return blog;
@@ -104,19 +109,21 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		}
 
 		[Transaction]
-		public virtual void DeleteStateless(String name)
+		public virtual void DeleteStateless(string name)
 		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = this._sessionManager.OpenStatelessSession())
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				Assert.IsNotNull(transaction);
+
 				session.Delete("from Blog b where b.Name ='" + name + "'");
 			}
 		}
 
-
 		public virtual void AddBlogRefStateless(BlogRef blogRef)
 		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = this._sessionManager.OpenStatelessSession())
 			{
 				session.Insert(blogRef);
 			}

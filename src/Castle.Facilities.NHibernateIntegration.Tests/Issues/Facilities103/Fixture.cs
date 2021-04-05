@@ -19,37 +19,43 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 {
+	#region Using Directives
+
 	using System;
 	using System.Collections;
 	using System.Data;
-	using MicroKernel;
+
+	using Castle.Facilities.NHibernateIntegration.SessionStores;
+	using Castle.MicroKernel;
+	using Castle.Services.Transaction;
+
 	using NHibernate;
+
 	using NUnit.Framework;
+
 	using Rhino.Mocks;
-	using Services.Transaction;
-	using SessionStores;
-	using ITransaction = Services.Transaction.ITransaction;
+
+	using ITransaction = Castle.Services.Transaction.ITransaction;
+
+	#endregion
 
 	[TestFixture]
 	public class DefaultSessionManagerTestCase : IssueTestCase
 	{
-		protected override string ConfigurationFile
-		{
-			get { return "EmptyConfiguration.xml"; }
-		}
+		protected override string ConfigurationFile => "EmptyConfiguration.xml";
 
 		public override void OnSetUp()
 		{
-			sessionStore = new CallContextSessionStore();
-			kernel = mockRepository.DynamicMock<IKernel>();
-			factoryResolver = mockRepository.DynamicMock<ISessionFactoryResolver>();
-			transactionManager = mockRepository.DynamicMock<ITransactionManager>();
-			transaction = mockRepository.DynamicMock<ITransaction>();
-			sessionFactory = mockRepository.DynamicMock<ISessionFactory>();
-			session = mockRepository.DynamicMock<ISession>();
-			statelessSession = mockRepository.DynamicMock<IStatelessSession>();
-			contextDictionary = new Hashtable();
-			sessionManager = new DefaultSessionManager(sessionStore, kernel, factoryResolver);
+			this._sessionStore = new CallContextSessionStore();
+			this._kernel = this.mockRepository.DynamicMock<IKernel>();
+			this._factoryResolver = this.mockRepository.DynamicMock<ISessionFactoryResolver>();
+			this._transactionManager = this.mockRepository.DynamicMock<ITransactionManager>();
+			this._transaction = this.mockRepository.DynamicMock<ITransaction>();
+			this._sessionFactory = this.mockRepository.DynamicMock<ISessionFactory>();
+			this._session = this.mockRepository.DynamicMock<ISession>();
+			this._statelessSession = this.mockRepository.DynamicMock<IStatelessSession>();
+			this._contextDictionary = new Hashtable();
+			this._sessionManager = new DefaultSessionManager(this._sessionStore, this._kernel, this._factoryResolver);
 		}
 
 		private const string Alias = "myAlias";
@@ -58,74 +64,71 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 		private const IsolationMode DefaultIsolationMode = IsolationMode.ReadUncommitted;
 		private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadUncommitted;
 
-		#region mock variables
-
-		private ISessionStore sessionStore;
-		private IKernel kernel;
-		private ISessionFactoryResolver factoryResolver;
-		private ITransactionManager transactionManager;
-		private ITransaction transaction;
-		private ISessionFactory sessionFactory;
-		private ISession session;
-		private IStatelessSession statelessSession;
-		private IDictionary contextDictionary;
-		private ISessionManager sessionManager;
-
-		#endregion
+		private ISessionStore _sessionStore;
+		private IKernel _kernel;
+		private ISessionFactoryResolver _factoryResolver;
+		private ITransactionManager _transactionManager;
+		private ITransaction _transaction;
+		private ISessionFactory _sessionFactory;
+		private ISession _session;
+		private IStatelessSession _statelessSession;
+		private IDictionary _contextDictionary;
+		private ISessionManager _sessionManager;
 
 		[Test]
 		public void WhenBeginTransactionFailsSessionIsRemovedFromSessionStore()
 		{
-			using (mockRepository.Record())
+			using (this.mockRepository.Record())
 			{
-				Expect.Call(kernel.Resolve<ITransactionManager>()).Return(transactionManager);
-				Expect.Call(transactionManager.CurrentTransaction).Return(transaction);
-				Expect.Call(factoryResolver.GetSessionFactory(Alias)).Return(sessionFactory);
-				Expect.Call(kernel.HasComponent(string.Format(InterceptorFormatString, Alias))).Return(false);
-				Expect.Call(kernel.HasComponent(InterceptorName)).Return(false).Repeat.Any();
-				Expect.Call(sessionFactory.OpenSession()).Return(session);
-				session.FlushMode = sessionManager.DefaultFlushMode;
-				Expect.Call(transaction.Context).Return(contextDictionary).Repeat.Any();
-				Expect.Call(transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
-				Expect.Call(session.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
+				Expect.Call(this._kernel.Resolve<ITransactionManager>()).Return(this._transactionManager);
+				Expect.Call(this._transactionManager.CurrentTransaction).Return(this._transaction);
+				Expect.Call(this._factoryResolver.GetSessionFactory(Alias)).Return(this._sessionFactory);
+				Expect.Call(this._kernel.HasComponent(string.Format(InterceptorFormatString, Alias))).Return(false);
+				Expect.Call(this._kernel.HasComponent(InterceptorName)).Return(false).Repeat.Any();
+				Expect.Call(this._sessionFactory.OpenSession()).Return(this._session);
+				this._session.FlushMode = this._sessionManager.DefaultFlushMode;
+				Expect.Call(this._transaction.Context).Return(this._contextDictionary).Repeat.Any();
+				Expect.Call(this._transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
+				Expect.Call(this._session.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
 			}
 
-			using (mockRepository.Playback())
+			using (this.mockRepository.Playback())
 			{
 				try
 				{
-					sessionManager.OpenSession(Alias);
+					this._sessionManager.OpenSession(Alias);
 					Assert.Fail("DbException not thrown");
 				}
-				catch (Exception)
+				catch (Exception ex)
 				{
 					//ignore
-					//Console.WriteLine(ex.ToString());
+					Console.WriteLine(ex.ToString());
 				}
-				Assert.IsNull(sessionStore.FindCompatibleSession(Alias),
-					"The sessionStore shouldn't contain compatible session if the session creation fails");
+
+				Assert.IsNull(this._sessionStore.FindCompatibleSession(Alias),
+				              "The sessionStore shouldn't contain compatible session if the session creation fails");
 			}
 		}
 
 		[Test]
 		public void WhenBeginTransactionFailsStatelessSessionIsRemovedFromSessionStore()
 		{
-			using (mockRepository.Record())
+			using (this.mockRepository.Record())
 			{
-				Expect.Call(kernel.Resolve<ITransactionManager>()).Return(transactionManager);
-				Expect.Call(transactionManager.CurrentTransaction).Return(transaction);
-				Expect.Call(factoryResolver.GetSessionFactory(Alias)).Return(sessionFactory);
-				Expect.Call(sessionFactory.OpenStatelessSession()).Return(statelessSession);
-				Expect.Call(transaction.Context).Return(contextDictionary).Repeat.Any();
-				Expect.Call(transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
-				Expect.Call(statelessSession.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
+				Expect.Call(this._kernel.Resolve<ITransactionManager>()).Return(this._transactionManager);
+				Expect.Call(this._transactionManager.CurrentTransaction).Return(this._transaction);
+				Expect.Call(this._factoryResolver.GetSessionFactory(Alias)).Return(this._sessionFactory);
+				Expect.Call(this._sessionFactory.OpenStatelessSession()).Return(this._statelessSession);
+				Expect.Call(this._transaction.Context).Return(this._contextDictionary).Repeat.Any();
+				Expect.Call(this._transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
+				Expect.Call(this._statelessSession.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
 			}
 
-			using (mockRepository.Playback())
+			using (this.mockRepository.Playback())
 			{
 				try
 				{
-					sessionManager.OpenStatelessSession(Alias);
+					this._sessionManager.OpenStatelessSession(Alias);
 					Assert.Fail("DbException not thrown");
 				}
 				catch (Exception)
@@ -133,9 +136,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 					//ignore
 					//Console.WriteLine(ex.ToString());
 				}
-				Assert.IsNull(
-					sessionStore.FindCompatibleStatelessSession(Alias),
-					"The sessionStore shouldn't contain compatible session if the session creation fails");
+
+				Assert.IsNull(this._sessionStore.FindCompatibleStatelessSession(Alias),
+				              "The sessionStore shouldn't contain compatible session if the session creation fails");
 			}
 		}
 	}

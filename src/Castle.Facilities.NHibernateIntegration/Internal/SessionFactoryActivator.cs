@@ -19,20 +19,25 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
-	using Core;
-	using MicroKernel;
-	using MicroKernel.ComponentActivator;
-	using MicroKernel.Context;
+	#region Using Directives
+
+	using Castle.Core;
+	using Castle.MicroKernel;
+	using Castle.MicroKernel.ComponentActivator;
+	using Castle.MicroKernel.Context;
+
 	using NHibernate;
 	using NHibernate.Cfg;
 
+	#endregion
+
 	/// <summary>
-	/// Postpones the initiation of SessionFactory until Resolve
+	///     Postpones the initiation of SessionFactory until Resolve
 	/// </summary>
 	public class SessionFactoryActivator : DefaultComponentActivator
 	{
 		/// <summary>
-		/// Constructor for SessionFactoryActivator
+		///     Constructor for SessionFactoryActivator
 		/// </summary>
 		/// <param name="model"></param>
 		/// <param name="kernel"></param>
@@ -47,30 +52,30 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
 		}
 
 		/// <summary>
-		/// Calls the contributors
+		///     Calls the contributors
 		/// </summary>
 		protected virtual void RaiseCreatingSessionFactory()
 		{
-			var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
-			var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+			var configuration = this.Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
+			var contributors = this.Kernel.ResolveAll<IConfigurationContributor>();
 			foreach (var contributor in contributors)
 			{
-				contributor.Process(Model.Name, configuration);
+				contributor.Process(this.Model.Name, configuration);
 			}
 		}
 
 		/// <summary>
-		/// Creates the <see cref="ISessionFactory"/> from the configuration
+		///     Creates the <see cref="ISessionFactory" /> from the configuration
 		/// </summary>
 		/// <param name="context"></param>
 		/// <param name="burden"></param>
 		/// <returns></returns>
 		public override object Create(CreationContext context, Burden burden)
 		{
-			RaiseCreatingSessionFactory();
-			var configuration = this.Model.ExtendedProperties[Constants.SessionFactoryConfiguration]
-			                    as Configuration;
-			
+			this.RaiseCreatingSessionFactory();
+
+			var configuration = (Configuration) this.Model.ExtendedProperties[Constants.SessionFactoryConfiguration];
+
 			var sessionFactory = configuration.BuildSessionFactory();
 
 			burden.SetRootInstance(sessionFactory);

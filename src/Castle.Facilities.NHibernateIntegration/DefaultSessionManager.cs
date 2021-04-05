@@ -28,10 +28,9 @@ namespace Castle.Facilities.NHibernateIntegration
 	using Castle.Facilities.NHibernateIntegration.Internal;
 	using Castle.MicroKernel;
 	using Castle.MicroKernel.Facilities;
+	using Castle.Services.Transaction;
 
 	using NHibernate;
-
-	using Castle.Services.Transaction;
 
 	using ITransaction = Castle.Services.Transaction.ITransaction;
 

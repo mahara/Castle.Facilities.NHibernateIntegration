@@ -19,17 +19,21 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
-	using Services.Transaction;
+	#region Using Directives
+
+	using Castle.Services.Transaction;
+
+	#endregion
 
 	/// <summary>
-	/// Synchronization to ensure the stateless session disposal on the end of a transaction.
+	///     Synchronization to ensure the stateless session disposal on the end of a transaction.
 	/// </summary>
 	public class StatelessSessionDisposeSynchronization : ISynchronization
 	{
 		private readonly StatelessSessionDelegate _session;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="StatelessSessionDisposeSynchronization"/> class.
+		///     Initializes a new instance of the <see cref="StatelessSessionDisposeSynchronization" /> class.
 		/// </summary>
 		/// <param name="session">The session.</param>
 		public StatelessSessionDisposeSynchronization(StatelessSessionDelegate session)
@@ -38,16 +42,16 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
 		}
 
 		/// <summary>
-		/// Implementors may have code executing
-		/// just before the transaction completes
+		///     Implementors may have code executing
+		///     just before the transaction completes
 		/// </summary>
 		public void BeforeCompletion()
 		{
 		}
 
 		/// <summary>
-		/// Implementors may have code executing
-		/// just after the transaction completes
+		///     Implementors may have code executing
+		///     just after the transaction completes
 		/// </summary>
 		public void AfterCompletion()
 		{

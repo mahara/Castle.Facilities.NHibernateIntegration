@@ -22,7 +22,6 @@ namespace Castle.Facilities.NHibernateIntegration
 	#region Using Directives
 
 	using System;
-	using System.Collections;
 	using System.Data;
 	using System.Data.Common;
 	using System.Linq;
@@ -150,8 +149,7 @@ namespace Castle.Facilities.NHibernateIntegration
 				return ReferenceEquals(sdLeft.InnerSession, sdRight.InnerSession);
 			}
 
-			throw new NotSupportedException("AreEqual: left is " +
-			                                left.GetType().Name + " and right is " + right.GetType().Name);
+			throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}");
 		}
 
 		#region ISession delegation
@@ -192,7 +190,11 @@ namespace Castle.Facilities.NHibernateIntegration
 		}
 
 		/// <inheritdoc />
-		public ITransaction Transaction => this.InnerSession.Transaction;
+		public ITransaction Transaction =>
+			this.InnerSession?.
+				GetSessionImplementation()?.
+				ConnectionManager?.
+				CurrentTransaction;
 
 		/// <inheritdoc />
 		DbConnection ISession.Close()

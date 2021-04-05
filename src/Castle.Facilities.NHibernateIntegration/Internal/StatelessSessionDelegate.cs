@@ -130,8 +130,7 @@
 				return ReferenceEquals(ssdLeft.InnerSession, ssdRight.InnerSession);
 			}
 
-			throw new NotSupportedException("AreEqual: left is " +
-			                                left.GetType().Name + " and right is " + right.GetType().Name);
+			throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}");
 		}
 
 		#region IStatelessSession delegation
@@ -160,7 +159,11 @@
 		public bool IsOpen => this.InnerSession.IsOpen;
 
 		/// <inheritdoc />
-		public ITransaction Transaction => this.InnerSession.Transaction;
+		public ITransaction Transaction =>
+			this.InnerSession?.
+				GetSessionImplementation()?.
+				ConnectionManager?.
+				CurrentTransaction;
 
 		/// <inheritdoc />
 		public ITransaction BeginTransaction()

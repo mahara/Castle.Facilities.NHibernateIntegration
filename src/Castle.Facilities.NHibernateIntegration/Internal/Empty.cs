@@ -20,7 +20,6 @@
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
 	/// <summary>
-	/// 
 	/// </summary>
 	public class Empty
 	{

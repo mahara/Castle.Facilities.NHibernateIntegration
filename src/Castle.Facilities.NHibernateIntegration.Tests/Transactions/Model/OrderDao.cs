@@ -38,7 +38,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (ISession session = sessManager.OpenSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				Order order = new Order();
 				order.Value = val;
@@ -53,7 +55,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (ISession session = sessManager.OpenSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				order.Value = newval;
 
@@ -66,7 +70,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (ISession session = sessManager.OpenSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				Order order = (Order) session.Load(typeof (Order), orderId);
 
@@ -79,7 +85,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				Order order = new Order();
 				order.Value = val;
@@ -94,7 +102,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				order.Value = newval;
 
@@ -107,7 +117,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		{
 			using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
 			{
-				NUnit.Framework.Assert.IsNotNull(session.Transaction);
+				var transaction = session.GetCurrentTransaction();
+
+				NUnit.Framework.Assert.IsNotNull(transaction);
 
 				Order order = (Order) session.Get(typeof(Order).FullName, orderId);
 

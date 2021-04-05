@@ -14,14 +14,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.4.0" />
-    <PackageReference Include="Castle.Core-log4net" Version="4.4.0" />
-    <PackageReference Include="Castle.Core-NLog" Version="4.4.0" />
-    <PackageReference Include="Castle.LoggingFacility" Version="5.0.0" />
-    <PackageReference Include="Castle.Services.Transaction" Version="5.0.0" />
-    <PackageReference Include="Castle.Facilities.AutoTx" Version="5.0.0" />
+    <PackageReference Include="Castle.Core" Version="4.4.1" />
+    <PackageReference Include="Castle.Core-log4net" Version="4.4.1" />
+    <PackageReference Include="Castle.Core-NLog" Version="4.4.1" />
+    <PackageReference Include="Castle.LoggingFacility" Version="5.1.1" />
+    <PackageReference Include="Castle.Services.Transaction" Version="5.1.0" />
+    <PackageReference Include="Castle.Facilities.AutoTx" Version="5.1.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="NHibernate" Version="5.2.7" />
+    <PackageReference Include="NHibernate" Version="5.3.8" />
     <PackageReference Include="NUnit" Version="3.13.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
     <PackageReference Include="RhinoMocks" Version="3.6.1" />

@@ -96,16 +96,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session2);
 
 				Assert.IsNotNull(session1);
-				Assert.IsNotNull(session1.Transaction,
+				var transaction1 = session1.GetCurrentTransaction();
+				Assert.IsNotNull(transaction1,
 				                 "After requesting compatible session, first session is enlisted in transaction too.");
-				Assert.IsTrue(session1.Transaction.IsActive,
+				Assert.IsTrue(transaction1.IsActive,
 				              "After requesting compatible session, first session is enlisted in transaction too.");
 
 				using (var session3 = manager.OpenSession())
 				{
 					Assert.IsNotNull(session3);
-					Assert.IsNotNull(session3.Transaction);
-					Assert.IsTrue(session3.Transaction.IsActive);
+					var transaction3 = session3.GetCurrentTransaction();
+					Assert.IsNotNull(transaction3);
+					Assert.IsTrue(transaction3.IsActive);
 				}
 
 				var delegate1 = (SessionDelegate) session1;
@@ -150,16 +152,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session2);
 
 				Assert.IsNotNull(session1);
-				Assert.IsNotNull(session1.Transaction,
+				var transaction1 = session1.GetCurrentTransaction();
+				Assert.IsNotNull(transaction1,
 				                 "After requesting compatible session, first session is enlisted in transaction too.");
-				Assert.IsTrue(session1.Transaction.IsActive,
+				Assert.IsTrue(transaction1.IsActive,
 				              "After requesting compatible session, first session is enlisted in transaction too.");
 
 				using (var session3 = manager.OpenSession())
 				{
 					Assert.IsNotNull(session3);
-					Assert.IsNotNull(session3.Transaction);
-					Assert.IsTrue(session3.Transaction.IsActive);
+					var transaction3 = session3.GetCurrentTransaction();
+					Assert.IsNotNull(transaction3);
+					Assert.IsTrue(transaction3.IsActive);
 				}
 
 				var delegate1 = (StatelessSessionDelegate) session1;
@@ -199,7 +203,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			var session = manager.OpenSession();
 
 			Assert.IsNotNull(session);
-			Assert.IsNotNull(session.Transaction);
+			Assert.IsNotNull(session.GetCurrentTransaction());
 
 			transaction.Commit();
 
@@ -231,11 +235,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var session1 = manager.OpenSession();
 			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session1.Transaction);
+			Assert.IsNotNull(session1.GetCurrentTransaction());
 
 			var session2 = manager.OpenSession("db2");
 			Assert.IsNotNull(session2);
-			Assert.IsNotNull(session2.Transaction);
+			Assert.IsNotNull(session2.GetCurrentTransaction());
 
 			transaction.Commit();
 
@@ -273,7 +277,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			var session = manager.OpenStatelessSession();
 
 			Assert.IsNotNull(session);
-			Assert.IsNotNull(session.Transaction);
+			Assert.IsNotNull(session.GetCurrentTransaction());
 
 			transaction.Commit();
 
@@ -305,11 +309,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var session1 = manager.OpenStatelessSession();
 			Assert.IsNotNull(session1);
-			Assert.IsNotNull(session1.Transaction);
+			Assert.IsNotNull(session1.GetCurrentTransaction());
 
 			var session2 = manager.OpenStatelessSession("db2");
 			Assert.IsNotNull(session2);
-			Assert.IsNotNull(session2.Transaction);
+			Assert.IsNotNull(session2.GetCurrentTransaction());
 
 			transaction.Commit();
 
@@ -392,7 +396,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			using (var session2 = manager.OpenSession("db2"))
 			{
 				Assert.IsNotNull(session2);
-				Assert.IsNotNull(session2.Transaction);
+				Assert.IsNotNull(session2.GetCurrentTransaction());
 			}
 			// "real" NH session2 was not disposed because its in active transaction
 
@@ -400,7 +404,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			using (var session3 = manager.OpenSession("db2"))
 			{
 				Assert.IsNotNull(session3);
-				Assert.IsTrue(session3.Transaction.IsActive);
+				var transaction3 = session3.GetCurrentTransaction();
+				Assert.IsNotNull(transaction3);
+				Assert.IsTrue(transaction3.IsActive);
 			}
 
 			transaction.Commit();
@@ -438,7 +444,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			using (var session2 = manager.OpenStatelessSession("db2"))
 			{
 				Assert.IsNotNull(session2);
-				Assert.IsNotNull(session2.Transaction);
+				Assert.IsNotNull(session2.GetCurrentTransaction());
 			}
 			// "real" NH session2 was not disposed because its in active transaction
 
@@ -446,7 +452,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			using (var session3 = manager.OpenStatelessSession("db2"))
 			{
 				Assert.IsNotNull(session3);
-				Assert.IsTrue(session3.Transaction.IsActive);
+				var transaction3 = session3.GetCurrentTransaction();
+				Assert.IsNotNull(transaction3);
+				Assert.IsTrue(transaction3.IsActive);
 			}
 
 			transaction.Commit();

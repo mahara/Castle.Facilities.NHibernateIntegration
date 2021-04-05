@@ -19,82 +19,84 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
+	#region Using Directives
+
 	using System.IO;
 	using System.Text;
-	using Core.Resource;
+
+	using Castle.Core.Resource;
+
+	#endregion
 
 	/// <summary>
-	/// Resource for a file or an assembly resource
+	///     Resource for a file or an assembly resource
 	/// </summary>
 	public class FileAssemblyResource : IResource
 	{
+		private readonly IResource _innerResource;
+
 		/// <summary>
-		/// Depending on the resource type, <see cref="AssemblyResource"/> or <see cref="FileResource"/> is decorated.
+		///     Depending on the resource type, <see cref="AssemblyResource" /> or <see cref="FileResource" /> is decorated.
 		/// </summary>
 		/// <param name="resource"></param>
 		public FileAssemblyResource(string resource)
 		{
 			if (File.Exists(resource))
 			{
-				innerResource = new FileResource(resource);
+				this._innerResource = new FileResource(resource);
 			}
 			else
 			{
-				innerResource = new AssemblyResource(resource);
+				this._innerResource = new AssemblyResource(resource);
 			}
 		}
 
-		private readonly IResource innerResource;
+		#region IDisposable Members
+
+		/// <summary>
+		///     Disposes the allocated resources
+		/// </summary>
+		public void Dispose()
+		{
+			this._innerResource.Dispose();
+		}
+
+		#endregion
 
 		#region IResource Members
 
 		/// <summary>
-		/// Returns an instance of Castle.Core.Resource.IResource created according to the relativePath using itself as the root.
+		///     Returns an instance of Castle.Core.Resource.IResource created according to the relativePath using itself as the root.
 		/// </summary>
 		/// <param name="relativePath"></param>
 		/// <returns></returns>
 		public IResource CreateRelative(string relativePath)
 		{
-			return innerResource.CreateRelative(relativePath);
+			return this._innerResource.CreateRelative(relativePath);
 		}
 
 		/// <summary>
-		/// Only valid for resources that can be obtained through relative paths
+		///     Only valid for resources that can be obtained through relative paths
 		/// </summary>
-		public string FileBasePath
-		{
-			get { return innerResource.FileBasePath; }
-		}
+		public string FileBasePath => this._innerResource.FileBasePath;
 
 		/// <summary>
-		/// Returns a reader for the stream
+		///     Returns a reader for the stream
 		/// </summary>
 		/// <param name="encoding"></param>
 		/// <returns></returns>
 		public TextReader GetStreamReader(Encoding encoding)
 		{
-			return innerResource.GetStreamReader(encoding);
+			return this._innerResource.GetStreamReader(encoding);
 		}
 
 		/// <summary>
-		/// Returns a reader for the stream
+		///     Returns a reader for the stream
 		/// </summary>
 		/// <returns></returns>
 		public TextReader GetStreamReader()
 		{
-			return innerResource.GetStreamReader();
-		}
-
-		#endregion
-
-		#region IDisposable Members
-
-		/// <summary>
-		/// Disposes the allocated resources
-		/// </summary>
-		public void Dispose()
-		{
-			innerResource.Dispose();
+			return this._innerResource.GetStreamReader();
 		}
 
 		#endregion
