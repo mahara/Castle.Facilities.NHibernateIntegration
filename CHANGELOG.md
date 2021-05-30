@@ -1,7 +1,7 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.0.0 (2019-05-xx)
+## 5.0.0 (2021-05-xx)
 
 Improvements:
 - Upgraded to SDK-style .NET projects
@@ -16,7 +16,7 @@ Breaking Changes:
 - Updated **`Castle.Windsor`** version to 5.0.0.
 - Updated **`Castle.Services.Transaction`** version to 5.0.0.
 - Updated **`Castle.Facilities.AutoTx`** version to 5.0.0.
-- Updated **`NHibernate`** version to 5.2.5.
+- Updated **`NHibernate`** version to 5.2.7.
 
 
 ## 4.0.0 (2018-09-18)
