@@ -23,7 +23,7 @@
     <Authors>Castle Project Contributors</Authors>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
-    <PackageIconUrl>https://www.castleproject.org/img/facilities_nhibernateintegration-logo.png</PackageIconUrl>
+    <!-- <PackageIconUrl>https://www.castleproject.org/img/facilities_nhibernateintegration-logo.png</PackageIconUrl> -->
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageOutputPath>../../build/</PackageOutputPath>
     <PackageVersion>$(BuildVersion)</PackageVersion>
