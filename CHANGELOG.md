@@ -1,5 +1,10 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
+## Unreleased (5.3.0) (2021-05-xx)
+
+Improvements:
+
+
 ## 5.0.0 (2021-05-31)
 
 Improvements:
