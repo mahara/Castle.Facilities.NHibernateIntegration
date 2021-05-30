@@ -6,7 +6,7 @@
     <PackageReference Include="Castle.Services.Transaction" Version="5.0.0" />
     <PackageReference Include="Castle.Windsor" Version="5.0.0" />
     <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="NHibernate" Version="5.2.5" />
+    <PackageReference Include="NHibernate" Version="5.2.7" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <!--
