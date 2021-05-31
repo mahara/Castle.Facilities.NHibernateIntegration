@@ -49,6 +49,7 @@
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ReportAnalyzer>false</ReportAnalyzer>
   </PropertyGroup>
 

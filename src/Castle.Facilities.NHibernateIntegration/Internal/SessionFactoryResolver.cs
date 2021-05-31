@@ -15,8 +15,7 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
@@ -26,77 +25,47 @@ using NHibernate;
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
     /// <summary>
-    /// Default implementation of <see cref="ISessionFactoryResolver"/>
+    /// Default implementation of <see cref="ISessionFactoryResolver" />
     /// that always queries the kernel instance for the session factory instance.
     /// <para>
-    /// This gives a chance to developers replace the session factory instance
+    /// This gives a chance to developers to change the session factory instance
     /// during the application lifetime.
     /// </para>
     /// </summary>
     /// <remarks>
-    /// Inspired on Cuyahoga project
+    /// Inspired by Cuyahoga project.
     /// </remarks>
     public class SessionFactoryResolver : ISessionFactoryResolver
     {
-        private readonly IKernel kernel;
-        private readonly IDictionary alias2Key = new HybridDictionary(true);
+        private readonly IKernel _kernel;
+        private readonly Dictionary<string, string> _aliasToComponentKey = new(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Constructs a SessionFactoryResolver
-        /// </summary>
-        /// <param name="kernel">
-        /// Kernel instance supplied by the container itself
-        /// </param>
         public SessionFactoryResolver(IKernel kernel)
         {
-            this.kernel = kernel;
+            _kernel = kernel;
         }
 
-        /// <summary>
-        /// Associated the alias with the component key
-        /// </summary>
-        /// <param name="alias">
-        /// The alias associated with the session
-        /// factory on the configuration node
-        /// </param>
-        /// <param name="componentKey">
-        /// The component key associated with
-        /// the session factory on the kernel
-        /// </param>
-        public void RegisterAliasComponentIdMapping(String alias, String componentKey)
+        public void RegisterAliasComponentIdMapping(string alias, string componentKey)
         {
-            if (alias2Key.Contains(alias))
+            // TODO: Use Dictionary.TryAdd() in .NET.
+            if (_aliasToComponentKey.ContainsKey(alias))
             {
-                throw new ArgumentException("A mapping already exists for " +
-                                            "the specified alias: " + alias);
+                var message = $"A mapping already exists for the specified alias: '{alias}'.";
+                throw new ArgumentException(message);
             }
 
-            alias2Key.Add(alias, componentKey);
+            _aliasToComponentKey.Add(alias, componentKey);
         }
 
-        /// <summary>
-        /// Returns a session factory instance associated with the
-        /// specified alias.
-        /// </summary>
-        /// <param name="alias">
-        /// The alias associated with the session
-        /// factory on the configuration node
-        /// </param>
-        /// <returns>A session factory instance</returns>
-        /// <exception cref="FacilityException">
-        /// If the alias is not associated with a session factory
-        /// </exception>
-        public ISessionFactory GetSessionFactory(String alias)
+        public ISessionFactory GetSessionFactory(string alias)
         {
-            String componentKey = alias2Key[alias] as String;
-
-            if (componentKey == null)
+            if (!_aliasToComponentKey.TryGetValue(alias, out var componentKey))
             {
-                throw new FacilityException("An ISessionFactory component was " +
-                                            "not mapped for the specified alias: " + alias);
+                var message = $"An '{nameof(ISessionFactory)}' component was not mapped for the specified alias: '{alias}'.";
+                throw new FacilityException(message);
             }
 
-            return kernel.Resolve<ISessionFactory>(componentKey);
+            return _kernel.Resolve<ISessionFactory>(componentKey);
         }
     }
 }
