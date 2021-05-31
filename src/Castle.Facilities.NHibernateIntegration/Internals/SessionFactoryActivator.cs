@@ -23,43 +23,23 @@ using Castle.MicroKernel.Context;
 using NHibernate;
 using NHibernate.Cfg;
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
+namespace Castle.Facilities.NHibernateIntegration.Internals
 {
     /// <summary>
-    /// Postpones the initiation of SessionFactory until Resolve
+    /// Postpones the initiation of <see cref="ISessionFactory" /> until <see cref="IKernel.Resolve{T}()" />.
     /// </summary>
     public class SessionFactoryActivator : DefaultComponentActivator
     {
-        /// <summary>
-        /// Constructor for SessionFactoryActivator
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="kernel"></param>
-        /// <param name="onCreation"></param>
-        /// <param name="onDestruction"></param>
         public SessionFactoryActivator(ComponentModel model,
                                        IKernelInternal kernel,
                                        ComponentInstanceDelegate onCreation,
-                                       ComponentInstanceDelegate onDestruction)
-            : base(model, kernel, onCreation, onDestruction)
+                                       ComponentInstanceDelegate onDestruction) :
+            base(model, kernel, onCreation, onDestruction)
         {
         }
 
         /// <summary>
-        /// Calls the contributors
-        /// </summary>
-        protected virtual void RaiseCreatingSessionFactory()
-        {
-            var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
-            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
-            foreach (var contributor in contributors)
-            {
-                contributor.Process(Model.Name, configuration);
-            }
-        }
-
-        /// <summary>
-        /// Creates the <see cref="ISessionFactory"/> from the configuration
+        /// Creates the <see cref="ISessionFactory" /> from the configuration.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="burden"></param>
@@ -67,14 +47,29 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         public override object Create(CreationContext context, Burden burden)
         {
             RaiseCreatingSessionFactory();
-            var configuration = this.Model.ExtendedProperties[Constants.SessionFactoryConfiguration]
-                                as Configuration;
+
+            var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName];
 
             var sessionFactory = configuration.BuildSessionFactory();
 
             burden.SetRootInstance(sessionFactory);
 
             return sessionFactory;
+        }
+
+        /// <summary>
+        /// Calls the contributors.
+        /// </summary>
+        protected virtual void RaiseCreatingSessionFactory()
+        {
+            if (Model.ExtendedProperties[Constants.SessionFactory_Configuration_ComponentPropertyName] is Configuration configuration)
+            {
+                var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+                foreach (var contributor in contributors)
+                {
+                    contributor.Process(Model.Name, configuration);
+                }
+            }
         }
     }
 }

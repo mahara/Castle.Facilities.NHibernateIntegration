@@ -17,46 +17,42 @@
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 using Castle.Services.Transaction;
 
-using NHibernate;
+using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     [Transactional]
     public class OrderDao2 : NHibernateGenericDao
     {
-        private readonly ISessionManager sessManager;
+        private readonly ISessionManager _sessionManager;
 
-        public OrderDao2(ISessionManager sessManager) : base(sessManager, "db2")
+        public OrderDao2(ISessionManager sessionManager) : base(sessionManager, "db2")
         {
-            this.sessManager = sessManager;
+            _sessionManager = sessionManager;
         }
 
         [Transaction]
-        public virtual Order Create(float val)
+        public virtual Order Create(double value)
         {
-            using (ISession session = sessManager.OpenSession("db2"))
+            using (var session = _sessionManager.OpenSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = new Order();
-                order.Value = val;
+                var order = new Order { Value = value };
                 session.Save(order);
-
                 return order;
             }
         }
 
         [Transaction]
-        public virtual Order CreateStateless(float val)
+        public virtual Order CreateStateless(double value)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = new Order();
-                order.Value = val;
+                var order = new Order { Value = value };
                 session.Insert(order);
-
                 return order;
             }
         }

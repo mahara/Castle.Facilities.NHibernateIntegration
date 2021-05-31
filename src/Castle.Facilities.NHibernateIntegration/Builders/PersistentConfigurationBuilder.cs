@@ -26,96 +26,95 @@ using NHibernate.Cfg;
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// Serializes the Configuration for subsequent initializations.
+    /// Serializes the NHibernate <see cref="Configuration" /> for subsequent initializations.
     /// </summary>
     public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
     {
-        private const string DEFAULT_EXTENSION = "dat";
+        public const string DefaultFileExtension = ".dat";
 
-        private ILogger _Logger = NullLogger.Instance;
+        private static readonly Regex _invalidFileNameCharsRegex =
+            new(@"[:*?""<>\\/]",
+                RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private readonly IConfigurationPersister configurationPersister;
+        private readonly ILogger _logger = NullLogger.Instance;
 
-        /// <summary>
-        /// Initializes the presistent <see cref="Configuration"/> builder
-        /// with an specific <see cref="IConfigurationPersister"/>
-        /// </summary>
+        private readonly IConfigurationPersister _configurationPersister;
+
+        public PersistentConfigurationBuilder() : this(new DefaultConfigurationPersister())
+        {
+        }
+
         public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
         {
-            this.configurationPersister = configurationPersister;
+            _configurationPersister = configurationPersister;
         }
 
         /// <summary>
-        /// Initializes the presistent <see cref="Configuration"/> builder
-        /// using the default <see cref="IConfigurationPersister"/>
+        /// Returns a deserialized NHibernate <see cref="Configuration" />.
         /// </summary>
-        public PersistentConfigurationBuilder()
-            : this(new DefaultConfigurationPersister())
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-        }
-
-        /// <summary>
-        /// Returns the Deserialized Configuration
-        /// </summary>
-        /// <param name="config">The configuration node.</param>
-        /// <returns>NHibernate Configuration</returns>
-        public override Configuration GetConfiguration(IConfiguration config)
-        {
-            if (_Logger.IsDebugEnabled)
+            if (_logger.IsDebugEnabled)
             {
-                _Logger.Debug("Building the Configuration");
+                _logger.Debug("Building the NHibernate configuration.");
             }
 
-            string filename = GetFilenameFrom(config);
-            IList<string> dependentFilenames = GetDependentFilenamesFrom(config);
+            var fileName = GetFileNameFrom(facilityConfiguration);
+            var dependentFileNames = GetDependentFileNamesFrom(facilityConfiguration);
 
-            Configuration cfg;
-            if (configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
+            Configuration configuration;
+
+            if (_configurationPersister.IsNewConfigurationRequired(fileName, dependentFileNames))
             {
-                if (_Logger.IsDebugEnabled)
+                if (_logger.IsDebugEnabled)
                 {
-                    _Logger.Debug("Configuration is either old or some of the dependencies have changed");
+                    _logger.Debug("Configuration is either old or some of the dependencies have changed.");
                 }
-                cfg = base.GetConfiguration(config);
-                configurationPersister.WriteConfiguration(filename, cfg);
+
+                configuration = base.GetConfiguration(facilityConfiguration);
+                _configurationPersister.WriteConfiguration(fileName, configuration);
             }
             else
             {
-                cfg = configurationPersister.ReadConfiguration(filename);
+                configuration = _configurationPersister.ReadConfiguration(fileName);
             }
-            return cfg;
+
+            return configuration;
         }
 
-        private string GetFilenameFrom(IConfiguration config)
+        private static string GetFileNameFrom(IConfiguration facilityConfiguration)
         {
-            var filename = config.Attributes["fileName"] ?? config.Attributes["id"] + "." + DEFAULT_EXTENSION;
-            return StripInvalidCharacters(filename);
+            var fileName = facilityConfiguration.Attributes[Constants.SessionFactory_FileName_ConfigurationElementAttributeName] ??
+                           $"{facilityConfiguration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName]}{DefaultFileExtension}";
+            return StripInvalidFileNameChars(fileName);
         }
 
-        private string StripInvalidCharacters(string input)
+        private static string StripInvalidFileNameChars(string input)
         {
-            return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
+            return _invalidFileNameCharsRegex.Replace(input, string.Empty);
         }
 
-        private IList<string> GetDependentFilenamesFrom(IConfiguration config)
+        private static List<string> GetDependentFileNamesFrom(IConfiguration facilityConfiguration)
         {
-            IList<string> list = new List<string>();
+            List<string> list = new();
 
-            IConfiguration assemblies = config.Children["assemblies"];
+            var assemblies = facilityConfiguration.Children[Constants.SessionFactory_Assemblies_ConfigurationElementName];
             if (assemblies != null)
             {
                 foreach (var assembly in assemblies.Children)
                 {
-                    list.Add(assembly.Value + ".dll");
+                    list.Add($"{assembly.Value}.dll");
                 }
             }
 
-            IConfiguration dependsOn = config.Children["dependsOn"];
+            var dependsOn = facilityConfiguration.Children[Constants.SessionFactory_DependsOn_ConfigurationElementName];
             if (dependsOn != null)
             {
-                foreach (var on in dependsOn.Children)
+                foreach (var fileName in dependsOn.Children)
                 {
-                    list.Add(on.Value);
+                    list.Add(fileName.Value);
                 }
             }
 

@@ -30,914 +30,467 @@ using NHibernate.Type;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Proxies an ISession so the user cannot close a session which
-    /// is controlled by a transaction, or, when this is not the case,
-    /// make sure to remove the session from the storage.
-    /// <seealso cref="ISessionStore"/>
-    /// <seealso cref="ISessionManager"/>
+    /// Proxies an <see cref="ISession" /> so the user cannot close a session which is controlled by a transaction,
+    /// or, when this is not the case, make sure to remove the session from the storage.
     /// </summary>
+    /// <remarks>
+    /// <seealso cref="ISessionStore" />
+    /// <seealso cref="ISessionManager" />
+    /// </remarks>
     [Serializable]
     public class SessionDelegate : MarshalByRefObject, ISession
     {
-        private readonly ISession inner;
-        private readonly ISessionStore sessionStore;
-        private readonly bool canClose;
-        private bool disposed;
-        private object cookie;
+        private readonly ISession _innerSession;
+        private readonly ISessionStore _sessionStore;
+        private readonly bool _canClose;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SessionDelegate"/> class.
-        /// </summary>
-        /// <param name="canClose">if set to <c>true</c> [can close].</param>
-        /// <param name="inner">The inner.</param>
-        /// <param name="sessionStore">The session store.</param>
-        public SessionDelegate(bool canClose, ISession inner, ISessionStore sessionStore)
+        private bool _isDisposed;
+
+        public SessionDelegate(ISession inner, ISessionStore sessionStore, bool canClose)
         {
-            this.inner = inner;
-            this.sessionStore = sessionStore;
-            this.canClose = canClose;
+            _innerSession = inner;
+            _sessionStore = sessionStore;
+            _canClose = canClose;
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            CloseConnection(false);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected DbConnection CloseConnection(bool closing)
+        {
+            if (_isDisposed)
+            {
+                return null;
+            }
+
+            if (_canClose)
+            {
+                return CloseConnectionCore(closing);
+            }
+
+            return null;
+        }
+
+        internal DbConnection CloseConnectionCore(bool closing)
+        {
+            DbConnection connection = null;
+
+            _sessionStore.Remove(this);
+
+            if (closing)
+            {
+                connection = _innerSession.Close();
+            }
+
+            _innerSession.Dispose();
+
+            _isDisposed = true;
+
+            return connection;
+        }
+
+        #endregion
 
         /// <summary>
         /// Gets the inner session.
         /// </summary>
         /// <value>The inner session.</value>
-        public ISession InnerSession
-        {
-            get { return inner; }
-        }
+        public ISession InnerSession => _innerSession;
 
         /// <summary>
         /// Gets or sets the session store cookie.
         /// </summary>
         /// <value>The session store cookie.</value>
-        public object SessionStoreCookie
-        {
-            get { return cookie; }
-            set { cookie = value; }
-        }
+        public object SessionStoreCookie { get; set; }
 
-        #region ISession delegation
+        #region ISession Members
 
-        /// <summary>
-        /// Determines at which points Hibernate automatically flushes the session.
-        /// </summary>
-        /// <value></value>
-        /// <remarks>
-        /// For a readonly session, it is reasonable to set the flush mode to <c>FlushMode.Never</c>
-        /// at the start of the session (in order to achieve some extra performance).
-        /// </remarks>
-        public FlushMode FlushMode
-        {
-            get { return inner.FlushMode; }
-            set { inner.FlushMode = value; }
-        }
-
-        /// <summary>
-        /// Get the <see cref="T:NHibernate.ISessionFactory"/> that created this instance.
-        /// </summary>
-        /// <value></value>
-        public ISessionFactory SessionFactory
-        {
-            get { return inner.SessionFactory; }
-        }
-
-        /// <summary>
-        /// Gets the ADO.NET connection.
-        /// </summary>
-        /// <value></value>
-        /// <remarks>
-        /// Applications are responsible for calling commit/rollback upon the connection before
-        /// closing the <c>ISession</c>.
-        /// </remarks>
-        public DbConnection Connection
-        {
-            get { return inner.Connection; }
-        }
-
-        /// <summary>
-        /// Is the <c>ISession</c> still open?
-        /// </summary>
-        /// <value></value>
-        public bool IsOpen
-        {
-            get { return inner.IsOpen; }
-        }
-
-        /// <summary>
-        /// Is the <c>ISession</c> currently connected?
-        /// </summary>
-        /// <value></value>
-        public bool IsConnected
-        {
-            get { return inner.IsConnected; }
-        }
-
-        /// <summary>
-        /// The read-only status for entities (and proxies) loaded into this Session.
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// When a proxy is initialized, the loaded entity will have the same read-only setting
-        ///             as the uninitialized proxy, regardless of the session's current setting.
-        /// </para>
-        /// <para>
-        /// To change the read-only setting for a particular entity or proxy that is already in
-        ///             this session, see <see cref="M:NHibernate.ISession.SetReadOnly(System.Object,System.Boolean)"/>.
-        /// </para>
-        /// <para>
-        /// To override this session's read-only setting for entities and proxies loaded by a query,
-        ///             see <see cref="M:NHibernate.IQuery.SetReadOnly(System.Boolean)"/>.
-        /// </para>
-        /// <para>
-        /// This method is a facade for <see cref="P:NHibernate.Engine.IPersistenceContext.DefaultReadOnly"/>.
-        /// </para>
-        /// </remarks>
-        /// <seealso cref="M:NHibernate.ISession.IsReadOnly(System.Object)"/><seealso cref="M:NHibernate.ISession.SetReadOnly(System.Object,System.Boolean)"/>
-        public bool DefaultReadOnly
-        {
-            get
-            {
-                return this.inner.DefaultReadOnly;
-            }
-            set
-            {
-                this.inner.DefaultReadOnly = value;
-            }
-        }
-
-        /// <summary>
-        /// Get the current Unit of Work and return the associated <c>ITransaction</c> object.
-        /// </summary>
-        /// <value></value>
-        public ITransaction Transaction
-        {
-            get { return inner.Transaction; }
-        }
-
-        /// <summary>
-        /// Cancel execution of the current query.
-        /// </summary>
-        /// <remarks>
-        /// May be called from one thread to stop execution of a query in another thread.
-        /// Use with care!
-        /// </remarks>
-        public void CancelQuery()
-        {
-            inner.CancelQuery();
-        }
-
-        /// <summary>
-        /// Does this <c>ISession</c> contain any changes which must be
-        /// synchronized with the database? Would any SQL be executed if
-        /// we flushed this session?
-        /// </summary>
-        /// <returns></returns>
-        public bool IsDirty()
-        {
-            return inner.IsDirty();
-        }
-
-        /// <summary>
-        /// Is the specified entity (or proxy) read-only?
-        /// </summary>
-        /// <remarks>
-        /// Facade for <see cref="M:NHibernate.Engine.IPersistenceContext.IsReadOnly(System.Object)"/>.
-        /// </remarks>
-        /// <param name="entityOrProxy">An entity (or <see cref="T:NHibernate.Proxy.INHibernateProxy"/>)</param>
-        /// <returns>
-        /// <c>true</c> if the entity (or proxy) is read-only, otherwise <c>false</c>.
-        /// </returns>
-        /// <seealso cref="P:NHibernate.ISession.DefaultReadOnly"/><seealso cref="M:NHibernate.ISession.SetReadOnly(System.Object,System.Boolean)"/>
-        public bool IsReadOnly(object entityOrProxy)
-        {
-            return this.inner.IsReadOnly(entityOrProxy);
-        }
-
-        /// <summary>
-        /// Change the read-only status of an entity (or proxy).
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Read-only entities can be modified, but changes are not persisted. They are not dirty-checked
-        ///             and snapshots of persistent state are not maintained.
-        /// </para>
-        /// <para>
-        /// Immutable entities cannot be made read-only.
-        /// </para>
-        /// <para>
-        /// To set the <em>default</em> read-only setting for entities and proxies that are loaded
-        ///             into the session, see <see cref="P:NHibernate.ISession.DefaultReadOnly"/>.
-        /// </para>
-        /// <para>
-        /// This method a facade for <see cref="M:NHibernate.Engine.IPersistenceContext.SetReadOnly(System.Object,System.Boolean)"/>.
-        /// </para>
-        /// </remarks>
-        /// <param name="entityOrProxy">An entity (or <see cref="T:NHibernate.Proxy.INHibernateProxy"/>).</param><param name="readOnly">If <c>true</c>, the entity or proxy is made read-only; if <c>false</c>, it is made modifiable.</param><seealso cref="P:NHibernate.ISession.DefaultReadOnly"/><seealso cref="M:NHibernate.ISession.IsReadOnly(System.Object)"/>
-        public void SetReadOnly(object entityOrProxy, bool readOnly)
-        {
-            this.inner.SetReadOnly(entityOrProxy, readOnly);
-        }
-
-        /// <summary>
-        /// Force the <c>ISession</c> to flush.
-        /// </summary>
-        /// <remarks>
-        /// Must be called at the end of a unit of work, before commiting the transaction and closing
-        /// the session (<c>Transaction.Commit()</c> calls this method). <i>Flushing</i> if the process
-        /// of synchronising the underlying persistent store with persistable state held in memory.
-        /// </remarks>
-        public void Flush()
-        {
-            inner.Flush();
-        }
-
-        /// <summary>
-        /// Disconnect the <c>ISession</c> from the current ADO.NET connection.
-        /// </summary>
-        /// <returns>
-        /// The connection provided by the application or <see langword="null"/>
-        /// </returns>
-        /// <remarks>
-        /// If the connection was obtained by Hibernate, close it or return it to the connection
-        /// pool. Otherwise return it to the application. This is used by applications which require
-        /// long transactions.
-        /// </remarks>
-        public IDbConnection Disconnect()
-        {
-            return inner.Disconnect();
-        }
-
-        /// <summary>
-        /// Obtain a new ADO.NET connection.
-        /// </summary>
-        /// <remarks>
-        /// This is used by applications which require long transactions
-        /// </remarks>
-        public void Reconnect()
-        {
-            inner.Reconnect();
-        }
-
-        /// <summary>
-        /// Reconnect to the given ADO.NET connection.
-        /// </summary>
-        /// <param name="connection">An ADO.NET connection</param>
-        /// <remarks>This is used by applications which require long transactions</remarks>
-        public void Reconnect(IDbConnection connection)
-        {
-            inner.Reconnect((System.Data.Common.DbConnection) connection);
-        }
-
-        /// <summary>
-        /// Return the identifier of an entity instance cached by the <c>ISession</c>
-        /// </summary>
-        /// <param name="obj">a persistent instance</param>
-        /// <returns>the identifier</returns>
-        /// <remarks>
-        /// Throws an exception if the instance is transient or associated with a different
-        /// <c>ISession</c>
-        /// </remarks>
-        public object GetIdentifier(object obj)
-        {
-            return inner.GetIdentifier(obj);
-        }
-
-        /// <summary>
-        /// Is this instance associated with this Session?
-        /// </summary>
-        /// <param name="obj">an instance of a persistent class</param>
-        /// <returns>
-        /// true if the given instance is associated with this Session
-        /// </returns>
-        public bool Contains(object obj)
-        {
-            return inner.Contains(obj);
-        }
-
-        /// <summary>
-        /// Remove this instance from the session cache.
-        /// </summary>
-        /// <param name="obj">a persistent instance</param>
-        /// <remarks>
-        /// Changes to the instance will not be synchronized with the database.
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <c>cascade="all"</c> or <c>cascade="all-delete-orphan"</c>.
-        /// </remarks>
-        public void Evict(object obj)
-        {
-            inner.Evict(obj);
-        }
-
-        /// <summary>
-        /// Return the persistent instance of the given entity class with the given identifier,
-        /// obtaining the specified lock mode.
-        /// </summary>
-        /// <param name="theType">A persistent class</param>
-        /// <param name="id">A valid identifier of an existing persistent instance of the class</param>
-        /// <param name="lockMode">The lock level</param>
-        /// <returns>the persistent instance</returns>
-        public object Load(Type theType, object id, LockMode lockMode)
-        {
-            return inner.Load(theType, id, lockMode);
-        }
-
-        /// <summary>
-        /// Return the persistent instance of the given entity class with the given identifier,
-        /// obtaining the specified lock mode.
-        /// </summary>
-        /// <param name="entityName">Name of the entity</param>
-        /// <param name="id">A valid identifier of an existing persistent instance of the class</param>
-        /// <param name="lockMode">The lock level</param>
-        /// <returns>the persistent instance</returns>
-        public object Load(string entityName, object id, LockMode lockMode)
-        {
-            return inner.Load(entityName, id, lockMode);
-        }
-
-        /// <summary>
-        /// Return the persistent instance of the given entity class with the given identifier,
-        /// assuming that the instance exists.
-        /// </summary>
-        /// <param name="theType">A persistent class</param>
-        /// <param name="id">A valid identifier of an existing persistent instance of the class</param>
-        /// <returns>The persistent instance or proxy</returns>
-        /// <remarks>
-        /// You should not use this method to determine if an instance exists (use a query or
-        /// <see cref="M:NHibernate.ISession.Get(System.Type,System.Object)"/> instead). Use this only to retrieve an instance
-        /// that you assume exists, where non-existence would be an actual error.
-        /// </remarks>
-        public object Load(Type theType, object id)
-        {
-            return inner.Load(theType, id);
-        }
-
-        /// <summary>
-        /// Loads the specified id.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id">The id.</param>
-        /// <param name="lockMode">The lock mode.</param>
-        /// <returns></returns>
-        public T Load<T>(object id, LockMode lockMode)
-        {
-            return inner.Load<T>(id, lockMode);
-        }
-
-        /// <summary>
-        /// Loads the specified id.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id">The id.</param>
-        /// <returns></returns>
-        public T Load<T>(object id)
-        {
-            return inner.Load<T>(id);
-        }
-
-        /// <summary>
-        /// Loads the specified id.
-        /// </summary>
-        /// <param name="entityName">Name of the entity</param>
-        /// <param name="id">The id.</param>
-        /// <returns></returns>
-        public object Load(string entityName, object id)
-        {
-            return inner.Load(entityName, id);
-        }
-
-        /// <summary>
-        /// Read the persistent state associated with the given identifier into the given transient
-        /// instance.
-        /// </summary>
-        /// <param name="obj">An "empty" instance of the persistent class</param>
-        /// <param name="id">A valid identifier of an existing persistent instance of the class</param>
-        public void Load(object obj, object id)
-        {
-            inner.Load(obj, id);
-        }
-
-        /// <summary>
-        /// Return the persistent instance of the given entity class with the given identifier, or null
-        /// if there is no such persistent instance. (If the instance, or a proxy for the instance, is
-        /// already associated with the session, return that instance or proxy.)
-        /// </summary>
-        /// <param name="clazz">a persistent class</param>
-        /// <param name="id">an identifier</param>
-        /// <returns>a persistent instance or null</returns>
-        public object Get(Type clazz, object id)
-        {
-            return inner.Get(clazz, id);
-        }
-
-        /// <summary>
-        /// Return the persistent instance of the given entity class with the given identifier, or null
-        /// if there is no such persistent instance. Obtain the specified lock mode if the instance
-        /// exists.
-        /// </summary>
-        /// <param name="clazz">a persistent class</param>
-        /// <param name="id">an identifier</param>
-        /// <param name="lockMode">the lock mode</param>
-        /// <returns>a persistent instance or null</returns>
-        public object Get(Type clazz, object id, LockMode lockMode)
-        {
-            return inner.Get(clazz, id, lockMode);
-        }
-
-        /// <summary>
-        /// Gets the session implementation.
-        /// </summary>
-        /// <returns>
-        /// An NHibernate implementation of the <seealso cref="T:NHibernate.Engine.ISessionImplementor"/> interface
-        /// </returns>
-        /// <remarks>
-        /// This method is provided in order to get the <b>NHibernate</b> implementation of the session from wrapper implementions.
-        /// Implementors of the <seealso cref="T:NHibernate.ISession"/> interface should return the NHibernate implementation of this method.
-        /// </remarks>
         public NHibernate.Engine.ISessionImplementor GetSessionImplementation()
         {
-            return inner.GetSessionImplementation();
+            return _innerSession.GetSessionImplementation();
         }
 
-        /// <summary>
-        /// Starts a new Session with the given entity mode in effect. This secondary
-        /// Session inherits the connection, transaction, and other context
-        /// information from the primary Session. It doesn't need to be flushed
-        /// or closed by the developer.
-        /// </summary>
-        /// <param name="entityMode">The entity mode to use for the new session.</param>
-        /// <returns>The new session</returns>
-        public ISession GetSession(EntityMode entityMode)
+        public FlushMode FlushMode
         {
-            return inner.GetSession(entityMode);
+            get => _innerSession.FlushMode;
+            set => _innerSession.FlushMode = value;
         }
 
+        public ISessionFactory SessionFactory => _innerSession.SessionFactory;
+
+        //
+        //  TODO:   Update implementation in future version (5.3.x),
+        //          following NHibernate 5.3.x.
+        //
+        //  NOTE:   SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
+        //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
+        //
         /// <summary>
-        /// Return the persistent instance of the given named entity with the given identifier,
-        /// or null if there is no such persistent instance. (If the instance, or a proxy for the
-        /// instance, is already associated with the session, return that instance or proxy.)
+        /// Gets the current Unit of Work and returns the associated <see cref="ITransaction" /> object.
         /// </summary>
-        /// <param name="entityName">the entity name </param>
-        /// <param name="id">an identifier </param>
-        /// <returns> a persistent instance or null </returns>
-        public object Get(string entityName, object id)
+        public ITransaction Transaction => _innerSession.Transaction;
+
+        public DbConnection Connection => _innerSession.Connection;
+
+        public bool IsConnected => _innerSession.IsConnected;
+
+        public bool IsOpen => _innerSession.IsOpen;
+
+        public bool DefaultReadOnly
         {
-            return inner.Get(entityName, id);
+            get => _innerSession.DefaultReadOnly;
+            set => _innerSession.DefaultReadOnly = value;
         }
 
-        /// <summary>
-        /// Gets the specified id.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id">The id.</param>
-        /// <returns></returns>
+        public CacheMode CacheMode
+        {
+            get => _innerSession.CacheMode;
+            set => _innerSession.CacheMode = value;
+        }
+
+        public bool IsDirty()
+        {
+            return _innerSession.IsDirty();
+        }
+
+        public bool IsReadOnly(object entityOrProxy)
+        {
+            return _innerSession.IsReadOnly(entityOrProxy);
+        }
+
+        public void SetReadOnly(object entityOrProxy, bool readOnly)
+        {
+            _innerSession.SetReadOnly(entityOrProxy, readOnly);
+        }
+
+        public ISessionStatistics Statistics => _innerSession.Statistics;
+
+        public DbConnection Close()
+        {
+            return CloseConnection(true);
+        }
+
+        public DbConnection Disconnect()
+        {
+            return _innerSession.Disconnect();
+        }
+
+        public void Reconnect()
+        {
+            _innerSession.Reconnect();
+        }
+
+        public void Reconnect(DbConnection connection)
+        {
+            _innerSession.Reconnect(connection);
+        }
+
+        public void Flush()
+        {
+            _innerSession.Flush();
+        }
+
+        public void Clear()
+        {
+            _innerSession.Clear();
+        }
+
+        public void Evict(object obj)
+        {
+            _innerSession.Evict(obj);
+        }
+
+        public bool Contains(object obj)
+        {
+            return _innerSession.Contains(obj);
+        }
+
+        public object GetIdentifier(object obj)
+        {
+            return _innerSession.GetIdentifier(obj);
+        }
+
+        public string GetEntityName(object obj)
+        {
+            return _innerSession.GetEntityName(obj);
+        }
+
+        public ISharedSessionBuilder SessionWithOptions()
+        {
+            return _innerSession.SessionWithOptions();
+        }
+
+        public ISession SetBatchSize(int batchSize)
+        {
+            return _innerSession.SetBatchSize(batchSize);
+        }
+
+        public ITransaction BeginTransaction()
+        {
+            return _innerSession.BeginTransaction();
+        }
+
+        public ITransaction BeginTransaction(IsolationLevel isolationLevel)
+        {
+            return _innerSession.BeginTransaction(isolationLevel);
+        }
+
+        public void JoinTransaction()
+        {
+            _innerSession.JoinTransaction();
+        }
+
+        public LockMode GetCurrentLockMode(object obj)
+        {
+            return _innerSession.GetCurrentLockMode(obj);
+        }
+
+        public void Lock(object obj, LockMode lockMode)
+        {
+            _innerSession.Lock(obj, lockMode);
+        }
+
+        public void Lock(string entityName, object obj, LockMode lockMode)
+        {
+            _innerSession.Lock(entityName, obj, lockMode);
+        }
+
+        public void Refresh(object obj)
+        {
+            _innerSession.Refresh(obj);
+        }
+
+        public void Refresh(object obj, LockMode lockMode)
+        {
+            _innerSession.Refresh(obj, lockMode);
+        }
+
+        public T Load<T>(object id)
+        {
+            return _innerSession.Load<T>(id);
+        }
+
+        public T Load<T>(object id, LockMode lockMode)
+        {
+            return _innerSession.Load<T>(id, lockMode);
+        }
+
+        public object Load(Type theType, object id)
+        {
+            return _innerSession.Load(theType, id);
+        }
+
+        public object Load(Type theType, object id, LockMode lockMode)
+        {
+            return _innerSession.Load(theType, id, lockMode);
+        }
+
+        public object Load(string entityName, object id)
+        {
+            return _innerSession.Load(entityName, id);
+        }
+
+        public object Load(string entityName, object id, LockMode lockMode)
+        {
+            return _innerSession.Load(entityName, id, lockMode);
+        }
+
+        public void Load(object obj, object id)
+        {
+            _innerSession.Load(obj, id);
+        }
+
         public T Get<T>(object id)
         {
-            return inner.Get<T>(id);
+            return _innerSession.Get<T>(id);
         }
 
-        /// <summary>
-        /// Gets the specified id.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="id">The id.</param>
-        /// <param name="lockMode">The lock mode.</param>
-        /// <returns></returns>
         public T Get<T>(object id, LockMode lockMode)
         {
-            return inner.Get<T>(id, lockMode);
+            return _innerSession.Get<T>(id, lockMode);
         }
 
-        /// <summary>
-        /// Enable the named filter for this current session.
-        /// </summary>
-        /// <param name="filterName">The name of the filter to be enabled.</param>
-        /// <returns>
-        /// The Filter instance representing the enabled fiter.
-        /// </returns>
-        public IFilter EnableFilter(string filterName)
+        public object Get(Type clazz, object id)
         {
-            return inner.EnableFilter(filterName);
+            return _innerSession.Get(clazz, id);
         }
 
-        /// <summary>
-        /// Retrieve a currently enabled filter by name.
-        /// </summary>
-        /// <param name="filterName">The name of the filter to be retrieved.</param>
-        /// <returns>
-        /// The Filter instance representing the enabled fiter.
-        /// </returns>
+        public object Get(Type clazz, object id, LockMode lockMode)
+        {
+            return _innerSession.Get(clazz, id, lockMode);
+        }
+
+        public object Get(string entityName, object id)
+        {
+            return _innerSession.Get(entityName, id);
+        }
+
+        [Obsolete("TODO: NHibernate: Remove in future version.")]
+        public ISession GetSession(EntityMode entityMode)
+        {
+            return _innerSession.GetSession(entityMode);
+        }
+
         public IFilter GetEnabledFilter(string filterName)
         {
-            return inner.GetEnabledFilter(filterName);
+            return _innerSession.GetEnabledFilter(filterName);
         }
 
-        /// <summary>
-        /// Disable the named filter for the current session.
-        /// </summary>
-        /// <param name="filterName">The name of the filter to be disabled.</param>
+        public IFilter EnableFilter(string filterName)
+        {
+            return _innerSession.EnableFilter(filterName);
+        }
+
         public void DisableFilter(string filterName)
         {
-            inner.DisableFilter(filterName);
+            _innerSession.DisableFilter(filterName);
         }
 
-        /// <summary>
-        /// Create a multi query, a query that can send several
-        /// queries to the server, and return all their results in a single
-        /// call.
-        /// </summary>
-        /// <returns>
-        /// An <see cref="T:NHibernate.IMultiQuery"/> that can return
-        /// a list of all the results of all the queries.
-        /// Note that each query result is itself usually a list.
-        /// </returns>
-        public IMultiQuery CreateMultiQuery()
-        {
-            return inner.CreateMultiQuery();
-        }
-
-        /// <summary>
-        /// Persist all reachable transient objects, reusing the current identifier
-        /// values. Note that this will not trigger the Interceptor of the Session.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="replicationMode"></param>
-        public void Replicate(object obj, ReplicationMode replicationMode)
-        {
-            inner.Replicate(obj, replicationMode);
-        }
-
-        /// <summary>
-        /// Persist the state of the given detached instance, reusing the current
-        /// identifier value.  This operation cascades to associated instances if
-        /// the association is mapped with <tt>cascade="replicate"</tt>.
-        /// </summary>
-        /// <param name="entityName"></param>
-        /// <param name="obj">a detached instance of a persistent class </param>
-        /// <param name="replicationMode"></param>
-        public void Replicate(string entityName, object obj, ReplicationMode replicationMode)
-        {
-            inner.Replicate(entityName, obj, replicationMode);
-        }
-
-        /// <summary>
-        /// Persist the given transient instance, first assigning a generated identifier.
-        /// </summary>
-        /// <param name="obj">A transient instance of a persistent class</param>
-        /// <returns>The generated identifier</returns>
-        /// <remarks>
-        /// Save will use the current value of the identifier property if the <c>Assigned</c>
-        /// generator is used.
-        /// </remarks>
-        public object Save(object obj)
-        {
-            return inner.Save(obj);
-        }
-
-        /// <summary>
-        /// Persist the given transient instance, using the given identifier.
-        /// </summary>
-        /// <param name="obj">A transient instance of a persistent class</param>
-        /// <param name="id">An unused valid identifier</param>
-        public void Save(object obj, object id)
-        {
-            inner.Save(obj, id);
-        }
-
-        /// <summary>
-        /// Persist the given transient instance, first assigning a generated identifier. (Or
-        /// using the current value of the identifier property if the <tt>assigned</tt>
-        /// generator is used.)
-        /// </summary>
-        /// <param name="entityName">The Entity name.</param>
-        /// <param name="obj">a transient instance of a persistent class </param>
-        /// <returns> the generated identifier </returns>
-        /// <remarks>
-        /// This operation cascades to associated instances if the
-        /// association is mapped with <tt>cascade="save-update"</tt>.
-        /// </remarks>
-        public object Save(string entityName, object obj)
-        {
-            return inner.Save(entityName, obj);
-        }
-
-        /// <summary>
-        /// Persist the given transient instance, using the given identifier.
-        /// </summary>
-        /// <param name="entityName">The Entity name.</param>
-        /// <param name="obj">a transient instance of a persistent class</param>
-        /// <param name="id">An unused valid identifier</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        /// <remarks>
-        /// This operation cascades to associated instances if the
-        /// association is mapped with <tt>cascade="save-update"</tt>.
-        /// </remarks>
-        public void Save(string entityName, object obj, object id)
-        {
-            this.inner.Save(entityName, obj, id);
-        }
-
-        /// <summary>
-        /// Either <c>Save()</c> or <c>Update()</c> the given instance, depending upon the value of
-        /// its identifier property.
-        /// </summary>
-        /// <param name="obj">A transient instance containing new or updated state</param>
-        /// <remarks>
-        /// By default the instance is always saved. This behaviour may be adjusted by specifying
-        /// an <c>unsaved-value</c> attribute of the identifier property mapping
-        /// </remarks>
-        public void SaveOrUpdate(object obj)
-        {
-            inner.SaveOrUpdate(obj);
-        }
-
-        /// <summary>
-        /// Either <see cref="Save(String,Object)"/> or <see cref="Update(String,Object)"/>
-        /// the given instance, depending upon resolution of the unsaved-value checks
-        /// (see the manual for discussion of unsaved-value checking).
-        /// </summary>
-        /// <param name="entityName">The name of the entity </param>
-        /// <param name="obj">a transient or detached instance containing new or updated state </param>
-        /// <seealso cref="ISession.Save(String,Object)"/>
-        /// <seealso cref="ISession.Update(String,Object)"/>
-        /// <remarks>
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <tt>cascade="save-update"</tt>.
-        /// </remarks>
-        public void SaveOrUpdate(string entityName, object obj)
-        {
-            inner.SaveOrUpdate(entityName, obj);
-        }
-
-        /// <summary>
-        /// Either <c>Save()</c> or <c>Update()</c> the given instance, depending upon the value of
-        /// its identifier property.
-        /// </summary>
-        /// <param name="entityName">The name of the entity</param>
-        /// <param name="obj">A transient instance containing new or updated state</param>
-        /// <param name="id">Identifier of persistent instance</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        /// <remarks>
-        /// By default the instance is always saved. This behaviour may be adjusted by specifying
-        /// an <c>unsaved-value</c> attribute of the identifier property mapping
-        /// </remarks>
-        public void SaveOrUpdate(string entityName, object obj, object id)
-        {
-            this.inner.SaveOrUpdate(entityName, obj, id);
-        }
-
-        /// <summary>
-        /// Update the persistent instance with the identifier of the given transient instance.
-        /// </summary>
-        /// <param name="obj">A transient instance containing updated state</param>
-        /// <remarks>
-        /// If there is a persistent instance with the same identifier, an exception is thrown. If
-        /// the given transient instance has a <see langword="null"/> identifier, an exception will be thrown.
-        /// </remarks>
-        public void Update(object obj)
-        {
-            inner.Update(obj);
-        }
-
-        /// <summary>
-        /// Update the persistent state associated with the given identifier.
-        /// </summary>
-        /// <param name="obj">A transient instance containing updated state</param>
-        /// <param name="id">Identifier of persistent instance</param>
-        /// <remarks>
-        /// An exception is thrown if there is a persistent instance with the same identifier
-        /// in the current session.
-        /// </remarks>
-        public void Update(object obj, object id)
-        {
-            inner.Update(obj, id);
-        }
-
-        /// <summary>
-        /// Update the persistent instance with the identifier of the given detached
-        /// instance.
-        /// </summary>
-        /// <param name="entityName">The Entity name.</param>
-        /// <param name="obj">a detached instance containing updated state </param>
-        /// <remarks>
-        /// If there is a persistent instance with the same identifier,
-        /// an exception is thrown. This operation cascades to associated instances
-        /// if the association is mapped with <tt>cascade="save-update"</tt>.
-        /// </remarks>
-        public void Update(string entityName, object obj)
-        {
-            inner.Update(entityName, obj);
-        }
-
-        /// <summary>
-        /// Update the persistent instance associated with the given identifier.
-        /// </summary>
-        /// <param name="entityName">The Entity name.</param>
-        /// <param name="obj">a detached instance containing updated state</param>
-        /// <param name="id">Identifier of persistent instance</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        /// <remarks>
-        /// If there is a persistent instance with the same identifier,
-        /// an exception is thrown. This operation cascades to associated instances
-        /// if the association is mapped with <tt>cascade="save-update"</tt>.
-        /// </remarks>
-        public void Update(string entityName, object obj, object id)
-        {
-            this.inner.Update(entityName, obj, id);
-        }
-
-        /// <summary>
-        /// Copy the state of the given object onto the persistent object with the same
-        /// identifier. If there is no persistent instance currently associated with
-        /// the session, it will be loaded. Return the persistent instance. If the
-        /// given instance is unsaved, save a copy of and return it as a newly persistent
-        /// instance. The given instance does not become associated with the session.
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <tt>cascade="merge"</tt>.<br/>
-        /// <br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// </summary>
-        /// <param name="obj">a detached instance with state to be copied </param>
-        /// <returns> an updated persistent instance </returns>
-        public object Merge(object obj)
-        {
-            return inner.Merge(obj);
-        }
-
-        /// <summary>
-        /// Copy the state of the given object onto the persistent object with the same
-        /// identifier. If there is no persistent instance currently associated with
-        /// the session, it will be loaded. Return the persistent instance. If the
-        /// given instance is unsaved, save a copy of and return it as a newly persistent
-        /// instance. The given instance does not become associated with the session.
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <tt>cascade="merge"</tt>.<br/>
-        /// <br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// </summary>
-        /// <param name="entityName">The entity name</param>
-        /// <param name="obj">a detached instance with state to be copied </param>
-        /// <returns> an updated persistent instance </returns>
-        public object Merge(string entityName, object obj)
-        {
-            return inner.Merge(entityName, obj);
-        }
-
-        /// <summary>
-        /// Copy the state of the given object onto the persistent object with the same
-        /// identifier. If there is no persistent instance currently associated with
-        /// the session, it will be loaded. Return the persistent instance. If the
-        /// given instance is unsaved, save a copy of and return it as a newly persistent
-        /// instance. The given instance does not become associated with the session.
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <tt>cascade="merge"</tt>.<br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// </summary>
-        /// <param name="entity">a detached instance with state to be copied </param>
-        /// <returns>
-        /// an updated persistent instance
-        /// </returns>
         public T Merge<T>(T entity) where T : class
         {
-            return this.inner.Merge(entity);
+            return _innerSession.Merge(entity);
         }
 
-        /// <summary>
-        /// Copy the state of the given object onto the persistent object with the same
-        /// identifier. If there is no persistent instance currently associated with
-        /// the session, it will be loaded. Return the persistent instance. If the
-        /// given instance is unsaved, save a copy of and return it as a newly persistent
-        /// instance. The given instance does not become associated with the session.
-        /// This operation cascades to associated instances if the association is mapped
-        /// with <tt>cascade="merge"</tt>.<br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// <param name="entityName">Name of the entity.</param><param name="entity">a detached instance with state to be copied </param>
-        /// <returns>
-        /// an updated persistent instance
-        /// </returns>
-        /// </summary>
-        /// <returns/>
         public T Merge<T>(string entityName, T entity) where T : class
         {
-            return this.inner.Merge(entityName, entity);
+            return _innerSession.Merge(entityName, entity);
         }
 
-        /// <summary>
-        /// Make a transient instance persistent. This operation cascades to associated
-        /// instances if the association is mapped with <tt>cascade="persist"</tt>.<br/>
-        /// <br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// </summary>
-        /// <param name="obj">a transient instance to be made persistent </param>
+        public object Merge(object obj)
+        {
+            return _innerSession.Merge(obj);
+        }
+
+        public object Merge(string entityName, object obj)
+        {
+            return _innerSession.Merge(entityName, obj);
+        }
+
+        public void Replicate(object obj, ReplicationMode replicationMode)
+        {
+            _innerSession.Replicate(obj, replicationMode);
+        }
+
+        public void Replicate(string entityName, object obj, ReplicationMode replicationMode)
+        {
+            _innerSession.Replicate(entityName, obj, replicationMode);
+        }
+
         public void Persist(object obj)
         {
-            inner.Persist(obj);
+            _innerSession.Persist(obj);
         }
 
-        /// <summary>
-        /// Make a transient instance persistent. This operation cascades to associated
-        /// instances if the association is mapped with <tt>cascade="persist"</tt>.<br/>
-        /// <br/>
-        /// The semantics of this method are defined by JSR-220.
-        /// </summary>
-        /// <param name="entityName">The entity name</param>
-        /// <param name="obj">a transient instance to be made persistent </param>
         public void Persist(string entityName, object obj)
         {
-            inner.Persist(entityName, obj);
+            _innerSession.Persist(entityName, obj);
         }
 
-        /// <summary>
-        /// Remove a persistent instance from the datastore.
-        /// </summary>
-        /// <param name="obj">The instance to be removed</param>
-        /// <remarks>
-        /// The argument may be an instance associated with the receiving <c>ISession</c> or a
-        /// transient instance with an identifier associated with existing persistent state.
-        /// </remarks>
+        public object Save(object obj)
+        {
+            return _innerSession.Save(obj);
+        }
+
+        public void Save(object obj, object id)
+        {
+            _innerSession.Save(obj, id);
+        }
+
+        public object Save(string entityName, object obj)
+        {
+            return _innerSession.Save(entityName, obj);
+        }
+
+        public void Save(string entityName, object obj, object id)
+        {
+            _innerSession.Save(entityName, obj, id);
+        }
+
+        public void SaveOrUpdate(object obj)
+        {
+            _innerSession.SaveOrUpdate(obj);
+        }
+
+        public void SaveOrUpdate(string entityName, object obj)
+        {
+            _innerSession.SaveOrUpdate(entityName, obj);
+        }
+
+        public void SaveOrUpdate(string entityName, object obj, object id)
+        {
+            _innerSession.SaveOrUpdate(entityName, obj, id);
+        }
+
+        public void Update(object obj)
+        {
+            _innerSession.Update(obj);
+        }
+
+        public void Update(object obj, object id)
+        {
+            _innerSession.Update(obj, id);
+        }
+
+        public void Update(string entityName, object obj)
+        {
+            _innerSession.Update(entityName, obj);
+        }
+
+        public void Update(string entityName, object obj, object id)
+        {
+            _innerSession.Update(entityName, obj, id);
+        }
+
         public void Delete(object obj)
         {
-            inner.Delete(obj);
+            _innerSession.Delete(obj);
         }
 
-        /// <summary>
-        /// Remove a persistent instance from the datastore.
-        /// </summary>
-        /// <param name="entityName">Name of the entity</param>
-        /// <param name="obj">The instance to be removed</param>
-        /// <remarks>
-        /// The argument may be an instance associated with the receiving <c>ISession</c> or a
-        /// transient instance with an identifier associated with existing persistent state.
-        /// </remarks>
+        public int Delete(string query)
+        {
+            return _innerSession.Delete(query);
+        }
+
+        public int Delete(string query, object value, IType type)
+        {
+            return _innerSession.Delete(query, value, type);
+        }
+
+        public int Delete(string query, object[] values, IType[] types)
+        {
+            return _innerSession.Delete(query, values, types);
+        }
+
         public void Delete(string entityName, object obj)
         {
-            inner.Delete(entityName, obj);
+            _innerSession.Delete(entityName, obj);
         }
 
-        /// <summary>
-        /// Execute a query
-        /// </summary>
-        /// <param name="query">A query expressed in Hibernate's query language</param>
-        /// <returns>A distinct list of instances</returns>
-        /// <remarks>See <see cref="M:NHibernate.IQuery.List"/> for implications of <c>cache</c> usage.</remarks>
-        public IList Find(string query)
-        {
-            return inner.CreateQuery(query).List();
-        }
-
-        /// <summary>
-        /// Apply a filter to a persistent collection.
-        /// </summary>
-        /// <param name="collection">A persistent collection to filter</param>
-        /// <param name="filter">A filter query string</param>
-        /// <returns>The resulting collection</returns>
-        /// <remarks>
-        /// A filter is a Hibernate query that may refer to <c>this</c>, the collection element.
-        /// Filters allow efficient access to very large lazy collections. (Executing the filter
-        /// does not initialize the collection.)
-        /// </remarks>
         public ICollection Filter(object collection, string filter)
         {
-            return inner.CreateFilter(collection, filter).List();
+            return _innerSession.CreateFilter(collection, filter).List();
         }
 
-        /// <summary>
-        /// Apply a filter to a persistent collection, binding the given parameter to a "?" placeholder
-        /// </summary>
-        /// <param name="collection">A persistent collection to filter</param>
-        /// <param name="filter">A filter query string</param>
-        /// <param name="value">A value to be written to a "?" placeholder in the query</param>
-        /// <param name="type">The hibernate type of value</param>
-        /// <returns>A collection</returns>
-        /// <remarks>
-        /// A filter is a Hibernate query that may refer to <c>this</c>, the collection element.
-        /// Filters allow efficient access to very large lazy collections. (Executing the filter
-        /// does not initialize the collection.)
-        /// </remarks>
         public ICollection Filter(object collection, string filter, object value, IType type)
         {
-            IQuery q = inner.CreateFilter(collection, filter);
+            var q = _innerSession.CreateFilter(collection, filter);
+
             q.SetParameter(0, value, type);
+
             return q.List();
         }
 
-        /// <summary>
-        /// Apply a filter to a persistent collection, binding the given parameters to "?" placeholders.
-        /// </summary>
-        /// <param name="collection">A persistent collection to filter</param>
-        /// <param name="filter">A filter query string</param>
-        /// <param name="values">The values to be written to "?" placeholders in the query</param>
-        /// <param name="types">The hibernate types of the values</param>
-        /// <returns>A collection</returns>
-        /// <remarks>
-        /// A filter is a Hibernate query that may refer to <c>this</c>, the collection element.
-        /// Filters allow efficient access to very large lazy collections. (Executing the filter
-        /// does not initialize the collection.)
-        /// </remarks>
         public ICollection Filter(object collection, string filter, object[] values, IType[] types)
         {
-            IQuery q = inner.CreateFilter(collection, filter);
-            for (int i = 0; i < values.Length; i++)
+            var q = _innerSession.CreateFilter(collection, filter);
+
+            for (var i = 0; i < values.Length; i++)
             {
                 q.SetParameter(0, values[i], types[i]);
             }
@@ -945,737 +498,364 @@ namespace Castle.Facilities.NHibernateIntegration
             return q.List();
         }
 
-        /// <summary>
-        /// Delete all objects returned by the query.
-        /// </summary>
-        /// <param name="query">The query string</param>
-        /// <returns>Returns the number of objects deleted.</returns>
-        public int Delete(string query)
-        {
-            return inner.Delete(query);
-        }
-
-        /// <summary>
-        /// Delete all objects returned by the query.
-        /// </summary>
-        /// <param name="query">The query string</param>
-        /// <param name="value">A value to be written to a "?" placeholer in the query</param>
-        /// <param name="type">The hibernate type of value.</param>
-        /// <returns>The number of instances deleted</returns>
-        public int Delete(string query, object value, IType type)
-        {
-            return inner.Delete(query, value, type);
-        }
-
-        /// <summary>
-        /// Delete all objects returned by the query.
-        /// </summary>
-        /// <param name="query">The query string</param>
-        /// <param name="values">A list of values to be written to "?" placeholders in the query</param>
-        /// <param name="types">A list of Hibernate types of the values</param>
-        /// <returns>The number of instances deleted</returns>
-        public int Delete(string query, object[] values, IType[] types)
-        {
-            return inner.Delete(query, values, types);
-        }
-
-        /// <summary>
-        /// Obtain the specified lock level upon the given object.
-        /// </summary>
-        /// <param name="obj">A persistent instance</param>
-        /// <param name="lockMode">The lock level</param>
-        public void Lock(object obj, LockMode lockMode)
-        {
-            inner.Lock(obj, lockMode);
-        }
-
-        /// <summary>
-        /// Obtain the specified lock level upon the given object.
-        /// </summary>
-        /// <param name="entityName">The Entity name.</param>
-        /// <param name="obj">a persistent or transient instance </param>
-        /// <param name="lockMode">the lock level </param>
-        /// <remarks>
-        /// This may be used to perform a version check (<see cref="LockMode.Read"/>), to upgrade to a pessimistic
-        /// lock (<see cref="LockMode.Upgrade"/>), or to simply reassociate a transient instance
-        /// with a session (<see cref="LockMode.None"/>). This operation cascades to associated
-        /// instances if the association is mapped with <tt>cascade="lock"</tt>.
-        /// </remarks>
-        public void Lock(string entityName, object obj, LockMode lockMode)
-        {
-            inner.Lock(entityName, obj, lockMode);
-        }
-
-        /// <summary>
-        /// Re-read the state of the given instance from the underlying database.
-        /// </summary>
-        /// <param name="obj">A persistent instance</param>
-        /// <remarks>
-        ///     <para>
-        /// It is inadvisable to use this to implement long-running sessions that span many
-        /// business tasks. This method is, however, useful in certain special circumstances.
-        /// </para>
-        ///     <para>
-        /// For example,
-        /// <list>
-        ///             <item>Where a database trigger alters the object state upon insert or update</item>
-        ///             <item>After executing direct SQL (eg. a mass update) in the same session</item>
-        ///             <item>After inserting a <c>Blob</c> or <c>Clob</c></item>
-        ///         </list>
-        ///     </para>
-        /// </remarks>
-        public void Refresh(object obj)
-        {
-            inner.Refresh(obj);
-        }
-
-        /// <summary>
-        /// Re-read the state of the given instance from the underlying database, with
-        /// the given <c>LockMode</c>.
-        /// </summary>
-        /// <param name="obj">a persistent or transient instance</param>
-        /// <param name="lockMode">the lock mode to use</param>
-        /// <remarks>
-        /// It is inadvisable to use this to implement long-running sessions that span many
-        /// business tasks. This method is, however, useful in certain special circumstances.
-        /// </remarks>
-        public void Refresh(object obj, LockMode lockMode)
-        {
-            inner.Refresh(obj, lockMode);
-        }
-
-        /// <summary>
-        /// Determine the current lock mode of the given object
-        /// </summary>
-        /// <param name="obj">A persistent instance</param>
-        /// <returns>The current lock mode</returns>
-        public LockMode GetCurrentLockMode(object obj)
-        {
-            return inner.GetCurrentLockMode(obj);
-        }
-
-        /// <summary>
-        /// Begin a unit of work and return the associated <c>ITransaction</c> object.
-        /// </summary>
-        /// <returns>A transaction instance</returns>
-        /// <remarks>
-        /// If a new underlying transaction is required, begin the transaction. Otherwise
-        /// continue the new work in the context of the existing underlying transaction.
-        /// The class of the returned <see cref="T:NHibernate.ITransaction"/> object is determined by
-        /// the property <c>transaction_factory</c>
-        /// </remarks>
-        public ITransaction BeginTransaction()
-        {
-            return inner.BeginTransaction();
-        }
-
-        /// <summary>
-        /// Begin a transaction with the specified <c>isolationLevel</c>
-        /// </summary>
-        /// <param name="isolationLevel">Isolation level for the new transaction</param>
-        /// <returns>
-        /// A transaction instance having the specified isolation level
-        /// </returns>
-        public ITransaction BeginTransaction(IsolationLevel isolationLevel)
-        {
-            return inner.BeginTransaction(isolationLevel);
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class.
-        /// </summary>
-        /// <typeparam name="T">The class to Query</typeparam>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria<T>() where T : class
-        {
-            return inner.CreateCriteria(typeof(T));
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class with a specific alias
-        /// </summary>
-        /// <typeparam name="T">The class to Query</typeparam>
-        /// <param name="alias">The alias of the entity</param>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria<T>(string alias) where T : class
-        {
-            return inner.CreateCriteria(typeof(T), alias);
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class.
-        /// </summary>
-        /// <param name="persistentClass">The class to Query</param>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria(Type persistentClass)
-        {
-            return inner.CreateCriteria(persistentClass);
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class with a specific alias
-        /// </summary>
-        /// <param name="persistentClass">The class to Query</param>
-        /// <param name="alias">The alias of the entity</param>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria(Type persistentClass, string alias)
-        {
-            return inner.CreateCriteria(persistentClass, alias);
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class with a specific alias
-        /// </summary>
-        /// <param name="entityName">Name of the entity</param>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria(string entityName)
-        {
-            return inner.CreateCriteria(entityName);
-        }
-
-        /// <summary>
-        /// Creates a new <c>Criteria</c> for the entity class with a specific alias
-        /// </summary>
-        /// <param name="entityName">Name of the entity</param>
-        /// <param name="alias">The alias of the entity</param>
-        /// <returns>An ICriteria object</returns>
-        public ICriteria CreateCriteria(string entityName, string alias)
-        {
-            return inner.CreateCriteria(entityName, alias);
-        }
-
-        /// <summary>
-        /// Creates a new <c>IQueryOver&lt;T&gt;</c> for the entity class.
-        /// </summary>
-        /// <typeparam name="T">The entity class</typeparam>
-        /// <returns>
-        /// An ICriteria&lt;T&gt; object
-        /// </returns>
-        public IQueryOver<T, T> QueryOver<T>() where T : class
-        {
-            return inner.QueryOver<T>();
-        }
-
-        /// <summary>
-        /// Creates a new <c>IQueryOver&lt;T&gt;</c> for the entity class.
-        /// </summary>
-        /// <typeparam name="T">The entity class</typeparam>
-        /// <returns>
-        /// An ICriteria&lt;T&gt; object
-        /// </returns>
-        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
-        {
-            return inner.QueryOver(alias);
-        }
-
-        /// <summary>
-        /// Creates a new <c>IQueryOver{T};</c> for the entity class.
-        /// </summary>
-        /// <typeparam name="T">The entity class</typeparam><param name="entityName">The name of the entity to Query</param>
-        /// <returns>
-        /// An IQueryOver{T} object
-        /// </returns>
-        public IQueryOver<T, T> QueryOver<T>(string entityName) where T : class
-        {
-            return inner.QueryOver<T>(entityName);
-        }
-
-        /// <summary>
-        /// Creates a new <c>IQueryOver{T}</c> for the entity class.
-        /// </summary>
-        /// <typeparam name="T">The entity class</typeparam><param name="entityName">The name of the entity to Query</param><param name="alias">The alias of the entity</param>
-        /// <returns>
-        /// An IQueryOver{T} object
-        /// </returns>
-        public IQueryOver<T, T> QueryOver<T>(string entityName, Expression<Func<T>> alias) where T : class
-        {
-            return inner.QueryOver(entityName, alias);
-        }
-
-        /// <summary>
-        /// Create a new instance of <c>Query</c> for the given query string
-        /// </summary>
-        /// <param name="queryString">A hibernate query string</param>
-        /// <returns>The query</returns>
-        public IQuery CreateQuery(string queryString)
-        {
-            return inner.CreateQuery(queryString);
-        }
-
-        /// <summary>
-        /// Create a new instance of <c>Query</c> for the given collection and filter string
-        /// </summary>
-        /// <param name="collection">A persistent collection</param>
-        /// <param name="queryString">A hibernate query</param>
-        /// <returns>A query</returns>
         public IQuery CreateFilter(object collection, string queryString)
         {
-            return inner.CreateFilter(collection, queryString);
+            return _innerSession.CreateFilter(collection, queryString);
         }
 
-        /// <summary>
-        /// Obtain an instance of <see cref="T:NHibernate.IQuery"/> for a named query string defined in the
-        /// mapping file.
-        /// </summary>
-        /// <param name="queryName">The name of a query defined externally.</param>
-        /// <returns>
-        /// An <see cref="T:NHibernate.IQuery"/> from a named query string.
-        /// </returns>
-        /// <remarks>
-        /// The query can be either in <c>HQL</c> or <c>SQL</c> format.
-        /// </remarks>
+        public IQueryable<T> Query<T>()
+        {
+            return _innerSession.Query<T>();
+        }
+
+        public IQueryable<T> Query<T>(string entityName)
+        {
+            return _innerSession.Query<T>(entityName);
+        }
+
+        public IQueryOver<T, T> QueryOver<T>() where T : class
+        {
+            return _innerSession.QueryOver<T>();
+        }
+
+        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+        {
+            return _innerSession.QueryOver(alias);
+        }
+
+        public IQueryOver<T, T> QueryOver<T>(string entityName) where T : class
+        {
+            return _innerSession.QueryOver<T>(entityName);
+        }
+
+        public IQueryOver<T, T> QueryOver<T>(string entityName, Expression<Func<T>> alias) where T : class
+        {
+            return _innerSession.QueryOver(entityName, alias);
+        }
+
+        public IQuery CreateQuery(string queryString)
+        {
+            return _innerSession.CreateQuery(queryString);
+        }
+
+        public void CancelQuery()
+        {
+            _innerSession.CancelQuery();
+        }
+
         public IQuery GetNamedQuery(string queryName)
         {
-            return inner.GetNamedQuery(queryName);
+            return _innerSession.GetNamedQuery(queryName);
         }
 
-        /// <summary>
-        /// Create a new instance of <see cref="T:NHibernate.ISQLQuery"/> for the given SQL query string.
-        /// </summary>
-        /// <param name="queryString">a query expressed in SQL</param>
-        /// <returns>
-        /// An <see cref="T:NHibernate.ISQLQuery"/> from the SQL string
-        /// </returns>
+        public ICriteria CreateCriteria<T>() where T : class
+        {
+            return _innerSession.CreateCriteria<T>();
+        }
+
+        public ICriteria CreateCriteria<T>(string alias) where T : class
+        {
+            return _innerSession.CreateCriteria<T>(alias);
+        }
+
+        public ICriteria CreateCriteria(Type persistentClass)
+        {
+            return _innerSession.CreateCriteria(persistentClass);
+        }
+
+        public ICriteria CreateCriteria(Type persistentClass, string alias)
+        {
+            return _innerSession.CreateCriteria(persistentClass, alias);
+        }
+
+        public ICriteria CreateCriteria(string entityName)
+        {
+            return _innerSession.CreateCriteria(entityName);
+        }
+
+        public ICriteria CreateCriteria(string entityName, string alias)
+        {
+            return _innerSession.CreateCriteria(entityName, alias);
+        }
+
         public ISQLQuery CreateSQLQuery(string queryString)
         {
-            return inner.CreateSQLQuery(queryString);
+            return _innerSession.CreateSQLQuery(queryString);
         }
 
-        /// <summary>
-        /// Create a new instance of <c>IQuery</c> for the given SQL string.
-        /// </summary>
-        /// <param name="sql">a query expressed in SQL</param>
-        /// <param name="returnAlias">a table alias that appears inside <c>{}</c> in the SQL string</param>
-        /// <param name="returnClass">the returned persistent class</param>
-        /// <returns>
-        /// An <see cref="T:NHibernate.IQuery"/> from the SQL string
-        /// </returns>
         public IQuery CreateSQLQuery(string sql, string returnAlias, Type returnClass)
         {
-            return inner.CreateSQLQuery(sql).AddEntity(returnAlias, returnClass);
+            return _innerSession.CreateSQLQuery(sql).AddEntity(returnAlias, returnClass);
         }
 
-        /// <summary>
-        /// Create a new instance of <see cref="T:NHibernate.IQuery"/> for the given SQL string.
-        /// </summary>
-        /// <param name="sql">a query expressed in SQL</param>
-        /// <param name="returnAliases">an array of table aliases that appear inside <c>{}</c> in the SQL string</param>
-        /// <param name="returnClasses">the returned persistent classes</param>
-        /// <returns>
-        /// An <see cref="T:NHibernate.IQuery"/> from the SQL string
-        /// </returns>
         public IQuery CreateSQLQuery(string sql, string[] returnAliases, Type[] returnClasses)
         {
-            ISQLQuery query = inner.CreateSQLQuery(sql);
-            for (int i = 0; i < returnAliases.Length; i++)
+            var query = _innerSession.CreateSQLQuery(sql);
+
+            for (var i = 0; i < returnAliases.Length; i++)
             {
                 query.AddEntity(returnAliases[i], returnClasses[i]);
             }
+
             return query;
         }
 
-        /// <summary>
-        /// Completely clear the session. Evict all loaded instances and cancel all pending
-        /// saves, updates and deletions. Do not close open enumerables or instances of
-        /// <c>ScrollableResults</c>.
-        /// </summary>
-        public void Clear()
+        [Obsolete("TODO: NHibernate: Remove in future version.")]
+        public IMultiQuery CreateMultiQuery()
         {
-            inner.Clear();
+            return _innerSession.CreateMultiQuery();
         }
 
-        /// <summary>
-        /// End the <c>ISession</c> by disconnecting from the ADO.NET connection and cleaning up.
-        /// </summary>
-        /// <returns>
-        /// The connection provided by the application or <see langword="null"/>
-        /// </returns>
-        /// <remarks>
-        /// It is not strictly necessary to <c>Close()</c> the <c>ISession</c> but you must
-        /// at least <c>Disconnect()</c> it.
-        /// </remarks>
-        public DbConnection Close()
-        {
-            return (DbConnection) DoClose(true);
-        }
-
-        /// <summary>
-        /// Return the entity name for a persistent entity
-        /// </summary>
-        /// <param name="obj">a persistent entity</param>
-        /// <returns>the entity name</returns>
-        public string GetEntityName(object obj)
-        {
-            return inner.GetEntityName(obj);
-        }
-
-        /// <summary>
-        /// Sets the batch size of the session
-        /// </summary>
-        /// <param name="batchSize"></param>
-        /// <returns></returns>
-        public ISession SetBatchSize(int batchSize)
-        {
-            return inner.SetBatchSize(batchSize);
-        }
-
-        /// <summary>
-        /// An <see cref="T:NHibernate.IMultiCriteria"/> that can return a list of all the results
-        /// of all the criterias.
-        /// </summary>
-        /// <returns></returns>
+        [Obsolete("TODO: NHibernate: Remove in future version.")]
         public IMultiCriteria CreateMultiCriteria()
         {
-            return inner.CreateMultiCriteria();
+            return _innerSession.CreateMultiCriteria();
         }
 
-        /// <summary>
-        /// The current cache mode.
-        /// </summary>
-        /// <value></value>
-        /// <remarks>
-        /// Cache mode determines the manner in which this session can interact with
-        /// the second level cache.
-        /// </remarks>
-        public CacheMode CacheMode
+        public Task FlushAsync(CancellationToken cancellationToken = default)
         {
-            get { return inner.CacheMode; }
-            set { inner.CacheMode = value; }
+            return _innerSession.FlushAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// Get the statistics for this session.
-        /// </summary>
-        /// <value></value>
-        public ISessionStatistics Statistics
+        public Task EvictAsync(object obj, CancellationToken cancellationToken = default)
         {
-            get { return inner.Statistics; }
+            return _innerSession.EvictAsync(obj, cancellationToken);
+        }
+
+        public Task<bool> IsDirtyAsync(CancellationToken cancellationToken = default)
+        {
+            return _innerSession.IsDirtyAsync(cancellationToken);
+        }
+
+        public Task LockAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LockAsync(obj, lockMode, cancellationToken);
+        }
+
+        public Task LockAsync(string entityName, object obj, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LockAsync(entityName, obj, lockMode, cancellationToken);
+        }
+
+        public Task RefreshAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.RefreshAsync(obj, cancellationToken);
+        }
+
+        public Task RefreshAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.RefreshAsync(obj, lockMode, cancellationToken);
+        }
+
+        public Task<T> LoadAsync<T>(object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync<T>(id, cancellationToken);
+        }
+
+        public Task<T> LoadAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync<T>(id, lockMode, cancellationToken);
+        }
+
+        public Task<object> LoadAsync(Type theType, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync(theType, id, cancellationToken);
+        }
+
+        public Task<object> LoadAsync(Type theType, object id, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync(theType, id, lockMode, cancellationToken);
+        }
+
+        public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync(entityName, id, cancellationToken);
+        }
+
+        public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync(entityName, id, lockMode, cancellationToken);
+        }
+
+        public Task LoadAsync(object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.LoadAsync(obj, id, cancellationToken);
+        }
+
+        public Task<T> GetAsync<T>(object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetAsync<T>(id, cancellationToken);
+        }
+
+        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetAsync<T>(id, lockMode, cancellationToken);
+        }
+
+        public Task<object> GetAsync(Type clazz, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetAsync(clazz, id, cancellationToken);
+        }
+
+        public Task<object> GetAsync(Type clazz, object id, LockMode lockMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetAsync(clazz, id, lockMode, cancellationToken);
+        }
+
+        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetAsync(entityName, id, cancellationToken);
+        }
+
+        public Task<string> GetEntityNameAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.GetEntityNameAsync(obj, cancellationToken);
+        }
+
+        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = default) where T : class
+        {
+            return _innerSession.MergeAsync(entity, cancellationToken);
+        }
+
+        public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = default) where T : class
+        {
+            return _innerSession.MergeAsync(entityName, entity, cancellationToken);
+        }
+
+        public Task<object> MergeAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.MergeAsync(obj, cancellationToken);
+        }
+
+        public Task<object> MergeAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.MergeAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task ReplicateAsync(object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.ReplicateAsync(obj, replicationMode, cancellationToken);
+        }
+
+        public Task ReplicateAsync(string entityName, object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.ReplicateAsync(entityName, obj, replicationMode, cancellationToken);
+        }
+
+        public Task PersistAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.PersistAsync(obj, cancellationToken);
+        }
+
+        public Task PersistAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.PersistAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task SaveAsync(object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveAsync(obj, id, cancellationToken);
+        }
+
+        public Task<object> SaveAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveAsync(obj, cancellationToken);
+        }
+
+        public Task SaveAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveAsync(entityName, obj, id, cancellationToken);
+        }
+
+        public Task<object> SaveAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task SaveOrUpdateAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveOrUpdateAsync(obj, cancellationToken);
+        }
+
+        public Task SaveOrUpdateAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveOrUpdateAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task SaveOrUpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.SaveOrUpdateAsync(entityName, obj, id, cancellationToken);
+        }
+
+        public Task UpdateAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.UpdateAsync(obj, cancellationToken);
+        }
+
+        public Task UpdateAsync(object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.UpdateAsync(obj, id, cancellationToken);
+        }
+
+        public Task UpdateAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.UpdateAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task UpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.UpdateAsync(entityName, obj, id, cancellationToken);
+        }
+
+        public Task DeleteAsync(object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.DeleteAsync(obj, cancellationToken);
+        }
+
+        public Task DeleteAsync(string entityName, object obj, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.DeleteAsync(entityName, obj, cancellationToken);
+        }
+
+        public Task<int> DeleteAsync(string query, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.DeleteAsync(query, cancellationToken);
+        }
+
+        public Task<int> DeleteAsync(string query, object value, IType type, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.DeleteAsync(query, value, type, cancellationToken);
+        }
+
+        public Task<int> DeleteAsync(string query, object[] values, IType[] types, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.DeleteAsync(query, values, types, cancellationToken);
+        }
+
+        public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = default)
+        {
+            return _innerSession.CreateFilterAsync(collection, queryString, cancellationToken);
         }
 
         #endregion
 
-        #region Dispose delegation
-
         /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            DoClose(false);
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Does the close.
-        /// </summary>
-        /// <param name="closing">if set to <c>true</c> [closing].</param>
-        /// <returns></returns>
-        protected IDbConnection DoClose(bool closing)
-        {
-            if (disposed) return null;
-
-            if (canClose)
-            {
-                return InternalClose(closing);
-            }
-
-            return null;
-        }
-
-        internal IDbConnection InternalClose(bool closing)
-        {
-            IDbConnection conn = null;
-
-            sessionStore.Remove(this);
-
-            if (closing)
-            {
-                conn = inner.Close();
-            }
-
-            inner.Dispose();
-
-            disposed = true;
-
-            return conn;
-        }
-
-        /// <summary>
-        /// Returns <see langword="true"/> if the supplied sessions are equal, <see langword="false"/> otherwise.
+        /// Returns <see langword="true" /> if the supplied sessions are equal, <see langword="false" /> otherwise.
         /// </summary>
         /// <param name="left">The left.</param>
         /// <param name="right">The right.</param>
         /// <returns></returns>
         public static bool AreEqual(ISession left, ISession right)
         {
-            SessionDelegate sdLeft = left as SessionDelegate;
-            SessionDelegate sdRight = right as SessionDelegate;
-
-            if (sdLeft != null && sdRight != null)
+            if (left is SessionDelegate sdLeft && right is SessionDelegate sdRight)
             {
-                return Object.ReferenceEquals(sdLeft.inner, sdRight.inner);
+                return ReferenceEquals(sdLeft._innerSession, sdRight._innerSession);
             }
             else
             {
-                throw new NotSupportedException("AreEqual: left is " +
-                                                left.GetType().Name + " and right is " + right.GetType().Name);
+                throw new NotSupportedException(
+                    $"'{nameof(AreEqual)}': left is '{left.GetType().Name}' and right is '{right.GetType().Name}'.");
             }
-        }
-
-        public Task FlushAsync(CancellationToken cancellationToken = default)
-        {
-            return inner.FlushAsync(cancellationToken);
-        }
-
-        public Task<bool> IsDirtyAsync(CancellationToken cancellationToken = default)
-        {
-            return inner.IsDirtyAsync(cancellationToken);
-        }
-
-        public Task EvictAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.EvictAsync(obj, cancellationToken);
-        }
-
-        public Task<object> LoadAsync(Type theType, object id, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync(theType, id, lockMode, cancellationToken);
-        }
-
-        public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync(entityName, id, lockMode, cancellationToken);
-        }
-
-        public Task<object> LoadAsync(Type theType, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync(theType, id, cancellationToken);
-        }
-
-        public Task<T> LoadAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync<T>(id, lockMode, cancellationToken);
-        }
-
-        public Task<T> LoadAsync<T>(object id, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync<T>(id, cancellationToken);
-        }
-
-        public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync(entityName, id, cancellationToken);
-        }
-
-        public Task LoadAsync(object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.LoadAsync(obj, id, cancellationToken);
-        }
-
-        public Task ReplicateAsync(object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = default)
-        {
-            return inner.ReplicateAsync(obj, replicationMode, cancellationToken);
-        }
-
-        public Task ReplicateAsync(string entityName, object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = default)
-        {
-            return inner.ReplicateAsync(entityName, obj, replicationMode, cancellationToken);
-        }
-
-        public Task<object> SaveAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveAsync(obj, cancellationToken);
-        }
-
-        public Task SaveAsync(object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveAsync(obj, id, cancellationToken);
-        }
-
-        public Task<object> SaveAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task SaveAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveAsync(entityName, obj, id, cancellationToken);
-        }
-
-        public Task SaveOrUpdateAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveOrUpdateAsync(obj, cancellationToken);
-        }
-
-        public Task SaveOrUpdateAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveOrUpdateAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task SaveOrUpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.SaveOrUpdateAsync(entityName, obj, id, cancellationToken);
-        }
-
-        public Task UpdateAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.UpdateAsync(obj, cancellationToken);
-        }
-
-        public Task UpdateAsync(object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.UpdateAsync(obj, id, cancellationToken);
-        }
-
-        public Task UpdateAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.UpdateAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task UpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.UpdateAsync(entityName, obj, id, cancellationToken);
-        }
-
-        public Task<object> MergeAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.MergeAsync(obj, cancellationToken);
-        }
-
-        public Task<object> MergeAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.MergeAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = default) where T : class
-        {
-            return inner.MergeAsync(entity, cancellationToken);
-        }
-
-        public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = default) where T : class
-        {
-            return inner.MergeAsync(entityName, entity, cancellationToken);
-        }
-
-        public Task PersistAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.PersistAsync(obj, cancellationToken);
-        }
-
-        public Task PersistAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.PersistAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task DeleteAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.DeleteAsync(obj, cancellationToken);
-        }
-
-        public Task DeleteAsync(string entityName, object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.DeleteAsync(entityName, obj, cancellationToken);
-        }
-
-        public Task<int> DeleteAsync(string query, CancellationToken cancellationToken = default)
-        {
-            return inner.DeleteAsync(query, cancellationToken);
-        }
-
-        public Task<int> DeleteAsync(string query, object value, IType type, CancellationToken cancellationToken = default)
-        {
-            return inner.DeleteAsync(query, value, type, cancellationToken);
-        }
-
-        public Task<int> DeleteAsync(string query, object[] values, IType[] types, CancellationToken cancellationToken = default)
-        {
-            return inner.DeleteAsync(query, values, types, cancellationToken);
-        }
-
-        public Task LockAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.LockAsync(obj, lockMode, cancellationToken);
-        }
-
-        public Task LockAsync(string entityName, object obj, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.LockAsync(entityName, obj, lockMode, cancellationToken);
-        }
-
-        public Task RefreshAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.RefreshAsync(obj, cancellationToken);
-        }
-
-        public Task RefreshAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.RefreshAsync(obj, lockMode, cancellationToken);
-        }
-
-        public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = default)
-        {
-            return inner.CreateFilterAsync(collection, queryString, cancellationToken);
-        }
-
-        public Task<object> GetAsync(Type clazz, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.GetAsync(clazz, id, cancellationToken);
-        }
-
-        public Task<object> GetAsync(Type clazz, object id, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.GetAsync(clazz, id, lockMode, cancellationToken);
-        }
-
-        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = default)
-        {
-            return inner.GetAsync(entityName, id, cancellationToken);
-        }
-
-        public Task<T> GetAsync<T>(object id, CancellationToken cancellationToken = default)
-        {
-            return inner.GetAsync<T>(id, cancellationToken);
-        }
-
-        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = default)
-        {
-            return inner.GetAsync<T>(id, lockMode, cancellationToken);
-        }
-
-        public Task<string> GetEntityNameAsync(object obj, CancellationToken cancellationToken = default)
-        {
-            return inner.GetEntityNameAsync(obj, cancellationToken);
-        }
-
-        public ISharedSessionBuilder SessionWithOptions()
-        {
-            return inner.SessionWithOptions();
-        }
-
-        DbConnection ISession.Disconnect()
-        {
-            return inner.Disconnect();
-        }
-
-        public void Reconnect(DbConnection connection)
-        {
-            inner.Reconnect(connection);
-        }
-
-        public void JoinTransaction()
-        {
-            inner.JoinTransaction();
-        }
-
-        public IQueryable<T> Query<T>()
-        {
-            return inner.Query<T>();
-        }
-
-        public IQueryable<T> Query<T>(string entityName)
-        {
-            return inner.Query<T>(entityName);
         }
     }
 }
