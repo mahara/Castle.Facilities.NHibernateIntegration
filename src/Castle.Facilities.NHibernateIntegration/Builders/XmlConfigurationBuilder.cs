@@ -17,40 +17,44 @@
 using System.Xml;
 
 using Castle.Core.Configuration;
-using Castle.Core.Resource;
 
-using Castle.Facilities.NHibernateIntegration.Internal;
+using Castle.Facilities.NHibernateIntegration.Internals;
 
 using NHibernate.Cfg;
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// The configuration builder for NHibernate's own cfg.xml
+    /// The configuration builder for NHibernate's cfg.xml.
     /// </summary>
     public class XmlConfigurationBuilder : IConfigurationBuilder
     {
-        #region IConfigurationBuilder Members
-
         /// <summary>
-        /// Returns the Configuration object for the given xml
+        /// Returns the NHibernate <see cref="Configuration" /> instance for the given XML.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public Configuration GetConfiguration(IConfiguration config)
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            string cfgFile = config.Attributes["nhibernateConfigFile"];
-            IResource configResource = new FileAssemblyResource(cfgFile);
-            Configuration cfg;
-            using (XmlReader reader = XmlReader.Create(configResource.GetStreamReader()))
-            {
-                cfg = new Configuration();
-                cfg.Configure(reader);
-            }
-            configResource.Dispose();
-            return cfg;
-        }
+            const string FilePathAttributeName = Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName;
 
-        #endregion
+            var filePath = facilityConfiguration.Attributes[FilePathAttributeName];
+
+            filePath = !string.IsNullOrEmpty(filePath) ?
+                       filePath :
+                       throw new System.Configuration.ConfigurationErrorsException($"'{FilePathAttributeName}' cannot be null or empty.");
+
+            using (var configurationResource = new FileAssemblyResource(filePath))
+            {
+                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
+                {
+                    var configuration = new Configuration();
+
+                    configuration.Configure(reader);
+
+                    return configuration;
+                }
+            }
+        }
     }
 }
