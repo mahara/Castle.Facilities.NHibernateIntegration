@@ -23,7 +23,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
     [TestFixture]
     public class Fixture : IssueTestCase
     {
-        protected override void ExportDatabaseSchema()
+        protected override void CreateDatabaseSchema()
         {
         }
 
@@ -32,14 +32,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
         }
 
         [Test]
-        public void Configurations_can_be_obtained_via_different_ConfigurationBuilders()
+        public void ConfigurationsCanBeObtainedViaDifferentConfigurationBuilders()
         {
-            var configuration1 = container.Resolve<Configuration>("sessionFactory1.cfg");
-            var configuration2 = container.Resolve<Configuration>("sessionFactory2.cfg");
-            var configuration3 = container.Resolve<Configuration>("sessionFactory3.cfg");
-            Assert.AreEqual(configuration1.GetProperty("test"), null);
-            Assert.AreEqual(configuration2.GetProperty("test"), "test2");
-            Assert.AreEqual(configuration3.GetProperty("test"), "test3");
+            var configuration1 = Container.Resolve<Configuration>("sessionFactory1.cfg");
+            var configuration2 = Container.Resolve<Configuration>("sessionFactory2.cfg");
+            var configuration3 = Container.Resolve<Configuration>("sessionFactory3.cfg");
+
+            Assert.That(configuration1.GetProperty("test"), Is.Null);
+            Assert.That(configuration2.GetProperty("test"), Is.EqualTo("test2"));
+            Assert.That(configuration3.GetProperty("test"), Is.EqualTo("test3"));
         }
     }
 }

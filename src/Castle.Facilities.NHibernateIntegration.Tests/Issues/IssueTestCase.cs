@@ -22,14 +22,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues
         {
             get
             {
-                string ns = GetType().Namespace;
-                return ns.Substring(ns.LastIndexOf('.') + 1);
+                var @namespace = GetType().Namespace;
+                return @namespace.Substring(@namespace.LastIndexOf('.') + 1);
             }
         }
 
-        protected override string ConfigurationFile
-        {
-            get { return "Issues/" + BugNumber + "/facility.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            $"Issues/{BugNumber}/facility.xml";
     }
 }

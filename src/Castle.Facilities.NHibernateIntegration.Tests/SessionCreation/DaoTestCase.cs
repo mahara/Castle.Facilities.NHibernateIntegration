@@ -25,14 +25,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
     {
         protected override void ConfigureContainer()
         {
-            container.Register(Component.For<MyDao>().Named("mydao"));
-            container.Register(Component.For<MySecondDao>().Named("myseconddao"));
+            Container.Register(Component.For<MyDao>().Named("mydao"));
+            Container.Register(Component.For<MySecondDao>().Named("myseconddao"));
         }
 
         [Test]
         public void SessionIsShared()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
             dao.PerformComplexOperation1();
         }
@@ -40,41 +40,41 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         [Test]
         public void SessionDisposedIsNotReused()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
             dao.PerformComplexOperation2();
         }
 
         [Test]
-        public void ClosingAndDisposing()
+        public void SessionOpenCloseAndDispose()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
-            dao.DoOpenCloseAndDispose();
+            dao.PerformSessionOpenCloseAndDispose();
         }
 
         [Test]
         public void StatelessSessionIsShared()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
-            dao.PerformStatelessComplexOperation1();
+            dao.PerformComplexOperationStateless1();
         }
 
         [Test]
         public void StatelessSessionDisposedIsNotReused()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
-            dao.PerformStatelessComplexOperation2();
+            dao.PerformComplexOperationStateless2();
         }
 
         [Test]
-        public void StatelessSessionClosingAndDisposing()
+        public void StatelessSessionOpenCloseAndDispose()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
-            dao.DoStatelessOpenCloseAndDispose();
+            dao.PerformStatelessSessionOpenCloseAndDispose();
         }
     }
 }

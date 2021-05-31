@@ -20,37 +20,25 @@ using System.Runtime.Serialization;
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
     /// <summary>
-    /// Summary description for DataException.
     /// </summary>
     /// <remarks>
-    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;
+    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
     /// </remarks>
     [Serializable]
-    public class DataException : ApplicationException
+    public class DataException : Exception
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataException"/> class.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        public DataException(string message) : base(message)
+        public DataException(string message) :
+            base(message)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataException"/> class.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="inner">The inner.</param>
-        public DataException(string message, Exception inner) : base(message, inner)
+        public DataException(string message, Exception innerException) :
+            base(message, innerException)
         {
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DataException"/> class.
-        /// </summary>
-        /// <param name="info">The object that holds the serialized object data.</param>
-        /// <param name="context">The contextual information about the source or destination.</param>
-        public DataException(SerializationInfo info, StreamingContext context) : base(info, context)
+        protected DataException(SerializationInfo info, StreamingContext context) :
+            base(info, context)
         {
         }
     }

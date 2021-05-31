@@ -26,15 +26,23 @@ using NUnit.Framework;
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
 {
     /// <summary>
-    /// Tests for the <see cref="LogicalCallContextSessionStore" />.
+    /// Tests for the <see cref="ThreadLocalSessionStore" />.
     /// </summary>
     [TestFixture]
-    public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
+    public class ThreadLocalSessionStoreTestCase : AbstractNHibernateTestCase
     {
         private readonly AutoResetEvent _event = new(false);
 
         protected override string ConfigurationFilePath =>
-            "SessionStores/LogicalCallContextSessionStoreConfiguration.xml";
+            "SessionStores/ThreadLocalSessionStoreConfiguration.xml";
+
+        [Test]
+        public void ThreadLocalSessionStoreIsDefaultSessionStore()
+        {
+            var sessionStore = Container.Resolve<ISessionStore>();
+
+            Assert.That(sessionStore, Is.InstanceOf<ThreadLocalSessionStore>());
+        }
 
         [Test]
         public void NoSessionWithNullAlias()
@@ -77,6 +85,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
             session1 = sessionStore.FindCompatibleSession(Constants.DefaultAlias);
 
             Assert.That(session1, Is.Null);
+
             Assert.That(sessionStore.IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
@@ -89,7 +98,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
             ISession session1 = sessionFactory.OpenSession();
             var sessionDelegate1 = new SessionDelegate(session1, sessionStore, true);
             sessionStore.Store(Constants.DefaultAlias, sessionDelegate1);
-
             ISession session2 = sessionStore.FindCompatibleSession(Constants.DefaultAlias);
 
             Assert.That(session2, Is.Not.Null);
@@ -115,7 +123,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
 
             ISession session2 = sessionStore.FindCompatibleSession(Constants.DefaultAlias);
 
-            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2, Is.Null);
 
             _event.Set();
         }
@@ -161,6 +169,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
             session1 = sessionStore.FindCompatibleStatelessSession(Constants.DefaultAlias);
 
             Assert.That(session1, Is.Null);
+
             Assert.That(sessionStore.IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
@@ -199,7 +208,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionStores
 
             IStatelessSession session2 = sessionStore.FindCompatibleStatelessSession(Constants.DefaultAlias);
 
-            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2, Is.Null);
 
             _event.Set();
         }

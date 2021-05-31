@@ -14,68 +14,57 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
 using NHibernate.Cfg;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
-    /// <summary>
-    /// Knows how to read/write an NH <see cref="Configuration"/> from
-    /// a given filename, and whether that file should be trusted or a new
-    /// Configuration should be built.
-    /// </summary>
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
-        /// <summary>
-        /// Gets the <see cref="Configuration"/> from the file.
-        /// </summary>
-        /// <param name="filename">The name of the file to read from</param>
-        /// <returns>The <see cref="Configuration"/></returns>
-        public virtual Configuration ReadConfiguration(string filename)
+        private readonly IObjectPersister<Configuration> _persister =
+            ObjectPersisterFactory.Create<Configuration>();
+
+        public virtual Configuration ReadConfiguration(string filePath)
         {
-            var formatter = new BinaryFormatter();
-            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-            {
-                return formatter.Deserialize(fileStream) as Configuration;
-            }
+            return _persister.Read(filePath);
         }
 
-        /// <summary>
-        /// Writes the <see cref="Configuration"/> to the file
-        /// </summary>
-        /// <param name="filename">The name of the file to write to</param>
-        /// <param name="cfg">The NH Configuration</param>
-        public virtual void WriteConfiguration(string filename, Configuration cfg)
+        public virtual void WriteConfiguration(string filePath, Configuration configuration)
         {
-            var formatter = new BinaryFormatter();
-            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-            {
-                formatter.Serialize(fileStream, cfg);
-            }
+            _persister.Write(filePath, configuration);
         }
 
-        /// <summary>
-        /// Checks if a new <see cref="Configuration"/> is required or a serialized one should be used.
-        /// </summary>
-        /// <param name="filename">Name of the file containing the NH configuration</param>
-        /// <param name="dependencies">Files that the serialized configuration depends on. </param>
-        /// <returns>If the <see cref="Configuration"/> should be created or not.</returns>
-        public virtual bool IsNewConfigurationRequired(string filename, IList<string> dependencies)
+        public virtual bool IsNewConfigurationRequired(string filePath, IList<string> dependentFilePaths)
         {
-            if (!File.Exists(filename))
+            if (!File.Exists(filePath))
+            {
                 return true;
-
-            DateTime lastModified = File.GetLastWriteTime(filename);
-            bool requiresNew = false;
-            for (int i = 0; i < dependencies.Count && !requiresNew; i++)
-            {
-                DateTime dependencyLastModified = File.GetLastWriteTime(dependencies[i]);
-                requiresNew |= dependencyLastModified > lastModified;
             }
+
+            if (dependentFilePaths == null || dependentFilePaths.Count == 0)
+            {
+                return false;
+            }
+
+            var requiresNew = false;
+
+            var fileLastModificationTime = File.GetLastWriteTime(filePath);
+
+            for (var i = 0; i < dependentFilePaths.Count && !requiresNew; i++)
+            {
+                var dependentFilePath = dependentFilePaths[i];
+
+                if (!File.Exists(dependentFilePath))
+                {
+                    continue;
+                }
+
+                var dependentFileLastModificationTime = File.GetLastWriteTime(dependentFilePath);
+                requiresNew |= dependentFileLastModificationTime > fileLastModificationTime;
+            }
+
             return requiresNew;
         }
     }
