@@ -27,7 +27,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         public virtual int Id { get; set; }
 
-        public virtual string Name { get; set; }
+        public virtual string Name { get; set; } = string.Empty;
 
         public virtual IList<BlogItem> Items { get; set; }
     }

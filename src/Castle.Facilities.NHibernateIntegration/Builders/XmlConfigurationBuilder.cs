@@ -16,41 +16,47 @@
 
 using System.Xml;
 
-using Castle.Core.Configuration;
-using Castle.Core.Resource;
+using Castle.Facilities.NHibernateIntegration.Internals;
 
-using Castle.Facilities.NHibernateIntegration.Internal;
-
-using NHibernate.Cfg;
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
+using ConfigurationErrorsException = System.Configuration.ConfigurationErrorsException;
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// The configuration builder for NHibernate's own cfg.xml
+    /// The configuration builder for NHibernate's cfg.xml.
     /// </summary>
-    public class XmlConfigurationBuilder : IConfigurationBuilder
+    public class NHibernateCfgXmlConfigurationBuilder : IConfigurationBuilder
     {
-        #region IConfigurationBuilder Members
-
         /// <summary>
-        /// Returns the Configuration object for the given xml
+        /// Returns the NHibernate <see cref="NHibernateConfiguration" /> instance for the given XML.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public Configuration GetConfiguration(IConfiguration config)
+        /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="NHibernateConfiguration" />.</returns>
+        public NHibernateConfiguration GetConfiguration(CastleConfiguration facilityConfiguration)
         {
-            string cfgFile = config.Attributes["nhibernateConfigFile"];
-            IResource configResource = new FileAssemblyResource(cfgFile);
-            Configuration cfg;
-            using (XmlReader reader = XmlReader.Create(configResource.GetStreamReader()))
-            {
-                cfg = new Configuration();
-                cfg.Configure(reader);
-            }
-            configResource.Dispose();
-            return cfg;
-        }
+            const string FilePathAttributeName = Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName;
 
-        #endregion
+            var filePath = facilityConfiguration.Attributes[FilePathAttributeName];
+
+            if (string.IsNullOrEmpty(filePath))
+            {
+                const string Message = $"'{FilePathAttributeName}' cannot be null or empty.";
+                throw new ConfigurationErrorsException(Message);
+            }
+
+            using (var configurationResource = new FileAssemblyResource(filePath))
+            {
+                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
+                {
+                    var configuration = new NHibernateConfiguration();
+
+                    configuration.Configure(reader);
+
+                    return configuration;
+                }
+            }
+        }
     }
 }
