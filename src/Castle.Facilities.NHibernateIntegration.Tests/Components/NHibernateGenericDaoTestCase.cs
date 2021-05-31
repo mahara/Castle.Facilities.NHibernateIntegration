@@ -33,48 +33,51 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         {
         }
 
-        private NHibernateGenericDao nhGenericDao;
-        private NHibernateGenericDao nhGenericDao2;
-        private ISessionManager sessionManager;
+        private ISessionManager _sessionManager;
+        private NHibernateGenericDao _nhGenericDao1;
+        private NHibernateGenericDao _nhGenericDao2;
 
-        public override void OnSetUp()
+        protected override void OnSetUp()
         {
-            container.Register(Component.For<NHibernateGenericDao>()
-                                .ImplementedBy<NHibernateGenericDao>());
-            sessionManager = container.Resolve<ISessionManager>();
-            nhGenericDao = container.Resolve<NHibernateGenericDao>();
-            nhGenericDao2 = new NHibernateGenericDao(sessionManager, "sessionFactory1");
-            using (var session = sessionManager.OpenSession())
+            Container.Register(
+                Component.For<NHibernateGenericDao>()
+                         .ImplementedBy<NHibernateGenericDao>());
+            _sessionManager = Container.Resolve<ISessionManager>();
+            _nhGenericDao1 = Container.Resolve<NHibernateGenericDao>();
+            _nhGenericDao2 = new NHibernateGenericDao(_sessionManager, "sessionFactory1");
+
+            using (var session = _sessionManager.OpenSession())
             {
                 var blog1 = new Blog { Name = "myblog1" };
                 var blog1Item = new BlogItem
                 {
-                    ItemDate = DateTime.Now,
                     ParentBlog = blog1,
+                    Title = "mytitle1",
                     Text = "Hello",
-                    Title = "mytitle1"
+                    DateTime = DateTimeOffset.Now,
                 };
                 blog1.Items.Add(blog1Item);
 
                 var blog2 = new Blog { Name = "myblog2" };
                 var blog2Item = new BlogItem
                 {
-                    ItemDate = DateTime.Now,
                     ParentBlog = blog1,
+                    Title = "mytitle2",
                     Text = "Hello",
-                    Title = "mytitle2"
+                    DateTime = DateTimeOffset.Now,
                 };
                 blog2.Items.Add(blog2Item);
 
                 var blog3 = new Blog { Name = "myblog3" };
                 var blog3Item = new BlogItem
                 {
-                    ItemDate = DateTime.Now,
                     ParentBlog = blog1,
+                    Title = "mytitle3",
                     Text = "Hello3",
-                    Title = "mytitle3"
+                    DateTime = DateTimeOffset.Now,
                 };
                 blog3.Items.Add(blog3Item);
+
                 session.Save(blog1);
                 session.Save(blog1Item);
                 session.Save(blog2);
@@ -84,28 +87,29 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             }
         }
 
-        public override void OnTearDown()
+        protected override void OnTearDown()
         {
-            using (var session = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                session.Delete("from BlogItem");
-                session.Delete("from Blog");
+                session.Delete($"from {nameof(BlogItem)}");
+                session.Delete($"from {nameof(Blog)}");
             }
         }
 
         [Test]
         public void SetUppedCorrectly()
         {
-            Assert.That(nhGenericDao.SessionFactoryAlias, Is.Null);
-            Assert.That(nhGenericDao2.SessionFactoryAlias, Is.EqualTo("sessionFactory1"));
+            Assert.That(_nhGenericDao1.SessionFactoryAlias, Is.Null);
+            Assert.That(_nhGenericDao2.SessionFactoryAlias, Is.EqualTo("sessionFactory1"));
         }
 
         [Test]
         public void CanGetById()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var blog = nhGenericDao.FindById(typeof(Blog), 1) as Blog;
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
                 Assert.That(blog.Id, Is.EqualTo(1));
             }
         }
@@ -113,450 +117,523 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         [Test]
         public void CanInitializeLazyProperty()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = nhGenericDao.FindById(typeof(Blog), 1) as Blog;
-                Assert.That(NHibernateUtil.IsInitialized(b.Items), Is.False);
-                nhGenericDao.InitializeLazyProperty(b, "Items");
-                Assert.That(NHibernateUtil.IsInitialized(b.Items), Is.True);
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
+                Assert.That(NHibernateUtil.IsInitialized(blog.Items), Is.False);
+
+                _nhGenericDao1.InitializeLazyProperty(blog, nameof(Blog.Items));
+
+                Assert.That(NHibernateUtil.IsInitialized(blog.Items));
             }
         }
 
         [Test]
         public void ThrowsExceptionOnNonExistingProperty()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = nhGenericDao.FindById(typeof(Blog), 1) as Blog;
-                Assert.Throws<ArgumentOutOfRangeException>(() => nhGenericDao.InitializeLazyProperty(b, "Bla"));
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
+                Assert.Throws<ArgumentOutOfRangeException>(
+                    () => _nhGenericDao1.InitializeLazyProperty(blog, "Bla"));
             }
         }
 
         [Test]
-        public void ThrowsExceptionWhenNullInstance()
+        public void ThrowsExceptionWhenNullInstance1()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = nhGenericDao.FindById(typeof(Blog), 1) as Blog;
-                Assert.Throws<ArgumentNullException>(() => nhGenericDao.InitializeLazyProperty(null, "Items"));
-                Assert.Throws<ArgumentNullException>(() => nhGenericDao.InitializeLazyProperty(b, null));
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
+                Assert.Throws<ArgumentNullException>(
+                    () => _nhGenericDao1.InitializeLazyProperty(null, nameof(Blog.Items)));
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.InitializeLazyProperty(blog, null));
             }
         }
 
         [Test]
         public void ThrowsExceptionWhenNullInstance2()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Assert.Throws<ArgumentNullException>(() => nhGenericDao.InitializeLazyProperties(null));
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
+                Assert.Throws<ArgumentNullException>(
+                    () => _nhGenericDao1.InitializeLazyProperty(null, nameof(Blog.Items)));
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.InitializeLazyProperty(blog, string.Empty));
+            }
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenNullInstance3()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.Throws<ArgumentNullException>(
+                    () => _nhGenericDao1.InitializeLazyProperties(null));
             }
         }
 
         [Test]
         public void CanInitializeAllLazyProperties()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = nhGenericDao.FindById(typeof(Blog), 1) as Blog;
-                Assert.That(NHibernateUtil.IsInitialized(b.Items), Is.False);
-                nhGenericDao.InitializeLazyProperties(b);
-                Assert.That(NHibernateUtil.IsInitialized(b.Items), Is.True);
+                var blog = _nhGenericDao1.FindById<Blog>(1);
+
+                Assert.That(NHibernateUtil.IsInitialized(blog.Items), Is.False);
+
+                _nhGenericDao1.InitializeLazyProperties(blog);
+
+                Assert.That(NHibernateUtil.IsInitialized(blog.Items));
             }
         }
 
         [Test]
         public void CanSaveNewItem()
         {
-            using (var sess = sessionManager.OpenSession())
-            using (var tran = sess.BeginTransaction())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = new Blog();
-                b.Name = "blah";
-                nhGenericDao.Save(b);
-                Assert.That(b.Id, Is.GreaterThan(0));
-                tran.Rollback();
+                using (var transaction = session.BeginTransaction())
+                {
+                    var blog = new Blog { Name = "blah" };
+                    _nhGenericDao1.Save(blog);
+
+                    Assert.That(blog.Id, Is.GreaterThan(0));
+
+                    transaction.Rollback();
+                }
             }
         }
-
 
         [Test]
         public void CannotSaveNull()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Assert.Throws<DataException>(() => nhGenericDao.Save(new NonPersistentClass()));
+                Assert.Throws<DataException>(
+                    () => _nhGenericDao1.Save(new NonPersistentClass()));
             }
         }
 
         [Test]
         public void CanFindAll()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(Blog));
-                Assert.That(results, Has.Length.EqualTo(3));
+                var blogs = _nhGenericDao1.FindAll<Blog>();
+
+                Assert.That(blogs, Has.Count.EqualTo(3));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterion()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(Blog),
-                                                   new[] { Restrictions.Eq("Name", "myblog2") });
+                var blogs = _nhGenericDao1.FindAll<Blog>(
+                    new[] { Restrictions.Eq(nameof(Blog.Name), "myblog2") });
 
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((Blog) results.GetValue(0)).Name, Is.EqualTo("myblog2"));
+                Assert.That(blogs, Has.Count.EqualTo(1));
+                Assert.That(blogs[0].Name, Is.EqualTo("myblog2"));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionOrderBy()
         {
-
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem),
-                                                   new[] { Restrictions.Eq("Text", "Hello") },
-                                                   new[] { NHibernate.Criterion.Order.Desc("Title") });
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) });
 
-                Assert.That(results, Has.Length.EqualTo(2));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle2"));
-                Assert.That(((BlogItem) results.GetValue(1)).Title, Is.EqualTo("mytitle1"));
+                Assert.That(blogItems, Has.Count.EqualTo(2));
+                Assert.That(blogItems[0].Title, Is.EqualTo("mytitle2"));
+                Assert.That(blogItems[1].Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionOrderByLimits()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem),
-                                                   new[] { Restrictions.Eq("Text", "Hello") },
-                                                   new[] { NHibernate.Criterion.Order.Desc("Title") }, 1, 1);
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 1, 1);
 
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle1"));
+                Assert.That(blogItems, Has.Count.EqualTo(1));
+                Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
-        public void CanFindAllWithCriterionOrderByLimitsOutOfRangeReturnsEmptyArray()
+        public void CanFindAllWithCriterionOrderByLimitsOutOfRangeReturnsEmptyList()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem),
-                                                   new[] { Restrictions.Eq("Text", "Hello") },
-                                                   new[] { NHibernate.Criterion.Order.Desc("Title") }, 2, 3);
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 2, 3);
 
-                Assert.That(results, Has.Length.EqualTo(0));
+                Assert.That(blogItems, Has.Count.EqualTo(0));
             }
         }
 
         [Test]
         public void CanFindAllWithLimits()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem), 1, 2);
-                Assert.That(results, Has.Length.EqualTo(2));
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(1, 2);
+
+                Assert.That(blogItems, Has.Count.EqualTo(2));
             }
         }
 
         [Test]
-        public void CanFindAllWithLimitsOutOfRangeReturnsEmptyArray()
+        public void CanFindAllWithLimitsOutOfRangeReturnsEmptyList()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem), 3, 4);
-                Assert.That(results, Has.Length.EqualTo(0));
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(3, 4);
+
+                Assert.That(blogItems, Has.Count.EqualTo(0));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionLimit()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem),
-                                                   new[] { Restrictions.Eq("Text", "Hello") },
-                                                   0, 1);
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle1"));
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") }, 0, 1);
+
+                Assert.That(blogItems, Has.Count.EqualTo(1));
+                Assert.That((blogItems[0]).Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
         public void FindAllWithCustomQuery()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAllWithCustomQuery("from BlogItem b where b.Text='Hello'");
-                Assert.That(results, Has.Length.EqualTo(2));
+                var blogItems = _nhGenericDao1.FindAllWithCustomQuery<BlogItem>(
+                    $"from {nameof(BlogItem)} b where b.{nameof(BlogItem.Text)}='Hello'");
+
+                Assert.That(blogItems, Has.Count.EqualTo(2));
             }
         }
 
         [Test]
         public void FindAllWithCustomQueryLimits()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAllWithCustomQuery("from BlogItem b where b.Text='Hello'", 1, 1);
-                Assert.That(results, Has.Length.EqualTo(1));
+                var blogItems = _nhGenericDao1.FindAllWithCustomQuery<BlogItem>(
+                    $"from {nameof(BlogItem)} b where b.{nameof(BlogItem.Text)}='Hello'", 1, 1);
+
+                Assert.That(blogItems, Has.Count.EqualTo(1));
             }
         }
 
         [Test]
         public void DeleteAllWithType()
         {
-            using (var sess = sessionManager.OpenSession())
-            using (var tran = sess.BeginTransaction())
+            using (var session = _sessionManager.OpenSession())
             {
-                nhGenericDao.DeleteAll(typeof(Blog));
-                tran.Commit();
+                using (var transaction = session.BeginTransaction())
+                {
+                    _nhGenericDao1.DeleteAll<Blog>();
+
+                    transaction.Commit();
+                }
             }
-            using (var sess = sessionManager.OpenSession())
+
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(Blog));
-                Assert.That(results, Has.Length.EqualTo(0));
+                var blogs = _nhGenericDao1.FindAll<Blog>();
+
+                Assert.That(blogs, Has.Count.EqualTo(0));
             }
         }
 
         [Test]
         public void Delete()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(Blog));
-                Assert.That(results, Has.Length.EqualTo(3));
+                var blogs = _nhGenericDao1.FindAll<Blog>();
+
+                Assert.That(blogs, Has.Count.EqualTo(3));
             }
-            using (var sess = sessionManager.OpenSession())
-            using (var tran = sess.BeginTransaction())
+
+            using (var session = _sessionManager.OpenSession())
             {
-                var blog = nhGenericDao.FindById(typeof(Blog), 1);
-                nhGenericDao.Delete(blog);
-                tran.Commit();
+                using (var transaction = session.BeginTransaction())
+                {
+                    var blog = _nhGenericDao1.FindById<Blog>(1);
+                    _nhGenericDao1.Delete(blog);
+
+                    transaction.Commit();
+                }
             }
-            using (var sess = sessionManager.OpenSession())
+
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAll(typeof(Blog));
-                Assert.That(results, Has.Length.EqualTo(2));
+                var blogs = _nhGenericDao1.FindAll<Blog>();
+
+                Assert.That(blogs, Has.Count.EqualTo(2));
             }
         }
 
         [Test]
         public void CreateSavesObjectInTheDatabase()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog b = new Blog { Name = "myblog4" };
-                var id = nhGenericDao.Create(b);
-                Assert.That(id, Is.GreaterThan(0));
+                var blog = new Blog { Name = "myblog4" };
+                var blogId = (int) _nhGenericDao1.Create(blog);
+
+                Assert.That(blogId, Is.GreaterThan(0));
             }
         }
 
         [Test]
         public void GetByNamedQuery()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAllWithNamedQuery("getAllBlogs");
+                var blogs = _nhGenericDao1.FindAllWithNamedQuery<Blog>("getAllBlogs");
 
-                Assert.That(results, Has.Length.EqualTo(3));
+                Assert.That(blogs, Has.Count.EqualTo(3));
             }
         }
 
         [Test]
         public void GetByNamedQueryThrowsExceptionWhenNullParameter()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Assert.Throws<ArgumentNullException>(() => nhGenericDao.FindAllWithNamedQuery(null));
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.FindAllWithNamedQuery<Blog>(null));
+            }
+        }
+
+        [Test]
+        public void GetByNamedQueryThrowsExceptionWhenEmptyStringParameter()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.FindAllWithNamedQuery<Blog>(string.Empty));
             }
         }
 
         [Test]
         public void GetByNamedQueryThrowsExceptionWhenNonExistingQuery()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Assert.Throws<DataException>(() => nhGenericDao.FindAllWithNamedQuery("getMyBlogs"));
+                Assert.Throws<DataException>(
+                    () => _nhGenericDao1.FindAllWithNamedQuery<Blog>("getMyBlogs"));
             }
         }
 
         [Test]
         public void GetByNamedQueryWithLimits()
         {
-            using (var sess = sessionManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                var results = nhGenericDao.FindAllWithNamedQuery("getAllBlogs", 1, 2);
+                var blogs = _nhGenericDao1.FindAllWithNamedQuery<Blog>("getAllBlogs", 1, 2);
 
-                Assert.That(results, Has.Length.EqualTo(2));
+                Assert.That(blogs, Has.Count.EqualTo(2));
             }
         }
-
 
         [Test]
         public void CanFindAllStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(typeof(Blog));
-                Assert.That(results, Has.Length.EqualTo(3));
+                var blogs = _nhGenericDao1.FindAllStateless<Blog>();
+
+                Assert.That(blogs, Has.Count.EqualTo(3));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(
-                    typeof(Blog),
-                    new[] { Restrictions.Eq("Name", "myblog2") });
+                var blogs = _nhGenericDao1.FindAllStateless<Blog>(
+                    new[] { Restrictions.Eq(nameof(Blog.Name), "myblog2") });
 
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((Blog) results.GetValue(0)).Name, Is.EqualTo("myblog2"));
+                Assert.That(blogs, Has.Count.EqualTo(1));
+                Assert.That(blogs[0].Name, Is.EqualTo("myblog2"));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionOrderByStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(
-                    typeof(BlogItem),
-                    new[] { Restrictions.Eq("Text", "Hello") },
-                    new[] { NHibernate.Criterion.Order.Desc("Title") });
+                var blogItems = _nhGenericDao1.FindAllStateless<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) });
 
-                Assert.That(results, Has.Length.EqualTo(2));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle2"));
-                Assert.That(((BlogItem) results.GetValue(1)).Title, Is.EqualTo("mytitle1"));
+                Assert.That(blogItems, Has.Count.EqualTo(2));
+                Assert.That(blogItems[0].Title, Is.EqualTo("mytitle2"));
+                Assert.That(blogItems[1].Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionOrderByLimitsStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAll(typeof(BlogItem),
-                                                   new[] { Restrictions.Eq("Text", "Hello") },
-                                                   new[] { NHibernate.Criterion.Order.Desc("Title") }, 1, 1);
+                var blogItems = _nhGenericDao1.FindAll<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 1, 1);
 
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle1"));
+                Assert.That(blogItems, Has.Count.EqualTo(1));
+                Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
-        public void CanFindAllWithCriterionOrderByLimitsOutOfRangeReturnsEmptyArrayStateless()
+        public void CanFindAllWithCriterionOrderByLimitsOutOfRangeReturnsEmptyListStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(
-                    typeof(BlogItem),
-                    new[] { Restrictions.Eq("Text", "Hello") },
-                    new[] { NHibernate.Criterion.Order.Desc("Title") }, 2, 3);
+                var blogItems = _nhGenericDao1.FindAllStateless<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
+                    new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 2, 3);
 
-                Assert.That(results, Has.Length.EqualTo(0));
+                Assert.That(blogItems, Has.Count.EqualTo(0));
             }
         }
 
         [Test]
         public void CanFindAllWithLimitsStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(typeof(BlogItem), 1, 2);
-                Assert.That(results, Has.Length.EqualTo(2));
+                var blogItems = _nhGenericDao1.FindAllStateless<BlogItem>(1, 2);
+
+                Assert.That(blogItems, Has.Count.EqualTo(2));
             }
         }
 
         [Test]
-        public void CanFindAllWithLimitsOutOfRangeReturnsEmptyArrayStateless()
+        public void CanFindAllWithLimitsOutOfRangeReturnsEmptyListStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(typeof(BlogItem), 3, 4);
-                Assert.That(results, Has.Length.EqualTo(0));
+                var blogItems = _nhGenericDao1.FindAllStateless<BlogItem>(3, 4);
+
+                Assert.That(blogItems, Has.Count.EqualTo(0));
             }
         }
 
         [Test]
         public void CanFindAllWithCriterionLimitStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllStateless(
-                    typeof(BlogItem),
-                    new[] { Restrictions.Eq("Text", "Hello") },
-                    0,
-                    1);
-                Assert.That(results, Has.Length.EqualTo(1));
-                Assert.That(((BlogItem) results.GetValue(0)).Title, Is.EqualTo("mytitle1"));
+                var blogItems = _nhGenericDao1.FindAllStateless<BlogItem>(
+                    new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") }, 0, 1);
+
+                Assert.That(blogItems, Has.Count.EqualTo(1));
+                Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
             }
         }
 
         [Test]
         public void FindAllWithCustomQueryStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllWithCustomQueryStateless("from BlogItem b where b.Text='Hello'");
-                Assert.That(results, Has.Length.EqualTo(2));
+                var blogItems = _nhGenericDao1.FindAllWithCustomQueryStateless<BlogItem>(
+                    $"from {nameof(BlogItem)} b where b.{nameof(BlogItem.Text)}='Hello'");
+
+                Assert.That(blogItems, Has.Count.EqualTo(2));
             }
         }
 
         [Test]
         public void FindAllWithCustomQueryLimitsStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllWithCustomQueryStateless("from BlogItem b where b.Text='Hello'", 1, 1);
-                Assert.That(results, Has.Length.EqualTo(1));
+                var blogItems = _nhGenericDao1.FindAllWithCustomQueryStateless<BlogItem>(
+                    $"from {nameof(BlogItem)} b where b.{nameof(BlogItem.Text)}='Hello'", 1, 1);
+
+                Assert.That(blogItems, Has.Count.EqualTo(1));
             }
         }
 
         [Test]
         public void GetByNamedQueryStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllWithNamedQueryStateless("getAllBlogs");
+                var blogs = _nhGenericDao1.FindAllWithNamedQueryStateless<Blog>("getAllBlogs");
 
-                Assert.That(results, Has.Length.EqualTo(3));
+                Assert.That(blogs, Has.Count.EqualTo(3));
             }
         }
 
         [Test]
         public void GetByNamedQueryThrowsExceptionWhenNullParameterStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.Throws<ArgumentNullException>(() => nhGenericDao.FindAllWithNamedQueryStateless(null));
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.FindAllWithNamedQueryStateless<Blog>(null));
+            }
+        }
+
+        [Test]
+        public void GetByNamedQueryThrowsExceptionWhenEmptyStringParameterStateless()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.Throws<ArgumentException>(
+                    () => _nhGenericDao1.FindAllWithNamedQueryStateless<Blog>(string.Empty));
             }
         }
 
         [Test]
         public void GetByNamedQueryThrowsExceptionWhenNonExistingQueryStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.Throws<DataException>(() => nhGenericDao.FindAllWithNamedQueryStateless("getMyBlogs"));
+                Assert.Throws<DataException>(
+                    () => _nhGenericDao1.FindAllWithNamedQueryStateless<Blog>("getMyBlogs"));
             }
         }
 
         [Test]
         public void GetByNamedQueryWithLimitsStateless()
         {
-            using (var session = sessionManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                var results = nhGenericDao.FindAllWithNamedQueryStateless("getAllBlogs", 1, 2);
+                var blogs = _nhGenericDao1.FindAllWithNamedQueryStateless<Blog>("getAllBlogs", 1, 2);
 
-                Assert.That(results, Has.Length.EqualTo(2));
+                Assert.That(blogs, Has.Count.EqualTo(2));
             }
         }
     }

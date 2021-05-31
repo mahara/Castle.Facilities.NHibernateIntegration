@@ -28,25 +28,27 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
     [TestFixture]
     public class Fixture : IssueTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "DefaultConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            "DefaultConfiguration.xml";
 
         [Test]
-        public void Calls_ConfigurationContributors_before_SessionFactory_is_initialized()
+        public void Calls_ConfigurationContributors_Before_SessionFactory_IsInitialized()
         {
-            var configurator = MockRepository.GenerateMock<IConfigurationContributor>();
+            var configurator1 = MockRepository.GenerateMock<IConfigurationContributor>();
             var configurator2 = MockRepository.GenerateMock<IConfigurationContributor>();
-            container.Register(Component.For<IConfigurationContributor>()
-                                .Named("c1")
-                                .Instance(configurator));
-            container.Register(Component.For<IConfigurationContributor>()
-                                .Named("c2")
-                                .Instance(configurator2));
-            var configuration = container.Resolve<Configuration>("sessionFactory1.cfg");
-            container.Resolve<ISessionFactory>("sessionFactory1");
-            configurator.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
+            Container.Register(
+                Component.For<IConfigurationContributor>()
+                         .Named("c1")
+                         .Instance(configurator1));
+            Container.Register(
+                Component.For<IConfigurationContributor>()
+                         .Named("c2")
+                         .Instance(configurator2));
+
+            var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
+            Container.Resolve<ISessionFactory>("sessionFactory1");
+
+            configurator1.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
             configurator2.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
         }
     }
