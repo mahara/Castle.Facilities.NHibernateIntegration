@@ -14,37 +14,32 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Services.Transaction;
-
-using NHibernate;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     [Transactional]
     public class FirstDao2
     {
-        private readonly ISessionManager sessManager;
+        private readonly ISessionManager _sessionManager;
 
-        public FirstDao2(ISessionManager sessManager)
+        public FirstDao2(ISessionManager sessionManager)
         {
-            this.sessManager = sessManager;
+            _sessionManager = sessionManager;
         }
 
         [Transaction]
         public virtual Blog Create()
         {
-            return Create("xbox blog");
+            return Create("Xbox Blog");
         }
 
         [Transaction]
-        public virtual Blog Create(String name)
+        public virtual Blog Create(string name)
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog blog = new Blog();
-                blog.Name = name;
+                var blog = new Blog { Name = name };
                 session.Save(blog);
                 return blog;
             }
@@ -53,16 +48,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog CreateStateless()
         {
-            return CreateStateless("xbox blog");
+            return CreateStateless("Xbox Blog");
         }
 
         [Transaction]
-        public virtual Blog CreateStateless(String name)
+        public virtual Blog CreateStateless(string name)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                Blog blog = new Blog();
-                blog.Name = name;
+                var blog = new Blog { Name = name };
                 session.Insert(blog);
                 return blog;
             }
