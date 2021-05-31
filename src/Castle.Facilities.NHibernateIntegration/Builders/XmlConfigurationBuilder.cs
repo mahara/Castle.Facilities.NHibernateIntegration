@@ -14,10 +14,10 @@
 // limitations under the License.
 #endregion
 
+using System;
 using System.Xml;
 
 using Castle.Core.Configuration;
-using Castle.Core.Resource;
 
 using Castle.Facilities.NHibernateIntegration.Internal;
 
@@ -26,31 +26,31 @@ using NHibernate.Cfg;
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// The configuration builder for NHibernate's own cfg.xml
+    /// The configuration builder for NHibernate's cfg.xml.
     /// </summary>
     public class XmlConfigurationBuilder : IConfigurationBuilder
     {
-        #region IConfigurationBuilder Members
-
         /// <summary>
-        /// Returns the Configuration object for the given xml
+        /// Returns the NHibernate <see cref="Configuration" /> object for the given XML.
         /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public Configuration GetConfiguration(IConfiguration config)
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>A NHibernate <see cref="Configuration" />.</returns>
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            string cfgFile = config.Attributes["nhibernateConfigFile"];
-            IResource configResource = new FileAssemblyResource(cfgFile);
-            Configuration cfg;
-            using (XmlReader reader = XmlReader.Create(configResource.GetStreamReader()))
-            {
-                cfg = new Configuration();
-                cfg.Configure(reader);
-            }
-            configResource.Dispose();
-            return cfg;
-        }
+            var filePath = facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName] ??
+                           throw new ArgumentNullException(nameof(facilityConfiguration));
 
-        #endregion
+            using (var configurationResource = new FileAssemblyResource(filePath))
+            {
+                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
+                {
+                    var configuration = new Configuration();
+
+                    configuration.Configure(reader);
+
+                    return configuration;
+                }
+            }
+        }
     }
 }

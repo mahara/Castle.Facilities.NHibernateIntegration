@@ -21,32 +21,31 @@ using NHibernate.Cfg;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Knows how to read/write an NH <see cref="Configuration"/> from
-    /// a given filename, and whether that file should be trusted or a new
-    /// Configuration should be built.
+    /// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given file path,
+    /// and whether that file should be trusted or a new configuration should be built.
     /// </summary>
     public interface IConfigurationPersister
     {
         /// <summary>
-        /// Gets the <see cref="Configuration"/> from the file.
+        /// Gets the NHibernate <see cref="Configuration" /> from the file.
         /// </summary>
-        /// <param name="filename">The name of the file to read from</param>
-        /// <returns>The <see cref="Configuration"/></returns>
-        Configuration ReadConfiguration(string filename);
+        /// <param name="filePath">The path of the file to read from.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        Configuration ReadConfiguration(string filePath);
 
         /// <summary>
-        /// Writes the <see cref="Configuration"/> to the file
+        /// Writes the NHibernate <see cref="Configuration" /> to the file
         /// </summary>
-        /// <param name="filename">The name of the file to write to</param>
-        /// <param name="cfg">The NH Configuration</param>
-        void WriteConfiguration(string filename, Configuration cfg);
+        /// <param name="filePath">The path of the file to write to</param>
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        void WriteConfiguration(string filePath, Configuration configuration);
 
         /// <summary>
-        /// Checks if a new <see cref="Configuration"/> is required or a serialized one should be used.
+        /// Checks if a new NHibernate <see cref="Configuration" /> is required or a serialized one should be used.
         /// </summary>
-        /// <param name="filename">Name of the file containing the NH configuration</param>
-        /// <param name="dependencies">Files that the serialized configuration depends on. </param>
-        /// <returns>If the <see cref="Configuration"/> should be created or not.</returns>
-        bool IsNewConfigurationRequired(string filename, IList<string> dependencies);
+        /// <param name="filePath">The path of the file containing the NHibernate <see cref="Configuration" />.</param>
+        /// <param name="dependencies">The files that the serialized NHibernate <see cref="Configuration" /> depends on. </param>
+        /// <returns>Whether the NHibernate <see cref="Configuration" /> should be created or not.</returns>
+        bool IsNewConfigurationRequired(string filePath, IList<string> dependencies);
     }
 }

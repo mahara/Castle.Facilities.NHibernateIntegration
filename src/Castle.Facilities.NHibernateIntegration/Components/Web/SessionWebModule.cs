@@ -25,89 +25,89 @@ using NHibernate;
 namespace Castle.Facilities.NHibernateIntegration.Components.Web
 {
     /// <summary>
-    /// HttpModule to set up a session for the request lifetime.
-    /// <seealso cref="ISessionManager"/>
+    /// <see cref="IHttpModule" /> to set up a session for the request lifetime.
+    /// <seealso cref="ISessionManager" />
     /// </summary>
     /// <remarks>
     /// To install the module, you must:
     /// <para>
-    ///    <list type="number">
-    ///      <item>
-    ///        <description>
-    ///        Add the module to the <c>httpModules</c> configuration section within <c>system.web</c>
-    ///        </description>
-    ///      </item>
-    ///      <item>
-    ///        <description>Extend the <see cref="HttpApplication"/> if you haven't</description>
-    ///      </item>
-    ///      <item>
-    ///        <description>Make your <c>HttpApplication</c> subclass implement
-    ///        <see cref="IContainerAccessor"/> so the module can access the container instance</description>
-    ///      </item>
-    ///    </list>
+    ///   <list type="number">
+    ///     <item>
+    ///       <description>
+    ///         Add the module to the <c>httpModules</c> configuration section within <c>system.web</c>
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///         Extend the <see cref="HttpApplication" /> if you haven't.
+    ///       </description>
+    ///     </item>
+    ///     <item>
+    ///       <description>
+    ///         Make your <see cref="HttpApplication" /> subclass implement <see cref="IContainerAccessor" />
+    ///         so the module can access the container instance.
+    ///       </description>
+    ///     </item>
+    ///   </list>
     /// </para>
     /// </remarks>
     public class SessionWebModule : IHttpModule
     {
-        /// <summary>
-        ///
-        /// </summary>
-        protected static readonly String SessionKey = "SessionWebModule.session";
+        public const string SessionKey = "SessionWebModule.session";
+
+        private HttpApplication _httpApplication;
 
         /// <summary>
         /// Initializes a module and prepares it to handle requests.
         /// </summary>
-        /// <param name="app">The app.</param>
-        public void Init(HttpApplication app)
+        /// <param name="context">The app.</param>
+        public void Init(HttpApplication context)
         {
-            app.BeginRequest += OnBeginRequest;
-            app.EndRequest += OnEndRequest;
+            _httpApplication = context;
+
+            _httpApplication.BeginRequest += OnBeginRequest;
+            _httpApplication.EndRequest += OnEndRequest;
         }
 
-        /// <summary>
-        /// Disposes of the resources (other than memory) used by the module that implements <see cref="T:System.Web.IHttpModule"/>.
-        /// </summary>
         public void Dispose()
         {
+            _httpApplication.BeginRequest -= OnBeginRequest;
+            _httpApplication.EndRequest -= OnEndRequest;
+
+            _httpApplication = null;
         }
 
         private void OnBeginRequest(object sender, EventArgs e)
         {
-            IWindsorContainer container = ObtainContainer();
+            var container = GetContainer();
 
-            ISessionManager sessManager = container.Resolve<ISessionManager>();
-
-            HttpContext.Current.Items.Add(SessionKey, sessManager.OpenSession());
+            var sessionManager = container.Resolve<ISessionManager>();
+            HttpContext.Current.Items.Add(SessionKey, sessionManager.OpenSession());
         }
 
         private void OnEndRequest(object sender, EventArgs e)
         {
-            ISession session = (ISession) HttpContext.Current.Items[SessionKey];
-
-            if (session != null)
-            {
-                session.Dispose();
-            }
+            var session = (ISession) HttpContext.Current.Items[SessionKey];
+            session?.Dispose();
         }
 
-        private static IWindsorContainer ObtainContainer()
+        private static IWindsorContainer GetContainer()
         {
-            IContainerAccessor containerAccessor =
-                HttpContext.Current.ApplicationInstance as IContainerAccessor;
-
-            if (containerAccessor == null)
+            if (!(HttpContext.Current.ApplicationInstance is IContainerAccessor containerAccessor))
             {
-                throw new FacilityException("You must extend the HttpApplication in your web project " +
-                                            "and implement the IContainerAccessor to properly expose your container instance");
+                var message = $"You must extend the '{nameof(HttpApplication)}' in your web project " +
+                              $"and implement the '{nameof(IContainerAccessor)}' to properly expose your container instance.";
+                throw new FacilityException(message);
             }
 
-            IWindsorContainer container = containerAccessor.Container;
+            var container = containerAccessor.Container;
 
             if (container == null)
             {
-                throw new FacilityException("The container seems to be unavailable (null) in " +
-                                            "your HttpApplication subclass");
+                var message = $"The container seems to be unavailable (null) in your '{nameof(HttpApplication)}' subclass.";
+                throw new FacilityException(message);
             }
+
             return container;
         }
     }
