@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;
 using Castle.MicroKernel;
@@ -25,6 +24,7 @@ using NUnit.Framework;
 
 using Rhino.Mocks;
 
+using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
 using Is = Rhino.Mocks.Constraints.Is;
 using List = Rhino.Mocks.Constraints.List;
 
@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
     [TestFixture]
     public class PersistentConfigurationBuilderConventionsFixture
     {
-        private IConfiguration facilityCfg;
+        private CastleConfiguration _facilityConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -42,36 +42,48 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            facilityCfg = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName)
+                                                       .Children[Constants.SessionFactories_ConfigurationElementName]
+                                                       .Children[Constants.SessionFactory_ConfigurationElementName];
         }
 
         [Test]
-        public void Derives_valid_filename_from_session_factory_ID_when_not_explicitly_specified()
+        public void DerivesValidFileFromSessionFactoryIdWhenNotExplicitlySpecified()
         {
             var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
-            configurationPersister.Expect(x => x.IsNewConfigurationRequired(null, null))
-                .IgnoreArguments()
-                .Constraints(Is.Equal("sessionFactory1.dat"), Is.Anything())
-                .Return(false);
+            configurationPersister.Expect(
+                x =>
+                x.IsNewConfigurationRequired(null, null))
+                 .IgnoreArguments()
+                 .Constraints(Is.Equal("sessionFactory1.dat"),
+                              Is.Anything())
+                 .Return(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             configurationPersister.VerifyAllExpectations();
         }
 
         [Test]
-        public void Includes_mapping_assemblies_in_dependent_file_list()
+        public void IncludesMappingAssembliesInDependentFiles()
         {
+            var dependentFilePaths = new[]
+            {
+                "Castle.Facilities.NHibernateIntegration.Tests.dll",
+            };
+
             var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
-            configurationPersister.Expect(x => x.IsNewConfigurationRequired(null, null))
-                .IgnoreArguments()
-                .Constraints(Is.Anything(),
-                             List.ContainsAll(new[] { "Castle.Facilities.NHibernateIntegration.Tests.dll" }))
-                .Return(false);
+            configurationPersister.Expect(
+                x =>
+                x.IsNewConfigurationRequired(null, null))
+                 .IgnoreArguments()
+                 .Constraints(Is.Anything(),
+                              List.ContainsAll(dependentFilePaths))
+                 .Return(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             configurationPersister.VerifyAllExpectations();
         }

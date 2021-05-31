@@ -20,65 +20,51 @@ using Castle.Services.Transaction;
 
 using ITransaction = NHibernate.ITransaction;
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
+namespace Castle.Facilities.NHibernateIntegration.Internals
 {
     /// <summary>
-    /// Adapter to <see cref="IResource"/> so a
-    /// NHibernate transaction can be enlisted within
-    /// <see cref="Castle.Services.Transaction.ITransaction"/> instances.
+    /// Adapter to <see cref="IResource" /> so an NHibernate transaction can be enlisted
+    /// within <see cref="Services.Transaction.ITransaction" /> instances.
     /// </summary>
     public class ResourceAdapter : IResource, IDisposable
     {
-        private readonly ITransaction transaction;
-        private readonly bool isAmbient;
+        private readonly ITransaction _transaction;
+        private readonly bool _isAmbient;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceAdapter"/> class.
-        /// </summary>
-        /// <param name="transaction">The transaction.</param>
-        /// <param name="isAmbient"></param>
         public ResourceAdapter(ITransaction transaction, bool isAmbient)
         {
-            this.transaction = transaction;
-            this.isAmbient = isAmbient;
+            _transaction = transaction;
+            _isAmbient = isAmbient;
         }
 
-        /// <summary>
-        /// Implementors should start the
-        /// transaction on the underlying resource
-        /// </summary>
-        public void Start()
-        {
-            transaction.Begin();
-        }
-
-        /// <summary>
-        /// Implementors should commit the
-        /// transaction on the underlying resource
-        /// </summary>
-        public void Commit()
-        {
-            transaction.Commit();
-        }
-
-        /// <summary>
-        /// Implementors should rollback the
-        /// transaction on the underlying resource
-        /// </summary>
-        public void Rollback()
-        {
-            //HACK: It was supossed to only a test but it fixed the escalated tx rollback issue. not sure if
-            //      this the right way to do it (probably not).
-            if (!isAmbient)
-                transaction.Rollback();
-        }
-
-        /// <summary>
-        ///
-        /// </summary>
         public void Dispose()
         {
-            transaction.Dispose();
+            _transaction.Dispose();
+
+            GC.SuppressFinalize(this);
+        }
+
+        public void Start()
+        {
+            _transaction.Begin();
+        }
+
+        public void Commit()
+        {
+            _transaction.Commit();
+        }
+
+        public void Rollback()
+        {
+            //
+            //  NOTE:   (HACK) It was supossed to only a test,
+            //          but it fixed the escalated transaction rollback issue.
+            //          Not sure if this the right way to do it (but probably not).
+            //
+            if (!_isAmbient)
+            {
+                _transaction.Rollback();
+            }
         }
     }
 }
