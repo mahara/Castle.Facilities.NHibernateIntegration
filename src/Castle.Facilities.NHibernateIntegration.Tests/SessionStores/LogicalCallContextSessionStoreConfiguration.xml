@@ -9,24 +9,11 @@
 
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-              configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests">
+              configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
+              sessionStoreType="Castle.Facilities.NHibernateIntegration.SessionStores.LogicalCallContextSessionStore, Castle.Facilities.NHibernateIntegration">
       <sessionFactory id="sessionFactory1">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
-          <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
-          <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
-          <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
-        </settings>
-
-        <assemblies>
-          <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
-        </assemblies>
-      </sessionFactory>
-
-      <sessionFactory id="sessionFactory2"
-                      alias="intercepted">
-        <settings>
-          <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
