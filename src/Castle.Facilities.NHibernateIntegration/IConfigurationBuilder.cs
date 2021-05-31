@@ -21,13 +21,16 @@ using NHibernate.Cfg;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Builds up the Configuration object
+    /// Builds up the NHibernate <see cref="Configuration" /> instance.
     /// </summary>
     public interface IConfigurationBuilder
     {
         /// <summary>
-        /// Builds the Configuration object from the specifed configuration
+        /// Builds the NHibernate <see cref="Configuration" /> instance
+        /// from the specified <see cref="IConfiguration" />.
         /// </summary>
-        Configuration GetConfiguration(IConfiguration config);
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        Configuration GetConfiguration(IConfiguration facilityConfiguration);
     }
 }
