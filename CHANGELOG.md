@@ -1,7 +1,7 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.0.0 (2021-05-xx)
+## 5.0.0 (2021-05-31)
 
 Improvements:
 - Upgraded to SDK-style .NET projects
