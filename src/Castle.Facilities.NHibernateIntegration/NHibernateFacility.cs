@@ -22,7 +22,7 @@ using System.Linq;
 using Castle.Core.Configuration;
 using Castle.Core.Logging;
 using Castle.Facilities.NHibernateIntegration.Builders;
-using Castle.Facilities.NHibernateIntegration.Internal;
+using Castle.Facilities.NHibernateIntegration.Internals;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
@@ -39,379 +39,361 @@ using ILoggerFactory = Castle.Core.Logging.ILoggerFactory;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Provides a basic level of integration with the NHibernate project
+    /// Provides a basic level of integration with the NHibernate project.
     /// </summary>
     /// <remarks>
-    /// This facility allows components to gain access to the NHibernate's
-    /// objects:
+    /// This facility allows components to gain access to the NHibernate's objects:
     /// <list type="bullet">
     ///   <item><description>NHibernate.Cfg.Configuration</description></item>
     ///   <item><description>NHibernate.ISessionFactory</description></item>
     /// </list>
     /// <para>
-    /// It also allow you to obtain the ISession instance
-    /// through the component <see cref="ISessionManager"/>, which is
-    /// transaction aware and save you the burden of sharing session
-    /// or using a singleton.
+    /// It also allow you to obtain the ISession instance through the component <see cref="ISessionManager" />,
+    /// which is transaction aware and save you the burden of sharing session or using a singleton.
     /// </para>
     /// </remarks>
-    /// <example>The following sample illustrates how a component
-    /// can access the session.
+    /// <example>
+    /// The following sample illustrates how a component can access the session.
     /// <code>
     /// public class MyDao
     /// {
-    ///   private ISessionManager sessionManager;
+    ///     private ISessionManager _sessionManager;
     ///
-    ///   public MyDao(ISessionManager sessionManager)
-    ///   {
-    ///     this.sessionManager = sessionManager;
-    ///   }
-    ///
-    ///   public void Save(Data data)
-    ///   {
-    ///     using(ISession session = sessionManager.OpenSession())
+    ///     public MyDao(ISessionManager sessionManager)
     ///     {
-    ///       session.Save(data);
+    ///         _sessionManager = sessionManager;
     ///     }
-    ///   }
+    ///
+    ///     public void Save(Data data)
+    ///     {
+    ///         using (var session = _sessionManager.OpenSession())
+    ///         {
+    ///             session.Save(data);
+    ///         }
+    ///     }
     /// }
     /// </code>
     /// </example>
     public class NHibernateFacility : AbstractFacility
     {
-        private const string DefaultConfigurationBuilderKey = "nhfacility.configuration.builder";
-        internal const string ConfigurationBuilderConfigurationKey = "configurationBuilder";
-        private const string SessionFactoryResolverKey = "nhfacility.sessionfactory.resolver";
-        private const string SessionInterceptorKey = "nhibernate.sessionfactory.interceptor";
-        internal const string IsWebConfigurationKey = "isWeb";
-        internal const string CustomStoreConfigurationKey = "customStore";
-        internal const string DefaultFlushModeConfigurationKey = "defaultFlushMode";
-        private const string SessionManagerKey = "nhfacility.sessionmanager";
-        private const string TransactionManagerKey = "nhibernate.transaction.manager";
-        internal const string SessionFactoryIdConfigurationKey = "id";
-        internal const string SessionFactoryAliasConfigurationKey = "alias";
-        private const string SessionStoreKey = "nhfacility.sessionstore";
-        private const string ConfigurationBuilderForFactoryFormat = "{0}.configurationBuilder";
+        private ILogger _logger = NullLogger.Instance;
 
-
-        private readonly IConfigurationBuilder configurationBuilder;
-
-        private ILogger log = NullLogger.Instance;
-        private Type customConfigurationBuilderType;
-        private NHibernateFacilityConfiguration facilitySettingConfig;
+        private readonly NHibernateFacilityConfiguration _facilityConfiguration;
+        private readonly IConfigurationBuilder _configurationBuilder;
+        private Type _configurationBuilderType = null;
 
         /// <summary>
-        /// Instantiates the facility with the specified configuration builder.
-        /// </summary>
-        /// <param name="configurationBuilder"></param>
-        public NHibernateFacility(IConfigurationBuilder configurationBuilder)
-        {
-            this.configurationBuilder = configurationBuilder;
-            facilitySettingConfig = new NHibernateFacilityConfiguration(configurationBuilder);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NHibernateFacility"/> class.
+        /// Initializes a new instance of the <see cref="NHibernateFacility" /> class.
         /// </summary>
         public NHibernateFacility() : this(new DefaultConfigurationBuilder())
         {
         }
 
         /// <summary>
-        /// The custom initialization for the Facility.
+        /// Instantiates the facility with the specified <see cref="IConfigurationBuilder" />.
+        /// </summary>
+        /// <param name="configurationBuilder"></param>
+        public NHibernateFacility(IConfigurationBuilder configurationBuilder)
+        {
+            _configurationBuilder = configurationBuilder ??
+                                    throw new ArgumentNullException(nameof(configurationBuilder));
+            _facilityConfiguration = new NHibernateFacilityConfiguration(configurationBuilder);
+        }
+
+        /// <summary>
+        /// The custom initialization for the <see cref="NHibernateFacility" />.
         /// </summary>
         /// <remarks>It must be overriden.</remarks>
         protected override void Init()
         {
             if (Kernel.HasComponent(typeof(ILoggerFactory)))
             {
-                log = Kernel.Resolve<ILoggerFactory>().Create(GetType());
+                _logger = Kernel.Resolve<ILoggerFactory>().Create(GetType());
             }
 
-            facilitySettingConfig.Init(FacilityConfig, Kernel);
+            _facilityConfiguration.Init(Kernel, FacilityConfig);
 
-            AssertHasConfig();
-            AssertHasAtLeastOneFactoryConfigured();
+            AssertHasConfiguration();
+            AssertHasAtLeastOneSessionFactoryConfigured();
             RegisterComponents();
             ConfigureFacility();
         }
 
-        #region Set up of components
-
         /// <summary>
-        /// Registers the session factory resolver, the session store, the session manager and the transaction manager.
+        /// Registers the <see cref="SessionFactoryResolver" />, the <see cref="ISessionStore" />,
+        /// the <see cref="ISessionManager" />, and the <see cref="ITransactionManager" />.
         /// </summary>
         protected virtual void RegisterComponents()
         {
-            //Kernel.Register(Component.For<NHSessionInterceptor>().Named("nhsession.interceptor"));
-            Kernel.Register(Component.For<NHSessionInterceptor>());
-            Kernel.ComponentModelBuilder.AddContributor(new NHSessionComponentInspector());
+            //
+            //  NOTE:   Naming the following components using Named() method,
+            //          especially TransactionInterceptor,
+            //          will cause property dependencies of a resolved instance
+            //          not being injected in NHibernateFacility.
+            //
+            Kernel.Register(
+                //Component.For<NHibernateSessionInterceptor>()
+                //         .Named(Constants.SessionInterceptor_ComponentName),
+                Component.For<NHibernateSessionInterceptor>());
 
-            RegisterDefaultConfigurationBuilder();
+            Kernel.ComponentModelBuilder.AddContributor(new NHibernateSessionComponentInspector());
+
+            RegisterTransactionManager();
+            RegisterConfigurationBuilder();
             RegisterSessionFactoryResolver();
             RegisterSessionStore();
             RegisterSessionManager();
-            RegisterTransactionManager();
-        }
-
-
-        /// <summary>
-        /// Register <see cref="IConfigurationBuilder"/> the default ConfigurationBuilder or (if present) the one
-        /// specified via "configurationBuilder" attribute.
-        /// </summary>
-        private void RegisterDefaultConfigurationBuilder()
-        {
-            if (!facilitySettingConfig.HasConcreteConfigurationBuilder())
-            {
-                customConfigurationBuilderType = facilitySettingConfig.GetConfigurationBuilderType();
-
-                if (facilitySettingConfig.HasConfigurationBuilderType())
-                {
-                    if (!typeof(IConfigurationBuilder).IsAssignableFrom(customConfigurationBuilderType))
-                    {
-                        throw new FacilityException(
-                            string.Format(
-                                "ConfigurationBuilder type '{0}' invalid. The type must implement the IConfigurationBuilder contract",
-                                customConfigurationBuilderType.FullName));
-                    }
-                }
-
-                Kernel.Register(Component
-                                    .For<IConfigurationBuilder>()
-                                    .ImplementedBy(customConfigurationBuilderType)
-                                    .Named(DefaultConfigurationBuilderKey));
-            }
-            else
-                Kernel.Register(
-                    Component.For<IConfigurationBuilder>().Instance(configurationBuilder).Named(DefaultConfigurationBuilderKey));
-        }
-
-
-        /// <summary>
-        /// Registers <see cref="SessionFactoryResolver"/> as the session factory resolver.
-        /// </summary>
-        protected void RegisterSessionFactoryResolver()
-        {
-            Kernel.Register(
-                Component.For<ISessionFactoryResolver>()
-                    .ImplementedBy<SessionFactoryResolver>()
-                    .Named(SessionFactoryResolverKey).LifeStyle.Singleton
-                );
         }
 
         /// <summary>
-        /// Registers the configured session store.
-        /// </summary>
-        protected void RegisterSessionStore()
-        {
-            Kernel.Register(Component.For<ISessionStore>().ImplementedBy(facilitySettingConfig.GetSessionStoreType()).Named(SessionStoreKey));
-        }
-
-        /// <summary>
-        /// Registers <see cref="DefaultSessionManager"/> as the session manager.
-        /// </summary>
-        protected void RegisterSessionManager()
-        {
-            string defaultFlushMode = facilitySettingConfig.FlushMode;
-
-            if (!string.IsNullOrEmpty(defaultFlushMode))
-            {
-                MutableConfiguration confignode = new MutableConfiguration(SessionManagerKey);
-
-                IConfiguration properties = new MutableConfiguration("parameters");
-                confignode.Children.Add(properties);
-
-                properties.Children.Add(new MutableConfiguration("DefaultFlushMode", defaultFlushMode));
-
-                Kernel.ConfigurationStore.AddComponentConfiguration(SessionManagerKey, confignode);
-            }
-
-            Kernel.Register(Component.For<ISessionManager>().ImplementedBy<DefaultSessionManager>().Named(SessionManagerKey));
-        }
-
-        /// <summary>
-        /// Registers <see cref="DefaultTransactionManager"/> as the transaction manager.
+        /// Registers <see cref="DefaultTransactionManager" /> as the default transaction manager.
         /// </summary>
         protected void RegisterTransactionManager()
         {
             if (!Kernel.HasComponent(typeof(ITransactionManager)))
             {
-                log.Info("No Transaction Manager registered on Kernel, registering default Transaction Manager");
+                _logger.Info($"No '{nameof(ITransactionManager)}' registered on kernel, registering default '{nameof(DefaultTransactionManager)}'.");
+
                 Kernel.Register(
-                    Component.For<ITransactionManager>().ImplementedBy<DefaultTransactionManager>().Named(TransactionManagerKey));
+                    Component.For<ITransactionManager>()
+                             .ImplementedBy<DefaultTransactionManager>()
+                             .Named(Constants.TransactionManager_ComponentName));
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Register the default <see cref="IConfigurationBuilder" />,
+        /// or (if present) the one specified via "configurationBuilderType" attribute.
+        /// </summary>
+        private void RegisterConfigurationBuilder()
+        {
+            if (!_facilityConfiguration.HasConcreteConfigurationBuilder())
+            {
+                _configurationBuilderType = _facilityConfiguration.GetConfigurationBuilderType();
 
-        #region Configuration methods
+                if (_facilityConfiguration.HasConfigurationBuilderType())
+                {
+                    if (!typeof(IConfigurationBuilder).IsAssignableFrom(_configurationBuilderType))
+                    {
+                        var message = $"'{_configurationBuilderType.FullName}' must implement the '{nameof(IConfigurationBuilder)}'.";
+                        throw new FacilityException(message);
+                    }
+                }
+
+                Kernel.Register(
+                    Component.For<IConfigurationBuilder>()
+                             .ImplementedBy(_configurationBuilderType)
+                             .Named(Constants.ConfigurationBuilder_ComponentName));
+            }
+            else
+            {
+                Kernel.Register(
+                    Component.For<IConfigurationBuilder>()
+                             .Instance(_configurationBuilder)
+                             .Named(Constants.ConfigurationBuilder_ComponentName));
+            }
+        }
+
+        /// <summary>
+        /// Registers <see cref="SessionFactoryResolver" /> as the default session factory resolver.
+        /// </summary>
+        protected void RegisterSessionFactoryResolver()
+        {
+            Kernel.Register(
+                Component.For<ISessionFactoryResolver>()
+                         .ImplementedBy<SessionFactoryResolver>()
+                         .Named(Constants.SessionFactoryResolver_ComponentName)
+                         .LifeStyle.Singleton);
+        }
+
+        /// <summary>
+        /// Registers the configured <see cref="ISessionStore" />.
+        /// </summary>
+        protected void RegisterSessionStore()
+        {
+            Kernel.Register(
+                Component.For<ISessionStore>()
+                         .ImplementedBy(_facilityConfiguration.GetSessionStoreType())
+                         .Named(Constants.SessionStore_ComponentName));
+        }
+
+        /// <summary>
+        /// Registers <see cref="DefaultSessionManager" /> as the default session manager.
+        /// </summary>
+        protected void RegisterSessionManager()
+        {
+            var defaultFlushMode = _facilityConfiguration.DefaultFlushMode;
+            if (!string.IsNullOrEmpty(defaultFlushMode))
+            {
+                var configurationNode = new MutableConfiguration(Constants.SessionManager_ComponentName);
+
+                var properties = new MutableConfiguration("parameters");
+                properties.Children.Add(new MutableConfiguration(nameof(ISessionManager.DefaultFlushMode), defaultFlushMode));
+
+                configurationNode.Children.Add(properties);
+
+                Kernel.ConfigurationStore.AddComponentConfiguration(Constants.SessionManager_ComponentName, configurationNode);
+            }
+
+            Kernel.Register(
+                Component.For<ISessionManager>()
+                         .ImplementedBy<DefaultSessionManager>()
+                         .Named(Constants.SessionManager_ComponentName));
+        }
+
+        #region Configuration Methods
 
         /// <summary>
         /// Configures the facility.
         /// </summary>
         protected void ConfigureFacility()
         {
-            var sessionFactoryResolver = Kernel.Resolve<ISessionFactoryResolver>();
-
             ConfigureReflectionOptimizer();
 
-            bool firstFactory = true;
+            var sessionFactoryResolver = Kernel.Resolve<ISessionFactoryResolver>();
 
-            foreach (var factoryConfig in facilitySettingConfig.Factories)
+            var firstSessionFactory = true;
+            foreach (var sessionFactoryConfiguration in _facilityConfiguration.SessionFactoryFacilityConfigurations)
             {
-                ConfigureFactories(factoryConfig, sessionFactoryResolver, firstFactory);
-                firstFactory = false;
+                ConfigureSessionFactory(sessionFactoryConfiguration, sessionFactoryResolver, firstSessionFactory);
+
+                firstSessionFactory = false;
             }
         }
 
         /// <summary>
-        /// Reads the attribute <c>useReflectionOptimizer</c> and configure
-        /// the reflection optimizer accordingly.
+        /// Reads the attribute <c>useReflectionOptimizer</c> and configure the reflection optimizer accordingly.
         /// </summary>
         /// <remarks>
-        /// As reported on Jira (FACILITIES-39) the reflection optimizer
-        /// slow things down. So by default it will be disabled. You
-        /// can use the attribute <c>useReflectionOptimizer</c> to turn it
-        /// on.
+        /// As reported on Jira (FACILITIES-39), the reflection optimizer slow things down,
+        /// so it is disabled by default.
+        /// You can use the attribute <c>useReflectionOptimizer</c> to turn it on.
         /// </remarks>
         private void ConfigureReflectionOptimizer()
         {
-            NHibernate.Cfg.Environment.UseReflectionOptimizer = facilitySettingConfig.ShouldUseReflectionOptimizer();
+            NHibernate.Cfg.Environment.UseReflectionOptimizer = _facilityConfiguration.GetUseReflectionOptimizerValue();
         }
 
         /// <summary>
-        /// Configures the factories.
+        /// Configures the session factory.
         /// </summary>
-        /// <param name="config">The config.</param>
+        /// <param name="facilityConfiguration">The session factory configuration.</param>
         /// <param name="sessionFactoryResolver">The session factory resolver.</param>
-        /// <param name="firstFactory">if set to <c>true</c> [first factory].</param>
-        protected void ConfigureFactories(NHibernateFactoryConfiguration config, ISessionFactoryResolver sessionFactoryResolver, bool firstFactory)
+        /// <param name="firstSessionFactory">If set to <see langword="true" />, it's the first session factory.</param>
+        protected void ConfigureSessionFactory(NHibernateSessionFactoryFacilityConfiguration facilityConfiguration, ISessionFactoryResolver sessionFactoryResolver, bool firstSessionFactory)
         {
-            String id = config.Id;
-
+            var id = facilityConfiguration.Id;
             if (string.IsNullOrEmpty(id))
             {
-                String message = "You must provide a " +
-                                 "valid 'id' attribute for the 'factory' node. This id is used as key for " +
-                                 "the ISessionFactory component registered on the container";
-
+                var message = "You must provide a valid 'id' attribute for the 'sessionFactory' node. " +
+                              $"This id is used as key for the '{nameof(ISessionFactory)}' component registered on the container.";
                 throw new ConfigurationErrorsException(message);
             }
 
-            String alias = config.Alias;
-
-            if (!firstFactory && (string.IsNullOrEmpty(alias)))
+            var alias = facilityConfiguration.Alias;
+            if (!firstSessionFactory && string.IsNullOrEmpty(alias))
             {
-                String message = "You must provide a " +
-                                 "valid 'alias' attribute for the 'factory' node. This id is used to obtain " +
-                                 "the ISession implementation from the SessionManager";
-
+                var message = "You must provide a valid 'alias' attribute for the 'sessionFactory' node. " +
+                              $"This alias is used to obtain the '{nameof(ISession)}' implementation from the '{nameof(ISessionManager)}'.";
                 throw new ConfigurationErrorsException(message);
             }
-
             if (string.IsNullOrEmpty(alias))
             {
                 alias = Constants.DefaultAlias;
             }
 
-            string configurationBuilderType = config.ConfigurationBuilderType;
-            string configurationbuilderKey = string.Format(ConfigurationBuilderForFactoryFormat, id);
-            IConfigurationBuilder configBuilder;
-            if (string.IsNullOrEmpty(configurationBuilderType))
+            var configurationBuilderTypeFullName = facilityConfiguration.ConfigurationBuilderType;
+            var configurationBuilderType_ComponentName = string.Format(Constants.ConfigurationBuilderType_ComponentNameFormat, id);
+            IConfigurationBuilder configurationBuilder;
+            if (string.IsNullOrEmpty(configurationBuilderTypeFullName))
             {
-                configBuilder = Kernel.Resolve<IConfigurationBuilder>();
+                configurationBuilder = Kernel.Resolve<IConfigurationBuilder>();
             }
             else
             {
                 Kernel.Register(
-                    Component.For<IConfigurationBuilder>().ImplementedBy(Type.GetType(configurationBuilderType)).Named(
-                        configurationbuilderKey));
-                configBuilder = Kernel.Resolve<IConfigurationBuilder>(configurationbuilderKey);
+                    Component.For<IConfigurationBuilder>()
+                             .ImplementedBy(Type.GetType(configurationBuilderTypeFullName))
+                             .Named(configurationBuilderType_ComponentName));
+                configurationBuilder = Kernel.Resolve<IConfigurationBuilder>(configurationBuilderType_ComponentName);
             }
 
-            var cfg = configBuilder.GetConfiguration(config.GetConfiguration());
+            var configuration = configurationBuilder.GetConfiguration(facilityConfiguration.GetConfiguration());
 
-            // Registers the Configuration object
-            Kernel.Register(Component.For<NHibernate.Cfg.Configuration>().Instance(cfg).Named(String.Format("{0}.cfg", id)));
+            // Registers the NHibernate Configuration object.
+            Kernel.Register(
+                Component.For<NHibernate.Cfg.Configuration>()
+                         .Instance(configuration)
+                         .Named($"{id}.cfg"));
 
-            // If a Session Factory level interceptor was provided, we use it
-            if (Kernel.HasComponent(SessionInterceptorKey))
+            // If a NHibernate SessionFactory-level interceptor was provided, use it.
+            if (Kernel.HasComponent(Constants.SessionFactoryInterceptor_ComponentName))
             {
-                cfg.Interceptor = Kernel.Resolve<IInterceptor>(SessionInterceptorKey);
+                configuration.Interceptor = Kernel.Resolve<IInterceptor>(Constants.SessionFactoryInterceptor_ComponentName);
             }
 
-            // Registers the ISessionFactory as a component
-            Kernel.Register(Component
-                                .For<ISessionFactory>()
-                                .Named(id)
-                                .Activator<SessionFactoryActivator>()
-                                .ExtendedProperties(Property.ForKey(Constants.SessionFactoryConfiguration).Eq(cfg))
-                                .LifeStyle.Singleton);
+            // Registers the NHibernate ISessionFactory as a component.
+            Kernel.Register(
+                Component.For<ISessionFactory>()
+                         .Named(id)
+                         .Activator<SessionFactoryActivator>()
+                         .ExtendedProperties(Property.ForKey(Constants.SessionFactory_Configuration_ComponentPropertyName).Eq(configuration))
+                         .LifeStyle.Singleton);
 
             sessionFactoryResolver.RegisterAliasComponentIdMapping(alias, id);
         }
 
         #endregion
 
-        #region Helper methods
+        #region Helper Methods
 
-        private void AssertHasAtLeastOneFactoryConfigured()
+        private void AssertHasConfiguration()
         {
-            if (facilitySettingConfig.HasValidFactory()) return;
-
-            IConfiguration factoriesConfig = FacilityConfig.Children["factory"];
-
-            if (factoriesConfig == null)
+            if (!_facilityConfiguration.IsValid())
             {
-                String message = "You need to configure at least one factory to use the NHibernateFacility";
-
+                var message = $"The '{nameof(NHibernateFacility)}' requires configuration.";
                 throw new ConfigurationErrorsException(message);
             }
         }
 
-        private void AssertHasConfig()
+        private void AssertHasAtLeastOneSessionFactoryConfigured()
         {
-            if (!facilitySettingConfig.IsValid())
+            if (_facilityConfiguration.HasValidSessionFactoryConfiguration())
             {
-                String message = "The NHibernateFacility requires configuration";
+                return;
+            }
 
+            var facilityConfiguration = FacilityConfig.Children[Constants.SessionFactory_ConfigurationElementName];
+            if (facilityConfiguration == null)
+            {
+                var message = $"You need to configure at least one '{nameof(ISessionFactory)}' to use the '{nameof(NHibernateFacility)}'.";
                 throw new ConfigurationErrorsException(message);
             }
         }
 
         #endregion
 
-        #region FluentConfiguration
+        #region Fluent Configuration Methods
 
         /// <summary>
-        /// Sets a custom <see cref="IConfigurationBuilder"/>
+        /// Sets a custom <see cref="IConfigurationBuilder" /> for the facility.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The implementation type of the <see cref="IConfigurationBuilder" />.</typeparam>
         /// <returns></returns>
-        public NHibernateFacility ConfigurationBuilder<T>()
-            where T : IConfigurationBuilder
+        public NHibernateFacility ConfigurationBuilder<T>() where T : IConfigurationBuilder
         {
             return ConfigurationBuilder(typeof(T));
         }
 
         /// <summary>
-        /// Sets a custom <see cref="IConfigurationBuilder"/>
+        /// Sets a custom <see cref="IConfigurationBuilder" /> for the facility.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="configurationBuilderType">The implementation type of the <see cref="IConfigurationBuilder" />.</param>
         /// <returns></returns>
-        public NHibernateFacility ConfigurationBuilder(Type type)
+        public NHibernateFacility ConfigurationBuilder(Type configurationBuilderType)
         {
-            facilitySettingConfig.ConfigurationBuilder(type);
-            return this;
-        }
+            _facilityConfiguration.SetConfigurationBuilderType(configurationBuilderType);
 
-        /// <summary>
-        /// Sets the facility to work on a web context
-        /// </summary>
-        /// <returns></returns>
-        public NHibernateFacility IsWeb()
-        {
-            facilitySettingConfig.IsWeb();
             return this;
         }
 
@@ -422,7 +404,18 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <returns><see cref="NHibernateFacility" /></returns>
         public NHibernateFacility SessionStore<T>() where T : ISessionStore
         {
-            facilitySettingConfig.SessionStore(typeof(T));
+            _facilityConfiguration.SetSessionStoreType(typeof(T));
+
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the facility to work on a ASP.NET web context.
+        /// </summary>
+        /// <returns></returns>
+        public NHibernateFacility IsWeb()
+        {
+            _facilityConfiguration.IsWeb();
 
             return this;
         }
@@ -432,42 +425,32 @@ namespace Castle.Facilities.NHibernateIntegration
 
     internal class NHibernateFacilityConfiguration
     {
-        private IConfigurationBuilder configurationBuilderInstance;
-        private Type configurationBuilderType;
-        private IConfiguration facilityConfig;
-        private bool isWeb;
-        private bool useReflectionOptimizer = false;
-        private IKernel kernel;
-        private Type customStore;
+        public static readonly Type DefaultSessionStoreType = typeof(AsyncLocalSessionStore);
+        public static readonly Type DefaultWebSessionStoreType = typeof(WebSessionStore);
+        public static readonly bool DefaultUseReflectionOptimizerValue = false;
 
+        private IKernel _kernel;
+        private IConfigurationBuilder _configurationBuilder;
+        private Type _configurationBuilderType;
+        private IConfiguration _configuration;
+        private Type _sessionStoreType;
+        private bool _isWeb;
 
-        public IEnumerable<NHibernateFactoryConfiguration> Factories { get; set; }
+        public IEnumerable<NHibernateSessionFactoryFacilityConfiguration> SessionFactoryFacilityConfigurations { get; set; }
 
-        ///<summary>
-        ///</summary>
-        ///<param name="configurationBuilderInstance"></param>
-        public NHibernateFacilityConfiguration(IConfigurationBuilder configurationBuilderInstance)
+        public NHibernateFacilityConfiguration(IConfigurationBuilder configurationBuilder)
         {
-            this.configurationBuilderInstance = configurationBuilderInstance;
-            Factories = Enumerable.Empty<NHibernateFactoryConfiguration>();
+            _configurationBuilder = configurationBuilder;
+
+            SessionFactoryFacilityConfigurations = Enumerable.Empty<NHibernateSessionFactoryFacilityConfiguration>();
         }
 
-        public bool OnWeb
-        {
-            get { return isWeb; }
-        }
+        public string DefaultFlushMode { get; set; } = null;
 
-        public string FlushMode { get; set; }
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="con"></param>
-        /// <param name="ker"></param>
-        public void Init(IConfiguration con, IKernel ker)
+        public void Init(IKernel kernel, IConfiguration configuration)
         {
-            facilityConfig = con;
-            kernel = ker;
+            _kernel = kernel;
+            _configuration = configuration;
 
             if (ConfigurationIsValid())
             {
@@ -475,191 +458,188 @@ namespace Castle.Facilities.NHibernateIntegration
             }
             else
             {
-                Factories = new[]
-                                {
-                                    new NHibernateFactoryConfiguration(new MutableConfiguration("factory"))
-                                        {
-                                            Id = "factory_1"
-                                        }
-                                };
+                SessionFactoryFacilityConfigurations = new[]
+                {
+                    new NHibernateSessionFactoryFacilityConfiguration(new MutableConfiguration(Constants.SessionFactory_ConfigurationElementName))
+                    {
+                        Id = $"{Constants.SessionFactory_ConfigurationElementName}_1",
+                    }
+                };
             }
         }
 
         private void ConfigureWithExternalConfiguration()
         {
-            var customConfigurationBuilder = facilityConfig.Attributes[NHibernateFacility.ConfigurationBuilderConfigurationKey];
-
-            if (!string.IsNullOrEmpty(customConfigurationBuilder))
+            var configurationBuilderTypeFullName = _configuration.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName];
+            if (!string.IsNullOrEmpty(configurationBuilderTypeFullName))
             {
-
-                var converter = (IConversionManager) kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
-
                 try
                 {
-                    ConfigurationBuilder(
-                        (Type) converter.PerformConversion(customConfigurationBuilder, typeof(Type)));
+                    var converter = (IConversionManager) _kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
+                    SetConfigurationBuilderType(converter.PerformConversion<Type>(configurationBuilderTypeFullName));
                 }
                 catch (ConverterException)
                 {
-                    throw new FacilityException(string.Format(
-                        "ConfigurationBuilder type '{0}' invalid or not found", customConfigurationBuilder));
+                    var message = $"'ConfigurationBuilder' of type '{configurationBuilderTypeFullName}' is invalid or can not be found.";
+                    throw new FacilityException(message);
                 }
             }
 
-            BuildFactories();
+            BuildSessionFactoryConfigurations();
 
-
-            if (facilityConfig.Attributes[NHibernateFacility.CustomStoreConfigurationKey] != null)
+            var sessionStoreTypeFullName = _configuration.Attributes[Constants.SessionStoreType_ConfigurationElementAttributeName];
+            if (!string.IsNullOrEmpty(sessionStoreTypeFullName))
             {
-                var customStoreType = facilityConfig.Attributes[NHibernateFacility.CustomStoreConfigurationKey];
-                var converter = (ITypeConverter) kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
-                SessionStore((Type) converter.PerformConversion(customStoreType, typeof(Type)));
+                try
+                {
+                    var converter = (IConversionManager) _kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
+                    SetSessionStoreType(converter.PerformConversion<Type>(sessionStoreTypeFullName));
+                }
+                catch (ConverterException)
+                {
+                    var message = $"'SessionStore' of type '{sessionStoreTypeFullName}' is invalid or can not be found.";
+                    throw new FacilityException(message);
+                }
             }
 
-            FlushMode = facilityConfig.Attributes[NHibernateFacility.DefaultFlushModeConfigurationKey];
+            DefaultFlushMode = _configuration.Attributes[Constants.Session_DefaultFlushMode_ConfigurationElementAttributeName];
 
-            bool.TryParse(facilityConfig.Attributes[NHibernateFacility.IsWebConfigurationKey], out isWeb);
+            _ = bool.TryParse(_configuration.Attributes[Constants.SessionStore_IsWeb_ConfigurationElementAttributeName], out _isWeb);
+        }
+
+        public void SetConfigurationBuilder(IConfigurationBuilder configurationBuilder)
+        {
+            _configurationBuilder = configurationBuilder;
+        }
+
+        public void SetConfigurationBuilderType(Type configurationBuilderType)
+        {
+            _configurationBuilder = null;
+            _configurationBuilderType = configurationBuilderType;
         }
 
         private bool ConfigurationIsValid()
         {
-            return facilityConfig != null && facilityConfig.Children.Count > 0;
-        }
-
-        private void BuildFactories()
-        {
-            Factories = facilityConfig
-                .Children
-                .Select(config => new NHibernateFactoryConfiguration(config));
-        }
-
-        public void ConfigurationBuilder(Type type)
-        {
-            configurationBuilderInstance = null;
-            configurationBuilderType = type;
-        }
-
-        public void SessionStore(Type type)
-        {
-            if (!typeof(ISessionStore).IsAssignableFrom(type))
-            {
-                var message = "The specified customStore does " +
-                                 "not implement the interface ISessionStore. Type " + type;
-                throw new ConfigurationErrorsException(message);
-            }
-
-            customStore = type;
-        }
-
-        public void ConfigurationBuilder(IConfigurationBuilder builder)
-        {
-            configurationBuilderInstance = builder;
-        }
-
-        public void IsWeb()
-        {
-            isWeb = true;
+            return _configuration != null &&
+                   _configuration.Children.Count > 0;
         }
 
         public bool IsValid()
         {
-            return facilityConfig != null || (configurationBuilderInstance != null || configurationBuilderType != null);
+            return _configuration != null ||
+                   _configurationBuilder != null || _configurationBuilderType != null;
         }
 
-        public bool HasValidFactory()
+        public bool HasValidSessionFactoryConfiguration()
         {
-            return Factories.Count() > 0;
-        }
-
-        public bool ShouldUseReflectionOptimizer()
-        {
-            if (facilityConfig != null)
-            {
-                bool result;
-                if (bool.TryParse(facilityConfig.Attributes["useReflectionOptimizer"], out result))
-                    return result;
-
-                return false;
-            }
-
-            return useReflectionOptimizer;
+            return SessionFactoryFacilityConfigurations.Any();
         }
 
         public bool HasConcreteConfigurationBuilder()
         {
-            return configurationBuilderInstance != null && !HasConfigurationBuilderType();
-        }
-
-        public Type GetConfigurationBuilderType()
-        {
-            return configurationBuilderType;
+            return _configurationBuilder != null && !HasConfigurationBuilderType();
         }
 
         public bool HasConfigurationBuilderType()
         {
-            return configurationBuilderType != null;
+            return _configurationBuilderType != null;
+        }
+
+        public Type GetConfigurationBuilderType()
+        {
+            return _configurationBuilderType;
+        }
+
+        public bool GetUseReflectionOptimizerValue()
+        {
+            if (_configuration != null)
+            {
+                if (bool.TryParse(_configuration.Attributes[Constants.UseReflectionOptimizer_ConfigurationElementAttributeName], out var value))
+                {
+                    return value;
+                }
+            }
+
+            return DefaultUseReflectionOptimizerValue;
+        }
+
+        private void BuildSessionFactoryConfigurations()
+        {
+            SessionFactoryFacilityConfigurations =
+                _configuration.Children
+                              .Select(configuration => new NHibernateSessionFactoryFacilityConfiguration(configuration));
         }
 
         public Type GetSessionStoreType()
         {
-            // Default implementation
-            var sessionStoreType = typeof(LogicalCallContextSessionStore);
+            var sessionStoreType = DefaultSessionStoreType;
 
-            if (isWeb)
-                sessionStoreType = typeof(WebSessionStore);
-
-            if (customStore != null)
+            if (_isWeb)
             {
-                sessionStoreType = customStore;
+                sessionStoreType = DefaultWebSessionStoreType;
+            }
+
+            if (_sessionStoreType != null)
+            {
+                sessionStoreType = _sessionStoreType;
             }
 
             return sessionStoreType;
         }
+
+        public void SetSessionStoreType(Type sessionStoreType)
+        {
+            if (!typeof(ISessionStore).IsAssignableFrom(sessionStoreType))
+            {
+                var message = $"'{sessionStoreType.FullName}' must implement the '{nameof(ISessionStore)}'.";
+                throw new FacilityException(message);
+            }
+
+            _sessionStoreType = sessionStoreType;
+        }
+
+        public void IsWeb()
+        {
+            _isWeb = true;
+        }
     }
 
-    ///<summary>
-    ///</summary>
-    public class NHibernateFactoryConfiguration
+    public class NHibernateSessionFactoryFacilityConfiguration
     {
-        private IConfiguration config;
+        private readonly IConfiguration _configuration;
 
-        ///<summary>
-        ///</summary>
-        ///<param name="config"></param>
-        ///<exception cref="ArgumentNullException"></exception>
-        public NHibernateFactoryConfiguration(IConfiguration config)
+        public NHibernateSessionFactoryFacilityConfiguration(IConfiguration configuration)
         {
-            if (config == null) throw new ArgumentNullException("config");
+            _configuration = configuration ??
+                             throw new ArgumentNullException(nameof(configuration));
 
-            this.config = config;
-
-            Id = config.Attributes[NHibernateFacility.SessionFactoryIdConfigurationKey];
-            Alias = config.Attributes[NHibernateFacility.SessionFactoryAliasConfigurationKey];
-            ConfigurationBuilderType = config.Attributes[NHibernateFacility.ConfigurationBuilderConfigurationKey];
+            Id = configuration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName];
+            Alias = configuration.Attributes[Constants.SessionFactory_Alias_ConfigurationElementAttributeName];
+            ConfigurationBuilderType = configuration.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName];
         }
 
         /// <summary>
-        /// Get or sets the factory Id
+        /// Get or sets the session factory Id.
         /// </summary>
         public string Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the factory Alias
+        /// Gets or sets the session factory Alias.
         /// </summary>
         public string Alias { get; set; }
 
         /// <summary>
-        /// Gets or sets the factory ConfigurationBuilder
+        /// Gets or sets the session factory <see cref="IConfigurationBuilder" />.
         /// </summary>
         public string ConfigurationBuilderType { get; set; }
 
         /// <summary>
-        /// Constructs an IConfiguration instance for this factory
+        /// Constructs an <see cref="IConfiguration" /> instance for this session factory.
         /// </summary>
         /// <returns></returns>
         public IConfiguration GetConfiguration()
         {
-            return config;
+            return _configuration;
         }
     }
 }

@@ -18,24 +18,24 @@ using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-    [NHSessionAware]
+    [NHibernateSessionAware]
     public class BlogRepository
     {
-        private readonly ISessionStore sessionStore;
-        private readonly ISessionManager sessionManager;
+        private readonly ISessionManager _sessionManager;
+        private readonly ISessionStore _sessionStore;
 
         public BlogRepository(ISessionManager sessionManager, ISessionStore sessionStore)
         {
-            this.sessionStore = sessionStore;
-            this.sessionManager = sessionManager;
+            _sessionManager = sessionManager;
+            _sessionStore = sessionStore;
         }
 
-        [NHSessionRequired]
+        [NHibernateSessionRequired]
         public virtual void FetchAll()
         {
-            Assert.IsNotNull(sessionStore.FindCompatibleSession(Constants.DefaultAlias));
+            Assert.That(_sessionStore.FindCompatibleSession(Constants.DefaultAlias), Is.Not.Null);
 
-            sessionManager.OpenSession();
+            _sessionManager.OpenSession();
         }
     }
 }
