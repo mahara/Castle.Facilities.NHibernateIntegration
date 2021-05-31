@@ -15,9 +15,9 @@
 #endregion
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
-using Castle.Facilities.NHibernateIntegration.Util;
+using Castle.Facilities.NHibernateIntegration.Utilities;
 
 using NHibernate;
 using NHibernate.Collection;
@@ -27,106 +27,354 @@ using NHibernate.Proxy;
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
     /// <summary>
-    /// Summary description for GenericDao.
     /// </summary>
     /// <remarks>
-    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;
+    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
     /// </remarks>
     public class NHibernateGenericDao : INHibernateGenericDao
     {
-        private readonly ISessionManager sessionManager;
-        private string sessionFactoryAlias = null;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="NHibernateGenericDao"/> class.
+        /// Initializes a new instance of the <see cref="NHibernateGenericDao" /> class.
         /// </summary>
-        /// <param name="sessionManager">The session manager.</param>
+        /// <param name="sessionManager">The <see cref="ISessionManager" />.</param>
         public NHibernateGenericDao(ISessionManager sessionManager)
         {
-            this.sessionManager = sessionManager;
+            SessionManager = sessionManager;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="NHibernateGenericDao"/> class.
+        /// Initializes a new instance of the <see cref="NHibernateGenericDao" /> class.
         /// </summary>
-        /// <param name="sessionManager">The session manager.</param>
-        /// <param name="sessionFactoryAlias">The session factory alias.</param>
-        public NHibernateGenericDao(ISessionManager sessionManager, string sessionFactoryAlias) : this(sessionManager)
+        /// <param name="sessionManager">The <see cref="ISessionManager" />.</param>
+        /// <param name="sessionFactoryAlias">The <see cref="ISessionFactory" /> alias.</param>
+        public NHibernateGenericDao(ISessionManager sessionManager, string sessionFactoryAlias) :
+            this(sessionManager)
         {
-            this.sessionFactoryAlias = sessionFactoryAlias;
+            SessionFactoryAlias = sessionFactoryAlias;
         }
 
         /// <summary>
-        /// Gets the session manager.
+        /// Gets the <see cref="ISessionManager" />.
         /// </summary>
-        /// <value>The session manager.</value>
-        protected ISessionManager SessionManager
+        /// <value>The <see cref="ISessionManager" />.</value>
+        protected ISessionManager SessionManager { get; }
+
+        /// <summary>
+        /// Gets or sets the <see cref="ISessionFactory" /> alias.
+        /// </summary>
+        /// <value>The <see cref="ISessionFactory" /> alias.</value>
+        public string SessionFactoryAlias { get; set; } = null;
+
+        #region IGenericDao Members
+
+        public List<T> FindAll<T>() where T : class
         {
-            get { return sessionManager; }
+            return FindAll<T>(int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Gets or sets the session factory alias.
-        /// </summary>
-        /// <value>The session factory alias.</value>
-        public string SessionFactoryAlias
+        public List<T> FindAll<T>(int firstRow, int maxRows) where T : class
         {
-            get { return sessionFactoryAlias; }
-            set { sessionFactoryAlias = value; }
+            var type = typeof(T);
+
+            using (var session = GetSession())
+            {
+                try
+                {
+                    var sessionCriteria = session.CreateCriteria<T>();
+
+                    if (firstRow != int.MinValue)
+                    {
+                        sessionCriteria.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        sessionCriteria.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) sessionCriteria.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
         }
 
-        #region IGenericDAO Members
+        public T FindById<T>(object id)
+        {
+            var type = typeof(T);
 
-        /// <summary>
-        /// Returns all instances found for the specified type.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
+            using (var session = GetSession())
+            {
+                try
+                {
+                    return session.Load<T>(id);
+                }
+                catch (ObjectNotFoundException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public virtual object Create(object instance)
+        {
+            using (var session = GetSession())
+            {
+                try
+                {
+                    return session.Save(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(Create)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public virtual void Save(object instance)
+        {
+            using (var session = GetSession())
+            {
+                try
+                {
+                    session.SaveOrUpdate(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(Save)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public virtual void Update(object instance)
+        {
+            using (var session = GetSession())
+            {
+                try
+                {
+                    session.Update(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(Update)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public virtual void Delete(object instance)
+        {
+            using (var session = GetSession())
+            {
+                try
+                {
+                    session.Delete(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(Delete)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public void DeleteAll<T>()
+        {
+            var type = typeof(T);
+
+            using (var session = GetSession())
+            {
+                try
+                {
+                    session.Delete($"from {type.Name}");
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllStateless<T>() where T : class
+        {
+            return FindAllStateless<T>(int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllStateless<T>(int firstRow, int maxRows) where T : class
+        {
+            var type = typeof(T);
+
+            using (var session = GetSession())
+            {
+                try
+                {
+                    var criteria = session.CreateCriteria<T>();
+
+                    if (firstRow != int.MinValue)
+                    {
+                        criteria.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        criteria.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) criteria.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public T FindByIdStateless<T>(object id)
+        {
+            var type = typeof(T);
+
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    return session.Get<T>(id);
+                }
+                catch (ObjectNotFoundException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public object CreateStateless(object instance)
+        {
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    return session.Insert(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(CreateStateless)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public void UpdateStateless(object instance)
+        {
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    session.Update(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(UpdateStateless)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public void DeleteStateless(object instance)
+        {
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    session.Delete(instance);
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(DeleteStateless)}' for '{instance.GetType().Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public void DeleteAllStateless<T>()
+        {
+            var type = typeof(T);
+
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    session.Delete($"from {type.Name}");
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+
+
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAll(Type type)
         {
             return FindAll(type, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Returns a portion of the query results (sliced)
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAll(Type type, int firstRow, int maxRows)
         {
-            using (ISession session = GetSession())
+            using (var session = GetSession())
             {
                 try
                 {
-                    ICriteria criteria = session.CreateCriteria(type);
+                    var criteria = session.CreateCriteria(type);
 
-                    if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-                    IList result = criteria.List();
+                    if (firstRow != int.MinValue)
+                    {
+                        criteria.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(type, result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        criteria.SetMaxResults(maxRows);
+                    }
+
+                    var result = criteria.List();
+
+                    var array = Array.CreateInstance(type, result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAll for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Finds an object instance by an unique ID
-        /// </summary>
-        /// <param name="type">The AR subclass type</param>
-        /// <param name="id">ID value</param>
-        /// <returns>The object instance.</returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual object FindById(Type type, object id)
         {
-            using (ISession session = GetSession())
+            using (var session = GetSession())
             {
                 try
                 {
@@ -138,163 +386,73 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindById for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Creates (Saves) a new instance to the database.
-        /// </summary>
-        /// <param name="instance">The instance to be created on the database</param>
-        /// <returns>The instance</returns>
-        public virtual object Create(object instance)
-        {
-            using (ISession session = GetSession())
-            {
-                try
-                {
-                    return session.Save(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform Create for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Persists the modification on the instance
-        /// state to the database.
-        /// </summary>
-        /// <param name="instance">The instance to be updated on the database</param>
-        public virtual void Update(object instance)
-        {
-            using (ISession session = GetSession())
-            {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform Update for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Deletes the instance from the database.
-        /// </summary>
-        /// <param name="instance">The instance to be deleted from the database</param>
-        public virtual void Delete(object instance)
-        {
-            using (ISession session = this.GetSession())
-            {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform Delete for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Deletes all rows for the specified type
-        /// </summary>
-        /// <param name="type">type on which the rows on the database should be deleted</param>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual void DeleteAll(Type type)
         {
-            using (ISession session = GetSession())
+            using (var session = GetSession())
             {
                 try
                 {
-                    session.Delete(String.Format("from {0}", type.Name));
+                    session.Delete($"from {type.Name}");
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform DeleteAll for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Saves the instance to the database. If the primary key is unitialized
-        /// it creates the instance on the database. Otherwise it updates it.
-        /// <para>
-        /// If the primary key is assigned, then you must invoke <see cref="Create"/>
-        /// or <see cref="Update"/> instead.
-        /// </para>
-        /// </summary>
-        /// <param name="instance">The instance to be saved</param>
-        public virtual void Save(object instance)
-        {
-            using (ISession session = GetSession())
-            {
-                try
-                {
-                    session.SaveOrUpdate(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform Save for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns all instances found for the specified type using IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllStateless(Type type)
         {
             return FindAllStateless(type, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Returns a portion of the query results (sliced) using IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllStateless(Type type, int firstRow, int maxRows)
         {
-            using (IStatelessSession session = this.GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
-                    ICriteria criteria = session.CreateCriteria(type);
+                    var criteria = session.CreateCriteria(type);
 
-                    if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-                    IList result = criteria.List();
+                    if (firstRow != int.MinValue)
+                    {
+                        criteria.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(type, result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        criteria.SetMaxResults(maxRows);
+                    }
+
+                    var result = criteria.List();
+
+                    var array = Array.CreateInstance(type, result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllStateless for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Finds an object instance by an unique ID using IStatelessSession.
-        /// </summary>
-        /// <param name="type">The AR subclass type</param>
-        /// <param name="id">ID value</param>
-        /// <returns>The object instance.</returns>
+        [Obsolete("Use generic method overloads instead.")]
         public object FindByIdStateless(Type type, object id)
         {
-            using (IStatelessSession session = this.GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
@@ -306,530 +464,716 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindByIdStateless for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Creates (saves or inserts) a new instance to the database using IStatelessSession.
-        /// </summary>
-        /// <param name="instance">The instance to be created on the database</param>
-        /// <returns>The instance</returns>
-        public object CreateStateless(object instance)
-        {
-            using (IStatelessSession session = GetStatelessSession())
-            {
-                try
-                {
-                    return session.Insert(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform CreateStateless for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Persists the modification on the instance state to the database using IStatelessSession.
-        /// </summary>
-        /// <param name="instance">The instance to be updated on the database</param>
-        public void UpdateStateless(object instance)
-        {
-            using (IStatelessSession session = GetStatelessSession())
-            {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform UpdateStateless for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Deletes the instance from the database using IStatelessSession.
-        /// </summary>
-        /// <param name="instance">The instance to be deleted from the database</param>
-        public void DeleteStateless(object instance)
-        {
-            using (IStatelessSession session = this.GetStatelessSession())
-            {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException("Could not perform DeleteStateless for " + instance.GetType().Name, ex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Deletes all rows for the specified type using IStatelessSession.
-        /// </summary>
-        /// <param name="type">type on which the rows on the database should be deleted</param>
+        [Obsolete("Use generic method overloads instead.")]
         public void DeleteAllStateless(Type type)
         {
-            using (IStatelessSession session = GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
-                    session.Delete(String.Format("from {0}", type.Name));
+                    session.Delete($"from {type.Name}");
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform DeleteAllStateless for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
         #endregion
 
-        #region INHibernateGenericDAO Members
+        #region INHibernateGenericDao Members
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAll(Type type, ICriterion[] criterias)
+        public List<T> FindAll<T>(ICriterion[] criteria) where T : class
         {
-            return FindAll(type, criterias, null, int.MinValue, int.MinValue);
+            return FindAll<T>(criteria, null, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAll(Type type, ICriterion[] criterias, int firstRow, int maxRows)
+        public List<T> FindAll<T>(ICriterion[] criteria, int firstRow, int maxRows) where T : class
         {
-            return FindAll(type, criterias, null, firstRow, maxRows);
+            return FindAll<T>(criteria, null, firstRow, maxRows);
         }
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems)
+        public List<T> FindAll<T>(ICriterion[] criteria, Order[] sortItems) where T : class
         {
-            return FindAll(type, criterias, sortItems, int.MinValue, int.MinValue);
+            return FindAll<T>(criteria, sortItems, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
+        public List<T> FindAll<T>(ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows) where T : class
         {
-            using (ISession session = GetSession())
+            var type = typeof(T);
+
+            using (var session = GetSession())
             {
                 try
                 {
-                    ICriteria criteria = session.CreateCriteria(type);
+                    var sessionCriteria = session.CreateCriteria<T>();
 
-                    if (criterias != null)
+                    if (criteria != null)
                     {
-                        foreach (ICriterion cond in criterias)
+                        foreach (var criterion in criteria)
                         {
-                            criteria.Add(cond);
+                            sessionCriteria.Add(criterion);
                         }
                     }
 
                     if (sortItems != null)
                     {
-                        foreach (Order order in sortItems)
+                        foreach (var order in sortItems)
                         {
-                            criteria.AddOrder(order);
+                            sessionCriteria.AddOrder(order);
                         }
                     }
 
-                    if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-                    IList result = criteria.List();
+                    if (firstRow != int.MinValue)
+                    {
+                        sessionCriteria.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(type, result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        sessionCriteria.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) sessionCriteria.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllWithCustomQuery<T>(string queryString)
+        {
+            return FindAllWithCustomQuery<T>(queryString, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllWithCustomQuery<T>(string queryString, int firstRow, int maxRows)
+        {
+            if (string.IsNullOrEmpty(queryString))
+            {
+                throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
+            }
+
+            using (var session = GetSession())
+            {
+                try
+                {
+                    var query = session.CreateQuery(queryString);
+
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) query.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllWithNamedQuery<T>(string namedQuery)
+        {
+            return FindAllWithNamedQuery<T>(namedQuery, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllWithNamedQuery<T>(string namedQuery, int firstRow, int maxRows)
+        {
+            if (string.IsNullOrEmpty(namedQuery))
+            {
+                throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
+            }
+
+            using (var session = GetSession())
+            {
+                try
+                {
+                    var query = session.GetNamedQuery(namedQuery) ??
+                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) query.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllStateless<T>(ICriterion[] criteria) where T : class
+        {
+            return FindAllStateless<T>(criteria, null, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllStateless<T>(ICriterion[] criteria, int firstRow, int maxRows) where T : class
+        {
+            return FindAllStateless<T>(criteria, null, firstRow, maxRows);
+        }
+
+        public List<T> FindAllStateless<T>(ICriterion[] criteria, Order[] sortItems) where T : class
+        {
+            return FindAllStateless<T>(criteria, sortItems, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllStateless<T>(ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows) where T : class
+        {
+            var type = typeof(T);
+
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    var sessionCriteria = session.CreateCriteria<T>();
+
+                    if (criteria != null)
+                    {
+                        foreach (var criterion in criteria)
+                        {
+                            sessionCriteria.Add(criterion);
+                        }
+                    }
+
+                    if (sortItems != null)
+                    {
+                        foreach (var order in sortItems)
+                        {
+                            sessionCriteria.AddOrder(order);
+                        }
+                    }
+
+                    if (firstRow != int.MinValue)
+                    {
+                        sessionCriteria.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        sessionCriteria.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) sessionCriteria.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllWithCustomQueryStateless<T>(string queryString)
+        {
+            return FindAllWithCustomQueryStateless<T>(queryString, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllWithCustomQueryStateless<T>(string queryString, int firstRow, int maxRows)
+        {
+            if (string.IsNullOrEmpty(queryString))
+            {
+                throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
+            }
+
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    var query = session.CreateQuery(queryString);
+
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) query.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public List<T> FindAllWithNamedQueryStateless<T>(string namedQuery)
+        {
+            return FindAllWithNamedQueryStateless<T>(namedQuery, int.MinValue, int.MinValue);
+        }
+
+        public List<T> FindAllWithNamedQueryStateless<T>(string namedQuery, int firstRow, int maxRows)
+        {
+            if (string.IsNullOrEmpty(namedQuery))
+            {
+                throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
+            }
+
+            using (var session = GetStatelessSession())
+            {
+                try
+                {
+                    var query = session.GetNamedQuery(namedQuery) ??
+                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    return (List<T>) query.List<T>();
+                }
+                catch (Exception ex)
+                {
+                    var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
+                    throw new DataException(message, ex);
+                }
+            }
+        }
+
+        public void InitializeLazyProperties(object instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            using (var session = GetSession())
+            {
+                foreach (var value in ReflectionUtility.GetPropertiesDictionary(instance).Values)
+                {
+                    if (value is INHibernateProxy || value is IPersistentCollection)
+                    {
+                        if (!NHibernateUtil.IsInitialized(value))
+                        {
+                            session.Lock(instance, LockMode.None);
+                            NHibernateUtil.Initialize(value);
+                        }
+                    }
+                }
+            }
+        }
+
+        public void InitializeLazyProperty(object instance, string propertyName)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or empty.", nameof(propertyName));
+            }
+
+            var properties = ReflectionUtility.GetPropertiesDictionary(instance);
+            if (!properties.TryGetValue(propertyName, out var propertyValue))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(propertyName),
+                    $"Property '{propertyName}' doest not exist for type '{instance.GetType()}'.");
+            }
+
+            using (var session = GetSession())
+            {
+                if (propertyValue is INHibernateProxy || propertyValue is IPersistentCollection)
+                {
+                    if (!NHibernateUtil.IsInitialized(propertyValue))
+                    {
+                        session.Lock(instance, LockMode.None);
+                        NHibernateUtil.Initialize(propertyValue);
+                    }
+                }
+            }
+        }
+
+
+
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAll(Type type, ICriterion[] criteria)
+        {
+            return FindAll(type, criteria, null, int.MinValue, int.MinValue);
+        }
+
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAll(Type type, ICriterion[] criteria, int firstRow, int maxRows)
+        {
+            return FindAll(type, criteria, null, firstRow, maxRows);
+        }
+
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAll(Type type, ICriterion[] criteria, Order[] sortItems)
+        {
+            return FindAll(type, criteria, sortItems, int.MinValue, int.MinValue);
+        }
+
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAll(Type type, ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows)
+        {
+            using (var session = GetSession())
+            {
+                try
+                {
+                    var sessionCriteria = session.CreateCriteria(type);
+
+                    if (criteria != null)
+                    {
+                        foreach (var criterion in criteria)
+                        {
+                            sessionCriteria.Add(criterion);
+                        }
+                    }
+
+                    if (sortItems != null)
+                    {
+                        foreach (var order in sortItems)
+                        {
+                            sessionCriteria.AddOrder(order);
+                        }
+                    }
+
+                    if (firstRow != int.MinValue)
+                    {
+                        sessionCriteria.SetFirstResult(firstRow);
+                    }
+
+                    if (maxRows != int.MinValue)
+                    {
+                        sessionCriteria.SetMaxResults(maxRows);
+                    }
+
+                    var result = sessionCriteria.List();
+
+                    var array = Array.CreateInstance(type, result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAll for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Finds all with custom query.
-        /// </summary>
-        /// <param name="queryString">The query string.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithCustomQuery(string queryString)
         {
             return FindAllWithCustomQuery(queryString, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Finds all with custom HQL query.
-        /// </summary>
-        /// <param name="queryString">The query string.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithCustomQuery(string queryString, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(queryString)) throw new ArgumentNullException("queryString");
+            if (string.IsNullOrEmpty(queryString))
+            {
+                throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
+            }
 
-            using (ISession session = GetSession())
+            using (var session = GetSession())
             {
                 try
                 {
-                    IQuery query = session.CreateQuery(queryString);
+                    var query = session.CreateQuery(queryString);
 
-                    if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-                    IList result = query.List();
-                    if (result == null || result.Count == 0) return null;
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    var result = query.List();
+                    if (result == null || result.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Find for custom query : " + queryString, ex);
+                    var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Finds all with named HQL query.
-        /// </summary>
-        /// <param name="namedQuery">The named query.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithNamedQuery(string namedQuery)
         {
             return FindAllWithNamedQuery(namedQuery, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Finds all with named HQL query.
-        /// </summary>
-        /// <param name="namedQuery">The named query.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithNamedQuery(string namedQuery, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(namedQuery)) throw new ArgumentNullException("namedQuery");
+            if (string.IsNullOrEmpty(namedQuery))
+            {
+                throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
+            }
 
-            using (ISession session = this.GetSession())
+            using (var session = GetSession())
             {
                 try
                 {
-                    IQuery query = session.GetNamedQuery(namedQuery);
-                    if (query == null) throw new ArgumentException("Cannot find named query", "namedQuery");
+                    var query = session.GetNamedQuery(namedQuery) ??
+                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
 
-                    if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-                    IList result = query.List();
-                    if (result == null || result.Count == 0) return null;
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    var result = query.List();
+                    if (result == null || result.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Find for named query : " + namedQuery, ex);
+                    var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Initializes the lazy properties.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        public void InitializeLazyProperties(object instance)
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAllStateless(Type type, ICriterion[] criteria)
         {
-            if (instance == null) throw new ArgumentNullException("instance");
-
-            using (ISession session = this.GetSession())
-            {
-                foreach (object val in ReflectionUtility.GetPropertiesDictionary(instance).Values)
-                {
-                    if (val is INHibernateProxy || val is IPersistentCollection)
-                    {
-                        if (!NHibernateUtil.IsInitialized(val))
-                        {
-                            session.Lock(instance, LockMode.None);
-                            NHibernateUtil.Initialize(val);
-                        }
-                    }
-                }
-            }
+            return FindAllStateless(type, criteria, null, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Initializes the lazy property.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="propertyName">Name of the property.</param>
-        public void InitializeLazyProperty(object instance, string propertyName)
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAllStateless(Type type, ICriterion[] criteria, int firstRow, int maxRows)
         {
-            if (instance == null) throw new ArgumentNullException("instance");
-            if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException("propertyName");
-
-            var properties = ReflectionUtility.GetPropertiesDictionary(instance);
-            if (!properties.ContainsKey(propertyName))
-                throw new ArgumentOutOfRangeException("propertyName", "Property "
-                                                                      + propertyName + " doest not exist for type "
-                                                                      + instance.GetType() + ".");
-
-            using (ISession session = this.GetSession())
-            {
-                object val = properties[propertyName];
-
-                if (val is INHibernateProxy || val is IPersistentCollection)
-                {
-                    if (!NHibernateUtil.IsInitialized(val))
-                    {
-                        session.Lock(instance, LockMode.None);
-                        NHibernateUtil.Initialize(val);
-                    }
-                }
-            }
+            return FindAllStateless(type, criteria, null, firstRow, maxRows);
         }
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria and IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAllStateless(Type type, ICriterion[] criterias)
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAllStateless(Type type, ICriterion[] criteria, Order[] sortItems)
         {
-            return FindAllStateless(type, criterias, null, int.MinValue, int.MinValue);
+            return FindAllStateless(type, criteria, sortItems, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria and IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAllStateless(Type type, ICriterion[] criterias, int firstRow, int maxRows)
+        [Obsolete("Use generic method overloads instead.")]
+        public virtual Array FindAllStateless(Type type, ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows)
         {
-            return FindAllStateless(type, criterias, null, firstRow, maxRows);
-        }
-
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria and IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems)
-        {
-            return FindAllStateless(type, criterias, sortItems, int.MinValue, int.MinValue);
-        }
-
-        /// <summary>
-        /// Returns all instances found for the specified type
-        /// using criteria and IStatelessSession.
-        /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <param name="criterias">The criteria expression</param>
-        /// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results.</returns>
-        public virtual Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
-        {
-            using (IStatelessSession session = GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
-                    ICriteria criteria = session.CreateCriteria(type);
+                    var sessionCriteria = session.CreateCriteria(type);
 
-                    if (criterias != null)
+                    if (criteria != null)
                     {
-                        foreach (ICriterion cond in criterias)
+                        foreach (var criterion in criteria)
                         {
-                            criteria.Add(cond);
+                            sessionCriteria.Add(criterion);
                         }
                     }
 
                     if (sortItems != null)
                     {
-                        foreach (Order order in sortItems)
+                        foreach (var order in sortItems)
                         {
-                            criteria.AddOrder(order);
+                            sessionCriteria.AddOrder(order);
                         }
                     }
 
-                    if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-                    IList result = criteria.List();
+                    if (firstRow != int.MinValue)
+                    {
+                        sessionCriteria.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(type, result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        sessionCriteria.SetMaxResults(maxRows);
+                    }
+
+                    var result = sessionCriteria.List();
+
+                    var array = Array.CreateInstance(type, result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllStateless for " + type.Name, ex);
+                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-        /// <summary>
-        /// Finds all with custom query using IStatelessSession.
-        /// </summary>
-        /// <param name="queryString">The query string.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithCustomQueryStateless(string queryString)
         {
             return FindAllWithCustomQueryStateless(queryString, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Finds all with custom HQL query using IStatelessSession.
-        /// </summary>
-        /// <param name="queryString">The query string.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithCustomQueryStateless(string queryString, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(queryString)) throw new ArgumentNullException("queryString");
+            if (string.IsNullOrEmpty(queryString))
+            {
+                throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
+            }
 
-            using (IStatelessSession session = GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
-                    IQuery query = session.CreateQuery(queryString);
+                    var query = session.CreateQuery(queryString);
 
-                    if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-                    IList result = query.List();
-                    if (result == null || result.Count == 0) return null;
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    var result = query.List();
+                    if (result == null || result.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllWithCustomQueryStateless: " + queryString, ex);
+                    var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
-
-        /// <summary>
-        /// Finds all with named HQL query using IStatelessSession.
-        /// </summary>
-        /// <param name="namedQuery">The named query.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithNamedQueryStateless(string namedQuery)
         {
             return FindAllWithNamedQueryStateless(namedQuery, int.MinValue, int.MinValue);
         }
 
-        /// <summary>
-        /// Finds all with named HQL query using IStatelessSession.
-        /// </summary>
-        /// <param name="namedQuery">The named query.</param>
-        /// <param name="firstRow">The number of the first row to retrieve.</param>
-        /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns></returns>
+        [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllWithNamedQueryStateless(string namedQuery, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(namedQuery)) throw new ArgumentNullException("namedQuery");
+            if (string.IsNullOrEmpty(namedQuery))
+            {
+                throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
+            }
 
-            using (IStatelessSession session = this.GetStatelessSession())
+            using (var session = GetStatelessSession())
             {
                 try
                 {
-                    IQuery query = session.GetNamedQuery(namedQuery);
-                    if (query == null) throw new ArgumentException("Cannot find named query", "namedQuery");
+                    var query = session.GetNamedQuery(namedQuery) ??
+                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
 
-                    if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
-                    if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-                    IList result = query.List();
-                    if (result == null || result.Count == 0) return null;
+                    if (firstRow != int.MinValue)
+                    {
+                        query.SetFirstResult(firstRow);
+                    }
 
-                    Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+                    if (maxRows != int.MinValue)
+                    {
+                        query.SetMaxResults(maxRows);
+                    }
+
+                    var result = query.List();
+                    if (result == null || result.Count == 0)
+                    {
+                        return null;
+                    }
+
+                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
                     result.CopyTo(array, 0);
 
                     return array;
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllWithNamedQueryStateless: " + namedQuery, ex);
+                    var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
+                    throw new DataException(message, ex);
                 }
             }
         }
 
         #endregion
 
-        #region Private methods
+        #region Helper Methods
 
         private ISession GetSession()
         {
-            if (string.IsNullOrEmpty(sessionFactoryAlias))
-            {
-                return sessionManager.OpenSession();
-            }
-            else
-            {
-                return sessionManager.OpenSession(sessionFactoryAlias);
-            }
+            return string.IsNullOrEmpty(SessionFactoryAlias) ?
+                   SessionManager.OpenSession() :
+                   SessionManager.OpenSession(SessionFactoryAlias);
         }
 
         private IStatelessSession GetStatelessSession()
         {
-            if (string.IsNullOrEmpty(sessionFactoryAlias))
-            {
-                return sessionManager.OpenStatelessSession();
-            }
-            else
-            {
-                return sessionManager.OpenStatelessSession(sessionFactoryAlias);
-            }
+            return string.IsNullOrEmpty(SessionFactoryAlias) ?
+                   SessionManager.OpenStatelessSession() :
+                   SessionManager.OpenStatelessSession(SessionFactoryAlias);
         }
 
         #endregion

@@ -17,43 +17,42 @@
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 using Castle.Services.Transaction;
 
-using NHibernate;
+using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     [Transactional]
     public class OrderDao : NHibernateGenericDao
     {
-        private readonly ISessionManager sessManager;
+        private readonly ISessionManager _sessionManager;
 
-        public OrderDao(ISessionManager sessManager) : base(sessManager, "db2")
+        public OrderDao(ISessionManager sessionManager) :
+            base(sessionManager, "db2")
         {
-            this.sessManager = sessManager;
+            _sessionManager = sessionManager;
         }
 
         [Transaction]
-        public virtual Order Create(float val)
+        public virtual Order Create(double value)
         {
-            using (ISession session = sessManager.OpenSession("db2"))
+            using (var session = _sessionManager.OpenSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = new Order();
-                order.Value = val;
+                var order = new Order { Value = value };
                 session.Save(order);
-
                 return order;
             }
         }
 
         [Transaction]
-        public virtual void Update(Order order, float newval)
+        public virtual void Update(Order order, double newValue)
         {
-            using (ISession session = sessManager.OpenSession("db2"))
+            using (var session = _sessionManager.OpenSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                order.Value = newval;
+                order.Value = newValue;
 
                 session.Update(order);
             }
@@ -62,39 +61,37 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual void Delete(int orderId)
         {
-            using (ISession session = sessManager.OpenSession("db2"))
+            using (var session = _sessionManager.OpenSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = (Order) session.Load(typeof(Order), orderId);
+                var order = session.Load<Order>(orderId);
 
                 session.Delete(order);
             }
         }
 
         [Transaction]
-        public virtual Order CreateStateless(float val)
+        public virtual Order CreateStateless(double value)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = new Order();
-                order.Value = val;
+                var order = new Order { Value = value };
                 session.Insert(order);
-
                 return order;
             }
         }
 
         [Transaction]
-        public virtual void UpdateStateless(Order order, float newval)
+        public virtual void UpdateStateless(Order order, double newValue)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                order.Value = newval;
+                order.Value = newValue;
 
                 session.Update(order);
             }
@@ -103,11 +100,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual void DeleteStateless(int orderId)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession("db2"))
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
+                Assert.That(session.Transaction, Is.Not.Null);
 
-                Order order = (Order) session.Get(typeof(Order).FullName, orderId);
+                var order = (Order) session.Get(typeof(Order).FullName, orderId);
 
                 session.Delete(order);
             }
