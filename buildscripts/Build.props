@@ -46,6 +46,8 @@
     <SignAssembly>true</SignAssembly>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
   <!--
