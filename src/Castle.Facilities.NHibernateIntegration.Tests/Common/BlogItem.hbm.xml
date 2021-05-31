@@ -7,7 +7,7 @@
     </id>
     <property name="Title" column="TITLE" not-null="true" />
     <property name="Text" column="TEXT" not-null="true" />
-    <property name="ItemDate" column="DATE_TIME" not-null="true" />
+    <property name="DateTime" column="DATE_TIME" not-null="true" />
     <many-to-one name="ParentBlog" column="BLOG_ID" not-null="true" />
   </class>
 </hibernate-mapping>

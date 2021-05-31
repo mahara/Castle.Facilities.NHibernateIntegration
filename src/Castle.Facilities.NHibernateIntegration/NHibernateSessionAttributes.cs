@@ -19,18 +19,18 @@ using System;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Tells to the facility that the class needs a valie Session.
+    /// Tells to the facility that a class needs a valid session.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class NHSessionAwareAttribute : Attribute
+    public class NHibernateSessionAwareAttribute : Attribute
     {
     }
 
     /// <summary>
-    /// Mark the methods that needs a Session
+    /// Mark a method that needs a session
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-    public class NHSessionRequiredAttribute : Attribute
+    public class NHibernateSessionRequiredAttribute : Attribute
     {
     }
 }

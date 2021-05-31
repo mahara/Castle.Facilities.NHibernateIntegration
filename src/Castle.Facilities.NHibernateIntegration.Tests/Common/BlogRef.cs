@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     public class BlogRef
@@ -24,6 +22,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         public virtual Blog ParentBlog { get; set; }
 
-        public virtual String Title { get; set; }
+        public virtual string Title { get; set; } = string.Empty;
     }
 }
