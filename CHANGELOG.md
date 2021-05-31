@@ -8,6 +8,7 @@ Improvements:
   (https://learn.microsoft.com/en-us/dotnet/core/project-sdk/overview).
 - Added **.NET (Core)** support.
 - Upgraded to **.NET Framework 4.7.2**.
+- Added ```AsyncLocalSessionStore``` and ```ThreadLocalSessionStore```.
 
 Breaking Changes:
 - Removed **.NET Framework 3.5**, **.NET Framework 4.0**, and **.NET Framework 4.0 Client Profile** supports.
@@ -17,6 +18,8 @@ Breaking Changes:
 - Updated **`Castle.Services.Transaction`** version to 5.0.0.
 - Updated **`Castle.Facilities.AutoTx`** version to 5.0.0.
 - Updated **`NHibernate`** version to 5.2.7.
+- Change default ```SessionStore``` in ```NHibernateFacility``` from ```LogicalCallContextSessionStore``` to ```AsyncLocalSessionStore``` .
+- Refactored ```AbstractDictionaryStackSessionStore```.
 
 
 ## 4.0.0 (2018-09-18)

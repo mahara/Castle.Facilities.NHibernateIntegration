@@ -15,88 +15,70 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Specialized;
+using System.Collections.Generic;
 
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
 
 using NHibernate;
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
+namespace Castle.Facilities.NHibernateIntegration.Internals
 {
     /// <summary>
-    /// Default implementation of <see cref="ISessionFactoryResolver"/>
-    /// that always queries the kernel instance for the session factory instance.
+    /// Default implementation of <see cref="ISessionFactoryResolver" />
+    /// that always queries the kernel instance for the <see cref="ISessionFactory" /> instance.
     /// <para>
-    /// This gives a chance to developers replace the session factory instance
+    /// This gives a chance to developers to change the <see cref="ISessionFactory" /> instance
     /// during the application lifetime.
     /// </para>
     /// </summary>
     /// <remarks>
-    /// Inspired on Cuyahoga project
+    /// Inspired by Cuyahoga project.
     /// </remarks>
     public class SessionFactoryResolver : ISessionFactoryResolver
     {
-        private readonly IKernel kernel;
-        private readonly IDictionary alias2Key = new HybridDictionary(true);
+        private readonly IKernel _kernel;
+        private readonly Dictionary<string, string> _aliasToComponentId = new(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Constructs a SessionFactoryResolver
-        /// </summary>
-        /// <param name="kernel">
-        /// Kernel instance supplied by the container itself
-        /// </param>
         public SessionFactoryResolver(IKernel kernel)
         {
-            this.kernel = kernel;
+            _kernel = kernel;
         }
 
-        /// <summary>
-        /// Associated the alias with the component key
-        /// </summary>
-        /// <param name="alias">
-        /// The alias associated with the session
-        /// factory on the configuration node
-        /// </param>
-        /// <param name="componentKey">
-        /// The component key associated with
-        /// the session factory on the kernel
-        /// </param>
-        public void RegisterAliasComponentIdMapping(String alias, String componentKey)
+        public void RegisterAliasComponentIdMapping(string alias, string componentId)
         {
-            if (alias2Key.Contains(alias))
+            if (alias is null)
             {
-                throw new ArgumentException("A mapping already exists for " +
-                                            "the specified alias: " + alias);
+                throw new ArgumentNullException(nameof(alias));
+            }
+            if (componentId is null)
+            {
+                throw new ArgumentNullException(nameof(componentId));
             }
 
-            alias2Key.Add(alias, componentKey);
+            if (_aliasToComponentId.ContainsKey(alias))
+            {
+                var message = $"A mapping already exists for the specified alias: '{alias}'.";
+                throw new ArgumentException(message);
+            }
+
+            _aliasToComponentId.Add(alias, componentId);
         }
 
-        /// <summary>
-        /// Returns a session factory instance associated with the
-        /// specified alias.
-        /// </summary>
-        /// <param name="alias">
-        /// The alias associated with the session
-        /// factory on the configuration node
-        /// </param>
-        /// <returns>A session factory instance</returns>
-        /// <exception cref="FacilityException">
-        /// If the alias is not associated with a session factory
-        /// </exception>
-        public ISessionFactory GetSessionFactory(String alias)
+        public ISessionFactory GetSessionFactory(string alias)
         {
-            String componentKey = alias2Key[alias] as String;
-
-            if (componentKey == null)
+            if (alias is null)
             {
-                throw new FacilityException("An ISessionFactory component was " +
-                                            "not mapped for the specified alias: " + alias);
+                throw new ArgumentNullException(nameof(alias));
             }
 
-            return kernel.Resolve<ISessionFactory>(componentKey);
+            if (!_aliasToComponentId.TryGetValue(alias, out var componentId))
+            {
+                var message = $"An '{nameof(ISessionFactory)}' component was not mapped for the specified alias: '{alias}'.";
+                throw new FacilityException(message);
+            }
+
+            return _kernel.Resolve<ISessionFactory>(componentId);
         }
     }
 }

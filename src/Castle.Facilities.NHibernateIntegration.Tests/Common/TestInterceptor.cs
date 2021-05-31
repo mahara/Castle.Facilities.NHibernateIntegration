@@ -14,78 +14,99 @@
 // limitations under the License.
 #endregion
 
+using System.Collections;
+
 using NHibernate;
+using NHibernate.Type;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
     /// <summary>
-    /// An implementation of the <see cref="IInterceptor"/> interface for testing
-    /// purposes.
+    /// Provides an implementation of the <see cref="IInterceptor" /> interface for testing purposes.
     /// </summary>
     public class TestInterceptor : EmptyInterceptor
     {
-        private bool onSaveCall;
-        private bool instantiationCall;
-
-        public bool ConfirmOnSaveCall()
-        {
-            return onSaveCall;
-        }
+        private bool _instantiationCall;
+        private bool _onSaveCall;
 
         public bool ConfirmInstantiationCall()
         {
-            return instantiationCall;
+            return _instantiationCall;
+        }
+
+        public bool ConfirmOnSaveCall()
+        {
+            return _onSaveCall;
         }
 
         public void ResetState()
         {
-            instantiationCall = false;
-            onSaveCall = false;
+            _instantiationCall = false;
+            _onSaveCall = false;
         }
 
         #region IInterceptor Members
 
-        public override int[] FindDirty(object entity, object id, object[] currentState, object[] previousState,
-                                        string[] propertyNames, NHibernate.Type.IType[] types)
+        public override int[] FindDirty(object entity,
+                                        object id,
+                                        object[] currentState,
+                                        object[] previousState,
+                                        string[] propertyNames,
+                                        IType[] types)
         {
             return null;
         }
 
         public override object Instantiate(string clazz, object id)
         {
-            instantiationCall = true;
+            _instantiationCall = true;
+
             return null;
         }
 
-        public override bool OnFlushDirty(object entity, object id, object[] currentState, object[] previousState,
-                                          string[] propertyNames, NHibernate.Type.IType[] types)
+        public override bool OnLoad(object entity,
+                                    object id,
+                                    object[] state,
+                                    string[] propertyNames,
+                                    IType[] types)
         {
             return false;
         }
 
-        public override bool OnLoad(object entity, object id, object[] state, string[] propertyNames,
-                                    NHibernate.Type.IType[] types)
+        public override bool OnFlushDirty(object entity,
+                                          object id,
+                                          object[] currentState,
+                                          object[] previousState,
+                                          string[] propertyNames,
+                                          IType[] types)
         {
             return false;
         }
 
-        public override bool OnSave(object entity, object id, object[] state, string[] propertyNames,
-                                    NHibernate.Type.IType[] types)
+        public override bool OnSave(object entity,
+                                    object id,
+                                    object[] state,
+                                    string[] propertyNames,
+                                    IType[] types)
         {
-            onSaveCall = true;
+            _onSaveCall = true;
+
             return false;
         }
 
-        public override void OnDelete(object entity, object id, object[] state, string[] propertyNames,
-                                      NHibernate.Type.IType[] types)
+        public override void OnDelete(object entity,
+                                      object id,
+                                      object[] state,
+                                      string[] propertyNames,
+                                      IType[] types)
         {
         }
 
-        public override void PreFlush(System.Collections.ICollection entities)
+        public override void PreFlush(ICollection entities)
         {
         }
 
-        public override void PostFlush(System.Collections.ICollection entities)
+        public override void PostFlush(ICollection entities)
         {
         }
 

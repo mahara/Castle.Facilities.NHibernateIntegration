@@ -15,6 +15,7 @@
 #endregion
 
 using System;
+using System.Transactions;
 
 using Castle.MicroKernel.Registration;
 using Castle.Services.Transaction;
@@ -24,65 +25,66 @@ using NUnit.Framework;
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     [TestFixture]
+    [Explicit("Requires MSDTC to be running.")]
     public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "Transactions/TwoDatabaseConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            "Transactions/TwoDatabasesConfiguration.xml";
 
         protected override void ConfigureContainer()
         {
-            container.Register(Component.For<RootService2>().Named("root"));
-            container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
-            container.Register(Component.For<SecondDao2>().Named("myseconddao"));
-            container.Register(Component.For<OrderDao2>().Named("myorderdao"));
+            Container.Register(Component.For<RootService2>().Named("root"));
+            Container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
+            Container.Register(Component.For<SecondDao2>().Named("myseconddao"));
+            Container.Register(Component.For<OrderDao2>().Named("myorderdao"));
         }
 
         [Test]
-        [Explicit("Requires MSDTC to be running.")]
         public void SuccessfulSituationWithTwoDatabases()
         {
-            RootService2 service = container.Resolve<RootService2>();
-            OrderDao2 orderDao = container.Resolve<OrderDao2>("myorderdao");
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
             try
             {
-                service.DoTwoDBOperation_Create(false);
+                service.TwoDbOperation_Create(false);
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
-                    Assert.Ignore("MTS is not available");
+                if (ex.InnerException != null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+                {
+                    Assert.Ignore("MTS is not available.");
+                }
+
                 throw;
             }
 
-            Array blogs = service.FindAll(typeof(Blog));
-            Array blogitems = service.FindAll(typeof(BlogItem));
-            Array orders = orderDao.FindAll(typeof(Order));
+            var blogs = service.FindAll<Blog>();
+            var blogItems = service.FindAll<BlogItem>();
+            var orders = orderDao.FindAll<Order>();
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
-            Assert.AreEqual(1, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
+            Assert.That(blogItems, Has.Count.EqualTo(1));
+            Assert.That(orders, Has.Count.EqualTo(1));
         }
 
         [Test]
-        [Explicit("Requires MSDTC to be running.")]
         public void ExceptionOnEndWithTwoDatabases()
         {
-            RootService2 service = container.Resolve<RootService2>();
-            OrderDao2 orderDao = container.Resolve<OrderDao2>("myorderdao");
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
             try
             {
-                service.DoTwoDBOperation_Create(true);
+                service.TwoDbOperation_Create(true);
             }
             catch (InvalidOperationException)
             {
-                // Expected
+                // Expected.
             }
             catch (RollbackResourceException e)
             {
@@ -94,62 +96,64 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 throw;
             }
 
-            Array blogs = service.FindAll(typeof(Blog));
-            Array blogitems = service.FindAll(typeof(BlogItem));
-            Array orders = orderDao.FindAll(typeof(Order));
+            var blogs = service.FindAll<Blog>();
+            var blogItems = service.FindAll<BlogItem>();
+            var orders = orderDao.FindAll<Order>();
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(0, blogs.Length);
-            Assert.AreEqual(0, blogitems.Length);
-            Assert.AreEqual(0, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(0));
+            Assert.That(blogItems, Has.Count.EqualTo(0));
+            Assert.That(orders, Has.Count.EqualTo(0));
         }
 
         [Test]
-        [Explicit("Requires MSDTC to be running.")]
         public void SuccessfulSituationWithTwoDatabasesStateless()
         {
-            RootService2 service = container.Resolve<RootService2>();
-            OrderDao2 orderDao = container.Resolve<OrderDao2>("myorderdao");
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
             try
             {
-                service.DoTwoDBOperation_Create_Stateless(false);
+                service.TwoDbOperation_CreateStateless(false);
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
-                    Assert.Ignore("MTS is not available");
+                if (ex.InnerException != null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+                {
+                    Assert.Ignore("MTS is not available.");
+                }
+
                 throw;
             }
 
-            Array blogs = service.FindAllStateless(typeof(Blog));
-            Array blogitems = service.FindAllStateless(typeof(BlogItem));
-            Array orders = orderDao.FindAllStateless(typeof(Order));
+            var blogs = service.FindAllStateless<Blog>();
+            var blogItems = service.FindAllStateless<BlogItem>();
+            var orders = orderDao.FindAllStateless<Order>();
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
-            Assert.AreEqual(1, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
+            Assert.That(blogItems, Has.Count.EqualTo(1));
+            Assert.That(orders, Has.Count.EqualTo(1));
         }
 
         [Test]
-        [Explicit("Requires MSDTC to be running.")]
         public void ExceptionOnEndWithTwoDatabasesStateless()
         {
-            RootService2 service = container.Resolve<RootService2>();
-            OrderDao2 orderDao = container.Resolve<OrderDao2>("myorderdao");
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
             try
             {
-                service.DoTwoDBOperation_Create_Stateless(true);
+                service.TwoDbOperation_CreateStateless(true);
             }
             catch (InvalidOperationException)
             {
-                // Expected
+                // Expected.
             }
             catch (RollbackResourceException e)
             {
@@ -161,16 +165,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 throw;
             }
 
-            Array blogs = service.FindAllStateless(typeof(Blog));
-            Array blogitems = service.FindAllStateless(typeof(BlogItem));
-            Array orders = orderDao.FindAllStateless(typeof(Order));
+            var blogs = service.FindAllStateless<Blog>();
+            var blogItems = service.FindAllStateless<BlogItem>();
+            var orders = orderDao.FindAllStateless<Order>();
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(0, blogs.Length);
-            Assert.AreEqual(0, blogitems.Length);
-            Assert.AreEqual(0, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(0));
+            Assert.That(blogItems, Has.Count.EqualTo(0));
+            Assert.That(orders, Has.Count.EqualTo(0));
         }
     }
 }
