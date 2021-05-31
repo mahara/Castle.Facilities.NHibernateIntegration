@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.MicroKernel.Facilities;
 
 using NHibernate;
@@ -23,39 +21,37 @@ using NHibernate;
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Dictates the contract for possible different approach
-    /// of session factories obtention.
+    /// A contract for possible different approaches of <see cref="ISessionFactory" />s obtention.
     /// </summary>
     /// <remarks>
-    /// Inspired on Cuyahoga project
+    /// Inspired by Cuyahoga project.
     /// </remarks>
     public interface ISessionFactoryResolver
     {
         /// <summary>
-        /// Invoked by the facility while the configuration
-        /// node are being interpreted.
+        /// Invoked by the facility while the configuration node are being interpreted.
         /// </summary>
         /// <param name="alias">
-        /// The alias associated with the session factory on the configuration node
+        /// The alias associated with the <see cref="ISessionFactory" /> on the configuration node.
         /// </param>
-        /// <param name="componentKey">
-        /// The component key associated with the session factory on the kernel
+        /// <param name="componentId">
+        /// The component ID associated with the <see cref="ISessionFactory" /> on the kernel.
         /// </param>
-        void RegisterAliasComponentIdMapping(String alias, String componentKey);
+        void RegisterAliasComponentIdMapping(string alias, string componentId);
 
         /// <summary>
-        /// Implementors should return a session factory
-        /// instance for the specified alias configured previously.
+        /// Implementors should return a <see cref="ISessionFactory" /> instance
+        /// for the specified alias configured previously.
         /// </summary>
         /// <param name="alias">
-        /// The alias associated with the session factory on the configuration node
+        /// The alias associated with the <see cref="ISessionFactory" /> on the configuration node.
         /// </param>
         /// <returns>
-        /// A session factory instance
+        /// A <see cref="ISessionFactory" /> instance.
         /// </returns>
         /// <exception cref="FacilityException">
-        /// If the alias is not associated with a session factory
+        /// If the alias is not associated with a <see cref="ISessionFactory" />.
         /// </exception>
-        ISessionFactory GetSessionFactory(String alias);
+        ISessionFactory GetSessionFactory(string alias);
     }
 }

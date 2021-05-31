@@ -15,34 +15,40 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+using System.Threading;
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     /// <summary>
     /// Provides an implementation of <see cref="ISessionStore" />
-    /// which relies on <see cref="LogicalCallContext" />.
+    /// which relies on <see cref="AsyncLocal{T}" />.
     /// </summary>
-    public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
+    /// <remarks>
+    /// <see href="https://github.com/hconceicao/Castle.Facilities.NHibernateIntegration3/commit/c927cc1788ed02260a2c46688971c3cdaaba7622" />
+    /// </remarks>
+    public class AsyncLocalSessionStore : AbstractDictionaryStackSessionStore
     {
+        private readonly AsyncLocal<IDictionary<string, Stack<SessionDelegate>>> _sessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary<string, Stack<StatelessSessionDelegate>>> _statelessSessionAsyncLocal = new();
+
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionSlotKey);
+            return _sessionAsyncLocal.Value;
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(SessionSlotKey, dictionary);
+            _sessionAsyncLocal.Value = dictionary;
         }
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionSlotKey);
+            return _statelessSessionAsyncLocal.Value;
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
+            _statelessSessionAsyncLocal.Value = dictionary;
         }
     }
 }

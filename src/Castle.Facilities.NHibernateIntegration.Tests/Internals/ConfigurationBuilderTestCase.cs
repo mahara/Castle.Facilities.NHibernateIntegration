@@ -25,20 +25,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     [TestFixture]
     public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "Internals/TwoDatabaseConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath => "Internals/TwoDatabaseConfiguration.xml";
 
         [Test]
         public void SaveUpdateListenerAdded()
         {
-            Configuration cfg = container.Resolve<Configuration>("sessionFactory4.cfg");
-            Assert.AreEqual(1, cfg.EventListeners.SaveOrUpdateEventListeners.Length);
-            Assert.AreEqual(typeof(CustomSaveUpdateListener), cfg.EventListeners.SaveOrUpdateEventListeners[0].GetType());
+            var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
 
-            Assert.AreEqual(1, cfg.EventListeners.DeleteEventListeners.Length);
-            Assert.AreEqual(typeof(CustomDeleteListener), cfg.EventListeners.DeleteEventListeners[0].GetType());
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners, Has.Length.EqualTo(1));
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType(), Is.EqualTo(typeof(CustomSaveUpdateListener)));
+
+            Assert.That(configuration.EventListeners.DeleteEventListeners, Has.Length.EqualTo(1));
+            Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
         }
     }
 }
