@@ -24,6 +24,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ReportAnalyzer>false</ReportAnalyzer>
 
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>

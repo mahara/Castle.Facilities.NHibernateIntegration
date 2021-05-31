@@ -14,6 +14,8 @@
 // limitations under the License.
 #endregion
 
+using System.IO;
+
 using Castle.Core.Resource;
 using Castle.Facilities.AutoTx;
 using Castle.Windsor;
@@ -30,47 +32,46 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     public abstract class AbstractNHibernateTestCase
     {
-        protected IWindsorContainer container;
-        protected MockRepository mockRepository;
+        protected IWindsorContainer Container;
+        protected MockRepository MockRepository = new();
 
-        public AbstractNHibernateTestCase()
+        protected virtual string ConfigurationFilePath => "DefaultConfiguration.xml";
+
+        [OneTimeSetUp]
+        public void OneTimeSetup()
         {
-            mockRepository = new MockRepository();
+            // TODO: Remove this workaround in future NUnit3TestAdapter version (4.x).
+            Directory.SetCurrentDirectory(TestContext.CurrentContext.TestDirectory);
+
+            OnOneTimeSetup();
         }
 
-        protected virtual string ConfigurationFile
+        protected virtual void OnOneTimeSetup()
         {
-            get { return "DefaultConfiguration.xml"; }
         }
 
-        protected virtual void ExportDatabaseSchema()
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
         {
-            Configuration[] cfgs = container.ResolveAll<Configuration>();
-            foreach (Configuration cfg in cfgs)
-            {
-                SchemaExport export = new SchemaExport(cfg);
-                export.Create(false, true);
-            }
+            OnOneTimeTearDown();
         }
 
-        protected virtual void DropDatabaseSchema()
+        protected virtual void OnOneTimeTearDown()
         {
-            Configuration[] cfgs = container.ResolveAll<Configuration>();
-            foreach (Configuration cfg in cfgs)
-            {
-                SchemaExport export = new SchemaExport(cfg);
-                export.Drop(false, true);
-            }
         }
 
         [SetUp]
         public virtual void SetUp()
         {
-            container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
-            container.AddFacility<AutoTxFacility>();
+            Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFilePath())));
+            Container.AddFacility<AutoTxFacility>();
             ConfigureContainer();
-            ExportDatabaseSchema();
+            CreateDatabaseSchema();
             OnSetUp();
+        }
+
+        protected virtual void OnSetUp()
+        {
         }
 
         [TearDown]
@@ -78,27 +79,41 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
             OnTearDown();
             DropDatabaseSchema();
-            container.Dispose();
-            container = null;
+            Container.Dispose();
+            Container = null;
+        }
+
+        protected virtual void OnTearDown()
+        {
         }
 
         protected virtual void ConfigureContainer()
         {
         }
 
-
-        public virtual void OnSetUp()
+        protected string GetContainerFilePath()
         {
+            return $"Castle.Facilities.NHibernateIntegration.Tests/{ConfigurationFilePath}";
         }
 
-        public virtual void OnTearDown()
+        protected virtual void CreateDatabaseSchema()
         {
+            var configurations = Container.ResolveAll<Configuration>();
+            foreach (var configuration in configurations)
+            {
+                var export = new SchemaExport(configuration);
+                export.Create(false, true);
+            }
         }
 
-
-        protected string GetContainerFile()
+        protected virtual void DropDatabaseSchema()
         {
-            return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
+            var configurations = Container.ResolveAll<Configuration>();
+            foreach (var configuration in configurations)
+            {
+                var export = new SchemaExport(configuration);
+                export.Drop(false, true);
+            }
         }
     }
 }

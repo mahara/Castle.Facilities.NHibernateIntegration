@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
     [TestFixture]
     public class PersistentConfigurationBuilderConventionsFixture
     {
-        private IConfiguration facilityCfg;
+        private IConfiguration _facilityConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -42,11 +42,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            facilityCfg = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children[Constants.SessionFactory_ConfigurationElementName];
         }
 
         [Test]
-        public void Derives_valid_filename_from_session_factory_ID_when_not_explicitly_specified()
+        public void DerivesValidFilenameFromSessionFactoryIdWhenNotExplicitlySpecified()
         {
             var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
             configurationPersister.Expect(x => x.IsNewConfigurationRequired(null, null))
@@ -55,13 +55,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
                 .Return(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             configurationPersister.VerifyAllExpectations();
         }
 
         [Test]
-        public void Includes_mapping_assemblies_in_dependent_file_list()
+        public void IncludesMappingAssembliesInDependentFiles()
         {
             var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
             configurationPersister.Expect(x => x.IsNewConfigurationRequired(null, null))
@@ -71,7 +71,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
                 .Return(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             configurationPersister.VerifyAllExpectations();
         }

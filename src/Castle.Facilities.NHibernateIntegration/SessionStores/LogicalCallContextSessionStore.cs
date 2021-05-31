@@ -14,51 +14,35 @@
 // limitations under the License.
 #endregion
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.Remoting.Messaging;
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     /// <summary>
-    /// Provides an implementation of <see cref="ISessionStore"/>
-    /// which relies on <c>LogicalCallContext</c>
+    /// Provides an implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="LogicalCallContext" />.
     /// </summary>
-    public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
+    public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
     {
-        /// <summary>
-        /// Gets the dictionary.
-        /// </summary>
-        /// <returns></returns>
-        protected override IDictionary GetDictionary()
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return CallContext.LogicalGetData(SlotKey) as IDictionary;
+            return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionSlotKey);
         }
 
-        /// <summary>
-        /// Stores the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected override void StoreDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(SlotKey, dictionary);
+            CallContext.LogicalSetData(SessionSlotKey, dictionary);
         }
 
-        /// <summary>
-        /// Gets the IStatelessSession dictionary.
-        /// </summary>
-        /// <returns>A dictionary.</returns>
-        protected override IDictionary GetStatelessSessionDictionary()
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return CallContext.LogicalGetData(this.StatelessSessionSlotKey) as IDictionary;
+            return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionSlotKey);
         }
 
-        /// <summary>
-        /// Stores the IStatelessSession dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(this.StatelessSessionSlotKey, dictionary);
+            CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
         }
     }
 }

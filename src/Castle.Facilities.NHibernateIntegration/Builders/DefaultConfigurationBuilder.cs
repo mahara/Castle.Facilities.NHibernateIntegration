@@ -28,67 +28,69 @@ using Configuration = NHibernate.Cfg.Configuration;
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// Default imlementation of <see cref="IConfigurationBuilder"/>
+    /// Default implementation of <see cref="IConfigurationBuilder" />.
     /// </summary>
     public class DefaultConfigurationBuilder : IConfigurationBuilder
     {
-        private const String NHMappingAttributesAssemblyName = "NHibernate.Mapping.Attributes";
+        private const string NHibernateMappingAttributesAssemblyName = "NHibernate.Mapping.Attributes";
 
-        /// <summary>
-        /// Builds the Configuration object from the specifed configuration
-        /// </summary>
-        /// <param name="config"></param>
-        /// <returns></returns>
-        public virtual Configuration GetConfiguration(IConfiguration config)
+        public virtual Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            Configuration cfg = new Configuration();
+            var configuration = new Configuration();
 
-            ApplyConfigurationSettings(cfg, config.Children["settings"]);
-            RegisterAssemblies(cfg, config.Children["assemblies"]);
-            RegisterResources(cfg, config.Children["resources"]);
-            RegisterListeners(cfg, config.Children["listeners"]);
-            return cfg;
+            ApplyConfigurationSettings(configuration, facilityConfiguration.Children["settings"]);
+            RegisterAssemblies(configuration, facilityConfiguration.Children["assemblies"]);
+            RegisterResources(configuration, facilityConfiguration.Children["resources"]);
+            RegisterListeners(configuration, facilityConfiguration.Children["listeners"]);
+
+            return configuration;
         }
 
         /// <summary>
         /// Applies the configuration settings.
         /// </summary>
-        /// <param name="cfg">The CFG.</param>
-        /// <param name="facilityConfig">The facility config.</param>
-        protected void ApplyConfigurationSettings(Configuration cfg, IConfiguration facilityConfig)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        protected static void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfig == null) return;
-
-            foreach (IConfiguration item in facilityConfig.Children)
+            if (facilityConfiguration == null)
             {
-                String key = item.Attributes["key"];
-                String value = item.Value;
+                return;
+            }
 
-                cfg.SetProperty(key, value);
+            foreach (var item in facilityConfiguration.Children)
+            {
+                var key = item.Attributes["key"];
+                var value = item.Value;
+
+                configuration.SetProperty(key, value);
             }
         }
 
         /// <summary>
         /// Registers the resources.
         /// </summary>
-        /// <param name="cfg">The CFG.</param>
-        /// <param name="facilityConfig">The facility config.</param>
-        protected void RegisterResources(Configuration cfg, IConfiguration facilityConfig)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        protected static void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfig == null) return;
-
-            foreach (IConfiguration item in facilityConfig.Children)
+            if (facilityConfiguration == null)
             {
-                String name = item.Attributes["name"];
-                String assembly = item.Attributes["assembly"];
+                return;
+            }
 
-                if (assembly != null)
+            foreach (var item in facilityConfiguration.Children)
+            {
+                var name = item.Attributes["name"];
+                var assemblyName = item.Attributes["assembly"];
+
+                if (assemblyName != null)
                 {
-                    cfg.AddResource(name, ObtainAssembly(assembly));
+                    configuration.AddResource(name, LoadAssembly(assemblyName));
                 }
                 else
                 {
-                    cfg.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name));
+                    configuration.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name));
                 }
             }
         }
@@ -96,98 +98,109 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// Registers the listeners.
         /// </summary>
-        /// <param name="cfg">The CFG.</param>
-        /// <param name="facilityConfig">The facility config.</param>
-        protected void RegisterListeners(Configuration cfg, IConfiguration facilityConfig)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        protected static void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfig == null) return;
-
-            foreach (IConfiguration item in facilityConfig.Children)
+            if (facilityConfiguration == null)
             {
-                String eventName = item.Attributes["event"];
-                String typeName = item.Attributes["type"];
+                return;
+            }
 
-                if (!Enum.IsDefined(typeof(ListenerType), eventName))
-                    throw new ConfigurationErrorsException("An invalid listener type was specified.");
+            foreach (var item in facilityConfiguration.Children)
+            {
+                var listenerTypeEnumName = item.Attributes["event"];
+                var listenerTypeName = item.Attributes["type"];
 
-                Type classType = Type.GetType(typeName);
+                if (!Enum.TryParse<ListenerType>(listenerTypeEnumName, out var listenerTypeEnum))
+                {
+                    var message = $"An invalid '{nameof(ListenerType)}' was specified: '{listenerTypeEnumName}'.";
+                    throw new ConfigurationErrorsException(message);
+                }
 
-                //if (classType == null)
-                //    throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
+                var listenerType = Type.GetType(listenerTypeName) ??
+                                   throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
+                var listener = Activator.CreateInstance(listenerType);
 
-                ListenerType listenerType = (ListenerType) Enum.Parse(typeof(ListenerType), eventName);
-                object listenerInstance = Activator.CreateInstance(classType);
-
-                cfg.SetListener(listenerType, listenerInstance);
+                configuration.SetListener(listenerTypeEnum, listener);
             }
         }
 
         /// <summary>
         /// Registers the assemblies.
         /// </summary>
-        /// <param name="cfg">The CFG.</param>
-        /// <param name="facilityConfig">The facility config.</param>
-        protected void RegisterAssemblies(Configuration cfg, IConfiguration facilityConfig)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        protected static void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfig == null) return;
-
-            foreach (IConfiguration item in facilityConfig.Children)
+            if (facilityConfiguration == null)
             {
-                String assembly = item.Value;
+                return;
+            }
 
-                cfg.AddAssembly(assembly);
+            foreach (var item in facilityConfiguration.Children)
+            {
+                var assemblyName = item.Value;
 
-                GenerateMappingFromAttributesIfNeeded(cfg, assembly);
+                configuration.AddAssembly(assemblyName);
+
+                GenerateMappingFromAttributesIfNeeded(configuration, assemblyName);
             }
         }
 
         /// <summary>
-        /// If <paramref name="targetAssembly"/> has a reference on
-        /// <c>NHibernate.Mapping.Attributes</c> : use the NHibernate mapping
-        /// attributes contained in that assembly to update NHibernate
-        /// configuration (<paramref name="cfg"/>). Else do nothing
+        /// If <paramref name="targetAssemblyName" /> has a reference on <c>NHibernate.Mapping.Attributes</c>,
+        /// then use the NHibernate mapping attributes contained in that assembly to update NHibernate configuration (<paramref name="configuration" />);
+        /// otherwise, do nothing.
         /// </summary>
         /// <remarks>
-        /// To avoid an unnecessary dependency on the library
-        /// <c>NHibernate.Mapping.Attributes.dll</c> when using this
-        /// facility without NHibernate mapping attributes, all calls to that
-        /// library are made using reflexion.
+        /// To avoid an unnecessary dependency on the library <c>NHibernate.Mapping.Attributes.dll</c>
+        /// when using this facility without NHibernate mapping attributes,
+        /// all calls to that library are made using reflection.
         /// </remarks>
-        /// <param name="cfg">NHibernate configuration</param>
-        /// <param name="targetAssembly">Target assembly name</param>
-        protected void GenerateMappingFromAttributesIfNeeded(Configuration cfg, String targetAssembly)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="targetAssemblyName">The target assembly name.</param>
+        protected static void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssemblyName)
         {
-            //Get an array of all assemblies referenced by targetAssembly
-            AssemblyName[] refAssemblies = Assembly.Load(targetAssembly).GetReferencedAssemblies();
+            // Get an array of all assemblies referenced by targetAssembly.
+            var referencedAssemblies = Assembly.Load(targetAssemblyName).GetReferencedAssemblies();
 
-            //If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly
-            if (Array.Exists(refAssemblies, delegate (AssemblyName an) { return an.Name.Equals(NHMappingAttributesAssemblyName); }))
+            // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly.
+            if (Array.Exists(referencedAssemblies,
+                             static (AssemblyName assemblyName) =>
+                             string.Equals(assemblyName.Name,
+                                           NHibernateMappingAttributesAssemblyName,
+                                           StringComparison.Ordinal)))
             {
-                //Obtains, by reflexion, the necessary tools to generate NH mapping from attributes
-                Type HbmSerializerType =
-                    Type.GetType(String.Concat(NHMappingAttributesAssemblyName, ".HbmSerializer, ", NHMappingAttributesAssemblyName));
-                Object hbmSerializer = Activator.CreateInstance(HbmSerializerType);
-                PropertyInfo validate = HbmSerializerType.GetProperty("Validate");
-                MethodInfo serialize = HbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
+                // Obtains, by reflection, the necessary tools to generate NHibernate mapping from attributes.
+                var hbmSerializerType =
+                    Type.GetType(string.Concat(NHibernateMappingAttributesAssemblyName,
+                                               ".HbmSerializer, ",
+                                               NHibernateMappingAttributesAssemblyName));
+                var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
+                var validateProperty = hbmSerializerType.GetProperty("Validate");
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
 
-                //Enable validation of mapping documents generated from the mapping attributes
-                validate.SetValue(hbmSerializer, true, null);
+                // Enable validation of mapping documents generated from the mapping attributes.
+                validateProperty.SetValue(hbmSerializer, true, null);
 
-                //Generates a stream of mapping documents from all decorated classes in targetAssembly and add it to NH config
-                cfg.AddInputStream((MemoryStream) serialize.Invoke(hbmSerializer, new object[] { Assembly.Load(targetAssembly) }));
+                // Generates a stream of mapping documents from all decorated classes in targetAssembly and add it to NHibernate configuration.
+                configuration.AddInputStream(
+                    (MemoryStream) serializeMethod.Invoke(
+                        hbmSerializer,
+                        new object[] { Assembly.Load(targetAssemblyName) }));
             }
         }
 
-        private Assembly ObtainAssembly(String assembly)
+        private static Assembly LoadAssembly(string assemblyName)
         {
             try
             {
-                return Assembly.Load(assembly);
+                return Assembly.Load(assemblyName);
             }
             catch (Exception ex)
             {
-                String message = String.Format("The assembly {0} could not be loaded.", assembly);
-
+                var message = $"The assembly '{assemblyName}' could not be loaded.";
                 throw new ConfigurationErrorsException(message, ex);
             }
         }

@@ -16,29 +16,28 @@
 
 using System;
 
-using NHibernate;
-
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     public class SecondDao2
     {
-        private readonly ISessionManager sessManager;
+        private readonly ISessionManager _sessionManager;
 
-        public SecondDao2(ISessionManager sessManager)
+        public SecondDao2(ISessionManager sessionManager)
         {
-            this.sessManager = sessManager;
+            _sessionManager = sessionManager;
         }
 
         public BlogItem Create(Blog blog)
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                BlogItem item = new BlogItem();
-
-                item.ParentBlog = blog;
-                item.ItemDate = DateTime.Now;
-                item.Text = "x";
-                item.Title = "splinter cell is cool!";
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTimeOffset.Now,
+                };
 
                 session.Save(item);
 
@@ -48,14 +47,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
         public BlogItem CreateStateless(Blog blog)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                BlogItem item = new BlogItem();
-
-                item.ParentBlog = blog;
-                item.ItemDate = DateTime.Now;
-                item.Text = "x";
-                item.Title = "splinter cell is cool!";
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTimeOffset.Now,
+                };
 
                 session.Insert(item);
 

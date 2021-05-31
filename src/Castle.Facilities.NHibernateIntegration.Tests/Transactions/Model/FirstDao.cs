@@ -14,22 +14,20 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Services.Transaction;
 
-using NHibernate;
+using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     [Transactional]
     public class FirstDao
     {
-        private readonly ISessionManager sessManager;
+        private readonly ISessionManager _sessionManager;
 
-        public FirstDao(ISessionManager sessManager)
+        public FirstDao(ISessionManager sessionManager)
         {
-            this.sessManager = sessManager;
+            _sessionManager = sessionManager;
         }
 
         [Transaction]
@@ -39,39 +37,40 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual Blog Create(String name)
+        public virtual Blog Create(string name)
         {
-            NHibernate.ITransaction tran;
-
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                tran = session.Transaction;
+                var currentTransaction = session.Transaction;
 
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
-                NUnit.Framework.Assert.IsTrue(session.Transaction.IsActive);
+                Assert.That(currentTransaction, Is.Not.Null);
+                Assert.That(currentTransaction.IsActive);
 
-                Blog blog = new Blog();
-                blog.Name = name;
+                var blog = new Blog
+                {
+                    Name = name,
+                };
                 session.Save(blog);
                 return blog;
             }
         }
 
         [Transaction]
-        public virtual void Delete(String name)
+        public virtual void Delete(string name)
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
-                session.Delete("from Blog b where b.Name ='" + name + "'");
+                Assert.That(session.Transaction, Is.Not.Null);
+
+                session.Delete($"from {nameof(Blog)} b where b.Name ='{name}'");
+
                 session.Flush();
             }
         }
 
-
         public virtual void AddBlogRef(BlogRef blogRef)
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
                 session.Save(blogRef);
             }
@@ -84,38 +83,39 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual Blog CreateStateless(String name)
+        public virtual Blog CreateStateless(string name)
         {
-            NHibernate.ITransaction tran;
-
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                tran = session.Transaction;
+                var currentTransaction = session.Transaction;
 
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
-                NUnit.Framework.Assert.IsTrue(session.Transaction.IsActive);
+                Assert.That(currentTransaction, Is.Not.Null);
+                Assert.That(currentTransaction.IsActive);
 
-                Blog blog = new Blog();
-                blog.Name = name;
+                var blog = new Blog
+                {
+                    Name = name,
+                };
                 session.Insert(blog);
                 return blog;
             }
         }
 
         [Transaction]
-        public virtual void DeleteStateless(String name)
+        public virtual void DeleteStateless(string name)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
-                NUnit.Framework.Assert.IsNotNull(session.Transaction);
-                session.Delete("from Blog b where b.Name ='" + name + "'");
+                Assert.That(session.Transaction, Is.Not.Null);
+
+                session.Delete($"from {nameof(Blog)} b where b.Name ='{name}'");
             }
         }
 
 
         public virtual void AddBlogRefStateless(BlogRef blogRef)
         {
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
+            using (var session = _sessionManager.OpenStatelessSession())
             {
                 session.Insert(blogRef);
             }
