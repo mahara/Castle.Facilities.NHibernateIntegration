@@ -24,29 +24,35 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
     [TestFixture]
     public class Fixture : IssueTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "EmptyConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            "EmptyConfiguration.xml";
 
         [Test]
-        public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
+        public void CanReadSessionFactoryFromNHibernateConfigurationFile()
         {
-            IConfiguration castleConfiguration = new MutableConfiguration("myConfig");
-            castleConfiguration.Attributes["nhibernateConfigFile"] =
-                @"Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
-            XmlConfigurationBuilder b = new XmlConfigurationBuilder();
-            NHibernate.Cfg.Configuration cfg = b.GetConfiguration(castleConfiguration);
-            Assert.IsNotNull(cfg);
-            string str = cfg.Properties["connection.provider"];
-            Assert.AreEqual("DummyProvider", str);
+            var facilityConfiguration = new MutableConfiguration("myConfig");
+            facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName] =
+                "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/SessionFactory1.xml";
+            var facilityConfigurationBuilder = new XmlConfigurationBuilder();
+            var configuration = facilityConfigurationBuilder.GetConfiguration(facilityConfiguration);
 
-            str = cfg.Properties["connection.connection_string"];
-            str = cfg.Properties["connection.driver_class"];
-            str = cfg.Properties["dialect"];
+            Assert.That(configuration, Is.Not.Null);
 
-            var x = 0;
-            x = 1 + x;
+            var connectionProvider = configuration.Properties["connection.provider"];
+
+            Assert.That(connectionProvider, Is.EqualTo("DummyProvider"));
+
+            var connectionString = configuration.Properties["connection.connection_string"];
+
+            Assert.That(connectionString, Is.Not.Empty);
+
+            var connectionDriverClass = configuration.Properties["connection.driver_class"];
+
+            Assert.That(connectionDriverClass, Is.Not.Empty);
+
+            var dialect = configuration.Properties["dialect"];
+
+            Assert.That(dialect, Is.Not.Empty);
         }
     }
 }

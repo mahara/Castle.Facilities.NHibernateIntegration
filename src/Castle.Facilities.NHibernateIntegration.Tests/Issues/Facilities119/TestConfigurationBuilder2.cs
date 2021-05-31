@@ -22,15 +22,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
 {
     public class TestConfigurationBuilder2 : IConfigurationBuilder
     {
-        #region IConfigurationBuilder Members
-
-        public NHibernate.Cfg.Configuration GetConfiguration(IConfiguration config)
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            Configuration cfg = new Configuration();
-            cfg.SetProperty("test", "test2");
-            return cfg;
+            var configuration = new Configuration();
+            configuration.SetProperty("test", "test2");
+            return configuration;
         }
-
-        #endregion
     }
 }

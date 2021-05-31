@@ -21,23 +21,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
 {
     public class MyDao
     {
-        private readonly ISessionFactory sessionFactory;
-        private readonly Configuration cfg;
-
-        public MyDao(ISessionFactory sessionFactory, Configuration cfg)
+        public MyDao(Configuration configuration, ISessionFactory sessionFactory)
         {
-            this.sessionFactory = sessionFactory;
-            this.cfg = cfg;
+            Configuration = configuration;
+            SessionFactory = sessionFactory;
         }
 
-        public ISessionFactory SessionFactory
-        {
-            get { return sessionFactory; }
-        }
+        public Configuration Configuration { get; }
 
-        public Configuration Cfg
-        {
-            get { return cfg; }
-        }
+        public ISessionFactory SessionFactory { get; }
     }
 }

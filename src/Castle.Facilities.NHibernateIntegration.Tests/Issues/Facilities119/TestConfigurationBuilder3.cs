@@ -22,11 +22,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
 {
     public class TestConfigurationBuilder3 : IConfigurationBuilder
     {
-        public Configuration GetConfiguration(IConfiguration config)
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            Configuration cfg = new Configuration();
-            cfg.SetProperty("test", "test3");
-            return cfg;
+            var configuration = new Configuration();
+            configuration.SetProperty("test", "test3");
+            return configuration;
         }
     }
 }

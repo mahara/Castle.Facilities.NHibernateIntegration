@@ -14,7 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Web;
 
 using Castle.MicroKernel.Facilities;
@@ -22,64 +22,51 @@ using Castle.MicroKernel.Facilities;
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     /// <summary>
-    /// Provides an implementation of <see cref="ISessionStore"/>
-    /// which relies on <c>HttpContext</c>. Suitable for web projects.
+    /// Provides an implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="HttpContext" />.
+    /// This is intended for ASP.NET projects.
     /// </summary>
-    public class WebSessionStore : AbstractDictStackSessionStore
+    public class WebSessionStore : AbstractDictionaryStackSessionStore
     {
-        /// <summary>
-        /// Gets the dictionary.
-        /// </summary>
-        /// <returns></returns>
-        protected override IDictionary GetDictionary()
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            HttpContext curContext = ObtainSessionContext();
+            var context = GetWebContext();
 
-            return curContext.Items[SlotKey] as IDictionary;
+            return (IDictionary<string, Stack<SessionDelegate>>) context.Items[SessionStacks_SlotName];
         }
 
-        /// <summary>
-        /// Stores the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected override void StoreDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            HttpContext curContext = ObtainSessionContext();
+            var context = GetWebContext();
 
-            curContext.Items[SlotKey] = dictionary;
+            context.Items[SessionStacks_SlotName] = dictionary;
         }
 
-        /// <summary>
-        /// Gets the IStatelessSession dictionary.
-        /// </summary>
-        /// <returns>A dictionary.</returns>
-        protected override IDictionary GetStatelessSessionDictionary()
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            HttpContext currentContext = ObtainSessionContext();
+            var context = GetWebContext();
 
-            return currentContext.Items[this.StatelessSessionSlotKey] as IDictionary;
+            return (IDictionary<string, Stack<StatelessSessionDelegate>>) context.Items[StatelessSessionStacks_SlotName];
         }
 
-        /// <summary>
-        /// Stores the IStatelessSession dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            HttpContext currentContext = ObtainSessionContext();
+            var context = GetWebContext();
 
-            currentContext.Items[this.StatelessSessionSlotKey] = dictionary;
+            context.Items[StatelessSessionStacks_SlotName] = dictionary;
         }
 
-        private static HttpContext ObtainSessionContext()
+        private static HttpContext GetWebContext()
         {
-            HttpContext curContext = HttpContext.Current;
+            var context = HttpContext.Current;
 
-            if (curContext == null)
+            if (context == null)
             {
-                throw new FacilityException("WebSessionStore: Could not obtain reference to HttpContext");
+                var message = $"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.";
+                throw new FacilityException(message);
             }
-            return curContext;
+
+            return context;
         }
     }
 }
