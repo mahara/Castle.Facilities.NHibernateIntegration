@@ -14,20 +14,22 @@
 // limitations under the License.
 #endregion
 
-using NHibernate.Cfg;
+using NHibernate;
+
+using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Allows implementors to modify <see cref="Configuration"/>
+    /// Allows implementors to modify NHibernate <see cref="NHibernateConfiguration" /> instance.
     /// </summary>
     public interface IConfigurationContributor
     {
         /// <summary>
-        /// Modifies available <see cref="Configuration"/> instances.
+        /// Modifies available NHibernate <see cref="NHibernateConfiguration" /> instances.
         /// </summary>
-        /// <param name="name">Name of the session factory</param>
-        /// <param name="config">The config for sessionFactory</param>
-        void Process(string name, Configuration config);
+        /// <param name="sessionFactoryName">The name of the <see cref="ISessionFactory" />.</param>
+        /// <param name="configuration">The NHibernate <see cref="NHibernateConfiguration" /> for <see cref="ISessionFactory" />.</param>
+        void Process(string sessionFactoryName, NHibernateConfiguration configuration);
     }
 }

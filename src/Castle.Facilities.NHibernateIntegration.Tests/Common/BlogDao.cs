@@ -14,34 +14,48 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 using Castle.MicroKernel;
-
-using NHibernate;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     public class BlogDao
     {
-        protected readonly IKernel kernel;
-        protected readonly ISessionManager sessManager;
+        private readonly IKernel _kernel;
+        private readonly ISessionManager _sessionManager;
 
-        public BlogDao(IKernel kernel, ISessionManager sessManager)
+        public BlogDao(IKernel kernel, ISessionManager sessionManager)
         {
-            this.kernel = kernel;
-            this.sessManager = sessManager;
+            _kernel = kernel;
+            _sessionManager = sessionManager;
         }
 
-        public Blog CreateBlog(String name)
+        public List<Blog> FindAllBlogs()
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                Blog blog = new Blog();
-                blog.Name = name;
-                blog.Items = new List<BlogItem>();
+                return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
+            }
+        }
+
+        public List<Blog> FindAllBlogsStateless()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
+            }
+        }
+
+        public Blog CreateBlog(string name)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var blog = new Blog
+                {
+                    Name = name,
+                    Items = new List<BlogItem>(),
+                };
 
                 session.Save(blog);
 
@@ -49,27 +63,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             }
         }
 
-        public IList ObtainBlogs()
+        public void DeleteAllBlogs()
         {
-            using (ISession session = sessManager.OpenSession())
+            using (var session = _sessionManager.OpenSession())
             {
-                return session.CreateQuery("from Blog").List();
-            }
-        }
-
-        public void DeleteAll()
-        {
-            using (ISession session = sessManager.OpenSession())
-            {
-                session.Delete("from Blog");
-            }
-        }
-
-        public IList ObtainBlogsStateless()
-        {
-            using (IStatelessSession session = sessManager.OpenStatelessSession())
-            {
-                return session.CreateQuery("from Blog").List();
+                session.Delete($"from {nameof(Blog)}");
             }
         }
     }

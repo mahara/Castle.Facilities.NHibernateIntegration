@@ -25,17 +25,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
     {
         protected override void ConfigureContainer()
         {
-            container.Register(Component.For<MyDao>().Named("mydao"));
+            Container.Register(Component.For<MyDao>().Named("mydao"));
         }
 
         [Test]
-        public void NHComponentsAvailableToWire()
+        public void NHibernateComponentsAvailableToWire()
         {
-            MyDao dao = container.Resolve<MyDao>();
+            var dao = Container.Resolve<MyDao>();
 
-            Assert.IsNotNull(dao);
-            Assert.IsNotNull(dao.Cfg);
-            Assert.IsNotNull(dao.SessionFactory);
+            Assert.That(dao, Is.Not.Null);
+            Assert.That(dao.Configuration, Is.Not.Null);
+            Assert.That(dao.SessionFactory, Is.Not.Null);
         }
     }
 }

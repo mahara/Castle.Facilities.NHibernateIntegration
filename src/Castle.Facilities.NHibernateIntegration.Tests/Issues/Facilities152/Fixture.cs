@@ -29,19 +29,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities152
         [Test]
         public void Should_Read_IsWeb_Configuration_From_Xml_Registration()
         {
-            var file1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
-            var file2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
+            var filePath1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
+            var filePath2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
 
-            var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file1)));
-
-            var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file2)));
-
+            var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(filePath1)));
             var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
 
+            var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(filePath2)));
             var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(WebSessionStore), sessionStoreWhenIsWebTrue);
-            Assert.IsInstanceOf(typeof(LogicalCallContextSessionStore), sessionStoreWhenIsWebFalse);
+            Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf<WebSessionStore>());
+            Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf<AsyncLocalSessionStore>());
         }
     }
 }

@@ -14,525 +14,697 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Facilities.NHibernateIntegration.Tests.Common;
 using Castle.MicroKernel.Facilities;
 using Castle.Services.Transaction;
 
-using NHibernate;
-
 using NUnit.Framework;
-
-using ITransaction = Castle.Services.Transaction.ITransaction;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
-    /// <summary>
-    /// Tests the default implementation of ISessionStore
-    /// </summary>
     [TestFixture]
     public class SessionManagerTestCase : AbstractNHibernateTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "Internals/TwoDatabaseConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            "Internals/TwoDatabasesConfiguration.xml";
 
         [Test]
-        public void TwoDatabases()
+        public void InterceptedSessionByConfiguration()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var sessionAlias = "intercepted";
 
-            ISession session1 = manager.OpenSession();
-            ISession session2 = manager.OpenSession("db2");
+            var manager = Container.Resolve<ISessionManager>();
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
+            var session = manager.OpenSession(sessionAlias);
 
-            Assert.IsFalse(Object.ReferenceEquals(session1, session2));
+            var order = new Order { Value = 9.3d };
+            session.SaveOrUpdate(order);
+            session.Close();
 
-            session2.Dispose();
-            session1.Dispose();
+            session = manager.OpenSession(sessionAlias);
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            session.Get<Order>(1);
+            session.Close();
+
+            var interceptor = Container.Resolve<TestInterceptor>(string.Format(Constants.SessionInterceptor_ComponentNameFormat, sessionAlias));
+
+            Assert.That(interceptor, Is.Not.Null);
+            Assert.That(interceptor.ConfirmInstantiationCall());
+            Assert.That(interceptor.ConfirmOnSaveCall());
+
+            interceptor.ResetState();
         }
 
         [Test]
         public void NonInterceptedSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var sessionAlias = "db2";
 
-            string sessionAlias = "db2";
+            var manager = Container.Resolve<ISessionManager>();
 
-            ISession session = manager.OpenSession(sessionAlias);
-            Order o = new Order();
-            o.Value = 9.3f;
-            session.SaveOrUpdate(o);
+            var session = manager.OpenSession(sessionAlias);
+
+            var order = new Order { Value = 9.3d };
+            session.SaveOrUpdate(order);
             session.Close();
 
             session = manager.OpenSession(sessionAlias);
-            session.Get(typeof(Order), 1);
+
+            session.Get<Order>(1);
             session.Close();
 
-            TestInterceptor interceptor = container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
-            Assert.IsNotNull(interceptor);
-            Assert.IsFalse(interceptor.ConfirmOnSaveCall());
-            Assert.IsFalse(interceptor.ConfirmInstantiationCall());
-            interceptor.ResetState();
-        }
+            var interceptor = Container.Resolve<TestInterceptor>(string.Format(Constants.SessionInterceptor_ComponentNameFormat, "intercepted"));
 
-        [Test]
-        public void InterceptedSessionByConfiguration()
-        {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            Assert.That(interceptor, Is.Not.Null);
+            Assert.That(interceptor.ConfirmInstantiationCall(), Is.False);
+            Assert.That(interceptor.ConfirmOnSaveCall(), Is.False);
 
-            string sessionAlias = "intercepted";
-
-            ISession session = manager.OpenSession(sessionAlias);
-            Order o = new Order();
-            o.Value = 9.3f;
-            session.SaveOrUpdate(o);
-            session.Close();
-
-            session = manager.OpenSession(sessionAlias);
-            session.Get(typeof(Order), 1);
-            session.Close();
-
-            TestInterceptor interceptor = container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
-            Assert.IsNotNull(interceptor);
-            Assert.IsTrue(interceptor.ConfirmOnSaveCall());
-            Assert.IsTrue(interceptor.ConfirmInstantiationCall());
             interceptor.ResetState();
         }
 
         [Test]
         public void NonExistentAlias()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var manager = Container.Resolve<ISessionManager>();
 
-            Assert.Throws<FacilityException>(() => manager.OpenSession("something in the way she moves"));
+            Assert.Throws<FacilityException>(
+                () => manager.OpenSession("something in the way she moves"));
         }
 
         [Test]
         public void SharedSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var manager = Container.Resolve<ISessionManager>();
 
-            ISession session1 = manager.OpenSession();
-            ISession session2 = manager.OpenSession();
-            ISession session3 = manager.OpenSession();
+            var session1 = manager.OpenSession();
+            var session2 = manager.OpenSession();
+            var session3 = manager.OpenSession();
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session3);
-
-            Assert.IsTrue(SessionDelegate.AreEqual(session1, session2));
-            Assert.IsTrue(SessionDelegate.AreEqual(session1, session3));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session3, Is.Not.Null);
+            Assert.That(SessionDelegate.AreEqual(session1, session2));
+            Assert.That(SessionDelegate.AreEqual(session1, session3));
 
             session3.Dispose();
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// This test ensures that the transaction takes
-        /// ownership of the session and disposes it at the end
-        /// of the transaction
+        /// This test ensures that the transaction takes ownership of the session,
+        /// and disposes it at the end of the transaction.
         /// </summary>
         [Test]
-        // [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
         public void NewTransactionBeforeUsingSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-            ITransaction transaction = tmanager.CreateTransaction(
+            var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            ISession session = manager.OpenSession();
+            var session = sessionManager.OpenSession();
 
-            Assert.IsNotNull(session);
-            Assert.IsNotNull(session.Transaction);
+            Assert.That(session, Is.Not.Null);
+            Assert.That(session.IsOpen);
+            Assert.That(session.IsConnected);
+
+            var sessionTransaction = session.Transaction;
+
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
+            Assert.That(sessionTransaction.WasCommitted, Is.False);
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session.Transaction.WasCommitted);
-            // Assert.IsTrue(session.IsConnected);
+            Assert.That(session.IsOpen, Is.False);
+            Assert.That(session.IsConnected, Is.False);
+            Assert.That(sessionTransaction.IsActive, Is.False);
+            Assert.That(sessionTransaction.WasCommitted);
 
             session.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session.IsOpen, Is.False);
+            Assert.That(session.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// In this case the transaction should not take
-        /// ownership of the session (not dipose it at the
-        /// end of the transaction)
+        /// In this case, the transaction should not take ownership of the session
+        /// (not disposing it at the end of the transaction).
         /// </summary>
         [Test]
-        // [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
         public void NewTransactionAfterUsingSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ISession session1 = manager.OpenSession();
+            var session1 = sessionManager.OpenSession();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
 
-            ITransaction transaction = tmanager.CreateTransaction(
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            // Nested
-            using (ISession session2 = manager.OpenSession())
+            // Nested sessions.
+            using (var session2 = sessionManager.OpenSession())
             {
-                Assert.IsNotNull(session2);
+                Assert.That(session1, Is.Not.Null);
+                Assert.That(session1.IsOpen);
+                Assert.That(session1.IsConnected);
 
-                Assert.IsNotNull(session1);
-                Assert.IsNotNull(session1.Transaction,
-                                 "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.IsTrue(session1.Transaction.IsActive,
-                              "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.IsOpen);
+                Assert.That(session2.IsConnected);
 
-                using (ISession session3 = manager.OpenSession())
+                sessionTransaction1 = session1.Transaction;
+
+                Assert.That(sessionTransaction1, Is.Not.Null,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(sessionTransaction1.IsActive,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+
+                using (var session3 = sessionManager.OpenSession())
                 {
-                    Assert.IsNotNull(session3);
-                    Assert.IsNotNull(session3.Transaction);
-                    Assert.IsTrue(session3.Transaction.IsActive);
+                    Assert.That(session3, Is.Not.Null);
+                    Assert.That(session3.IsOpen);
+                    Assert.That(session3.IsConnected);
+
+                    var sessionTransaction3 = session3.Transaction;
+
+                    Assert.That(sessionTransaction3, Is.Not.Null);
+                    Assert.That(sessionTransaction3.IsActive);
+                    Assert.That(sessionTransaction3.WasCommitted, Is.False);
                 }
 
-                SessionDelegate delagate1 = (SessionDelegate) session1;
-                SessionDelegate delagate2 = (SessionDelegate) session2;
-                Assert.AreSame(delagate1.InnerSession, delagate2.InnerSession);
+                var sessionDelegate1 = (SessionDelegate) session1;
+                var sessionDelegate2 = (SessionDelegate) session2;
+
+                Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
+
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
 
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+        }
+
+        [Test]
+        public void TwoDatabases()
+        {
+            var manager = Container.Resolve<ISessionManager>();
+
+            var session1 = manager.OpenSession();
+            var session2 = manager.OpenSession("db2");
+
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(ReferenceEquals(session1, session2), Is.False);
+            Assert.That(SessionDelegate.AreEqual(session1, session2), Is.False);
+
+            session2.Dispose();
+            session1.Dispose();
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// This test ensures that the transaction enlists the
-        /// the sessions of both database connections
+        /// This test ensures that the transaction enlists
+        /// the sessions of both database connections.
         /// </summary>
         [Test]
-        //[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
         public void NewTransactionBeforeUsingSessionWithTwoDatabases()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-            ITransaction transaction = tmanager.CreateTransaction(
+            var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            ISession session1 = manager.OpenSession();
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session1.Transaction);
+            var session1 = sessionManager.OpenSession();
 
-            ISession session2 = manager.OpenSession("db2");
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session2.Transaction);
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            var session2 = sessionManager.OpenSession("db2");
+
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2.IsOpen);
+            Assert.That(session2.IsConnected);
+
+            var sessionTransaction2 = session2.Transaction;
+
+            Assert.That(sessionTransaction2, Is.Not.Null);
+            Assert.That(sessionTransaction2.IsActive);
+            Assert.That(sessionTransaction2.WasCommitted, Is.False);
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session2.Transaction.WasCommitted);
-            // Assert.IsTrue(session2.IsConnected);
+            Assert.That(session2.IsOpen, Is.False);
+            Assert.That(session2.IsConnected, Is.False);
+            Assert.That(sessionTransaction2.IsActive, Is.False);
+            Assert.That(sessionTransaction2.WasCommitted);
+
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
 
             session2.Dispose();
+
+            Assert.That(session2.IsOpen, Is.False);
+            Assert.That(session2.IsConnected, Is.False);
+
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// This test ensures that the session is enlisted in actual transaction
-        /// only once for second database session
+        /// This test ensures that the session is enlisted in actual transaction only once
+        /// for second database session.
         /// </summary>
         [Test]
-        //[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
         public void SecondDatabaseSessionEnlistedOnlyOnceInActualTransaction()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-            ITransaction transaction = tmanager.CreateTransaction(
+            var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            // open connection to first database and enlist session in running transaction
-            ISession session1 = manager.OpenSession();
+            // Open connection to first database and enlist session in running transaction.
+            var session1 = sessionManager.OpenSession();
 
-            // open connection to second database and enlist session in running transaction
-            using (ISession session2 = manager.OpenSession("db2"))
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            // Open connection to second database and enlist session in running transaction.
+            using (var session2 = sessionManager.OpenSession("db2"))
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session2.Transaction);
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.IsOpen);
+                Assert.That(session2.IsConnected);
+
+                var sessionTransaction2 = session2.Transaction;
+
+                Assert.That(sessionTransaction2, Is.Not.Null);
+                Assert.That(sessionTransaction2.IsActive);
+                Assert.That(sessionTransaction2.WasCommitted, Is.False);
             }
-            // "real" NH session2 was not disposed because its in active transaction
+            // "Real" NHibernate session2 was not disposed because it's in active transaction.
 
-            // request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
-            using (ISession session3 = manager.OpenSession("db2"))
+            // Request compatible session for db2 -->
+            // we must get existing NHibernate session to db2 which should be already enlisted in active transaction.
+            using (var session3 = sessionManager.OpenSession("db2"))
             {
-                Assert.IsNotNull(session3);
-                Assert.IsTrue(session3.Transaction.IsActive);
+                Assert.That(session3, Is.Not.Null);
+                Assert.That(session3.IsOpen);
+                Assert.That(session3.IsConnected);
+
+                var sessionTransaction3 = session3.Transaction;
+
+                Assert.That(sessionTransaction3, Is.Not.Null);
+                Assert.That(sessionTransaction3.IsActive);
+                Assert.That(sessionTransaction3.WasCommitted, Is.False);
             }
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
 
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
-        }
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
 
-        [Test]
-        public void TwoDatabasesStateless()
-        {
-            ISessionManager manager = container.Resolve<ISessionManager>();
-
-            IStatelessSession session1 = manager.OpenStatelessSession();
-            IStatelessSession session2 = manager.OpenStatelessSession("db2");
-
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-
-            Assert.IsFalse(Object.ReferenceEquals(session1, session2));
-
-            session2.Dispose();
-            session1.Dispose();
-
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         [Test]
         public void NonExistentAliasStateless()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var manager = Container.Resolve<ISessionManager>();
 
-            Assert.Throws<FacilityException>(() => manager.OpenStatelessSession("something in the way she moves"));
+            Assert.Throws<FacilityException>(
+                () => manager.OpenStatelessSession("something in the way she moves"));
         }
 
         [Test]
         public void SharedStatelessSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var manager = Container.Resolve<ISessionManager>();
 
-            IStatelessSession session1 = manager.OpenStatelessSession();
-            IStatelessSession session2 = manager.OpenStatelessSession();
-            IStatelessSession session3 = manager.OpenStatelessSession();
+            var session1 = manager.OpenStatelessSession();
+            var session2 = manager.OpenStatelessSession();
+            var session3 = manager.OpenStatelessSession();
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session3);
-
-            Assert.IsTrue(StatelessSessionDelegate.AreEqual(session1, session2));
-            Assert.IsTrue(StatelessSessionDelegate.AreEqual(session1, session3));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session3, Is.Not.Null);
+            Assert.That(StatelessSessionDelegate.AreEqual(session1, session2));
+            Assert.That(StatelessSessionDelegate.AreEqual(session1, session3));
 
             session3.Dispose();
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// This test ensures that the transaction takes
-        /// ownership of the session and disposes it at the end
-        /// of the transaction
+        /// This test ensures that the transaction takes ownership of the session,
+        /// and disposes it at the end of the transaction.
         /// </summary>
         [Test]
         public void NewTransactionBeforeUsingStatelessSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-            ITransaction transaction = tmanager.CreateTransaction(
-                TransactionMode.Requires,
-                IsolationMode.Serializable);
+            var transaction = transactionManager.CreateTransaction(
+                TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            IStatelessSession session = manager.OpenStatelessSession();
+            var session = sessionManager.OpenStatelessSession();
 
-            Assert.IsNotNull(session);
-            Assert.IsNotNull(session.Transaction);
+            Assert.That(session, Is.Not.Null);
+            Assert.That(session.IsOpen);
+            Assert.That(session.IsConnected);
+
+            var sessionTransaction = session.Transaction;
+
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
+            Assert.That(sessionTransaction.WasCommitted, Is.False);
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session.Transaction.WasCommitted);
-            // Assert.IsTrue(session.IsConnected);
+            Assert.That(session.IsConnected, Is.False);
+            Assert.That(sessionTransaction.IsActive, Is.False);
+            Assert.That(sessionTransaction.WasCommitted);
 
             session.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session.IsOpen, Is.False);
+            Assert.That(session.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// In this case the transaction should not take
-        /// ownership of the session (not dipose it at the
-        /// end of the transaction)
+        /// In this case the transaction should not take ownership of the session
+        /// (not disposing it at the end of the transaction).
         /// </summary>
         [Test]
         public void NewTransactionAfterUsingStatelessSession()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            IStatelessSession session1 = manager.OpenStatelessSession();
+            var session1 = sessionManager.OpenStatelessSession();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
 
-            ITransaction transaction = tmanager.CreateTransaction(
-                TransactionMode.Requires,
-                IsolationMode.Serializable);
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            var transaction = transactionManager.CreateTransaction(
+                TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            // Nested
-            using (IStatelessSession session2 = manager.OpenStatelessSession())
+            // Nested sessions.
+            using (var session2 = sessionManager.OpenStatelessSession())
             {
-                Assert.IsNotNull(session2);
+                Assert.That(session1, Is.Not.Null);
+                Assert.That(session1.IsOpen);
+                Assert.That(session1.IsConnected);
 
-                Assert.IsNotNull(session1);
-                Assert.IsNotNull(session1.Transaction,
-                                 "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.IsTrue(session1.Transaction.IsActive,
-                              "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.IsOpen);
+                Assert.That(session2.IsConnected);
 
-                using (ISession session3 = manager.OpenSession())
+                sessionTransaction1 = session1.Transaction;
+
+                Assert.That(sessionTransaction1, Is.Not.Null,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(sessionTransaction1.IsActive,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+
+                using (var session3 = sessionManager.OpenStatelessSession())
                 {
-                    Assert.IsNotNull(session3);
-                    Assert.IsNotNull(session3.Transaction);
-                    Assert.IsTrue(session3.Transaction.IsActive);
+                    Assert.That(session3, Is.Not.Null);
+                    Assert.That(session3.IsOpen);
+                    Assert.That(session3.IsConnected);
+
+                    var sessionTransaction3 = session3.Transaction;
+
+                    Assert.That(sessionTransaction3, Is.Not.Null);
+                    Assert.That(sessionTransaction3.IsActive);
+                    Assert.That(sessionTransaction3.WasCommitted, Is.False);
                 }
 
-                StatelessSessionDelegate delagate1 = (StatelessSessionDelegate) session1;
-                StatelessSessionDelegate delagate2 = (StatelessSessionDelegate) session2;
-                Assert.AreSame(delagate1.InnerSession, delagate2.InnerSession);
+                var sessionDelegate1 = (StatelessSessionDelegate) session1;
+                var sessionDelegate2 = (StatelessSessionDelegate) session2;
+
+                Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
+
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
 
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
-        /// <summary>
-        /// This test ensures that the transaction enlists the
-        /// the sessions of both database connections
-        /// </summary>
         [Test]
-        public void NewTransactionBeforeUsingStatelessSessionWithTwoDatabases()
+        public void TwoDatabasesStateless()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var manager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
+            var session1 = manager.OpenStatelessSession();
+            var session2 = manager.OpenStatelessSession("db2");
 
-            ITransaction transaction = tmanager.CreateTransaction(
-                TransactionMode.Requires,
-                IsolationMode.Serializable);
-
-            transaction.Begin();
-
-            IStatelessSession session1 = manager.OpenStatelessSession();
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session1.Transaction);
-
-            IStatelessSession session2 = manager.OpenStatelessSession("db2");
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session2.Transaction);
-
-            transaction.Commit();
-
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session2.Transaction.WasCommitted);
-            // Assert.IsTrue(session2.IsConnected);
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(ReferenceEquals(session1, session2), Is.False);
+            Assert.That(StatelessSessionDelegate.AreEqual(session1, session2), Is.False);
 
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
 
         /// <summary>
-        /// This test ensures that the session is enlisted in actual transaction
-        /// only once for second database session
+        /// This test ensures that the transaction enlists
+        /// the sessions of both database connections.
+        /// </summary>
+        [Test]
+        public void NewTransactionBeforeUsingStatelessSessionWithTwoDatabases()
+        {
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
+
+            var transaction = transactionManager.CreateTransaction(
+                TransactionMode.Requires, IsolationMode.Serializable);
+
+            transaction.Begin();
+
+            var session1 = sessionManager.OpenStatelessSession();
+
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            var session2 = sessionManager.OpenStatelessSession("db2");
+
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2.IsOpen);
+            Assert.That(session2.IsConnected);
+
+            var sessionTransaction2 = session2.Transaction;
+
+            Assert.That(sessionTransaction2, Is.Not.Null);
+            Assert.That(sessionTransaction2.IsActive);
+            Assert.That(sessionTransaction2.WasCommitted, Is.False);
+
+            transaction.Commit();
+
+            Assert.That(session2.IsOpen, Is.False);
+            Assert.That(session2.IsConnected, Is.False);
+            Assert.That(sessionTransaction2.IsActive, Is.False);
+            Assert.That(sessionTransaction2.WasCommitted);
+
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
+
+            session2.Dispose();
+
+            Assert.That(session2.IsOpen, Is.False);
+            Assert.That(session2.IsConnected, Is.False);
+
+            session1.Dispose();
+
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+        }
+
+        /// <summary>
+        /// This test ensures that the session is enlisted in actual transaction only once
+        /// for second database session.
         /// </summary>
         [Test]
         public void SecondDatabaseStatelessSessionEnlistedOnlyOnceInActualTransaction()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
+            var transactionManager = Container.Resolve<ITransactionManager>();
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-            ITransactionManager tmanager = container.Resolve<ITransactionManager>();
-
-            ITransaction transaction = tmanager.CreateTransaction(
-                TransactionMode.Requires,
-                IsolationMode.Serializable);
+            var transaction = transactionManager.CreateTransaction(
+                TransactionMode.Requires, IsolationMode.Serializable);
 
             transaction.Begin();
 
-            // open connection to first database and enlist session in running transaction
-            IStatelessSession session1 = manager.OpenStatelessSession();
+            // Open connection to first database and enlist session in running transaction.
+            var session1 = sessionManager.OpenStatelessSession();
 
-            // open connection to second database and enlist session in running transaction
-            using (IStatelessSession session2 = manager.OpenStatelessSession("db2"))
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.IsOpen);
+            Assert.That(session1.IsConnected);
+
+            var sessionTransaction1 = session1.Transaction;
+
+            Assert.That(sessionTransaction1, Is.Not.Null);
+            Assert.That(sessionTransaction1.IsActive);
+            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+
+            // Open connection to second database and enlist session in running transaction.
+            using (var session2 = sessionManager.OpenStatelessSession("db2"))
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session2.Transaction);
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.IsOpen);
+                Assert.That(session2.IsConnected);
+
+                var sessionTransaction2 = session2.Transaction;
+
+                Assert.That(sessionTransaction2, Is.Not.Null);
+                Assert.That(sessionTransaction2.IsActive);
+                Assert.That(sessionTransaction2.WasCommitted, Is.False);
             }
-            // "real" NH session2 was not disposed because its in active transaction
+            // "Real" NHibernate session2 was not disposed because it's in active transaction.
 
-            // request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
-            using (IStatelessSession session3 = manager.OpenStatelessSession("db2"))
+            // Request compatible session for db2 -->
+            // we must get existing NHibernate session to db2 which should be already enlisted in active transaction.
+            using (var session3 = sessionManager.OpenStatelessSession("db2"))
             {
-                Assert.IsNotNull(session3);
-                Assert.IsTrue(session3.Transaction.IsActive);
+                Assert.That(session3, Is.Not.Null);
+                Assert.That(session3.IsOpen);
+                Assert.That(session3.IsConnected);
+
+                var sessionTransaction3 = session3.Transaction;
+
+                Assert.That(sessionTransaction3, Is.Not.Null);
+                Assert.That(sessionTransaction3.IsActive);
+                Assert.That(sessionTransaction3.WasCommitted, Is.False);
             }
 
             transaction.Commit();
 
-            // TODO: Assert transaction was committed
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+            Assert.That(sessionTransaction1.IsActive, Is.False);
+            Assert.That(sessionTransaction1.WasCommitted);
 
             session1.Dispose();
 
-            Assert.IsTrue(container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(session1.IsOpen, Is.False);
+            Assert.That(session1.IsConnected, Is.False);
+
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
         }
     }
 }
