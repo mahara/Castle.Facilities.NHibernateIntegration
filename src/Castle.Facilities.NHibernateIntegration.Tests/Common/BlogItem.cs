@@ -20,14 +20,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     public class BlogItem
     {
-        public virtual Blog ParentBlog { get; set; }
-
-        public virtual DateTime ItemDate { get; set; }
-
         public virtual int Id { get; set; }
 
-        public virtual String Text { get; set; }
+        public virtual Blog ParentBlog { get; set; }
 
-        public virtual String Title { get; set; }
+        public virtual string Title { get; set; } = string.Empty;
+
+        public virtual string Text { get; set; } = string.Empty;
+
+        public virtual DateTimeOffset DateTime { get; set; }
     }
 }

@@ -14,63 +14,58 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Provides the contract for implementors who want to
-    /// store valid session so they can be reused in a invocation
-    /// chain.
+    /// A contract for implementors who want to store valid session
+    /// so they can be reused in a invocation chain.
     /// </summary>
     public interface ISessionStore
     {
         /// <summary>
-        /// Should return a previously stored session
-        /// for the given alias if available, otherwise null.
+        /// Returns <see langword="true" /> if the current activity
+        /// (which is an execution activity context) has no sessions available.
+        /// </summary>
+        bool IsCurrentActivityEmptyFor(string alias);
+
+        /// <summary>
+        /// Returns a previously stored session for the given alias if available;
+        /// otherwise, <see langword="null" />.
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        SessionDelegate FindCompatibleSession(String alias);
+        SessionDelegate FindCompatibleSession(string alias);
 
         /// <summary>
-        /// Should store the specified session instance
+        /// Stores the specified session in the store.
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="session"></param>
-        void Store(String alias, SessionDelegate session);
+        void Store(string alias, SessionDelegate session);
 
         /// <summary>
-        /// Should remove the session from the store
-        /// only.
+        /// Removes the session from the store.
         /// </summary>
         /// <param name="session"></param>
         void Remove(SessionDelegate session);
 
         /// <summary>
-        /// Returns <c>true</c> if the current activity
-        /// (which is an execution activity context) has no
-        /// sessions available
-        /// </summary>
-        bool IsCurrentActivityEmptyFor(String alias);
-
-        /// <summary>
-        /// Should return a previously stored stateless session
-        /// for the given alias if available, otherwise null.
+        /// Return a previously stored stateless session for the given alias if available;
+        /// otherwise, <see langword="null" />.
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        StatelessSessionDelegate FindCompatibleStatelessSession(String alias);
+        StatelessSessionDelegate FindCompatibleStatelessSession(string alias);
 
         /// <summary>
-        /// Should store the specified stateless session instance.
+        /// Stores the specified stateless session in the store.
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="session"></param>
-        void Store(String alias, StatelessSessionDelegate session);
+        void Store(string alias, StatelessSessionDelegate session);
 
         /// <summary>
-        /// Should remove the stateless session from the store only.
+        /// Removes the stateless session from the store.
         /// </summary>
         /// <param name="session"></param>
         void Remove(StatelessSessionDelegate session);
