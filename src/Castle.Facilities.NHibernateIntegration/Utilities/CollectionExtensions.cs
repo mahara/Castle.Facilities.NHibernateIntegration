@@ -16,7 +16,7 @@
 
 using System.Collections.Generic;
 
-namespace Castle.Facilities.NHibernateIntegration.Util
+namespace Castle.Facilities.NHibernateIntegration.Utilities
 {
     public static class DictionaryExtensions
     {

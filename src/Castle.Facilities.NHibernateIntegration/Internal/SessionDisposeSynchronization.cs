@@ -23,32 +23,26 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
     /// </summary>
     public class SessionDisposeSynchronization : ISynchronization
     {
-        private readonly SessionDelegate session;
+        private readonly SessionDelegate _session;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SessionDisposeSynchronization"/> class.
-        /// </summary>
-        /// <param name="session">The session.</param>
         public SessionDisposeSynchronization(SessionDelegate session)
         {
-            this.session = session;
+            _session = session;
         }
 
         /// <summary>
-        /// Implementors may have code executing
-        /// just before the transaction completes
+        /// Implementors may have code executing just before the transaction completes.
         /// </summary>
         public void BeforeCompletion()
         {
         }
 
         /// <summary>
-        /// Implementors may have code executing
-        /// just after the transaction completes
+        /// Implementors may have code executing just after the transaction completes.
         /// </summary>
         public void AfterCompletion()
         {
-            session.InternalClose(false);
+            _session.InternalClose(false);
         }
     }
 }

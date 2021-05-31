@@ -14,12 +14,23 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
+using System;
+
+namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    ///
+    /// Tells to the facility that a class needs a valid session.
     /// </summary>
-    public class Empty
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class NHibernateSessionAwareAttribute : Attribute
+    {
+    }
+
+    /// <summary>
+    /// Mark a method that needs a session
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class NHibernateSessionRequiredAttribute : Attribute
     {
     }
 }
