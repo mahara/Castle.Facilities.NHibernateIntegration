@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <configuration>
+  <components>
+    <component id="nhibernate.facility.session.sessionInterceptor.intercepted"
+               type="Castle.Facilities.NHibernateIntegration.Tests.Common.TestInterceptor, Castle.Facilities.NHibernateIntegration.Tests"
+               service="NHibernate.IInterceptor, NHibernate" />
+  </components>
+
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-              configurationBuilderType="Castle.Facilities.NHibernateIntegration.Internals.PersistentConfigurationBuilder, Castle.Facilities.NHibernateIntegration">
-      <sessionFactory id="sessionFactory1"
-                      fileName="myconfig.dat">
+              configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
+              sessionStoreType="Castle.Facilities.NHibernateIntegration.SessionStores.AsyncLocalSessionStore, Castle.Facilities.NHibernateIntegration">
+      <sessionFactory id="sessionFactory1">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
@@ -16,11 +22,6 @@
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
-
-        <dependsOn>
-          <fileName>NHibernate.dll</fileName>
-          <fileName>SampleDllFile.dll</fileName>
-        </dependsOn>
       </sessionFactory>
     </facility>
   </facilities>

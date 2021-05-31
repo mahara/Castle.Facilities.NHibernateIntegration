@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-              configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
+              configurationBuilderType="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
               isWeb="true">
-      <factory id="sessionFactory1">
+      <sessionFactory id="sessionFactory1">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
-          <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
+          <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
         </settings>
 
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
-      </factory>
+      </sessionFactory>
     </facility>
   </facilities>
-</castle>
+</configuration>

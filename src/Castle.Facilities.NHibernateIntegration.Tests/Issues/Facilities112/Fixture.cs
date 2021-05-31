@@ -17,7 +17,6 @@
 using System.Reflection;
 
 using Castle.Core;
-
 using Castle.MicroKernel.Handlers;
 using Castle.MicroKernel.Lifestyle;
 
@@ -27,41 +26,53 @@ using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 {
-    [TestFixture, Explicit("Should be dropped, too much intrusion.")]
+    [TestFixture]
+    [Explicit("Should be dropped, too much intrusion.")]
     public class LazyInitializationTestCase : IssueTestCase
     {
-        protected override string ConfigurationFile
-        {
-            get { return "DefaultConfiguration.xml"; }
-        }
+        protected override string ConfigurationFilePath =>
+            "DefaultConfiguration.xml";
 
         [Test]
         [Ignore(@"'instance' field doesn't exist in 'SingletonLifestyleManager/AbstractLifestyleManager' class.")]
-        public virtual void SessionFactory_is_lazily_initialized()
+        public virtual void SessionFactoryIsLazilyInitialized()
         {
-            var handler = container.Kernel.GetHandler("sessionFactory1");
-            var lifestyleManagerField = typeof(DefaultHandler).GetField("lifestyleManager",
-                                                                         BindingFlags.NonPublic | BindingFlags.Instance |
-                                                                         BindingFlags.GetField);
-            var instanceField = typeof(SingletonLifestyleManager).GetField("instance",
-                                                                            BindingFlags.NonPublic | BindingFlags.Instance |
-                                                                            BindingFlags.GetField);
-            var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
-            Assert.IsNotNull(lifeStyleManager);
-            var instance = instanceField.GetValue(lifeStyleManager);
-            Assert.IsNull(instance);
+            var handler = Container.Kernel.GetHandler("sessionFactory1");
 
-            container.Resolve<ISessionFactory>();
+            var lifestyleManagerField =
+                typeof(DefaultHandler).GetField(
+                    "lifestyleManager",
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic |
+                    BindingFlags.GetField);
+            var instanceField =
+                typeof(SingletonLifestyleManager).GetField(
+                    "instance",
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic |
+                    BindingFlags.GetField);
+
+            var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
+
+            Assert.That(lifeStyleManager, Is.Not.Null);
+
+            var instance = instanceField.GetValue(lifeStyleManager);
+
+            Assert.That(instance, Is.Null);
+
+            Container.Resolve<ISessionFactory>();
 
             instance = instanceField.GetValue(lifeStyleManager);
-            Assert.IsNotNull(instance);
+
+            Assert.That(instance, Is.Not.Null);
         }
 
         [Test]
-        public virtual void SessionFactory_is_singleton()
+        public virtual void SessionFactoryIsSingleton()
         {
-            var componentModel = container.Kernel.GetHandler("sessionFactory1").ComponentModel;
-            Assert.AreEqual(LifestyleType.Singleton, componentModel.LifestyleType);
+            var model = Container.Kernel.GetHandler("sessionFactory1").ComponentModel;
+
+            Assert.That(model.LifestyleType, Is.EqualTo(LifestyleType.Singleton));
         }
     }
 }

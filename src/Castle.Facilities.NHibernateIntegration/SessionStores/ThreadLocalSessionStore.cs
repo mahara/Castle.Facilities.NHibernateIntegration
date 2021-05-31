@@ -15,34 +15,41 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+using System.Threading;
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     /// <summary>
     /// Provides an implementation of <see cref="ISessionStore" />
-    /// which relies on <see cref="LogicalCallContext" />.
+    /// which relies on <see cref="ThreadLocal{T}" />.
     /// </summary>
-    public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
+    /// <remarks>
+    /// REFERENCES:
+    /// -   <see href="https://github.com/hconceicao/Castle.Facilities.NHibernateIntegration3/blob/c927cc1788ed02260a2c46688971c3cdaaba7622/src/Castle.Facilities.NHibernateIntegration/SessionStores/ThreadLocalSessionStore.cs" />
+    /// </remarks>
+    public class ThreadLocalSessionStore : AbstractDictionaryStackSessionStore
     {
+        private readonly ThreadLocal<IDictionary<string, Stack<SessionDelegate>>> _sessionThreadLocal = new();
+        private readonly ThreadLocal<IDictionary<string, Stack<StatelessSessionDelegate>>> _statelessSessionThreadLocal = new();
+
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionStacks_SlotName);
+            return _sessionThreadLocal.Value;
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(SessionStacks_SlotName, dictionary);
+            _sessionThreadLocal.Value = dictionary;
         }
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionStacks_SlotName);
+            return _statelessSessionThreadLocal.Value;
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            CallContext.LogicalSetData(StatelessSessionStacks_SlotName, dictionary);
+            _statelessSessionThreadLocal.Value = dictionary;
         }
     }
 }
