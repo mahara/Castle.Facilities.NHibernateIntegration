@@ -25,46 +25,42 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
     [Transactional]
     public class RootService2 : NHibernateGenericDao
     {
-        private readonly FirstDao2 firstDao;
-        private readonly SecondDao2 secondDao;
-        private OrderDao2 orderDao;
+        private readonly FirstDao2 _firstDao;
+        private readonly SecondDao2 _secondDao;
 
-        public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessManager)
-            : base(sessManager)
+        public RootService2(ISessionManager sessionManager, FirstDao2 firstDao, SecondDao2 secondDao) : base(sessionManager)
         {
-            this.firstDao = firstDao;
-            this.secondDao = secondDao;
+            _firstDao = firstDao;
+            _secondDao = secondDao;
         }
 
-        public OrderDao2 OrderDao
-        {
-            get { return orderDao; }
-            set { orderDao = value; }
-        }
+        public OrderDao2 OrderDao { get; set; }
 
         [Transaction(IsDistributed = true)]
-        public virtual void DoTwoDBOperation_Create(bool throwException)
+        public virtual void DoTwoDbOperation_Create(bool throwException)
         {
-            Blog blog = firstDao.Create();
-            secondDao.Create(blog);
-            orderDao.Create(1.122f);
+            var blog = _firstDao.Create();
+            _secondDao.Create(blog);
+
+            OrderDao.Create(1.122d);
 
             if (throwException)
             {
-                throw new InvalidOperationException("Nah, giving up");
+                throw new InvalidOperationException("Nah, giving up.");
             }
         }
 
         [Transaction(IsDistributed = true)]
-        public virtual void DoTwoDBOperation_Create_Stateless(bool throwException)
+        public virtual void DoTwoDbOperation_CreateStateless(bool throwException)
         {
-            Blog blog = firstDao.CreateStateless();
-            secondDao.CreateStateless(blog);
-            orderDao.CreateStateless(1.122f);
+            var blog = _firstDao.CreateStateless();
+            _secondDao.CreateStateless(blog);
+
+            OrderDao.CreateStateless(1.122d);
 
             if (throwException)
             {
-                throw new InvalidOperationException("Nah, giving up");
+                throw new InvalidOperationException("Nah, giving up.");
             }
         }
     }
