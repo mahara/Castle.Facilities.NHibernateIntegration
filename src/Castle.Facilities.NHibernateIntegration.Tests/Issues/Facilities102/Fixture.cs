@@ -26,23 +26,31 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102
         [Test]
         public void HasAliassedSessionHasFlushModeSet()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
-            FlushMode previous = manager.DefaultFlushMode;
+            var manager = Container.Resolve<ISessionManager>();
+            var previousDefaultFlushMode = manager.DefaultFlushMode;
+
             manager.DefaultFlushMode = (FlushMode) 100;
-            ISession session = manager.OpenSession("intercepted");
-            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
-            manager.DefaultFlushMode = previous;
+
+            var session = manager.OpenSession("intercepted");
+
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
+
+            manager.DefaultFlushMode = previousDefaultFlushMode;
         }
 
         [Test]
         public void SessionHasFlushModeSet()
         {
-            ISessionManager manager = container.Resolve<ISessionManager>();
-            FlushMode previous = manager.DefaultFlushMode;
+            var manager = Container.Resolve<ISessionManager>();
+            var previousDefaultFlushMode = manager.DefaultFlushMode;
+
             manager.DefaultFlushMode = (FlushMode) 100;
-            ISession session = manager.OpenSession();
-            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
-            manager.DefaultFlushMode = previous;
+
+            var session = manager.OpenSession();
+
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
+
+            manager.DefaultFlushMode = previousDefaultFlushMode;
         }
     }
 }

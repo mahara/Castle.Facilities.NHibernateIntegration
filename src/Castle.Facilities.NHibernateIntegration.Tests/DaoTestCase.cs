@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections;
-
 using Castle.MicroKernel.Registration;
 
 using NUnit.Framework;
@@ -28,29 +26,31 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
         [Test]
         public void CommonUsage()
         {
-            container.Register(Component.For<BlogDao>().Named("blogdao"));
+            Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-            BlogDao dao = container.Resolve<BlogDao>("blogdao");
+            var dao = Container.Resolve<BlogDao>("blogdao");
+
             dao.CreateBlog("my blog");
 
-            IList blogs = dao.ObtainBlogs();
+            var blogs = dao.FindBlogs();
 
-            Assert.IsNotNull(blogs);
-            Assert.AreEqual(1, blogs.Count);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
         }
 
         [Test]
-        public void CommonStatelessUsage()
+        public void CommonUsageStateless()
         {
-            container.Register(Component.For<BlogDao>().Named("blogdao"));
+            Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-            BlogDao dao = container.Resolve<BlogDao>("blogdao");
+            var dao = Container.Resolve<BlogDao>("blogdao");
+
             dao.CreateBlog("my blog");
 
-            IList blogs = dao.ObtainBlogsStateless();
+            var blogs = dao.FindBlogsStateless();
 
-            Assert.IsNotNull(blogs);
-            Assert.AreEqual(1, blogs.Count);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
         }
     }
 }

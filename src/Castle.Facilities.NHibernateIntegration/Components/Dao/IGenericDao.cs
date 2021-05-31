@@ -15,125 +15,198 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+
+using NHibernate;
+
+using Array = System.Array;
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
     /// <summary>
-    /// Summary description for IGenericDao.
     /// </summary>
     /// <remarks>
-    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;
+    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
     /// </remarks>
     public interface IGenericDao
     {
         /// <summary>
-        /// Returns all instances found for the specified type.
+        /// Returns all instances found for the specified type using <see cref="ISession" />.
         /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
-        Array FindAll(Type type);
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <returns>A <see cref="List{T}" /> of instances.</returns>
+        List<T> FindAll<T>() where T : class;
 
         /// <summary>
-        /// Returns a portion of the query results (sliced)
+        /// Returns a portion of the query results (sliced) using <see cref="ISession" />.
         /// </summary>
-        /// <param name="type">The target type.</param>
+        /// <typeparam name="T">The instance type.</typeparam>
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
-        Array FindAll(Type type, int firstRow, int maxRows);
+        /// <returns>A <see cref="List{T}" /> of instances.</returns>
+        List<T> FindAll<T>(int firstRow, int maxRows) where T : class;
 
         /// <summary>
-        /// Finds an object instance by an unique ID
+        /// Finds an instance by an unique ID using <see cref="ISession" />.
         /// </summary>
-        /// <param name="type">The AR subclass type</param>
-        /// <param name="id">ID value</param>
-        /// <returns>The object instance.</returns>
-        object FindById(Type type, object id);
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <param name="id">The ID value.</param>
+        /// <returns>An instance.</returns>
+        T FindById<T>(object id);
 
         /// <summary>
-        /// Creates (Saves) a new instance to the database.
+        /// Creates (saves) a new instance to the database using <see cref="ISession" />.
         /// </summary>
-        /// <param name="instance">The instance to be created on the database</param>
-        /// <returns>The instance</returns>
+        /// <param name="instance">The instance to be created on the database.</param>
+        /// <returns>The instance.</returns>
         object Create(object instance);
 
         /// <summary>
-        /// Persists the modification on the instance
-        /// state to the database.
-        /// </summary>
-        /// <param name="instance">The instance to be updated on the database</param>
-        void Update(object instance);
-
-        /// <summary>
-        /// Deletes the instance from the database.
-        /// </summary>
-        /// <param name="instance">The instance to be deleted from the database</param>
-        void Delete(object instance);
-
-        /// <summary>
-        /// Deletes all rows for the specified type
-        /// </summary>
-        /// <param name="type">type on which the rows on the database should be deleted</param>
-        void DeleteAll(Type type);
-
-        /// <summary>
-        /// Saves the instance to the database. If the primary key is unitialized
-        /// it creates the instance on the database. Otherwise it updates it.
+        /// Saves the instance to the database using <see cref="ISession" />.
+        /// If the primary key is uninitialized, it then creates the instance on the database;
+        /// otherwise, it updates it.
         /// <para>
-        /// If the primary key is assigned, then you must invoke <see cref="Create"/>
-        /// or <see cref="Update"/> instead.
+        /// If the primary key is assigned, then you must invoke <see cref="Create" />
+        /// or <see cref="Update" /> instead.
         /// </para>
         /// </summary>
-        /// <param name="instance">The instance to be saved</param>
+        /// <param name="instance">The instance to be saved.</param>
         void Save(object instance);
 
         /// <summary>
-        /// Returns all instances found for the specified type using IStatelessSession.
+        /// Persists the modification on the instance state to the database using <see cref="ISession" />.
         /// </summary>
-        /// <param name="type">The target type.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
-        Array FindAllStateless(Type type);
+        /// <param name="instance">The instance to be updated on the database.</param>
+        void Update(object instance);
 
         /// <summary>
-        /// Returns a portion of the query results (sliced) using IStatelessSession.
+        /// Deletes the instance from the database using <see cref="ISession" />.
         /// </summary>
-        /// <param name="type">The target type.</param>
+        /// <param name="instance">The instance to be deleted from the database.</param>
+        void Delete(object instance);
+
+        /// <summary>
+        /// Deletes all instances for the specified type using <see cref="ISession" />.
+        /// </summary>
+        /// <typeparam name="T">The type on which the instances on the database should be deleted.</typeparam>
+        void DeleteAll<T>();
+
+        /// <summary>
+        /// Returns all instances found for the specified type using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <returns>A <see cref="List{T}" /> of instances.</returns>
+        List<T> FindAllStateless<T>() where T : class;
+
+        /// <summary>
+        /// Returns a portion of the query results (sliced) using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <typeparam name="T">The instance type.</typeparam>
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
-        /// <returns>The <see cref="Array"/> of results</returns>
-        Array FindAllStateless(Type type, int firstRow, int maxRows);
+        /// <returns>A <see cref="List{T}" /> of instances.</returns>
+        List<T> FindAllStateless<T>(int firstRow, int maxRows) where T : class;
 
         /// <summary>
-        /// Finds an object instance by an unique ID using IStatelessSession.
+        /// Finds an instance by an unique ID using <see cref="IStatelessSession" />.
         /// </summary>
-        /// <param name="type">The AR subclass type</param>
-        /// <param name="id">ID value</param>
-        /// <returns>The object instance.</returns>
-        object FindByIdStateless(Type type, object id);
+        /// <typeparam name="T">The instance type.</typeparam>
+        /// <returns>An instance.</returns>
+        T FindByIdStateless<T>(object id);
 
         /// <summary>
-        /// Creates (saves or inserts) a new instance to the database using IStatelessSession.
+        /// Creates (saves or inserts) a new instance to the database using <see cref="IStatelessSession" />.
         /// </summary>
-        /// <param name="instance">The instance to be created on the database</param>
-        /// <returns>The instance</returns>
+        /// <param name="instance">The instance to be created on the database.</param>
+        /// <returns>The instance.</returns>
         object CreateStateless(object instance);
 
         /// <summary>
-        /// Persists the modification on the instance state to the database using IStatelessSession.
+        /// Persists the modification on the instance state to the database using <see cref="IStatelessSession" />.
         /// </summary>
-        /// <param name="instance">The instance to be updated on the database</param>
+        /// <param name="instance">The instance to be updated on the database.</param>
         void UpdateStateless(object instance);
 
         /// <summary>
-        /// Deletes the instance from the database using IStatelessSession.
+        /// Deletes the instance from the database using <see cref="IStatelessSession" />.
         /// </summary>
-        /// <param name="instance">The instance to be deleted from the database</param>
+        /// <param name="instance">The instance to be deleted from the database.</param>
         void DeleteStateless(object instance);
 
         /// <summary>
-        /// Deletes all rows for the specified type using IStatelessSession.
+        /// Deletes all instances for the specified type using <see cref="IStatelessSession" />.
         /// </summary>
-        /// <param name="type">type on which the rows on the database should be deleted</param>
+        /// <typeparam name="T">The type on which the instances on the database should be deleted.</typeparam>
+        void DeleteAllStateless<T>();
+
+
+
+        /// <summary>
+        /// Returns all instances found for the specified type using <see cref="ISession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <returns>An <see cref="Array" /> of instances.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        Array FindAll(Type type);
+
+        /// <summary>
+        /// Returns a portion of the query results (sliced) using <see cref="ISession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <param name="firstRow">The number of the first row to retrieve.</param>
+        /// <param name="maxRows">The maximum number of results retrieved.</param>
+        /// <returns>An <see cref="Array" /> of instances.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        Array FindAll(Type type, int firstRow, int maxRows);
+
+        /// <summary>
+        /// Finds an instance by an unique ID using <see cref="ISession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <param name="id">The ID value.</param>
+        /// <returns>An instance.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        object FindById(Type type, object id);
+
+        /// <summary>
+        /// Deletes all instances for the specified type using <see cref="ISession" />.
+        /// </summary>
+        /// <param name="type">The type on which the instances on the database should be deleted.</param>
+        [Obsolete("Use generic method overloads instead.")]
+        void DeleteAll(Type type);
+
+        /// <summary>
+        /// Returns all instances found for the specified type using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <returns>An <see cref="Array" /> of instances.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        Array FindAllStateless(Type type);
+
+        /// <summary>
+        /// Returns a portion of the query results (sliced) using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <param name="firstRow">The number of the first row to retrieve.</param>
+        /// <param name="maxRows">The maximum number of results retrieved.</param>
+        /// <returns>An <see cref="Array" /> of instances.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        Array FindAllStateless(Type type, int firstRow, int maxRows);
+
+        /// <summary>
+        /// Finds an instance by an unique ID using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <param name="type">The instance type.</param>
+        /// <param name="id">The ID value.</param>
+        /// <returns>An instance.</returns>
+        [Obsolete("Use generic method overloads instead.")]
+        object FindByIdStateless(Type type, object id);
+
+        /// <summary>
+        /// Deletes all instances for the specified type using <see cref="IStatelessSession" />.
+        /// </summary>
+        /// <param name="type">type on which the instances on the database should be deleted.</param>
+        [Obsolete("Use generic method overloads instead.")]
         void DeleteAllStateless(Type type);
     }
 }

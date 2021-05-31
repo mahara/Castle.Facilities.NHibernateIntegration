@@ -27,6 +27,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
         public void OnDelete(DeleteEvent @event)
         {
         }
+
         public void OnDelete(DeleteEvent @event, ISet<object> transientEntities)
         {
         }
