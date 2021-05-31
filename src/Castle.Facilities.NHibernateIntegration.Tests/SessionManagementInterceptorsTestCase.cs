@@ -15,7 +15,6 @@
 #endregion
 
 using Castle.Facilities.NHibernateIntegration.Tests.Common;
-
 using Castle.MicroKernel.Registration;
 
 using NUnit.Framework;
@@ -26,13 +25,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
     {
         [Test]
-        public void SessionRequiredAttr_should_automatically_open_a_Session_under_the_hood()
+        public void SessionRequiredAttribute_ShouldAutomaticallyOpenASessionUnderTheHood()
         {
-            container.Register(Component.For<BlogRepository>());
+            Container.Register(Component.For<BlogRepository>());
 
-            container.Resolve<BlogRepository>().FetchAll();
+            Container.Resolve<BlogRepository>().FindAllBlogs();
 
-            Assert.IsNull(container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias), Is.Null);
         }
     }
 }
