@@ -159,11 +159,16 @@
 		public bool IsOpen => this.InnerSession.IsOpen;
 
 		/// <inheritdoc />
+		/// <remarks>
+		///     This method is implemented explicitly, as opposed to simply calling
+		///     <see cref="StatelessSessionExtensions.GetCurrentTransaction(IStatelessSession)" />,
+		///     because <see cref="IStatelessSession.GetSessionImplementation()" /> can return <see langword="null" />.
+		/// </remarks>
 		public ITransaction Transaction =>
-			this.InnerSession?.
-				GetSessionImplementation()?.
-				ConnectionManager?.
-				CurrentTransaction;
+			this.InnerSession?
+				.GetSessionImplementation()?
+				.ConnectionManager?
+				.CurrentTransaction;
 
 		/// <inheritdoc />
 		public ITransaction BeginTransaction()

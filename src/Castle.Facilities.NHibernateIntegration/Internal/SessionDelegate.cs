@@ -190,11 +190,16 @@ namespace Castle.Facilities.NHibernateIntegration
 		}
 
 		/// <inheritdoc />
+		/// <remarks>
+		///     This method is implemented explicitly, as opposed to simply calling
+		///     <see cref="SessionExtensions.GetCurrentTransaction(ISession)" />,
+		///     because <see cref="ISession.GetSessionImplementation()" /> can return <see langword="null" />.
+		/// </remarks>
 		public ITransaction Transaction =>
-			this.InnerSession?.
-				GetSessionImplementation()?.
-				ConnectionManager?.
-				CurrentTransaction;
+			this.InnerSession?
+				.GetSessionImplementation()?
+				.ConnectionManager?
+				.CurrentTransaction;
 
 		/// <inheritdoc />
 		DbConnection ISession.Close()
