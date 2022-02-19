@@ -1,6 +1,6 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
-## 5.3.0 (2022-02-20)
+## 5.1.0 (2022-02-20)
 
 Improvements:
 - Updated Castle.Core version to 4.4.1
@@ -13,7 +13,7 @@ Breaking Changes:
 ## 5.0.0 (2021-05-31)
 
 Improvements:
-- Added new .NET (Core) project support
+- Upgraded to SDK-style projects.
 
 Breaking Changes:
 - Removed .NET Framework 3.5, .NET Framework 4.0, and .NET Framework 4.0 Client Profile supports
