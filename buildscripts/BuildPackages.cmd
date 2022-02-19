@@ -1,6 +1,6 @@
 @ECHO OFF
 REM ****************************************************************************
-REM Copyright 2004-2021 Castle Project - http://www.castleproject.org/
+REM Copyright 2004-2022 Castle Project - http://www.castleproject.org/
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
 REM You may obtain a copy of the License at
@@ -14,6 +14,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM ****************************************************************************
 
+
 :INITIALIZE_ARGUMENTS
 SET %1
 SET %2
@@ -26,7 +27,7 @@ GOTO INITIALIZE_VARIABLES
 
 :INITIALIZE_VARIABLES
 SET CONFIGURATION="Release"
-SET BUILD_VERSION="5.0.0"
+SET BUILD_VERSION="5.3.0"
 
 GOTO SET_CONFIGURATION
 
@@ -42,11 +43,6 @@ GOTO SET_BUILD_VERSION
 IF "%version%"=="" GOTO RESTORE_PACKAGES
 SET BUILD_VERSION=%version%
 
-ECHO ---------------------------------------------------
-REM ECHO Building "%config%" packages with version "%version%"...
-ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
-ECHO ---------------------------------------------------
-
 GOTO RESTORE_PACKAGES
 
 
@@ -60,6 +56,12 @@ GOTO BUILD
 
 
 :BUILD
+
+ECHO ---------------------------------------------------
+REM ECHO Building "%config%" packages with version "%version%"...
+ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
+ECHO ---------------------------------------------------
+
 REM dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
 dotnet build Castle.Facilities.NHibernateIntegration.sln -c %CONFIGURATION% /p:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
 

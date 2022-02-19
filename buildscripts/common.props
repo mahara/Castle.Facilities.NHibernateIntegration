@@ -24,6 +24,7 @@
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
     <!-- <PackageIconUrl>https://www.castleproject.org/img/facilities_nhibernateintegration-logo.png</PackageIconUrl> -->
+    <PackageIcon>facilities_nhibernateintegration-logo.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageOutputPath>../../build/</PackageOutputPath>
     <PackageVersion>$(BuildVersion)</PackageVersion>
@@ -44,6 +45,10 @@
       <PackagePath></PackagePath>
     </Content>
     <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(SolutionDir)docs\images\facilities_nhibernateintegration-logo.png" Pack="true" PackagePath=""/>
   </ItemGroup>
 
 </Project>
