@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -77,7 +77,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -98,7 +98,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -119,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -138,7 +138,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var item = new BlogItem
                 {
