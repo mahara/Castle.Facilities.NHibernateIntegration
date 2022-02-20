@@ -41,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                var currentTransaction = session.Transaction;
+                var currentTransaction = session.GetCurrentTransaction();
 
                 Assert.That(currentTransaction, Is.Not.Null);
                 Assert.That(currentTransaction.IsActive);
@@ -60,7 +60,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 session.Delete($"from {nameof(Blog)} b where b.Name ='{name}'");
 
@@ -87,7 +87,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                var currentTransaction = session.Transaction;
+                var currentTransaction = session.GetCurrentTransaction();
 
                 Assert.That(currentTransaction, Is.Not.Null);
                 Assert.That(currentTransaction.IsActive);
@@ -106,7 +106,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 session.Delete($"from {nameof(Blog)} b where b.Name ='{name}'");
             }
