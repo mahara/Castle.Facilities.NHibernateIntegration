@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var order = new Order { Value = value };
                 session.Save(order);
@@ -50,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 order.Value = newValue;
 
@@ -63,7 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var order = session.Load<Order>(orderId);
 
@@ -76,7 +76,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var order = new Order { Value = value };
                 session.Insert(order);
@@ -89,7 +89,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 order.Value = newValue;
 
@@ -102,7 +102,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
-                Assert.That(session.Transaction, Is.Not.Null);
+                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
 
                 var order = (Order) session.Get(typeof(Order).FullName, orderId);
 
