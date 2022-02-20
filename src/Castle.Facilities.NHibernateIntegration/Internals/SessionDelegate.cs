@@ -122,16 +122,18 @@ namespace Castle.Facilities.NHibernateIntegration
         public ISessionFactory SessionFactory => _innerSession.SessionFactory;
 
         //
-        //  TODO:   Update implementation in future version (5.3.x),
-        //          following NHibernate 5.3.x.
-        //
         //  NOTE:   SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
         //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
         //
         /// <summary>
         /// Gets the current Unit of Work and returns the associated <see cref="ITransaction" /> instance.
         /// </summary>
-        public ITransaction Transaction => _innerSession.Transaction;
+        /// <remarks>
+        /// This property getter is implemented explicitly in <see cref="SessionExtensions.GetCurrentTransaction(ISession)" />,
+        /// as opposed to simply calling <see cref="NHibernate.SessionExtensions.GetCurrentTransaction(ISession)" />
+        /// because <see cref="ISession.GetSessionImplementation()" /> can be <see langword="null" />.
+        /// </remarks>
+        public ITransaction Transaction => _innerSession.GetCurrentTransaction();
 
         public DbConnection Connection => _innerSession.Connection;
 
