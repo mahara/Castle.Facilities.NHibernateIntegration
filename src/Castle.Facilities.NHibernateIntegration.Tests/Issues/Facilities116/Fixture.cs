@@ -1,38 +1,40 @@
 ﻿#region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 {
-	using System;
-	using System.Configuration;
-	using System.IO;
-	using System.Runtime.Serialization.Formatters.Binary;
-	using System.Threading;
 	using Builders;
 
 	using Castle.MicroKernel;
 
 	using Core.Configuration;
 	using Core.Resource;
+
 	using MicroKernel.SubSystems.Configuration;
+
 	using NUnit.Framework;
+
+	using System;
+	using System.Configuration;
+	using System.IO;
+	using System.Runtime.Serialization.Formatters.Binary;
+	using System.Threading;
+
 	using Windsor.Configuration.Interpreters;
+
 	using Configuration = NHibernate.Cfg.Configuration;
 
 	[TestFixture]
@@ -43,9 +45,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 			get { return "EmptyConfiguration.xml"; }
 		}
 
-		private const string filename = "myconfig.dat";
-		private IConfiguration configuration;
-		private IConfigurationBuilder configurationBuilder;
+		private const string Filename = "myconfig.dat";
+
+		private IConfiguration _configuration;
+		private IConfigurationBuilder _configurationBuilder;
 
 		public override void OnSetUp()
 		{
@@ -53,24 +56,24 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 			var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
 			var xmlInterpreter = new XmlInterpreter(resource);
 			xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-			configuration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
-			configurationBuilder = new PersistentConfigurationBuilder();
+			_configuration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+			_configurationBuilder = new PersistentConfigurationBuilder();
 		}
 
 		public override void OnTearDown()
 		{
-			File.Delete(filename);
+			File.Delete(Filename);
 		}
 
 		[Test]
 		public void Can_create_serialized_file_in_the_disk()
 		{
-			Assert.IsFalse(File.Exists(filename));
-			configurationBuilder.GetConfiguration(configuration);
-			Assert.IsTrue(File.Exists(filename));
-			BinaryFormatter bf = new BinaryFormatter();
+			Assert.IsFalse(File.Exists(Filename));
+			_configurationBuilder.GetConfiguration(_configuration);
+			Assert.IsTrue(File.Exists(Filename));
+			var bf = new BinaryFormatter();
 			Configuration nhConfig;
-			using (var fileStream = new FileStream(filename, FileMode.Open))
+			using (var fileStream = new FileStream(Filename, FileMode.Open))
 			{
 				nhConfig = bf.Deserialize(fileStream) as Configuration;
 			}
@@ -84,14 +87,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 		[Test]
 		public void Can_deserialize_file_from_the_disk_if_new_enough()
 		{
-			Assert.IsFalse(File.Exists(filename));
-			Configuration nhConfig = configurationBuilder.GetConfiguration(configuration);
-			Assert.IsTrue(File.Exists(filename));
-			DateTime dateTime = File.GetLastWriteTime(filename);
+			Assert.IsFalse(File.Exists(Filename));
+			var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+			Assert.IsTrue(File.Exists(Filename));
+			var dateTime = File.GetLastWriteTime(Filename);
 			Thread.Sleep(1000);
-			nhConfig = configurationBuilder.GetConfiguration(configuration);
-			Assert.AreEqual(File.GetLastWriteTime(filename), dateTime);
-			Assert.IsNotNull(configuration);
+			nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+			Assert.AreEqual(File.GetLastWriteTime(Filename), dateTime);
+			Assert.IsNotNull(_configuration);
 
 			ConfigureConnectionSettings(nhConfig);
 
@@ -101,17 +104,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 		[Test]
 		public void Can_deserialize_file_from_the_disk_if_one_of_the_dependencies_is_newer()
 		{
-			Assert.IsFalse(File.Exists(filename));
-			Configuration nhConfig = configurationBuilder.GetConfiguration(configuration);
-			Assert.IsTrue(File.Exists(filename));
-			DateTime dateTime = File.GetLastWriteTime(filename);
+			Assert.IsFalse(File.Exists(Filename));
+			var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+			Assert.IsTrue(File.Exists(Filename));
+			var dateTime = File.GetLastWriteTime(Filename);
 			Thread.Sleep(1000);
-			DateTime dateTime2 = DateTime.Now;
+			var dateTime2 = DateTime.Now;
 			File.Create("SampleDllFile").Dispose();
 			File.SetLastWriteTime("SampleDllFile", dateTime2);
-			nhConfig = configurationBuilder.GetConfiguration(configuration);
-			Assert.Greater(File.GetLastWriteTime(filename), dateTime);
-			Assert.IsNotNull(configuration);
+			nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+			Assert.Greater(File.GetLastWriteTime(Filename), dateTime);
+			Assert.IsNotNull(_configuration);
 
 			ConfigureConnectionSettings(nhConfig);
 
@@ -120,9 +123,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
 		private static void ConfigureConnectionSettings(Configuration nhConfig)
 		{
-			nhConfig.Properties["dialect"] = ConfigurationManager.AppSettings["nhf.dialect"];
-			nhConfig.Properties["connection.driver_class"] = ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-			nhConfig.Properties["connection.provider"] = ConfigurationManager.AppSettings["nhf.connection.provider"];
+			nhConfig.Properties["dialect"] =
+				ConfigurationManager.AppSettings["nhf.dialect"];
+			nhConfig.Properties["connection.driver_class"] =
+				ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+			nhConfig.Properties["connection.provider"] =
+				ConfigurationManager.AppSettings["nhf.connection.provider"];
 			nhConfig.Properties["connection.connection_string"] =
 				ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
 		}

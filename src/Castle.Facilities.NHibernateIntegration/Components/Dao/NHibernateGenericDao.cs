@@ -1,60 +1,58 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
-	using System;
-	using System.Collections;
 	using NHibernate;
 	using NHibernate.Collection;
 	using NHibernate.Criterion;
 	using NHibernate.Proxy;
+
+	using System;
+
 	using Util;
 
 	/// <summary>
 	/// Summary description for GenericDao.
 	/// </summary>
 	/// <remarks>
-	/// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;
+	/// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
 	/// </remarks>
 	public class NHibernateGenericDao : INHibernateGenericDao
 	{
-		private readonly ISessionManager sessionManager;
-		private string sessionFactoryAlias = null;
+		private readonly ISessionManager _sessionManager;
+		private string _sessionFactoryAlias = null;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="NHibernateGenericDao"/> class.
+		/// Initializes a new instance of the <see cref="NHibernateGenericDao" /> class.
 		/// </summary>
 		/// <param name="sessionManager">The session manager.</param>
 		public NHibernateGenericDao(ISessionManager sessionManager)
 		{
-			this.sessionManager = sessionManager;
+			_sessionManager = sessionManager;
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="NHibernateGenericDao"/> class.
+		/// Initializes a new instance of the <see cref="NHibernateGenericDao" /> class.
 		/// </summary>
 		/// <param name="sessionManager">The session manager.</param>
 		/// <param name="sessionFactoryAlias">The session factory alias.</param>
 		public NHibernateGenericDao(ISessionManager sessionManager, string sessionFactoryAlias) : this(sessionManager)
 		{
-			this.sessionFactoryAlias = sessionFactoryAlias;
+			_sessionFactoryAlias = sessionFactoryAlias;
 		}
 
 		/// <summary>
@@ -63,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <value>The session manager.</value>
 		protected ISessionManager SessionManager
 		{
-			get { return sessionManager; }
+			get { return _sessionManager; }
 		}
 
 		/// <summary>
@@ -72,8 +70,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <value>The session factory alias.</value>
 		public string SessionFactoryAlias
 		{
-			get { return sessionFactoryAlias; }
-			set { sessionFactoryAlias = value; }
+			get { return _sessionFactoryAlias; }
+			set { _sessionFactoryAlias = value; }
 		}
 
 		#region IGenericDAO Members
@@ -82,32 +80,32 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// Returns all instances found for the specified type.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <returns>The <see cref="Array"/> of results</returns>
+		/// <returns>The <see cref="Array" /> of results</returns>
 		public virtual Array FindAll(Type type)
 		{
 			return FindAll(type, int.MinValue, int.MinValue);
 		}
 
 		/// <summary>
-		/// Returns a portion of the query results (sliced)
+		/// Returns a portion of the query results (sliced).
 		/// </summary>
 		/// <param name="type">The target type.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAll(Type type, int firstRow, int maxRows)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
-					ICriteria criteria = session.CreateCriteria(type);
+					var criteria = session.CreateCriteria(type);
 
 					if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-					IList result = criteria.List();
+					var result = criteria.List();
 
-					Array array = Array.CreateInstance(type, result.Count);
+					var array = Array.CreateInstance(type, result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -120,14 +118,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		}
 
 		/// <summary>
-		/// Finds an object instance by an unique ID
+		/// Finds an object instance by an unique ID.
 		/// </summary>
-		/// <param name="type">The AR subclass type</param>
-		/// <param name="id">ID value</param>
+		/// <param name="type">The AR subclass type.</param>
+		/// <param name="id">ID value.</param>
 		/// <returns>The object instance.</returns>
 		public virtual object FindById(Type type, object id)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
@@ -147,11 +145,11 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Creates (Saves) a new instance to the database.
 		/// </summary>
-		/// <param name="instance">The instance to be created on the database</param>
+		/// <param name="instance">The instance to be created on the database.</param>
 		/// <returns>The instance</returns>
 		public virtual object Create(object instance)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
@@ -165,13 +163,12 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		}
 
 		/// <summary>
-		/// Persists the modification on the instance
-		/// state to the database.
+		/// Persists the modification on the instance state to the database.
 		/// </summary>
-		/// <param name="instance">The instance to be updated on the database</param>
+		/// <param name="instance">The instance to be updated on the database.</param>
 		public virtual void Update(object instance)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
@@ -187,10 +184,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Deletes the instance from the database.
 		/// </summary>
-		/// <param name="instance">The instance to be deleted from the database</param>
+		/// <param name="instance">The instance to be deleted from the database.</param>
 		public virtual void Delete(object instance)
 		{
-			using (ISession session = this.GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
@@ -204,16 +201,16 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		}
 
 		/// <summary>
-		/// Deletes all rows for the specified type
+		/// Deletes all rows for the specified type.
 		/// </summary>
-		/// <param name="type">type on which the rows on the database should be deleted</param>
+		/// <param name="type">type on which the rows on the database should be deleted.</param>
 		public virtual void DeleteAll(Type type)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
-					session.Delete(String.Format("from {0}", type.Name));
+					session.Delete(string.Format("from {0}", type.Name));
 				}
 				catch (Exception ex)
 				{
@@ -223,17 +220,18 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		}
 
 		/// <summary>
-		/// Saves the instance to the database. If the primary key is unitialized
-		/// it creates the instance on the database. Otherwise it updates it.
+		/// Saves the instance to the database.
+		/// If the primary key is uninitialized, it creates the instance on the database.
+		/// Otherwise, it updates it.
 		/// <para>
-		/// If the primary key is assigned, then you must invoke <see cref="Create"/>
-		/// or <see cref="Update"/> instead.
+		/// If the primary key is assigned, then you must invoke <see cref="Create" />
+		/// or <see cref="Update" /> instead.
 		/// </para>
 		/// </summary>
-		/// <param name="instance">The instance to be saved</param>
+		/// <param name="instance">The instance to be saved.</param>
 		public virtual void Save(object instance)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
@@ -250,7 +248,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// Returns all instances found for the specified type using IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <returns>The <see cref="Array"/> of results</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type)
 		{
 			return FindAllStateless(type, int.MinValue, int.MinValue);
@@ -262,20 +260,20 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <param name="type">The target type.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type, int firstRow, int maxRows)
 		{
-			using (IStatelessSession session = this.GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
-					ICriteria criteria = session.CreateCriteria(type);
+					var criteria = session.CreateCriteria(type);
 
 					if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-					IList result = criteria.List();
+					var result = criteria.List();
 
-					Array array = Array.CreateInstance(type, result.Count);
+					var array = Array.CreateInstance(type, result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -290,12 +288,12 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Finds an object instance by an unique ID using IStatelessSession.
 		/// </summary>
-		/// <param name="type">The AR subclass type</param>
-		/// <param name="id">ID value</param>
+		/// <param name="type">The AR subclass type.</param>
+		/// <param name="id">ID value.</param>
 		/// <returns>The object instance.</returns>
 		public object FindByIdStateless(Type type, object id)
 		{
-			using (IStatelessSession session = this.GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
@@ -315,11 +313,11 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Creates (saves or inserts) a new instance to the database using IStatelessSession.
 		/// </summary>
-		/// <param name="instance">The instance to be created on the database</param>
-		/// <returns>The instance</returns>
+		/// <param name="instance">The instance to be created on the database.</param>
+		/// <returns>The instance.</returns>
 		public object CreateStateless(object instance)
 		{
-			using (IStatelessSession session = GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
@@ -335,10 +333,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Persists the modification on the instance state to the database using IStatelessSession.
 		/// </summary>
-		/// <param name="instance">The instance to be updated on the database</param>
+		/// <param name="instance">The instance to be updated on the database.</param>
 		public void UpdateStateless(object instance)
 		{
-			using (IStatelessSession session = GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
@@ -354,10 +352,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Deletes the instance from the database using IStatelessSession.
 		/// </summary>
-		/// <param name="instance">The instance to be deleted from the database</param>
+		/// <param name="instance">The instance to be deleted from the database.</param>
 		public void DeleteStateless(object instance)
 		{
-			using (IStatelessSession session = this.GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
@@ -373,14 +371,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// <summary>
 		/// Deletes all rows for the specified type using IStatelessSession.
 		/// </summary>
-		/// <param name="type">type on which the rows on the database should be deleted</param>
+		/// <param name="type">type on which the rows on the database should be deleted.</param>
 		public void DeleteAllStateless(Type type)
 		{
-			using (IStatelessSession session = GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
-					session.Delete(String.Format("from {0}", type.Name));
+					session.Delete(string.Format("from {0}", type.Name));
 				}
 				catch (Exception ex)
 				{
@@ -394,65 +392,61 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		#region INHibernateGenericDAO Members
 
 		/// <summary>
-		/// Returns all instances found for the specified type
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAll(Type type, ICriterion[] criterias)
 		{
 			return FindAll(type, criterias, null, int.MinValue, int.MinValue);
 		}
 
 		/// <summary>
-		/// Returns all instances found for the specified type
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
+		/// <param name="criterias">The criteria expression.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAll(Type type, ICriterion[] criterias, int firstRow, int maxRows)
 		{
 			return FindAll(type, criterias, null, firstRow, maxRows);
 		}
 
 		/// <summary>
-		/// Returns all instances found for the specified type
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems)
 		{
 			return FindAll(type, criterias, sortItems, int.MinValue, int.MinValue);
 		}
 
 		/// <summary>
-		/// Returns all instances found for the specified type
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
 		{
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
-					ICriteria criteria = session.CreateCriteria(type);
+					var criteria = session.CreateCriteria(type);
 
 					if (criterias != null)
 					{
-						foreach (ICriterion cond in criterias)
+						foreach (var cond in criterias)
 						{
 							criteria.Add(cond);
 						}
@@ -460,7 +454,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
 					if (sortItems != null)
 					{
-						foreach (Order order in sortItems)
+						foreach (var order in sortItems)
 						{
 							criteria.AddOrder(order);
 						}
@@ -468,9 +462,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
 					if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-					IList result = criteria.List();
+					var result = criteria.List();
 
-					Array array = Array.CreateInstance(type, result.Count);
+					var array = Array.CreateInstance(type, result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -503,18 +497,18 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		{
 			if (string.IsNullOrEmpty(queryString)) throw new ArgumentNullException("queryString");
 
-			using (ISession session = GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
-					IQuery query = session.CreateQuery(queryString);
+					var query = session.CreateQuery(queryString);
 
 					if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-					IList result = query.List();
+					var result = query.List();
 					if (result == null || result.Count == 0) return null;
 
-					Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+					var array = Array.CreateInstance(result[0].GetType(), result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -547,19 +541,19 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		{
 			if (string.IsNullOrEmpty(namedQuery)) throw new ArgumentNullException("namedQuery");
 
-			using (ISession session = this.GetSession())
+			using (var session = GetSession())
 			{
 				try
 				{
-					IQuery query = session.GetNamedQuery(namedQuery);
+					var query = session.GetNamedQuery(namedQuery);
 					if (query == null) throw new ArgumentException("Cannot find named query", "namedQuery");
 
 					if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-					IList result = query.List();
+					var result = query.List();
 					if (result == null || result.Count == 0) return null;
 
-					Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+					var array = Array.CreateInstance(result[0].GetType(), result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -579,9 +573,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		{
 			if (instance == null) throw new ArgumentNullException("instance");
 
-			using (ISession session = this.GetSession())
+			using (var session = GetSession())
 			{
-				foreach (object val in ReflectionUtility.GetPropertiesDictionary(instance).Values)
+				foreach (var val in ReflectionUtility.GetPropertiesDictionary(instance).Values)
 				{
 					if (val is INHibernateProxy || val is IPersistentCollection)
 					{
@@ -599,28 +593,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// Initializes the lazy property.
 		/// </summary>
 		/// <param name="instance">The instance.</param>
-		/// <param name="propertyName">Name of the property.</param>
+		/// <param name="propertyName">The name of the property.</param>
 		public void InitializeLazyProperty(object instance, string propertyName)
 		{
 			if (instance == null) throw new ArgumentNullException("instance");
-			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException("propertyName");
+			if (string.IsNullOrEmpty(propertyName)) throw new ArgumentNullException(nameof(propertyName));
 
 			var properties = ReflectionUtility.GetPropertiesDictionary(instance);
-			if (! properties.ContainsKey(propertyName))
-				throw new ArgumentOutOfRangeException("propertyName", "Property "
-				                                                      + propertyName + " doest not exist for type "
-				                                                      + instance.GetType() + ".");
+			if (!properties.ContainsKey(propertyName))
+				throw new ArgumentOutOfRangeException(nameof(propertyName),
+													  "Property " + propertyName +
+													  " doest not exist for type " + instance.GetType() + ".");
 
-			using (ISession session = this.GetSession())
+			using (var session = GetSession())
 			{
-				object val = properties[propertyName];
+				var value = properties[propertyName];
 
-				if (val is INHibernateProxy || val is IPersistentCollection)
+				if (value is INHibernateProxy || value is IPersistentCollection)
 				{
-					if (!NHibernateUtil.IsInitialized(val))
+					if (!NHibernateUtil.IsInitialized(value))
 					{
 						session.Lock(instance, LockMode.None);
-						NHibernateUtil.Initialize(val);
+						NHibernateUtil.Initialize(value);
 					}
 				}
 			}
@@ -631,8 +625,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type, ICriterion[] criterias)
 		{
 			return FindAllStateless(type, criterias, null, int.MinValue, int.MinValue);
@@ -643,10 +637,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
+		/// <param name="criterias">The criteria expression.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type, ICriterion[] criterias, int firstRow, int maxRows)
 		{
 			return FindAllStateless(type, criterias, null, firstRow, maxRows);
@@ -657,9 +651,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems)
 		{
 			return FindAllStateless(type, criterias, sortItems, int.MinValue, int.MinValue);
@@ -670,22 +664,22 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		public virtual Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
 		{
-			using (IStatelessSession session = GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
-					ICriteria criteria = session.CreateCriteria(type);
+					var criteria = session.CreateCriteria(type);
 
 					if (criterias != null)
 					{
-						foreach (ICriterion cond in criterias)
+						foreach (var cond in criterias)
 						{
 							criteria.Add(cond);
 						}
@@ -693,7 +687,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
 					if (sortItems != null)
 					{
-						foreach (Order order in sortItems)
+						foreach (var order in sortItems)
 						{
 							criteria.AddOrder(order);
 						}
@@ -701,9 +695,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
 					if (firstRow != int.MinValue) criteria.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) criteria.SetMaxResults(maxRows);
-					IList result = criteria.List();
+					var result = criteria.List();
 
-					Array array = Array.CreateInstance(type, result.Count);
+					var array = Array.CreateInstance(type, result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -736,18 +730,18 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		{
 			if (string.IsNullOrEmpty(queryString)) throw new ArgumentNullException("queryString");
 
-			using (IStatelessSession session = GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
-					IQuery query = session.CreateQuery(queryString);
+					var query = session.CreateQuery(queryString);
 
 					if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-					IList result = query.List();
+					var result = query.List();
 					if (result == null || result.Count == 0) return null;
 
-					Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+					var array = Array.CreateInstance(result[0].GetType(), result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -758,7 +752,6 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 				}
 			}
 		}
-
 
 		/// <summary>
 		/// Finds all with named HQL query using IStatelessSession.
@@ -781,19 +774,19 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		{
 			if (string.IsNullOrEmpty(namedQuery)) throw new ArgumentNullException("namedQuery");
 
-			using (IStatelessSession session = this.GetStatelessSession())
+			using (var session = GetStatelessSession())
 			{
 				try
 				{
-					IQuery query = session.GetNamedQuery(namedQuery);
+					var query = session.GetNamedQuery(namedQuery);
 					if (query == null) throw new ArgumentException("Cannot find named query", "namedQuery");
 
 					if (firstRow != int.MinValue) query.SetFirstResult(firstRow);
 					if (maxRows != int.MinValue) query.SetMaxResults(maxRows);
-					IList result = query.List();
+					var result = query.List();
 					if (result == null || result.Count == 0) return null;
 
-					Array array = Array.CreateInstance(result[0].GetType(), result.Count);
+					var array = Array.CreateInstance(result[0].GetType(), result.Count);
 					result.CopyTo(array, 0);
 
 					return array;
@@ -807,32 +800,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
 		#endregion
 
-		#region Private methods
-
 		private ISession GetSession()
 		{
-			if (string.IsNullOrEmpty(sessionFactoryAlias))
+			if (string.IsNullOrEmpty(_sessionFactoryAlias))
 			{
-				return sessionManager.OpenSession();
+				return _sessionManager.OpenSession();
 			}
 			else
 			{
-				return sessionManager.OpenSession(sessionFactoryAlias);
+				return _sessionManager.OpenSession(_sessionFactoryAlias);
 			}
 		}
 
 		private IStatelessSession GetStatelessSession()
 		{
-			if (string.IsNullOrEmpty(sessionFactoryAlias))
+			if (string.IsNullOrEmpty(_sessionFactoryAlias))
 			{
-				return sessionManager.OpenStatelessSession();
+				return _sessionManager.OpenStatelessSession();
 			}
 			else
 			{
-				return sessionManager.OpenStatelessSession(sessionFactoryAlias);
+				return _sessionManager.OpenStatelessSession(_sessionFactoryAlias);
 			}
 		}
-
-		#endregion
 	}
 }

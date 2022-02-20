@@ -1,32 +1,29 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System;
-	using System.Collections;
-	using System.Web;
 	using MicroKernel.Facilities;
 
+	using System.Collections;
+	using System.Web;
+
 	/// <summary>
-	/// Provides an implementation of <see cref="ISessionStore"/>
-	/// which relies on <c>HttpContext</c>. Suitable for web projects.
+	/// Provides an implementation of <see cref="ISessionStore" />
+	/// which relies on <see cref="HttpContext" />. Suitable for web projects.
 	/// </summary>
 	public class WebSessionStore : AbstractDictStackSessionStore
 	{
@@ -36,9 +33,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <returns></returns>
 		protected override IDictionary GetDictionary()
 		{
-			HttpContext curContext = ObtainSessionContext();
+			var currentContext = ObtainSessionContext();
 
-			return curContext.Items[SlotKey] as IDictionary;
+			return currentContext.Items[SlotKey] as IDictionary;
 		}
 
 		/// <summary>
@@ -47,9 +44,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <param name="dictionary">The dictionary.</param>
 		protected override void StoreDictionary(IDictionary dictionary)
 		{
-			HttpContext curContext = ObtainSessionContext();
+			var currentContext = ObtainSessionContext();
 
-			curContext.Items[SlotKey] = dictionary;
+			currentContext.Items[SlotKey] = dictionary;
 		}
 
 		/// <summary>
@@ -58,9 +55,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <returns>A dictionary.</returns>
 		protected override IDictionary GetStatelessSessionDictionary()
 		{
-			HttpContext currentContext = ObtainSessionContext();
+			var currentContext = ObtainSessionContext();
 
-			return currentContext.Items[this.StatelessSessionSlotKey] as IDictionary;
+			return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
 		}
 
 		/// <summary>
@@ -69,20 +66,21 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <param name="dictionary">The dictionary.</param>
 		protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
 		{
-			HttpContext currentContext = ObtainSessionContext();
+			var currentContext = ObtainSessionContext();
 
-			currentContext.Items[this.StatelessSessionSlotKey] = dictionary;
+			currentContext.Items[StatelessSessionSlotKey] = dictionary;
 		}
 
 		private static HttpContext ObtainSessionContext()
 		{
-			HttpContext curContext = HttpContext.Current;
+			var currentContext = HttpContext.Current;
 
-			if (curContext == null)
+			if (currentContext == null)
 			{
 				throw new FacilityException("WebSessionStore: Could not obtain reference to HttpContext");
 			}
-			return curContext;
+
+			return currentContext;
 		}
 	}
 }

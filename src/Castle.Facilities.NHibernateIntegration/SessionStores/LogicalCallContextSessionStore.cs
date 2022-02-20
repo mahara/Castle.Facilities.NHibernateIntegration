@@ -1,31 +1,27 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System;
 	using System.Collections;
 	using System.Runtime.Remoting.Messaging;
 
 	/// <summary>
-	/// Provides an implementation of <see cref="ISessionStore"/>
-	/// which relies on <c>LogicalCallContext</c>
+	/// Provides an implementation of <see cref="ISessionStore" />
+	/// which relies on logical <see cref="CallContext" />.
 	/// </summary>
 	public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
 	{
@@ -53,7 +49,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <returns>A dictionary.</returns>
 		protected override IDictionary GetStatelessSessionDictionary()
 		{
-			return CallContext.LogicalGetData(this.StatelessSessionSlotKey) as IDictionary;
+			return CallContext.LogicalGetData(StatelessSessionSlotKey) as IDictionary;
 		}
 
 		/// <summary>
@@ -62,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		/// <param name="dictionary">The dictionary.</param>
 		protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
 		{
-			CallContext.LogicalSetData(this.StatelessSessionSlotKey, dictionary);
+			CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
 		}
 	}
 }

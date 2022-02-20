@@ -1,61 +1,46 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
-	#region Using Directives
-
-	using System;
-
 	using Castle.Facilities.NHibernateIntegration.Tests.Common;
 	using Castle.MicroKernel.Facilities;
+	using Castle.Services.Transaction;
 
 	using NHibernate;
 
 	using NUnit.Framework;
 
-	using Castle.Services.Transaction;
-
-	using ITransaction = Castle.Services.Transaction.ITransaction;
-
-	#endregion
-
-	/// <summary>
-	///     Tests the default implementation of ISessionStore
-	/// </summary>
 	[TestFixture]
 	public class SessionManagerTestCase : AbstractNHibernateTestCase
 	{
 		protected override string ConfigurationFile => "Internals/TwoDatabaseConfiguration.xml";
 
 		[Test]
-		[Ignore("TODO: .NET Core Migration Issue")]
+		[Ignore("TODO: .NET (Core) Migration Issue")]
 		public void InterceptedSessionByConfiguration()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var sessionAlias = "intercepted";
 
 			var session = manager.OpenSession(sessionAlias);
-			var o = new Order();
-			o.Value = 9.3f;
-			session.SaveOrUpdate(o);
+			var order = new Order();
+			order.Value = 9.3f;
+			session.SaveOrUpdate(order);
 			session.Close();
 
 			// The session is somehow cannot be reopened here after just previously closed.
@@ -63,7 +48,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.Get(typeof(Order), 1);
 			session.Close();
 
-			var interceptor = this.container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+			var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
 			Assert.IsNotNull(interceptor);
 			Assert.IsTrue(interceptor.ConfirmOnSaveCall());
 			Assert.IsTrue(interceptor.ConfirmInstantiationCall());
@@ -71,19 +56,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		/// <summary>
-		///     In this case the transaction should not take
-		///     ownership of the session (not dispose it at the
-		///     end of the transaction)
+		/// In this case the transaction should not take ownership of the session
+		/// (not disposing it at the end of the transaction).
 		/// </summary>
 		[Test]
-		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
 		public void NewTransactionAfterUsingSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenSession();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires, IsolationMode.Serializable);
@@ -98,9 +82,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session1);
 				var transaction1 = session1.GetCurrentTransaction();
 				Assert.IsNotNull(transaction1,
-				                 "After requesting compatible session, first session is enlisted in transaction too.");
+								 "After requesting compatible session, first session is enlisted in transaction too.");
 				Assert.IsTrue(transaction1.IsActive,
-				              "After requesting compatible session, first session is enlisted in transaction too.");
+							  "After requesting compatible session, first session is enlisted in transaction too.");
 
 				using (var session3 = manager.OpenSession())
 				{
@@ -117,28 +101,27 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			Assert.IsTrue(session1.IsConnected);
 
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     In this case the transaction should not take
-		///     ownership of the session (not dispose it at the
-		///     end of the transaction)
+		/// In this case the transaction should not take ownership of the session
+		/// (not dispose it at the end of the transaction).
 		/// </summary>
 		[Test]
 		public void NewTransactionAfterUsingStatelessSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenStatelessSession();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires,
@@ -146,7 +129,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			transaction.Begin();
 
-			// Nested			
+			// Nested
 			using (var session2 = manager.OpenStatelessSession())
 			{
 				Assert.IsNotNull(session2);
@@ -154,9 +137,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session1);
 				var transaction1 = session1.GetCurrentTransaction();
 				Assert.IsNotNull(transaction1,
-				                 "After requesting compatible session, first session is enlisted in transaction too.");
+								 "After requesting compatible session, first session is enlisted in transaction too.");
 				Assert.IsTrue(transaction1.IsActive,
-				              "After requesting compatible session, first session is enlisted in transaction too.");
+							  "After requesting compatible session, first session is enlisted in transaction too.");
 
 				using (var session3 = manager.OpenSession())
 				{
@@ -179,21 +162,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     This test ensures that the transaction takes
-		///     ownership of the session and disposes it at the end
-		///     of the transaction
+		/// This test ensures that the transaction takes ownership of the session
+		/// and disposes it at the end of the transaction.
 		/// </summary>
 		[Test]
-		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		// [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
 		public void NewTransactionBeforeUsingSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires, IsolationMode.Serializable);
@@ -209,24 +191,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			// TODO: Assert transaction was committed
 			// Assert.IsTrue(session.Transaction.WasCommitted);
-			// Assert.IsTrue(session.IsConnected); 
+			// Assert.IsTrue(session.IsConnected);
 
 			session.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     This test ensures that the transaction enlists the
-		///     the sessions of both database connections
+		/// This test ensures that the transaction enlists the sessions of both database connections.
 		/// </summary>
 		[Test]
-		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
 		public void NewTransactionBeforeUsingSessionWithTwoDatabases()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires, IsolationMode.Serializable);
@@ -253,20 +234,19 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     This test ensures that the transaction takes
-		///     ownership of the session and disposes it at the end
-		///     of the transaction
+		/// This test ensures that the transaction takes ownership of the session
+		/// and disposes it at the end of the transaction.
 		/// </summary>
 		[Test]
 		public void NewTransactionBeforeUsingStatelessSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires,
@@ -283,23 +263,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			// TODO: Assert transaction was committed
 			// Assert.IsTrue(session.Transaction.WasCommitted);
-			// Assert.IsTrue(session.IsConnected); 
+			// Assert.IsTrue(session.IsConnected);
 
 			session.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     This test ensures that the transaction enlists the
-		///     the sessions of both database connections
+		/// This test ensures that the transaction enlists the sessions of both database connections.
 		/// </summary>
 		[Test]
 		public void NewTransactionBeforeUsingStatelessSessionWithTwoDatabases()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires,
@@ -327,13 +306,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void NonExistentAlias()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			Assert.Throws<FacilityException>(() => manager.OpenSession("something in the way she moves"));
 		}
@@ -341,7 +320,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Test]
 		public void NonExistentAliasStateless()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			Assert.Throws<FacilityException>(() => manager.OpenStatelessSession("something in the way she moves"));
 		}
@@ -350,7 +329,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Ignore("TODO: .NET Core Migration Issue")]
 		public void NonInterceptedSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var sessionAlias = "db2";
 
@@ -365,7 +344,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.Get(typeof(Order), 1);
 			session.Close();
 
-			var interceptor = this.container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+			var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
 			Assert.IsNotNull(interceptor);
 			Assert.IsFalse(interceptor.ConfirmOnSaveCall());
 			Assert.IsFalse(interceptor.ConfirmInstantiationCall());
@@ -373,16 +352,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		/// <summary>
-		///     This test ensures that the session is enlisted in actual transaction
-		///     only once for second database session
+		/// This test ensures that the session is enlisted only once
+		/// in actual transaction for second database session.
 		/// </summary>
 		[Test]
-		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed")]
+		//[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
 		public void SecondDatabaseSessionEnlistedOnlyOnceInActualTransaction()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires, IsolationMode.Serializable);
@@ -413,23 +392,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			// TODO: Assert transaction was committed
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected); 
+			// Assert.IsTrue(session1.IsConnected);
 
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		/// <summary>
-		///     This test ensures that the session is enlisted in actual transaction
-		///     only once for second database session
+		/// This test ensures that the session is enlisted only once
+		/// in actual transaction for second database session.
 		/// </summary>
 		[Test]
 		public void SecondDatabaseStatelessSessionEnlistedOnlyOnceInActualTransaction()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
-			var transactionManager = this.container.Resolve<ITransactionManager>();
+			var transactionManager = Container.Resolve<ITransactionManager>();
 
 			var transaction = transactionManager.CreateTransaction(
 				TransactionMode.Requires,
@@ -461,17 +440,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			// TODO: Assert transaction was committed
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
-			// Assert.IsTrue(session1.IsConnected); 
+			// Assert.IsTrue(session1.IsConnected);
 
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void SharedSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenSession();
 			var session2 = manager.OpenSession();
@@ -488,13 +467,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void SharedStatelessSession()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenStatelessSession();
 			var session2 = manager.OpenStatelessSession();
@@ -511,13 +490,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void TwoDatabases()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenSession();
 			var session2 = manager.OpenSession("db2");
@@ -530,13 +509,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 
 		[Test]
 		public void TwoDatabasesStateless()
 		{
-			var manager = this.container.Resolve<ISessionManager>();
+			var manager = Container.Resolve<ISessionManager>();
 
 			var session1 = manager.OpenStatelessSession();
 			var session2 = manager.OpenStatelessSession("db2");
@@ -549,7 +528,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session2.Dispose();
 			session1.Dispose();
 
-			Assert.IsTrue(this.container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+			Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
 		}
 	}
 }

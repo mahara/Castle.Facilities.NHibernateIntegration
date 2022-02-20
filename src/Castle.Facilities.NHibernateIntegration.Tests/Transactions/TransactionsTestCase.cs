@@ -1,51 +1,44 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	#region Using Directives
-
-	using System;
-
 	using Castle.MicroKernel.Registration;
 
 	using NHibernate;
 
 	using NUnit.Framework;
 
-	#endregion
+	using System;
 
 	[TestFixture]
 	public class TransactionsTestCase : AbstractNHibernateTestCase
 	{
 		protected override void ConfigureContainer()
 		{
-			this.container.Register(Component.For<RootService>().Named("root"));
-			this.container.Register(Component.For<FirstDao>().Named("myfirstdao"));
-			this.container.Register(Component.For<SecondDao>().Named("myseconddao"));
+			Container.Register(Component.For<RootService>().Named("root"));
+			Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
+			Container.Register(Component.For<SecondDao>().Named("myseconddao"));
 		}
 
 		[Test]
 		public void TestTransaction()
 		{
-			var service = this.container.Resolve<RootService>();
-			var dao = this.container.Resolve<FirstDao>("myfirstdao");
+			var service = Container.Resolve<RootService>();
+			var dao = Container.Resolve<FirstDao>("myfirstdao");
 
 			var blog = dao.Create("Blog1");
 
@@ -65,8 +58,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void TestTransactionStateless()
 		{
-			var service = this.container.Resolve<RootService>();
-			var dao = this.container.Resolve<FirstDao>("myfirstdao");
+			var service = Container.Resolve<RootService>();
+			var dao = Container.Resolve<FirstDao>("myfirstdao");
 
 			var blog = dao.CreateStateless("Blog1");
 
@@ -86,7 +79,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void TestTransactionUsingDetachedCriteria()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			var blogName = "Delicious Food!";
 
@@ -102,7 +95,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void TestTransactionStatelessUsingDetachedCriteria()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			var blogName = "Delicious Food!";
 
@@ -118,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SimpleAndSucessfulSituationUsingRootTransactionBoundary()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			service.SuccessFullCall();
 
@@ -134,7 +127,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SimpleAndSucessfulSituationUsingRootTransactionBoundaryStateless()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			service.SuccessFullCallStateless();
 
@@ -150,7 +143,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void NonTransactionalRoot()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -160,8 +153,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var first = this.container.Resolve<FirstDao>("myfirstdao");
-				var second = this.container.Resolve<SecondDao>("myseconddao");
+				var first = Container.Resolve<FirstDao>("myfirstdao");
+				var second = Container.Resolve<SecondDao>("myseconddao");
 
 				// This call is transactional
 				var blog = first.Create();
@@ -183,7 +176,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 				//transaction = session.GetCurrentTransaction();
 				//Assert.IsTrue(transaction.WasRolledBack);
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAll(typeof(Blog));
 				Assert.AreEqual(1, blogs.Length);
@@ -197,7 +190,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void NonTransactionalRootStateless()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -207,8 +200,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var first = this.container.Resolve<FirstDao>("myfirstdao");
-				var second = this.container.Resolve<SecondDao>("myseconddao");
+				var first = Container.Resolve<FirstDao>("myfirstdao");
+				var second = Container.Resolve<SecondDao>("myseconddao");
 
 				// This call is transactional
 				var blog = first.CreateStateless();
@@ -230,7 +223,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 				//transaction = session.GetCurrentTransaction();
 				//Assert.IsTrue(transaction.WasRolledBack);
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAllStateless(typeof(Blog));
 				Assert.AreEqual(1, blogs.Length);
@@ -244,7 +237,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void TransactionNotHijackingTheSession()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -254,12 +247,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var service = this.container.Resolve<FirstDao>("myfirstdao");
+				var service = Container.Resolve<FirstDao>("myfirstdao");
 
 				// This call is transactional
 				var blog = service.Create();
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAll(typeof(Blog));
 				Assert.AreEqual(1, blogs.Length);
@@ -273,7 +266,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void TransactionNotHijackingTheStatelessSession()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -283,12 +276,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var service = this.container.Resolve<FirstDao>("myfirstdao");
+				var service = Container.Resolve<FirstDao>("myfirstdao");
 
 				// This call is transactional
 				var blog = service.CreateStateless();
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAllStateless(typeof(Blog));
 				Assert.AreEqual(1, blogs.Length);
@@ -302,7 +295,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SessionBeingSharedByMultipleTransactionsInSequence()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -312,7 +305,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var service = this.container.Resolve<FirstDao>("myfirstdao");
+				var service = Container.Resolve<FirstDao>("myfirstdao");
 
 				// This call is transactional
 				service.Create();
@@ -323,7 +316,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 				// This call is transactional
 				service.Create("game cube's blogs");
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAll(typeof(Blog));
 				Assert.AreEqual(3, blogs.Length);
@@ -337,7 +330,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SessionBeingSharedByMultipleTransactionsInSequenceStateless()
 		{
-			var sessionManager = this.container.Resolve<ISessionManager>();
+			var sessionManager = Container.Resolve<ISessionManager>();
 
 			ITransaction transaction;
 
@@ -347,7 +340,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 				Assert.IsNull(transaction);
 
-				var service = this.container.Resolve<FirstDao>("myfirstdao");
+				var service = Container.Resolve<FirstDao>("myfirstdao");
 
 				// This call is transactional
 				service.CreateStateless();
@@ -358,7 +351,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 				// This call is transactional
 				service.CreateStateless("game cube's blogs");
 
-				var rootService = this.container.Resolve<RootService>();
+				var rootService = Container.Resolve<RootService>();
 
 				var blogs = rootService.FindAllStateless(typeof(Blog));
 				Assert.AreEqual(3, blogs.Length);
@@ -372,7 +365,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void CallWithException()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			try
 			{
@@ -394,7 +387,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void CallWithExceptionStateless()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			try
 			{
@@ -416,7 +409,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void CallWithException2()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			try
 			{
@@ -438,7 +431,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void CallWithExceptionStateless2()
 		{
-			var service = this.container.Resolve<RootService>();
+			var service = Container.Resolve<RootService>();
 
 			try
 			{

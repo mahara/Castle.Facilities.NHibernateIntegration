@@ -1,47 +1,45 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System;
-	using System.Collections;
 	using NHibernate;
 
+	using System;
+	using System.Collections;
+
 	/// <summary>
-	/// 
+	///
 	/// </summary>
 	public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
 	{
 		/// <summary>
-		/// Gets the stack of <see cref="SessionDelegate"/> objects for the specified <paramref name="alias"/>.
+		/// Gets the stack of <see cref="SessionDelegate" /> objects for the specified <paramref name="alias" />.
 		/// </summary>
 		/// <param name="alias">The alias.</param>
 		/// <returns></returns>
-		protected abstract Stack GetStackFor(String alias);
+		protected abstract Stack GetStackFor(string alias);
 
 		/// <summary>
-		/// Should return a previously stored session
-		/// for the given alias if available, otherwise null.
+		/// Should return a previously stored session for the given alias if available,
+		/// otherwise null.
 		/// </summary>
 		/// <param name="alias"></param>
 		/// <returns></returns>
-		public SessionDelegate FindCompatibleSession(String alias)
+		public SessionDelegate FindCompatibleSession(string alias)
 		{
 			var stack = GetStackFor(alias);
 
@@ -51,11 +49,11 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		}
 
 		/// <summary>
-		/// Should store the specified session instance
+		/// Should store the specified session instance.
 		/// </summary>
 		/// <param name="alias"></param>
 		/// <param name="session"></param>
-		public void Store(String alias, SessionDelegate session)
+		public void Store(string alias, SessionDelegate session)
 		{
 			var stack = GetStackFor(alias);
 
@@ -65,8 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		}
 
 		/// <summary>
-		/// Should remove the session from the store
-		/// only.
+		/// Should remove the session from the store only.
 		/// </summary>
 		/// <param name="session"></param>
 		public void Remove(SessionDelegate session)
@@ -98,12 +95,11 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
 		/// <summary>
 		/// Returns <c>true</c> if the current activity
-		/// (which is an execution activity context) has no
-		/// sessions available
+		/// (which is an execution activity context) has no sessions available
 		/// </summary>
 		/// <param name="alias"></param>
 		/// <returns></returns>
-		public bool IsCurrentActivityEmptyFor(String alias)
+		public bool IsCurrentActivityEmptyFor(string alias)
 		{
 			var stack = GetStackFor(alias);
 			var statelessSessionStack = GetStatelessSessionStackFor(alias);
@@ -112,16 +108,16 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 		}
 
 		/// <summary>
-		/// Gets the stack of <see cref="StatelessSessionDelegate"/> objects
-		/// for the specified <paramref name="alias"/>.
+		/// Gets the stack of <see cref="StatelessSessionDelegate" /> objects
+		/// for the specified <paramref name="alias" />.
 		/// </summary>
 		/// <param name="alias">The alias.</param>
 		/// <returns></returns>
-		protected abstract Stack GetStatelessSessionStackFor(String alias);
+		protected abstract Stack GetStatelessSessionStackFor(string alias);
 
 		/// <summary>
-		/// Should return a previously stored stateless session 
-		/// for the given alias if available, otherwise null.
+		/// Should return a previously stored stateless session for the given alias if available,
+		/// otherwise null.
 		/// </summary>
 		/// <param name="alias"></param>
 		/// <returns></returns>

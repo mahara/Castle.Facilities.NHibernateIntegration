@@ -1,34 +1,26 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	#region Using Directives
-
-	using System;
-
-	using Castle.Facilities.AutoTx;
 	using Castle.MicroKernel.Registration;
 
 	using NUnit.Framework;
 
-	#endregion
+	using System;
 
 	[TestFixture]
 	public class TransactionWithTwoDatabasesTestCase : AbstractNHibernateTestCase
@@ -37,17 +29,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
 		protected override void ConfigureContainer()
 		{
-			this.container.Register(Component.For<RootService>().Named("root"));
-			this.container.Register(Component.For<FirstDao>().Named("myfirstdao"));
-			this.container.Register(Component.For<SecondDao>().Named("myseconddao"));
-			this.container.Register(Component.For<OrderDao>().Named("myorderdao"));
+			Container.Register(Component.For<RootService>().Named("root"));
+			Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
+			Container.Register(Component.For<SecondDao>().Named("myseconddao"));
+			Container.Register(Component.For<OrderDao>().Named("myorderdao"));
 		}
 
 		[Test]
 		public void ExceptionOnEndWithTwoDatabases()
 		{
-			var service = this.container.Resolve<RootService>();
-			var orderDao = this.container.Resolve<OrderDao>("myorderdao");
+			var service = Container.Resolve<RootService>();
+			var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
 			try
 			{
@@ -73,8 +65,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void ExceptionOnEndWithTwoDatabasesStateless()
 		{
-			var service = this.container.Resolve<RootService>();
-			var orderDao = this.container.Resolve<OrderDao>("myorderdao");
+			var service = Container.Resolve<RootService>();
+			var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
 			try
 			{
@@ -100,8 +92,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SuccessfulSituationWithTwoDatabases()
 		{
-			var service = this.container.Resolve<RootService>();
-			var orderDao = this.container.Resolve<OrderDao>("myorderdao");
+			var service = Container.Resolve<RootService>();
+			var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
 			service.DoTwoDBOperation_Create(false);
 
@@ -120,8 +112,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 		[Test]
 		public void SuccessfulSituationWithTwoDatabasesStateless()
 		{
-			var service = this.container.Resolve<RootService>();
-			var orderDao = this.container.Resolve<OrderDao>("myorderdao");
+			var service = Container.Resolve<RootService>();
+			var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
 			service.DoTwoDBOperation_Create_Stateless(false);
 

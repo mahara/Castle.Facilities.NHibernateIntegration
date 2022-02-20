@@ -1,56 +1,55 @@
 ﻿#region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
-	using System.Collections.Generic;
-	using System.Text.RegularExpressions;
-
 	using Castle.Core.Logging;
 
 	using Core.Configuration;
+
 	using NHibernate.Cfg;
+
 	using Persisters;
 
+	using System.Collections.Generic;
+	using System.Text.RegularExpressions;
+
 	/// <summary>
-	/// Serializes the Configuration for subsequent initializations.
+	/// Serializes the <see cref="Configuration" /> for subsequent initializations.
 	/// </summary>
 	public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
 	{
 		private const string DEFAULT_EXTENSION = "dat";
 
-		private ILogger _Logger = NullLogger.Instance;
+		private readonly ILogger _logger = NullLogger.Instance;
 
-		private readonly IConfigurationPersister configurationPersister;
+		private readonly IConfigurationPersister _configurationPersister;
 
 		/// <summary>
-		/// Initializes the presistent <see cref="Configuration"/> builder
-		/// with an specific <see cref="IConfigurationPersister"/>
+		/// Initializes the persistent <see cref="Configuration" /> builder
+		/// with an specific <see cref="IConfigurationPersister" />
 		/// </summary>
 		public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
 		{
-			this.configurationPersister = configurationPersister;
+			_configurationPersister = configurationPersister;
 		}
 
 		/// <summary>
-		/// Initializes the presistent <see cref="Configuration"/> builder
-		/// using the default <see cref="IConfigurationPersister"/>
+		/// Initializes the persistent <see cref="Configuration" /> builder
+		/// using the default <see cref="IConfigurationPersister" />
 		/// </summary>
 		public PersistentConfigurationBuilder()
 			: this(new DefaultConfigurationPersister())
@@ -58,40 +57,43 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 		}
 
 		/// <summary>
-		/// Returns the Deserialized Configuration
+		/// Returns the Deserialized Configuration.
 		/// </summary>
-		/// <param name="config">The configuration node.</param>
-		/// <returns>NHibernate Configuration</returns>
-		public override Configuration GetConfiguration(IConfiguration config)
+		/// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+		/// <returns>The <see cref="Configuration" />.</returns>
+		public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
 		{
-			if (_Logger.IsDebugEnabled)
+			if (_logger.IsDebugEnabled)
 			{
-				_Logger.Debug("Building the Configuration");
+				_logger.Debug("Building the Configuration");
 			}
 
-			string filename = GetFilenameFrom(config);
-			IList<string> dependentFilenames = GetDependentFilenamesFrom(config);
+			var filename = GetFilenameFrom(facilityConfiguration);
+			var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
 
 			Configuration cfg;
-			if (configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
+			if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
 			{
-				if (_Logger.IsDebugEnabled)
+				if (_logger.IsDebugEnabled)
 				{
-					_Logger.Debug("Configuration is either old or some of the dependencies have changed");
+					_logger.Debug("Configuration is either old or some of the dependencies have changed");
 				}
-				cfg = base.GetConfiguration(config);
-				configurationPersister.WriteConfiguration(filename, cfg);
+				cfg = base.GetConfiguration(facilityConfiguration);
+				_configurationPersister.WriteConfiguration(filename, cfg);
 			}
 			else
 			{
-				cfg = configurationPersister.ReadConfiguration(filename);
+				cfg = _configurationPersister.ReadConfiguration(filename);
 			}
+
 			return cfg;
 		}
 
-		private string GetFilenameFrom(IConfiguration config)
+		private string GetFilenameFrom(IConfiguration configuration)
 		{
-			var filename = config.Attributes["fileName"] ?? config.Attributes["id"] + "." + DEFAULT_EXTENSION;
+			var filename = configuration.Attributes["fileName"]
+						   ?? configuration.Attributes["id"] + "." + DEFAULT_EXTENSION;
+
 			return StripInvalidCharacters(filename);
 		}
 
@@ -100,11 +102,11 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 			return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
 		}
 
-		private IList<string> GetDependentFilenamesFrom(IConfiguration config)
+		private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
 		{
 			IList<string> list = new List<string>();
 
-			IConfiguration assemblies = config.Children["assemblies"];
+			var assemblies = configuration.Children["assemblies"];
 			if (assemblies != null)
 			{
 				foreach (var assembly in assemblies.Children)
@@ -113,7 +115,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 				}
 			}
 
-			IConfiguration dependsOn = config.Children["dependsOn"];
+			var dependsOn = configuration.Children["dependsOn"];
 			if (dependsOn != null)
 			{
 				foreach (var on in dependsOn.Children)

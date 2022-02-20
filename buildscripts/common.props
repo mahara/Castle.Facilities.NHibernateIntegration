@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(SolutionDir)docs\images\facilities_nhibernateintegration-logo.png" Pack="true" PackagePath=""/>
+    <None Include="$(SolutionDir)docs\images\facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

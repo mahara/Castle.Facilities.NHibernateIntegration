@@ -1,81 +1,79 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
 	using NHibernate;
+
 	using NUnit.Framework;
 
 	public class MyDao
 	{
-		private readonly MySecondDao otherDao;
-		private readonly ISessionManager sessManager;
+		private readonly ISessionManager _sessionManager;
+		private readonly MySecondDao _otherDao;
 
-		public MyDao(MySecondDao otherDao, ISessionManager sessManager)
+		public MyDao(ISessionManager sessionManager, MySecondDao otherDao)
 		{
-			this.sessManager = sessManager;
-			this.otherDao = otherDao;
+			_sessionManager = sessionManager;
+			_otherDao = otherDao;
 		}
 
 		public void PerformComplexOperation1()
 		{
-			using (ISession sess = sessManager.OpenSession())
+			using (var session = _sessionManager.OpenSession())
 			{
-				Assert.IsNotNull(sess);
+				Assert.IsNotNull(session);
 
-				otherDao.PerformPieceOfOperation(sess);
+				_otherDao.PerformPieceOfOperation(session);
 			}
 		}
 
 		public void PerformComplexOperation2()
 		{
-			ISession prev = null;
+			ISession previousSession = null;
 
-			using (ISession sess = sessManager.OpenSession())
+			using (var session = _sessionManager.OpenSession())
 			{
-				prev = sess;
+				previousSession = session;
 			}
 
-			otherDao.PerformPieceOfOperation2(prev);
+			_otherDao.PerformPieceOfOperation2(previousSession);
 		}
 
 		public void DoOpenCloseAndDispose()
 		{
-			using (ISession sess = sessManager.OpenSession())
+			using (var session = _sessionManager.OpenSession())
 			{
-				Assert.IsTrue(sess.IsConnected);
-				Assert.IsTrue(sess.IsOpen);
+				Assert.IsTrue(session.IsConnected);
+				Assert.IsTrue(session.IsOpen);
 
-				sess.Close();
+				session.Close();
 
-				Assert.IsFalse(sess.IsConnected);
-				Assert.IsFalse(sess.IsOpen);
+				Assert.IsFalse(session.IsConnected);
+				Assert.IsFalse(session.IsOpen);
 			}
 		}
 
 		public void PerformStatelessComplexOperation1()
 		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = _sessionManager.OpenStatelessSession())
 			{
 				Assert.IsNotNull(session);
 
-				otherDao.PerformStatelessPieceOfOperation(session);
+				_otherDao.PerformStatelessPieceOfOperation(session);
 			}
 		}
 
@@ -83,17 +81,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 		{
 			IStatelessSession previousSession = null;
 
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = _sessionManager.OpenStatelessSession())
 			{
 				previousSession = session;
 			}
 
-			otherDao.PerformStatelessPieceOfOperation2(previousSession);
+			_otherDao.PerformStatelessPieceOfOperation2(previousSession);
 		}
 
 		public void DoStatelessOpenCloseAndDispose()
 		{
-			using (IStatelessSession session = sessManager.OpenStatelessSession())
+			using (var session = _sessionManager.OpenStatelessSession())
 			{
 				Assert.IsTrue(session.IsConnected);
 				Assert.IsTrue(session.IsOpen);

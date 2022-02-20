@@ -1,38 +1,31 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+	using NHibernate;
+
+	using NUnit.Framework;
+
 	using System;
 	using System.Threading;
-	using NHibernate;
-	using NUnit.Framework;
-	using SessionStores;
 
-	/// <summary>
-	/// Tests the CallContextSessionStore
-	/// </summary>
-	[TestFixture]
 	public class CallContextSessionStoreTestCase : AbstractNHibernateTestCase
 	{
-		private AutoResetEvent arEvent = new AutoResetEvent(false);
-		private AutoResetEvent _event = new AutoResetEvent(false);
+		private readonly AutoResetEvent _event = new AutoResetEvent(false);
 
 		protected override string ConfigurationFile
 		{
@@ -42,15 +35,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Test]
 		public void NullAlias()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
+			var store = Container.Resolve<ISessionStore>();
 			Assert.Throws<ArgumentNullException>(() => store.FindCompatibleSession(null));
 		}
 
 		[Test]
 		public void FindCompatibleSession()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
-			ISessionFactory factory = container.Resolve<ISessionFactory>();
+			var store = Container.Resolve<ISessionStore>();
+			var factory = Container.Resolve<ISessionFactory>();
 
 			ISession session = store.FindCompatibleSession(Constants.DefaultAlias);
 
@@ -58,7 +51,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			session = factory.OpenSession();
 
-			SessionDelegate sessDelegate = new SessionDelegate(true, session, store);
+			var sessDelegate = new SessionDelegate(true, session, store);
 
 			store.Store(Constants.DefaultAlias, sessDelegate);
 
@@ -87,12 +80,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Test]
 		public void FindCompatibleSessionWithTwoThreads()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
-			ISessionFactory factory = container.Resolve<ISessionFactory>();
+			var store = Container.Resolve<ISessionStore>();
+			var factory = Container.Resolve<ISessionFactory>();
 
-			ISession session = factory.OpenSession();
+			var session = factory.OpenSession();
 
-			SessionDelegate sessDelegate = new SessionDelegate(true, session, store);
+			var sessDelegate = new SessionDelegate(true, session, store);
 
 			store.Store(Constants.DefaultAlias, sessDelegate);
 
@@ -101,10 +94,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			Assert.IsNotNull(session2);
 			Assert.AreSame(sessDelegate, session2);
 
-			Thread newThread = new Thread(FindCompatibleSessionOnOtherThread);
+			var newThread = new Thread(FindCompatibleSessionOnOtherThread);
 			newThread.Start();
 
-			arEvent.WaitOne();
+			_event.WaitOne();
 
 			sessDelegate.Dispose();
 
@@ -113,7 +106,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 		private void FindCompatibleSessionOnOtherThread()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
+			var store = Container.Resolve<ISessionStore>();
 
 			ISession session = store.FindCompatibleSession("something in the way she moves");
 
@@ -123,21 +116,21 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			Assert.IsNull(session2);
 
-			arEvent.Set();
+			_event.Set();
 		}
 
 		[Test]
 		public void NullAliasStateless()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
+			var store = Container.Resolve<ISessionStore>();
 			Assert.Throws<ArgumentNullException>(() => store.FindCompatibleStatelessSession(null));
 		}
 
 		[Test]
 		public void FindCompatibleStatelessSession()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
-			ISessionFactory factory = container.Resolve<ISessionFactory>();
+			var store = Container.Resolve<ISessionStore>();
+			var factory = Container.Resolve<ISessionFactory>();
 
 			IStatelessSession session = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
 
@@ -145,7 +138,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			session = factory.OpenStatelessSession();
 
-			StatelessSessionDelegate sessionDelegate = new StatelessSessionDelegate(true, session, store);
+			var sessionDelegate = new StatelessSessionDelegate(true, session, store);
 
 			store.Store(Constants.DefaultAlias, sessionDelegate);
 
@@ -174,12 +167,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		[Test]
 		public void FindCompatibleStatelessSessionWithTwoThreads()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
-			ISessionFactory factory = container.Resolve<ISessionFactory>();
+			var store = Container.Resolve<ISessionStore>();
+			var factory = Container.Resolve<ISessionFactory>();
 
-			IStatelessSession session = factory.OpenStatelessSession();
+			var session = factory.OpenStatelessSession();
 
-			StatelessSessionDelegate sessionDelegate = new StatelessSessionDelegate(true, session, store);
+			var sessionDelegate = new StatelessSessionDelegate(true, session, store);
 
 			store.Store(Constants.DefaultAlias, sessionDelegate);
 
@@ -188,10 +181,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			Assert.IsNotNull(session2);
 			Assert.AreSame(sessionDelegate, session2);
 
-			Thread newThread = new Thread(FindCompatibleStatelessSessionOnOtherThread);
+			var newThread = new Thread(FindCompatibleStatelessSessionOnOtherThread);
 			newThread.Start();
 
-			arEvent.WaitOne();
+			_event.WaitOne();
 
 			sessionDelegate.Dispose();
 
@@ -200,7 +193,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 		private void FindCompatibleStatelessSessionOnOtherThread()
 		{
-			ISessionStore store = container.Resolve<ISessionStore>();
+			var store = Container.Resolve<ISessionStore>();
 
 			IStatelessSession session = store.FindCompatibleStatelessSession("something in the way she moves");
 
@@ -210,7 +203,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			Assert.IsNull(session2);
 
-			arEvent.Set();
+			_event.Set();
 		}
 	}
 }

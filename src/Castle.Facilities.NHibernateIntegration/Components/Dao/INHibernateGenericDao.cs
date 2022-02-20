@@ -1,75 +1,69 @@
 #region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
-	using System;
 	using NHibernate.Criterion;
+
+	using System;
 
 	/// <summary>
 	/// Summary description for INHibernateGenericDao.
 	/// </summary>
 	/// <remarks>
-	/// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;
+	/// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
 	/// </remarks>
 	public interface INHibernateGenericDao : IGenericDao
 	{
 		/// <summary>
-		/// Returns all instances found for the specified type 
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
 		/// <param name="criterias">The criteria expression</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAll(Type type, ICriterion[] criterias);
 
 		/// <summary>
-		/// Returns all instances found for the specified type 
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
 		/// <param name="criterias">The criteria expression</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAll(Type type, ICriterion[] criterias, int firstRow, int maxRows);
 
 		/// <summary>
-		/// Returns all instances found for the specified type 
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
 		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems);
 
 		/// <summary>
-		/// Returns all instances found for the specified type 
-		/// using criteria.
+		/// Returns all instances found for the specified type using criteria.
 		/// </summary>
 		/// <param name="type">The target type.</param>
 		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows);
 
 		/// <summary>
@@ -122,8 +116,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAllStateless(Type type, ICriterion[] criterias);
 
 		/// <summary>
@@ -131,10 +125,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
+		/// <param name="criterias">The criteria expression.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAllStateless(Type type, ICriterion[] criterias, int firstRow, int maxRows);
 
 		/// <summary>
@@ -142,9 +136,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems);
 
 		/// <summary>
@@ -152,11 +146,11 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 		/// using criteria and IStatelessSession.
 		/// </summary>
 		/// <param name="type">The target type.</param>
-		/// <param name="criterias">The criteria expression</param>
-		/// <param name="sortItems">An <see cref="Array"/> of <see cref="Order"/> objects.</param>
+		/// <param name="criterias">The criteria expression.</param>
+		/// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
 		/// <param name="firstRow">The number of the first row to retrieve.</param>
 		/// <param name="maxRows">The maximum number of results retrieved.</param>
-		/// <returns>The <see cref="Array"/> of results.</returns>
+		/// <returns>The <see cref="Array" /> of results.</returns>
 		Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows);
 
 		/// <summary>

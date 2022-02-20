@@ -16,4 +16,8 @@ bin/
 obj/
 
 
+# Tests output
+/src/Castle.Facilities.NHibernateIntegration.Tests/SampleDllFile
+
+
 

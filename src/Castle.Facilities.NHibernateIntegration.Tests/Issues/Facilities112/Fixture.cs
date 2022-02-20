@@ -1,28 +1,21 @@
 ﻿#region License
-
-//  Copyright 2004-2010 Castle Project - http://www.castleproject.org/
-//  
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//  
-//      http://www.apache.org/licenses/LICENSE-2.0
-//  
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-// 
-
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 #endregion
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 {
-	#region Using Directives
-
-	using System.Reflection;
-
 	using Castle.Core;
 	using Castle.MicroKernel.Handlers;
 	using Castle.MicroKernel.Lifestyle;
@@ -31,7 +24,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 
 	using NUnit.Framework;
 
-	#endregion
+	using System.Reflection;
 
 	[TestFixture]
 	[Explicit("Should be dropped, too much intrusion.")]
@@ -42,7 +35,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 		[Test]
 		public virtual void SessionFactory_is_singleton()
 		{
-			var componentModel = this.container.Kernel.GetHandler("sessionFactory1").ComponentModel;
+			var componentModel = Container.Kernel.GetHandler("sessionFactory1").ComponentModel;
 
 			Assert.AreEqual(LifestyleType.Singleton, componentModel.LifestyleType);
 		}
@@ -51,13 +44,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 		[Ignore(@"Missing ""instance"" field in ""SingletonLifestyleManager/AbstractLifestyleManager"" class.")]
 		public virtual void SessionFactory_is_lazily_initialized()
 		{
-			var handler = this.container.Kernel.GetHandler("sessionFactory1");
-			var lifestyleManagerField = typeof(DefaultHandler).GetField("lifestyleManager",
-			                                                            BindingFlags.NonPublic | BindingFlags.Instance |
-			                                                            BindingFlags.GetField);
-			var instanceField = typeof(SingletonLifestyleManager).GetField("instance",
-			                                                               BindingFlags.NonPublic | BindingFlags.Instance |
-			                                                               BindingFlags.GetField);
+			var handler = Container.Kernel.GetHandler("sessionFactory1");
+			var lifestyleManagerField =
+				typeof(DefaultHandler).GetField("lifestyleManager",
+												BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+			var instanceField =
+				typeof(SingletonLifestyleManager).GetField("instance",
+														   BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
 			var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
 
 			Assert.IsNotNull(lifeStyleManager);
@@ -66,7 +59,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
 
 			Assert.IsNull(instance);
 
-			this.container.Resolve<ISessionFactory>();
+			Container.Resolve<ISessionFactory>();
 
 			instance = instanceField.GetValue(lifeStyleManager);
 			Assert.IsNotNull(instance);
