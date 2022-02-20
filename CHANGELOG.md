@@ -1,7 +1,16 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.1.0 (2021-05-xx)
+## 5.1.0 (2022-02-xx)
+
+Improvements:
+- Updated **`Castle.Core`** version to 4.4.1.
+- Updated **`Castle.Windsor`** version to 5.1.1.
+
+Breaking Changes:
+- Updated **`Castle.Services.Transaction`** version to 5.1.0.
+- Updated **`Castle.Facilities.AutoTx`** version to 5.1.0.
+- Updated **`NHibernate`** version to 5.3.10.
 
 
 ## 5.0.0 (2021-05-31)
