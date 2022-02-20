@@ -159,12 +159,10 @@ namespace Castle.Facilities.NHibernateIntegration
             if (shouldEnlist)
             {
                 //
-                //  TODO:   Update implementation in future version (5.3.x),
-                //          following NHibernate 5.3.x.
-                //
                 //  NOTE:   SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
                 //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
                 //
+                //var sessionTransaction = session.GetCurrentTransaction();
                 var sessionTransaction = session.Transaction;
                 if (sessionTransaction == null || !sessionTransaction.IsActive)
                 {
@@ -231,12 +229,10 @@ namespace Castle.Facilities.NHibernateIntegration
             if (shouldEnlist)
             {
                 //
-                //  TODO:   Update implementation in future version (5.3.x),
-                //          following NHibernate 5.3.x.
-                //
                 //  NOTE:   StatelessSessionDelegate.Transaction, with slightly-modified implementation of IStatelessSessionDelegate.GetCurrentTransaction(),
                 //          is used here to workaround a mocking issue (in Facilities103 issue) of IStatelessSessionDelegate.GetSessionImplementation().
                 //
+                //var sessionTransaction = session.GetCurrentTransaction();
                 var sessionTransaction = session.Transaction;
                 if (sessionTransaction == null || !sessionTransaction.IsActive)
                 {
