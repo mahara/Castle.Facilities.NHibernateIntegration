@@ -134,7 +134,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session.IsOpen);
             Assert.That(session.IsConnected);
 
-            var sessionTransaction = session.Transaction;
+            var sessionTransaction = session.GetCurrentTransaction();
 
             Assert.That(sessionTransaction, Is.Not.Null);
             Assert.That(sessionTransaction.IsActive);
@@ -171,11 +171,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
-            Assert.That(sessionTransaction1, Is.Not.Null);
-            Assert.That(sessionTransaction1.IsActive, Is.False);
-            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+            Assert.That(sessionTransaction1, Is.Null);
 
             var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
@@ -193,7 +191,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2.IsOpen);
                 Assert.That(session2.IsConnected);
 
-                sessionTransaction1 = session1.Transaction;
+                sessionTransaction1 = session1.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction1, Is.Not.Null,
                             "After requesting compatible session, first session is enlisted in transaction too.");
@@ -206,7 +204,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                     Assert.That(session3.IsOpen);
                     Assert.That(session3.IsConnected);
 
-                    var sessionTransaction3 = session3.Transaction;
+                    var sessionTransaction3 = session3.GetCurrentTransaction();
 
                     Assert.That(sessionTransaction3, Is.Not.Null);
                     Assert.That(sessionTransaction3.IsActive);
@@ -279,7 +277,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
             Assert.That(sessionTransaction1, Is.Not.Null);
             Assert.That(sessionTransaction1.IsActive);
@@ -291,7 +289,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session2.IsOpen);
             Assert.That(session2.IsConnected);
 
-            var sessionTransaction2 = session2.Transaction;
+            var sessionTransaction2 = session2.GetCurrentTransaction();
 
             Assert.That(sessionTransaction2, Is.Not.Null);
             Assert.That(sessionTransaction2.IsActive);
@@ -344,7 +342,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
             Assert.That(sessionTransaction1, Is.Not.Null);
             Assert.That(sessionTransaction1.IsActive);
@@ -357,7 +355,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2.IsOpen);
                 Assert.That(session2.IsConnected);
 
-                var sessionTransaction2 = session2.Transaction;
+                var sessionTransaction2 = session2.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction2, Is.Not.Null);
                 Assert.That(sessionTransaction2.IsActive);
@@ -373,7 +371,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session3.IsOpen);
                 Assert.That(session3.IsConnected);
 
-                var sessionTransaction3 = session3.Transaction;
+                var sessionTransaction3 = session3.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction3, Is.Not.Null);
                 Assert.That(sessionTransaction3.IsActive);
@@ -447,7 +445,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session.IsOpen);
             Assert.That(session.IsConnected);
 
-            var sessionTransaction = session.Transaction;
+            var sessionTransaction = session.GetCurrentTransaction();
 
             Assert.That(sessionTransaction, Is.Not.Null);
             Assert.That(sessionTransaction.IsActive);
@@ -483,11 +481,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
-            Assert.That(sessionTransaction1, Is.Not.Null);
-            Assert.That(sessionTransaction1.IsActive, Is.False);
-            Assert.That(sessionTransaction1.WasCommitted, Is.False);
+            Assert.That(sessionTransaction1, Is.Null);
 
             var transaction = transactionManager.CreateTransaction(
                 TransactionMode.Requires, IsolationMode.Serializable);
@@ -505,7 +501,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2.IsOpen);
                 Assert.That(session2.IsConnected);
 
-                sessionTransaction1 = session1.Transaction;
+                sessionTransaction1 = session1.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction1, Is.Not.Null,
                             "After requesting compatible session, first session is enlisted in transaction too.");
@@ -518,7 +514,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                     Assert.That(session3.IsOpen);
                     Assert.That(session3.IsConnected);
 
-                    var sessionTransaction3 = session3.Transaction;
+                    var sessionTransaction3 = session3.GetCurrentTransaction();
 
                     Assert.That(sessionTransaction3, Is.Not.Null);
                     Assert.That(sessionTransaction3.IsActive);
@@ -591,7 +587,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
             Assert.That(sessionTransaction1, Is.Not.Null);
             Assert.That(sessionTransaction1.IsActive);
@@ -603,7 +599,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session2.IsOpen);
             Assert.That(session2.IsConnected);
 
-            var sessionTransaction2 = session2.Transaction;
+            var sessionTransaction2 = session2.GetCurrentTransaction();
 
             Assert.That(sessionTransaction2, Is.Not.Null);
             Assert.That(sessionTransaction2.IsActive);
@@ -656,7 +652,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1.IsOpen);
             Assert.That(session1.IsConnected);
 
-            var sessionTransaction1 = session1.Transaction;
+            var sessionTransaction1 = session1.GetCurrentTransaction();
 
             Assert.That(sessionTransaction1, Is.Not.Null);
             Assert.That(sessionTransaction1.IsActive);
@@ -669,7 +665,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2.IsOpen);
                 Assert.That(session2.IsConnected);
 
-                var sessionTransaction2 = session2.Transaction;
+                var sessionTransaction2 = session2.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction2, Is.Not.Null);
                 Assert.That(sessionTransaction2.IsActive);
@@ -685,7 +681,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session3.IsOpen);
                 Assert.That(session3.IsConnected);
 
-                var sessionTransaction3 = session3.Transaction;
+                var sessionTransaction3 = session3.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction3, Is.Not.Null);
                 Assert.That(sessionTransaction3.IsActive);
