@@ -18,6 +18,8 @@ using System;
 
 using Castle.Services.Transaction;
 
+using NHibernate;
+
 using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
@@ -37,7 +39,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
@@ -61,7 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
@@ -83,7 +85,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
@@ -107,7 +109,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
@@ -131,7 +133,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
@@ -153,7 +155,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                var sessionTransaction = session.Transaction;
+                var sessionTransaction = session.GetCurrentTransaction();
 
                 Assert.That(sessionTransaction, Is.Not.Null);
                 Assert.That(sessionTransaction.IsActive);
