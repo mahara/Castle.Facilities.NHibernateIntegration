@@ -121,23 +121,16 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         //
-        // TODO:    Update implementation in future version (5.3.x),
-        //          following NHibernate 5.3.x.
-        //
         // NOTE:    StatelessSessionDelegate.Transaction, with slightly-modified implementation of IStatelessSessionDelegate.GetCurrentTransaction(),
         //          is used here to workaround a mocking issue (in Facilities103 issue) of IStatelessSessionDelegate.GetSessionImplementation().
         //
-        ///// <summary>
-        ///// Gets the current Unit of Work and returns the associated <see cref="ITransaction" /> object.
-        ///// </summary>
-        ///// <remarks>
-        ///// This property getter is implemented explicitly in <see cref="SessionExtensions.GetCurrentTransaction(IStatelessSession)" />.
-        ///// </remarks>
-        //public ITransaction Transaction =>
-        //    _innerSession.GetSessionImplementation()?
-        //                 .ConnectionManager?
-        //                 .CurrentTransaction;
-        public ITransaction Transaction => _innerSession.Transaction;
+        /// <summary>
+        /// Gets the current Unit of Work and returns the associated <see cref="ITransaction" /> object.
+        /// </summary>
+        /// <remarks>
+        /// This property getter is implemented explicitly in <see cref="SessionExtensions.GetCurrentTransaction(IStatelessSession)" />.
+        /// </remarks>
+        public ITransaction Transaction => _innerSession.GetCurrentTransaction();
 
         public DbConnection Connection => _innerSession.Connection;
 
