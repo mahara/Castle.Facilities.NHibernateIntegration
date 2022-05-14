@@ -5,6 +5,9 @@
 Improvements:
 - Added AsyncLocalSessionStore.
 
+Breaking Changes:
+- Set AsyncLocalSessionStore as the default SessionStore.
+
 
 ## 5.1.0 (2022-02-20)
 

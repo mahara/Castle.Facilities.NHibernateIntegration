@@ -95,27 +95,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		}
 
 		[Test]
-		public void ShouldOverrideDefaultSessionStore()
-		{
-			var container = new WindsorContainer();
-
-			container.AddFacility<AutoTxFacility>();
-
-			// Starts with LogicalCallContextSessionStore
-			// then change it to WebSessionStore
-			// then change it again to CallContextSessionStore.
-			// The last set session store should be CallContextSessionStore.
-			container.AddFacility<NHibernateFacility>(
-				f => f.IsWeb()
-					  .SessionStore<CallContextSessionStore>()
-					  .ConfigurationBuilder<DummyConfigurationBuilder>());
-
-			var sessionStore = container.Resolve<ISessionStore>();
-
-			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
-		}
-
-		[Test]
 		public void ShouldUseDefaultSessionStore()
 		{
 			var container = new WindsorContainer();
@@ -127,7 +106,30 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
 			var sessionStore = container.Resolve<ISessionStore>();
 
-			Assert.IsInstanceOf(typeof(LogicalCallContextSessionStore), sessionStore);
+			Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStore);
+		}
+
+		[Test]
+		public void ShouldOverrideDefaultSessionStore()
+		{
+			var container = new WindsorContainer();
+
+			container.AddFacility<AutoTxFacility>();
+
+			// Starts with AsyncLocalSessionStore
+			// then change it to WebSessionStore
+			// then change it to LogicalCallContextSessionStore.
+			// then change it again to CallContextSessionStore.
+			// The last set session store should be CallContextSessionStore.
+			container.AddFacility<NHibernateFacility>(
+				f => f.IsWeb()
+					  .SessionStore<LogicalCallContextSessionStore>()
+					  .SessionStore<CallContextSessionStore>()
+					  .ConfigurationBuilder<DummyConfigurationBuilder>());
+
+			var sessionStore = container.Resolve<ISessionStore>();
+
+			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
 		}
 	}
 

@@ -23,7 +23,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	using NUnit.Framework;
 
 	using System;
-	using System.ComponentModel;
 	using System.Threading;
 
 	[TestFixture]

@@ -30,6 +30,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	{
 		private readonly AutoResetEvent _event = new AutoResetEvent(false);
 
+		protected override string ConfigurationFile
+		{
+			get { return "Internals/LogicalCallContextSessionStoreConfiguration.xml"; }
+		}
+
 		[Test]
 		public void ShouldUseLogicalCallContextSessionStore()
 		{
