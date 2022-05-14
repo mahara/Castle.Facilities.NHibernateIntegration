@@ -38,8 +38,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			var sessionAlias = "intercepted";
 
 			var session = manager.OpenSession(sessionAlias);
-			var order = new Order();
-			order.Value = 9.3f;
+			var order = new Order
+			{
+				Value = 9.3f
+			};
 			session.SaveOrUpdate(order);
 			session.Close();
 
@@ -49,9 +51,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.Close();
 
 			var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+
 			Assert.IsNotNull(interceptor);
 			Assert.IsTrue(interceptor.ConfirmOnSaveCall());
 			Assert.IsTrue(interceptor.ConfirmInstantiationCall());
+
 			interceptor.ResetState();
 		}
 
@@ -69,8 +73,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
@@ -80,7 +85,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session2);
 
 				Assert.IsNotNull(session1);
+
 				var transaction1 = session1.GetCurrentTransaction();
+
 				Assert.IsNotNull(transaction1,
 								 "After requesting compatible session, first session is enlisted in transaction too.");
 				Assert.IsTrue(transaction1.IsActive,
@@ -89,19 +96,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				using (var session3 = manager.OpenSession())
 				{
 					Assert.IsNotNull(session3);
+
 					var transaction3 = session3.GetCurrentTransaction();
+
 					Assert.IsNotNull(transaction3);
 					Assert.IsTrue(transaction3.IsActive);
 				}
 
 				var delegate1 = (SessionDelegate) session1;
 				var delegate2 = (SessionDelegate) session2;
+
 				Assert.AreSame(delegate1.InnerSession, delegate2.InnerSession);
 			}
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed.
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			Assert.IsTrue(session1.IsConnected);
 
@@ -123,9 +133,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
@@ -135,7 +145,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				Assert.IsNotNull(session2);
 
 				Assert.IsNotNull(session1);
+
 				var transaction1 = session1.GetCurrentTransaction();
+
 				Assert.IsNotNull(transaction1,
 								 "After requesting compatible session, first session is enlisted in transaction too.");
 				Assert.IsTrue(transaction1.IsActive,
@@ -144,7 +156,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 				using (var session3 = manager.OpenSession())
 				{
 					Assert.IsNotNull(session3);
+
 					var transaction3 = session3.GetCurrentTransaction();
+
 					Assert.IsNotNull(transaction3);
 					Assert.IsTrue(transaction3.IsActive);
 				}
@@ -156,7 +170,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			Assert.IsTrue(session1.IsConnected);
 
@@ -177,8 +191,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
@@ -189,7 +204,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session.Transaction.WasCommitted);
 			// Assert.IsTrue(session.IsConnected);
 
@@ -209,25 +224,28 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
 			var session1 = manager.OpenSession();
+
 			Assert.IsNotNull(session1);
 			Assert.IsNotNull(session1.GetCurrentTransaction());
 
 			var session2 = manager.OpenSession("db2");
+
 			Assert.IsNotNull(session2);
 			Assert.IsNotNull(session2.GetCurrentTransaction());
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			// Assert.IsTrue(session1.IsConnected);
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session2.Transaction.WasCommitted);
 			// Assert.IsTrue(session2.IsConnected);
 
@@ -248,9 +266,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
@@ -261,7 +279,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session.Transaction.WasCommitted);
 			// Assert.IsTrue(session.IsConnected);
 
@@ -280,26 +298,28 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
 			var session1 = manager.OpenStatelessSession();
+
 			Assert.IsNotNull(session1);
 			Assert.IsNotNull(session1.GetCurrentTransaction());
 
 			var session2 = manager.OpenStatelessSession("db2");
+
 			Assert.IsNotNull(session2);
 			Assert.IsNotNull(session2.GetCurrentTransaction());
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			// Assert.IsTrue(session1.IsConnected);
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session2.Transaction.WasCommitted);
 			// Assert.IsTrue(session2.IsConnected);
 
@@ -310,7 +330,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		[Test]
-		public void NonExistentAlias()
+		public void NonExistentAliasSession()
 		{
 			var manager = Container.Resolve<ISessionManager>();
 
@@ -318,7 +338,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		[Test]
-		public void NonExistentAliasStateless()
+		public void NonExistentAliasStatelessSession()
 		{
 			var manager = Container.Resolve<ISessionManager>();
 
@@ -334,8 +354,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			var sessionAlias = "db2";
 
 			var session = manager.OpenSession(sessionAlias);
-			var o = new Order();
-			o.Value = 9.3f;
+			var o = new Order
+			{
+				Value = 9.3f
+			};
 			session.SaveOrUpdate(o);
 			session.Close();
 
@@ -345,9 +367,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			session.Close();
 
 			var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+
 			Assert.IsNotNull(interceptor);
 			Assert.IsFalse(interceptor.ConfirmOnSaveCall());
 			Assert.IsFalse(interceptor.ConfirmInstantiationCall());
+
 			interceptor.ResetState();
 		}
 
@@ -363,34 +387,37 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires, IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
-			// open connection to first database and enlist session in running transaction
+			// Open connection to first database and enlist session in running transaction.
 			var session1 = manager.OpenSession();
 
-			// open connection to second database and enlist session in running transaction
+			// Open connection to second database and enlist session in running transaction.
 			using (var session2 = manager.OpenSession("db2"))
 			{
 				Assert.IsNotNull(session2);
 				Assert.IsNotNull(session2.GetCurrentTransaction());
 			}
-			// "real" NH session2 was not disposed because its in active transaction
+			// "real" NH session2 was not disposed because its in active transaction.
 
-			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
+			// Request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction.
 			using (var session3 = manager.OpenSession("db2"))
 			{
 				Assert.IsNotNull(session3);
+
 				var transaction3 = session3.GetCurrentTransaction();
+
 				Assert.IsNotNull(transaction3);
 				Assert.IsTrue(transaction3.IsActive);
 			}
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			// Assert.IsTrue(session1.IsConnected);
 
@@ -410,35 +437,37 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			var transactionManager = Container.Resolve<ITransactionManager>();
 
-			var transaction = transactionManager.CreateTransaction(
-				TransactionMode.Requires,
-				IsolationMode.Serializable);
+			var transaction =
+				transactionManager.CreateTransaction(TransactionMode.Requires,
+													 IsolationMode.Serializable);
 
 			transaction.Begin();
 
-			// open connection to first database and enlist session in running transaction
+			// Open connection to first database and enlist session in running transaction.
 			var session1 = manager.OpenStatelessSession();
 
-			// open connection to second database and enlist session in running transaction
+			// Open connection to second database and enlist session in running transaction.
 			using (var session2 = manager.OpenStatelessSession("db2"))
 			{
 				Assert.IsNotNull(session2);
 				Assert.IsNotNull(session2.GetCurrentTransaction());
 			}
-			// "real" NH session2 was not disposed because its in active transaction
+			// "real" NH session2 was not disposed because its in active transaction.
 
-			// request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction
+			// Request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction.
 			using (var session3 = manager.OpenStatelessSession("db2"))
 			{
 				Assert.IsNotNull(session3);
+
 				var transaction3 = session3.GetCurrentTransaction();
+
 				Assert.IsNotNull(transaction3);
 				Assert.IsTrue(transaction3.IsActive);
 			}
 
 			transaction.Commit();
 
-			// TODO: Assert transaction was committed
+			// TODO: Assert that transaction was committed.
 			// Assert.IsTrue(session1.Transaction.WasCommitted);
 			// Assert.IsTrue(session1.IsConnected);
 
@@ -494,7 +523,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		[Test]
-		public void TwoDatabases()
+		public void TwoDatabasesUsingSession()
 		{
 			var manager = Container.Resolve<ISessionManager>();
 
@@ -513,7 +542,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		}
 
 		[Test]
-		public void TwoDatabasesStateless()
+		public void TwoDatabasesUsingStatelessSession()
 		{
 			var manager = Container.Resolve<ISessionManager>();
 

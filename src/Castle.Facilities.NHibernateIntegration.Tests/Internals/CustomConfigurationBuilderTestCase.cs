@@ -40,9 +40,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 			ConfigurationsCreated++;
 
 			var nhConfig = new DefaultConfigurationBuilder().GetConfiguration(config);
-			nhConfig.Properties["dialect"] = ConfigurationManager.AppSettings["nhf.dialect"];
-			nhConfig.Properties["connection.driver_class"] = ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-			nhConfig.Properties["connection.provider"] = ConfigurationManager.AppSettings["nhf.connection.provider"];
+			nhConfig.Properties["dialect"] =
+				ConfigurationManager.AppSettings["nhf.dialect"];
+			nhConfig.Properties["connection.driver_class"] =
+				ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+			nhConfig.Properties["connection.provider"] =
+				ConfigurationManager.AppSettings["nhf.connection.provider"];
 			nhConfig.Properties["connection.connection_string"] =
 				ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
 			if (config.Attributes["id"] != "sessionFactory1")
@@ -82,13 +85,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	[TestFixture]
 	public class CustomConfigurationBuilderTestCase : AbstractCustomConfigurationBuilderTestCase
 	{
-		protected override string ConfigurationFile => "customConfigurationBuilder.xml";
+		protected override string ConfigurationFile => "CustomConfigurationBuilder.xml";
 	}
 
 	[TestFixture]
 	public class CustomConfigurationBuilderRegressionTestCase : AbstractCustomConfigurationBuilderTestCase
 	{
-		protected override string ConfigurationFile => "configurationBuilderRegression.xml";
+		protected override string ConfigurationFile => "ConfigurationBuilderRegression.xml";
 	}
 
 	[TestFixture]
@@ -102,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 		{
 		}
 
-		protected override string ConfigurationFile => "invalidConfigurationBuilder.xml";
+		protected override string ConfigurationFile => "InvalidConfigurationBuilder.xml";
 
 		[Test]
 		public void ThrowsWithMessage()
