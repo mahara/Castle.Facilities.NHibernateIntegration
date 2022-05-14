@@ -36,10 +36,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		{
 			var container = new WindsorContainer();
 
-			container.AddFacility<NHibernateFacility>(f => f.ConfigurationBuilder<TestConfigurationBuilder>());
+			container.AddFacility<NHibernateFacility>(
+				f => f.ConfigurationBuilder<TestConfigurationBuilder>());
 
 			var sessionManager = container.Resolve<ISessionManager>();
 			sessionManager.OpenSession();
+
 			Assert.AreEqual(typeof(TestConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
 		}
 
@@ -50,7 +52,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			{
 				var container = new WindsorContainer();
 
-				container.AddFacility<NHibernateFacility>(f => f.ConfigurationBuilder(GetType()));
+				container.AddFacility<NHibernateFacility>(
+					f => f.ConfigurationBuilder(GetType()));
 			}
 
 			Assert.That(Method, Throws.TypeOf<FacilityException>());
@@ -63,9 +66,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";
 
 			var container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file)));
+
 			container.AddFacility<AutoTxFacility>();
 
-			container.AddFacility<NHibernateFacility>(f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+			container.AddFacility<NHibernateFacility>(
+				f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
 			Assert.AreEqual(typeof(DummyConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
 		}
@@ -77,9 +82,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 			var file = "Castle.Facilities.NHibernateIntegration.Tests/MinimalConfiguration.xml";
 
 			var container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file)));
+
 			container.AddFacility<AutoTxFacility>();
 
-			container.AddFacility<NHibernateFacility>(f => f.IsWeb().ConfigurationBuilder<DummyConfigurationBuilder>());
+			container.AddFacility<NHibernateFacility>(
+				f => f.IsWeb()
+					  .ConfigurationBuilder<DummyConfigurationBuilder>());
 
 			var sessionStore = container.Resolve<ISessionStore>();
 
@@ -90,8 +98,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		public void ShouldOverrideDefaultSessionStore()
 		{
 			var container = new WindsorContainer();
+
 			container.AddFacility<AutoTxFacility>();
 
+			// Starts with LogicalCallContextSessionStore
+			// then change it to WebSessionStore
+			// then change it again to CallContextSessionStore.
+			// The last set session store should be CallContextSessionStore.
 			container.AddFacility<NHibernateFacility>(
 				f => f.IsWeb()
 					  .SessionStore<CallContextSessionStore>()
@@ -106,6 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 		public void ShouldUseDefaultSessionStore()
 		{
 			var container = new WindsorContainer();
+
 			container.AddFacility<AutoTxFacility>();
 
 			container.AddFacility<NHibernateFacility>(

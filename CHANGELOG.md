@@ -1,5 +1,11 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
+## 5.2.x (202x-xx-xx)
+
+Improvements:
+- Added AsyncLocalSessionStore.
+
+
 ## 5.1.0 (2022-02-20)
 
 Improvements:

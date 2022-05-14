@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,23 +23,25 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	using NUnit.Framework;
 
 	using System;
+	using System.ComponentModel;
 	using System.Threading;
 
-	public class CallContextSessionStoreTestCase : AbstractNHibernateTestCase
+	[TestFixture]
+	public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
 	{
 		private readonly AutoResetEvent _event = new AutoResetEvent(false);
 
 		protected override string ConfigurationFile
 		{
-			get { return "Internals/CallContextSessionStoreConfiguration.xml"; }
+			get { return "Internals/AsyncLocalSessionStoreConfiguration.xml"; }
 		}
 
 		[Test]
-		public void ShouldUseCallContextSessionStore()
+		public void ShouldUseAsyncLocalSessionStore()
 		{
 			var sessionStore = Container.Resolve<ISessionStore>();
 
-			Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
+			Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStore);
 		}
 
 		[Test]
@@ -124,7 +126,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			ISession session2 = store.FindCompatibleSession(Constants.DefaultAlias);
 
-			Assert.IsNull(session2);
+			Assert.IsNotNull(session2);
 
 			_event.Set();
 		}
@@ -212,7 +214,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
 			IStatelessSession session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
 
-			Assert.IsNull(session2);
+			Assert.IsNotNull(session2);
 
 			_event.Set();
 		}

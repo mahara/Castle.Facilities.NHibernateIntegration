@@ -88,7 +88,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 		{
 		}
 
-
 		public virtual void OnSetUp()
 		{
 		}
@@ -96,7 +95,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 		public virtual void OnTearDown()
 		{
 		}
-
 
 		protected string GetContainerFile()
 		{

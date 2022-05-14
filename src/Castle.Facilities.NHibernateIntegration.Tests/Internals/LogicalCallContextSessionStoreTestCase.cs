@@ -16,6 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+	using Castle.Facilities.NHibernateIntegration.SessionStores;
+
 	using NHibernate;
 
 	using NUnit.Framework;
@@ -27,6 +29,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 	public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
 	{
 		private readonly AutoResetEvent _event = new AutoResetEvent(false);
+
+		[Test]
+		public void ShouldUseLogicalCallContextSessionStore()
+		{
+			var sessionStore = Container.Resolve<ISessionStore>();
+
+			Assert.IsInstanceOf(typeof(LogicalCallContextSessionStore), sessionStore);
+		}
 
 		[Test]
 		public void NullAliasSession()
