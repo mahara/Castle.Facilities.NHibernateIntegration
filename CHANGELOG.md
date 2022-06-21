@@ -4,6 +4,7 @@
 
 Improvements:
 - Added AsyncLocalSessionStore.
+- Updated Castle.Windsor version to 5.1.2
 
 Breaking Changes:
 - Set AsyncLocalSessionStore as the default SessionStore.

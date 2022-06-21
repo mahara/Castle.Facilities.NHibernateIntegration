@@ -1,21 +1,21 @@
-﻿// Copyright 2004-2019 Castle Project - http://www.castleproject.org/
-// 
+﻿#region License
+// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#endregion
 
 namespace Explicit.NuGet.Versions
 {
-    #region Using Directives
-
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -24,8 +24,6 @@ namespace Explicit.NuGet.Versions
     using System.Xml;
 
     using Ionic.Zip;
-
-    #endregion
 
     internal class Program
     {
@@ -54,9 +52,10 @@ namespace Explicit.NuGet.Versions
                                 var nuspecXml = zipEntryReader.ReadToEnd();
                                 packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
                                 {
-                                    Contents = nuspecXml,
-                                    EntryName = zipEntry.FileName
+                                    EntryName = zipEntry.FileName,
+                                    Contents = nuspecXml
                                 };
+
                                 break;
                             }
                         }
@@ -92,7 +91,7 @@ namespace Explicit.NuGet.Versions
         {
             WalkDocumentNodes(nuspecXmlDocument.ChildNodes, node =>
             {
-                if (node.Name.ToLowerInvariant() == "dependency" && !string.IsNullOrEmpty(node.Attributes["id"].Value) && node.Attributes["id"].Value.ToLowerInvariant().StartsWith(nugetIdFilter))
+                if (node.Name.ToLowerInvariant() == "dependency" && !string.IsNullOrEmpty(node.Attributes["id"].Value) && node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var currentVersion = node.Attributes["version"].Value;
                     if (!node.Attributes["version"].Value.StartsWith("[") && !node.Attributes["version"].Value.EndsWith("]"))
@@ -134,11 +133,14 @@ namespace Explicit.NuGet.Versions
 
     public sealed class StringWriterWithEncoding : StringWriter
     {
+        private readonly Encoding _encoding;
+
         public StringWriterWithEncoding(Encoding encoding)
         {
-            this.Encoding = encoding;
+            _encoding = encoding;
         }
 
-        public override Encoding Encoding { get; }
+        public override Encoding Encoding =>
+            _encoding;
     }
 }
