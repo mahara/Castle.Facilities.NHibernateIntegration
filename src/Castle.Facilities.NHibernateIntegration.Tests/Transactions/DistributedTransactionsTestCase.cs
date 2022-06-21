@@ -144,8 +144,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Test]
-        [Ignore("Unresolved failed test.")]
-        // TODO: System.Data.SqlClient.SqlException : New request is not allowed to start because it should come with valid transaction descriptor.
+        [Explicit("Requires MSDTC to be running.")]
+        [Ignore("TODO: Resolve failed test.")]
+        // System.Data.SqlClient.SqlException : Distributed transaction completed. Either enlist this session in a new transaction or the NULL transaction.
         public void ExceptionOnEndWithTwoDatabasesStateless()
         {
             var service = Container.Resolve<RootService2>();

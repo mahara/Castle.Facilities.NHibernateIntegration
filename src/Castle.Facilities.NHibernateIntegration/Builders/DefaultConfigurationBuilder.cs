@@ -159,7 +159,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <summary>
         /// If <paramref name="targetAssembly" /> has a reference on <c>NHibernate.Mapping.Attributes</c>,
         /// then use the NHibernate mapping attributes contained in that assembly to update NHibernate configuration (<paramref name="configuration" />).
-        /// Else do nothing.
+        /// Else, do nothing.
         /// </summary>
         /// <remarks>
         /// To avoid an unnecessary dependency on the library <c>NHibernate.Mapping.Attributes.dll</c>
@@ -170,14 +170,14 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="targetAssembly">The target assembly name.</param>
         protected void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssembly)
         {
-            //Get an array of all assemblies referenced by targetAssembly
+            // Get an array of all assemblies referenced by targetAssembly
             var referencedAssemblies = Assembly.Load(targetAssembly).GetReferencedAssemblies();
 
-            //If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly
+            // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly
             if (Array.Exists(referencedAssemblies,
                              (AssemblyName x) => x.Name.Equals(NHMappingAttributesAssemblyName)))
             {
-                //Obtains, by reflexion, the necessary tools to generate NH mapping from attributes
+                // Obtains, by reflexion, the necessary tools to generate NH mapping from attributes
                 var HbmSerializerType =
                     Type.GetType(string.Concat(NHMappingAttributesAssemblyName,
                                                ".HbmSerializer, ",
@@ -186,10 +186,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 var validate = HbmSerializerType.GetProperty("Validate");
                 var serialize = HbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
 
-                //Enable validation of mapping documents generated from the mapping attributes
+                // Enable validation of mapping documents generated from the mapping attributes
                 validate.SetValue(hbmSerializer, true, null);
 
-                //Generates a stream of mapping documents from all decorated classes in targetAssembly and add it to NH config
+                // Generates a stream of mapping documents from all decorated classes in targetAssembly and add it to NH config
                 configuration.AddInputStream((MemoryStream) serialize.Invoke(hbmSerializer, new object[] { Assembly.Load(targetAssembly) }));
             }
         }

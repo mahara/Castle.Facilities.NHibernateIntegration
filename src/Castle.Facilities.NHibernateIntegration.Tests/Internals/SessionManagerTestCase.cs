@@ -31,7 +31,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             "Internals/TwoDatabaseConfiguration.xml";
 
         [Test]
-        [Ignore("TODO: .NET (Core) Migration Issue")]
         public void InterceptedSessionByConfiguration()
         {
             var manager = Container.Resolve<ISessionManager>();
@@ -47,7 +46,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             session.SaveOrUpdate(order);
             session.Close();
 
-            // The session is somehow cannot be reopened here after just previously closed.
             session = manager.OpenSession(sessionAlias);
 
             session.Get(typeof(Order), 1);
@@ -109,8 +107,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
             Assert.IsTrue(session1.IsConnected);
 
             session1.Dispose();
@@ -164,8 +161,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
             Assert.IsTrue(session1.IsConnected);
 
             session1.Dispose();
@@ -193,12 +189,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session = manager.OpenSession();
             Assert.IsNotNull(session);
             Assert.IsNotNull(session.GetCurrentTransaction());
+            Assert.IsTrue(session.IsConnected);
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session.Transaction.WasCommitted);
-            // Assert.IsTrue(session.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session.Dispose();
 
@@ -224,19 +219,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session1 = manager.OpenSession();
             Assert.IsNotNull(session1);
             Assert.IsNotNull(session1.GetCurrentTransaction());
+            Assert.IsTrue(session1.IsConnected);
 
             var session2 = manager.OpenSession("db2");
             Assert.IsNotNull(session2);
             Assert.IsNotNull(session2.GetCurrentTransaction());
+            Assert.IsTrue(session2.IsConnected);
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session2.Transaction.WasCommitted);
-            // Assert.IsTrue(session2.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session2.Dispose();
             session1.Dispose();
@@ -263,12 +255,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session = manager.OpenStatelessSession();
             Assert.IsNotNull(session);
             Assert.IsNotNull(session.GetCurrentTransaction());
+            Assert.IsTrue(session.IsConnected);
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session.Transaction.WasCommitted);
-            // Assert.IsTrue(session.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session.Dispose();
 
@@ -293,19 +284,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session1 = manager.OpenStatelessSession();
             Assert.IsNotNull(session1);
             Assert.IsNotNull(session1.GetCurrentTransaction());
+            Assert.IsTrue(session1.IsConnected);
 
             var session2 = manager.OpenStatelessSession("db2");
             Assert.IsNotNull(session2);
             Assert.IsNotNull(session2.GetCurrentTransaction());
+            Assert.IsTrue(session2.IsConnected);
 
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session2.Transaction.WasCommitted);
-            // Assert.IsTrue(session2.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session2.Dispose();
             session1.Dispose();
@@ -330,7 +318,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         }
 
         [Test]
-        [Ignore("TODO: .NET (Core) Migration Issue")]
         public void NonInterceptedSession()
         {
             var manager = Container.Resolve<ISessionManager>();
@@ -345,7 +332,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             session.SaveOrUpdate(o);
             session.Close();
 
-            // The session is somehow cannot be reopened here after just previously closed.
             session = manager.OpenSession(sessionAlias);
             session.Get(typeof(Order), 1);
             session.Close();
@@ -396,11 +382,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.IsTrue(transaction3.IsActive);
             }
 
+            Assert.IsTrue(session1.IsConnected);
+
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session1.Dispose();
 
@@ -444,11 +430,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.IsTrue(transaction3.IsActive);
             }
 
+            Assert.IsTrue(session1.IsConnected);
+
             transaction.Commit();
 
-            // TODO: Assert that transaction was committed.
-            // Assert.IsTrue(session1.Transaction.WasCommitted);
-            // Assert.IsTrue(session1.IsConnected);
+            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
 
             session1.Dispose();
 

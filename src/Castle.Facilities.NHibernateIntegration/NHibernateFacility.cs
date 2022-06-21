@@ -156,7 +156,6 @@ namespace Castle.Facilities.NHibernateIntegration
             RegisterTransactionManager();
         }
 
-
         /// <summary>
         /// Register <see cref="IConfigurationBuilder" /> the default ConfigurationBuilder
         /// or (if present) the one specified via "configurationBuilder" attribute.

@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -85,7 +85,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             if (!(_aliasToKey[alias] is string componentKey))
             {
-                throw new FacilityException($"An ISessionFactory component was not mapped for the specified alias: {alias}");
+                throw new FacilityException($"An {nameof(ISessionFactory)} component was not mapped for the specified alias: {alias}");
             }
 
             return _kernel.Resolve<ISessionFactory>(componentKey);

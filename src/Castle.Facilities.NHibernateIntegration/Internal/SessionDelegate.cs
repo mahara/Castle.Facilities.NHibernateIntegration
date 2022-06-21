@@ -113,20 +113,20 @@ namespace Castle.Facilities.NHibernateIntegration
 
         internal IDbConnection InternalClose(bool closing)
         {
-            IDbConnection conn = null;
+            IDbConnection connection = null;
 
             _sessionStore.Remove(this);
 
             if (closing)
             {
-                conn = InnerSession.Close();
+                connection = InnerSession.Close();
             }
 
             InnerSession.Dispose();
 
             _disposed = true;
 
-            return conn;
+            return connection;
         }
 
         /// <summary>
@@ -165,16 +165,20 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Get the <see cref="T:NHibernate.ISessionFactory" /> that created this instance.
         /// </summary>
         /// <value></value>
-        public ISessionFactory SessionFactory => InnerSession.SessionFactory;
+        public ISessionFactory SessionFactory =>
+            InnerSession.SessionFactory;
 
         /// <inheritdoc />
-        public DbConnection Connection => InnerSession.Connection;
+        public DbConnection Connection =>
+            InnerSession.Connection;
 
         /// <inheritdoc />
-        public bool IsOpen => InnerSession.IsOpen;
+        public bool IsOpen =>
+            InnerSession.IsOpen;
 
         /// <inheritdoc />
-        public bool IsConnected => InnerSession.IsConnected;
+        public bool IsConnected =>
+            InnerSession.IsConnected;
 
         /// <inheritdoc />
         public bool DefaultReadOnly
@@ -197,7 +201,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <inheritdoc />
         DbConnection ISession.Close()
         {
-            return InnerSession.Close();
+            return (DbConnection) DoClose(true);
         }
 
         /// <inheritdoc />
