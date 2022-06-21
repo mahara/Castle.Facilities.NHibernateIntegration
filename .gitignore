@@ -1,21 +1,29 @@
-# User-specific files
-.vs/
+## https://github.com/github/gitignore
+
+src/*/bin/
+src/*/obj/
 lib/packages/
 packages/
-*.suo
-*.user
-_ReSharper*/
-*.csproj.ReSharper
-*.cache
-* Thumbs.db
-
-
-# Build output
 build/
 bin/
+log/
 obj/
+temp/
+.vs/
 
 
-# Tests output
-SampleDllFile
+*.suo
+*.user
+*.sln.docstates
+*.dbmdl
+*.dbconfig
+*.log
+*.cache
+Thumbs.db
+
+
+_ReSharper*/
+*.csproj.ReSharper
+
+
 

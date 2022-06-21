@@ -1,11 +1,15 @@
-﻿# Auto detect text files and perform LF normalization
+## https://github.com/alexkaratarakis/gitattributes
+
+# Set default behavior to automatically normalize line endings.
+# Auto detect text files and perform LF normalization
 *           text=auto
 
+# Set the merge driver for project and solution files
 # Files that will always have CRLF line endings on checkout.
-*.targets   text eol=crlf
-*.props     text eol=crlf
 *.sln       text eol=crlf
 *.csproj    text eol=crlf
+*.targets   text eol=crlf
+*.props     text eol=crlf
 *.proj      text eol=crlf
 *.config    text eol=crlf
 *.json      text eol=crlf
@@ -19,12 +23,12 @@
 *.less      text eol=crlf
 *.resx      text eol=crlf
 *.manifest  text eol=crlf
+*.txt       text eol=crlf
 *.cpp       text eol=crlf
 *.c         text eol=crlf
 *.h         text eol=crlf
 SOURCES     text eol=crlf
 MAKEFILE    text eol=crlf
-*.txt       text eol=crlf
 
 # Binary files that should not be modified.
 *.exe       binary
@@ -38,6 +42,7 @@ MAKEFILE    text eol=crlf
 *.jpeg      binary
 *.gif       binary
 *.bmp       binary
+*.webp      binary
 *.cur       binary
 *.sys       binary
 *.chm       binary
