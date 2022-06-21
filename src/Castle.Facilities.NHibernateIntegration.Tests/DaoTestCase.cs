@@ -16,39 +16,39 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-	using MicroKernel.Registration;
+    using MicroKernel.Registration;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class DaoTestCase : AbstractNHibernateTestCase
-	{
-		[Test]
-		public void CommonUsage()
-		{
-			Container.Register(Component.For<BlogDao>().Named("blogdao"));
+    [TestFixture]
+    public class DaoTestCase : AbstractNHibernateTestCase
+    {
+        [Test]
+        public void CommonUsage()
+        {
+            Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-			var dao = Container.Resolve<BlogDao>("blogdao");
-			dao.CreateBlog("my blog");
+            var dao = Container.Resolve<BlogDao>("blogdao");
+            dao.CreateBlog("my blog");
 
-			var blogs = dao.ObtainBlogs();
+            var blogs = dao.ObtainBlogs();
 
-			Assert.IsNotNull(blogs);
-			Assert.AreEqual(1, blogs.Count);
-		}
+            Assert.IsNotNull(blogs);
+            Assert.AreEqual(1, blogs.Count);
+        }
 
-		[Test]
-		public void CommonStatelessUsage()
-		{
-			Container.Register(Component.For<BlogDao>().Named("blogdao"));
+        [Test]
+        public void CommonStatelessUsage()
+        {
+            Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-			var dao = Container.Resolve<BlogDao>("blogdao");
-			dao.CreateBlog("my blog");
+            var dao = Container.Resolve<BlogDao>("blogdao");
+            dao.CreateBlog("my blog");
 
-			var blogs = dao.ObtainBlogsStateless();
+            var blogs = dao.ObtainBlogsStateless();
 
-			Assert.IsNotNull(blogs);
-			Assert.AreEqual(1, blogs.Count);
-		}
-	}
+            Assert.IsNotNull(blogs);
+            Assert.AreEqual(1, blogs.Count);
+        }
+    }
 }

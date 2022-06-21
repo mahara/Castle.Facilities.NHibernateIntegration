@@ -16,42 +16,42 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
-	using System;
-	using System.Runtime.Serialization;
+    using System;
+    using System.Runtime.Serialization;
 
-	/// <summary>
-	/// Summary description for DataException.
-	/// </summary>
-	/// <remarks>
-	/// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
-	/// </remarks>
-	[Serializable]
-	public class DataException : ApplicationException
-	{
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DataException" /> class.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		public DataException(string message) : base(message)
-		{
-		}
+    /// <summary>
+    /// Summary description for DataException.
+    /// </summary>
+    /// <remarks>
+    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
+    /// </remarks>
+    [Serializable]
+    public class DataException : ApplicationException
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataException" /> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        public DataException(string message) : base(message)
+        {
+        }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DataException" /> class.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		/// <param name="inner">The inner.</param>
-		public DataException(string message, Exception inner) : base(message, inner)
-		{
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataException" /> class.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="inner">The inner.</param>
+        public DataException(string message, Exception inner) : base(message, inner)
+        {
+        }
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="DataException" /> class.
-		/// </summary>
-		/// <param name="info">The object that holds the serialized object data.</param>
-		/// <param name="context">The contextual information about the source or destination.</param>
-		public DataException(SerializationInfo info, StreamingContext context) : base(info, context)
-		{
-		}
-	}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataException" /> class.
+        /// </summary>
+        /// <param name="info">The object that holds the serialized object data.</param>
+        /// <param name="context">The contextual information about the source or destination.</param>
+        public DataException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
+    }
 }

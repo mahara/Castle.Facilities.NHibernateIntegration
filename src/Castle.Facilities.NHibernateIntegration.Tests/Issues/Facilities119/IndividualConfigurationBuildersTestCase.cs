@@ -16,30 +16,31 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
 {
-	using NHibernate.Cfg;
+    using NHibernate.Cfg;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class Fixture : IssueTestCase
-	{
-		protected override void ExportDatabaseSchema()
-		{
-		}
+    [TestFixture]
+    public class Fixture : IssueTestCase
+    {
+        protected override void ExportDatabaseSchema()
+        {
+        }
 
-		protected override void DropDatabaseSchema()
-		{
-		}
+        protected override void DropDatabaseSchema()
+        {
+        }
 
-		[Test]
-		public void Configurations_can_be_obtained_via_different_ConfigurationBuilders()
-		{
-			var configuration1 = Container.Resolve<Configuration>("sessionFactory1.cfg");
-			var configuration2 = Container.Resolve<Configuration>("sessionFactory2.cfg");
-			var configuration3 = Container.Resolve<Configuration>("sessionFactory3.cfg");
-			Assert.AreEqual(configuration1.GetProperty("test"), null);
-			Assert.AreEqual(configuration2.GetProperty("test"), "test2");
-			Assert.AreEqual(configuration3.GetProperty("test"), "test3");
-		}
-	}
+        [Test]
+        public void ConfigurationsCanBeObtainedViaDifferentConfigurationBuilders()
+        {
+            var configuration1 = Container.Resolve<Configuration>("sessionFactory1.cfg");
+            var configuration2 = Container.Resolve<Configuration>("sessionFactory2.cfg");
+            var configuration3 = Container.Resolve<Configuration>("sessionFactory3.cfg");
+
+            Assert.AreEqual(configuration1.GetProperty("test"), null);
+            Assert.AreEqual(configuration2.GetProperty("test"), "test2");
+            Assert.AreEqual(configuration3.GetProperty("test"), "test3");
+        }
+    }
 }

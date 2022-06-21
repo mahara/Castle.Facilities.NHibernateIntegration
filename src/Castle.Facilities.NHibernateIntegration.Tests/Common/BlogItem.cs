@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,18 +16,18 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using System;
+    using System;
 
-	public class BlogItem
-	{
-		public virtual Blog ParentBlog { get; set; }
+    public class BlogItem
+    {
+        public virtual int Id { get; set; }
 
-		public virtual DateTime ItemDate { get; set; }
+        public virtual Blog ParentBlog { get; set; }
 
-		public virtual int Id { get; set; }
+        public virtual string Title { get; set; }
 
-		public virtual string Text { get; set; }
+        public virtual string Text { get; set; }
 
-		public virtual string Title { get; set; }
-	}
+        public virtual DateTime DateTime { get; set; }
+    }
 }

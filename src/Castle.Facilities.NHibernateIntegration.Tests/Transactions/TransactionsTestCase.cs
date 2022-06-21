@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,438 +16,433 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using Castle.MicroKernel.Registration;
-
-	using NHibernate;
+    using System;
+
+    using Castle.MicroKernel.Registration;
 
-	using NUnit.Framework;
-
-	using System;
-
-	[TestFixture]
-	public class TransactionsTestCase : AbstractNHibernateTestCase
-	{
-		protected override void ConfigureContainer()
-		{
-			Container.Register(Component.For<RootService>().Named("root"));
-			Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
-			Container.Register(Component.For<SecondDao>().Named("myseconddao"));
-		}
-
-		[Test]
-		public void TestTransaction()
-		{
-			var service = Container.Resolve<RootService>();
-			var dao = Container.Resolve<FirstDao>("myfirstdao");
-
-			var blog = dao.Create("Blog1");
-
-			try
-			{
-				service.DoBlogRefOperation(blog);
-
-				// Expects a constraint exception on Commit
-				Assert.Fail("Must fail");
-			}
-			catch (Exception)
-			{
-				// transaction exception expected
-			}
-		}
+    using NHibernate;
+
+    using NUnit.Framework;
+
+    [TestFixture]
+    public class TransactionsTestCase : AbstractNHibernateTestCase
+    {
+        protected override void ConfigureContainer()
+        {
+            Container.Register(Component.For<RootService>().Named("root"));
+            Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
+            Container.Register(Component.For<SecondDao>().Named("myseconddao"));
+        }
+
+        [Test]
+        public void TestTransaction()
+        {
+            var service = Container.Resolve<RootService>();
+            var dao = Container.Resolve<FirstDao>("myfirstdao");
+
+            var blog = dao.Create("Blog1");
+
+            try
+            {
+                service.DoBlogRefOperation(blog);
+
+                // Expects a constraint exception on Commit
+                Assert.Fail("Must fail.");
+            }
+            catch (Exception)
+            {
+                // transaction exception expected
+            }
+        }
+
+        [Test]
+        public void TestTransactionStateless()
+        {
+            var service = Container.Resolve<RootService>();
+            var dao = Container.Resolve<FirstDao>("myfirstdao");
 
-		[Test]
-		public void TestTransactionStateless()
-		{
-			var service = Container.Resolve<RootService>();
-			var dao = Container.Resolve<FirstDao>("myfirstdao");
+            var blog = dao.CreateStateless("Blog1");
 
-			var blog = dao.CreateStateless("Blog1");
+            try
+            {
+                service.DoBlogRefOperationStateless(blog);
+
+                // Expects a constraint exception on Commit
+                Assert.Fail("Must fail.");
+            }
+            catch (Exception)
+            {
+                // transaction exception expected
+            }
+        }
+
+        [Test]
+        public void TestTransactionUsingDetachedCriteria()
+        {
+            var service = Container.Resolve<RootService>();
+
+            var blogName = "Delicious Food!";
+
+            var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
+            Assert.IsNotNull(blogA);
+
+            var blogB = service.FindBlogUsingDetachedCriteria(blogName);
+            Assert.IsNotNull(blogB);
+
+            Assert.AreEqual(blogA.Name, blogB.Name);
+        }
+
+        [Test]
+        public void TestTransactionStatelessUsingDetachedCriteria()
+        {
+            var service = Container.Resolve<RootService>();
+
+            var blogName = "Delicious Food!";
+
+            var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
+            Assert.IsNotNull(blogA);
+
+            var blogB = service.FindBlogStatelessUsingDetachedCriteria(blogName);
+            Assert.IsNotNull(blogB);
 
-			try
-			{
-				service.DoBlogRefOperationStateless(blog);
+            Assert.AreEqual(blogA.Name, blogB.Name);
+        }
+
+        [Test]
+        public void SimpleAndSucessfulSituationUsingRootTransactionBoundary()
+        {
+            var service = Container.Resolve<RootService>();
+
+            service.SuccessFullCall();
+
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.AreEqual(1, blogs.Length);
+            Assert.AreEqual(1, blogitems.Length);
+        }
+
+        [Test]
+        public void SimpleAndSucessfulSituationUsingRootTransactionBoundaryStateless()
+        {
+            var service = Container.Resolve<RootService>();
+
+            service.SuccessFullCallStateless();
+
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.AreEqual(1, blogs.Length);
+            Assert.AreEqual(1, blogitems.Length);
+        }
+
+        [Test]
+        public void NonTransactionalRoot()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
+
+            ITransaction transaction;
+
+            using (var session = sessionManager.OpenSession())
+            {
+                transaction = session.GetCurrentTransaction();
+                Assert.IsNull(transaction);
 
-				// Expects a constraint exception on Commit
-				Assert.Fail("Must fail");
-			}
-			catch (Exception)
-			{
-				// transaction exception expected
-			}
-		}
-
-		[Test]
-		public void TestTransactionUsingDetachedCriteria()
-		{
-			var service = Container.Resolve<RootService>();
+                var first = Container.Resolve<FirstDao>("myfirstdao");
+                var second = Container.Resolve<SecondDao>("myseconddao");
+
+                // This call is transactional
+                var blog = first.Create();
+
+                // TODO: Assert transaction was committed
+                //transaction = session.GetCurrentTransaction();
+                //Assert.IsTrue(transaction.WasCommitted);
+
+                try
+                {
+                    second.CreateWithException2(blog);
+                }
+                catch (Exception)
+                {
+                    // Expected
+                }
+
+                // TODO: Assert transaction was rolled back
+                //transaction = session.GetCurrentTransaction();
+                //Assert.IsTrue(transaction.WasRolledBack);
 
-			var blogName = "Delicious Food!";
-
-			var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
-			Assert.IsNotNull(blogA);
-
-			var blogB = service.FindBlogUsingDetachedCriteria(blogName);
-			Assert.IsNotNull(blogB);
+                var rootService = Container.Resolve<RootService>();
 
-			Assert.AreEqual(blogA.Name, blogB.Name);
-		}
-
-		[Test]
-		public void TestTransactionStatelessUsingDetachedCriteria()
-		{
-			var service = Container.Resolve<RootService>();
+                var blogs = rootService.FindAll(typeof(Blog));
+                Assert.AreEqual(1, blogs.Length);
+                var blogItems = rootService.FindAll(typeof(BlogItem));
+                Assert.IsEmpty(blogItems);
+            }
 
-			var blogName = "Delicious Food!";
+            Assert.IsNull(transaction);
+        }
 
-			var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
-			Assert.IsNotNull(blogA);
+        [Test]
+        public void NonTransactionalRootStateless()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-			var blogB = service.FindBlogStatelessUsingDetachedCriteria(blogName);
-			Assert.IsNotNull(blogB);
+            ITransaction transaction;
 
-			Assert.AreEqual(blogA.Name, blogB.Name);
-		}
+            using (var session = sessionManager.OpenStatelessSession())
+            {
+                transaction = session.GetCurrentTransaction();
+                Assert.IsNull(transaction);
 
-		[Test]
-		public void SimpleAndSucessfulSituationUsingRootTransactionBoundary()
-		{
-			var service = Container.Resolve<RootService>();
+                var first = Container.Resolve<FirstDao>("myfirstdao");
+                var second = Container.Resolve<SecondDao>("myseconddao");
 
-			service.SuccessFullCall();
+                // This call is transactional
+                var blog = first.CreateStateless();
 
-			var blogs = service.FindAll(typeof(Blog));
-			var blogitems = service.FindAll(typeof(BlogItem));
-
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.AreEqual(1, blogs.Length);
-			Assert.AreEqual(1, blogitems.Length);
-		}
+                // TODO: Assert transaction was committed
+                //transaction = session.GetCurrentTransaction();
+                //Assert.IsTrue(transaction.WasCommitted);
 
-		[Test]
-		public void SimpleAndSucessfulSituationUsingRootTransactionBoundaryStateless()
-		{
-			var service = Container.Resolve<RootService>();
+                try
+                {
+                    second.CreateWithExceptionStateless2(blog);
+                }
+                catch (Exception)
+                {
+                    // Expected
+                }
 
-			service.SuccessFullCallStateless();
-
-			var blogs = service.FindAllStateless(typeof(Blog));
-			var blogitems = service.FindAllStateless(typeof(BlogItem));
-
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.AreEqual(1, blogs.Length);
-			Assert.AreEqual(1, blogitems.Length);
-		}
+                // TODO: Assert transaction was rolled back
+                //transaction = session.GetCurrentTransaction();
+                //Assert.IsTrue(transaction.WasRolledBack);
 
-		[Test]
-		public void NonTransactionalRoot()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+                var rootService = Container.Resolve<RootService>();
 
-			ITransaction transaction;
+                var blogs = rootService.FindAllStateless(typeof(Blog));
+                Assert.AreEqual(1, blogs.Length);
+                var blogItems = rootService.FindAllStateless(typeof(BlogItem));
+                Assert.IsEmpty(blogItems);
+            }
 
-			using (var session = sessionManager.OpenSession())
-			{
-				transaction = session.GetCurrentTransaction();
+            Assert.IsNull(transaction);
+        }
 
-				Assert.IsNull(transaction);
+        [Test]
+        public void TransactionNotHijackingTheSession()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-				var first = Container.Resolve<FirstDao>("myfirstdao");
-				var second = Container.Resolve<SecondDao>("myseconddao");
+            ITransaction transaction;
 
-				// This call is transactional
-				var blog = first.Create();
+            using (var session = sessionManager.OpenSession())
+            {
+                transaction = session.GetCurrentTransaction();
+                Assert.IsNull(transaction);
 
-				// TODO: Assert transaction was committed
-				//transaction = session.GetCurrentTransaction();
-				//Assert.IsTrue(transaction.WasCommitted);
+                var service = Container.Resolve<FirstDao>("myfirstdao");
 
-				try
-				{
-					second.CreateWithException2(blog);
-				}
-				catch (Exception)
-				{
-					// Expected
-				}
+                // This call is transactional.
+                var blog = service.Create();
 
-				// TODO: Assert transaction was rolled back
-				//transaction = session.GetCurrentTransaction();
-				//Assert.IsTrue(transaction.WasRolledBack);
+                var rootService = Container.Resolve<RootService>();
 
-				var rootService = Container.Resolve<RootService>();
+                var blogs = rootService.FindAll(typeof(Blog));
+                Assert.AreEqual(1, blogs.Length);
+            }
 
-				var blogs = rootService.FindAll(typeof(Blog));
-				Assert.AreEqual(1, blogs.Length);
-				var blogItems = rootService.FindAll(typeof(BlogItem));
-				Assert.IsEmpty(blogItems);
-			}
+            Assert.IsNull(transaction);
+            // TODO: Assert transaction was committed
+            //Assert.IsTrue(transaction.WasCommitted);
+        }
 
-			Assert.IsNull(transaction);
-		}
+        [Test]
+        public void TransactionNotHijackingTheStatelessSession()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-		[Test]
-		public void NonTransactionalRootStateless()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+            ITransaction transaction;
 
-			ITransaction transaction;
+            using (var session = sessionManager.OpenStatelessSession())
+            {
+                transaction = session.GetCurrentTransaction();
+                Assert.IsNull(transaction);
 
-			using (var session = sessionManager.OpenStatelessSession())
-			{
-				transaction = session.GetCurrentTransaction();
+                var service = Container.Resolve<FirstDao>("myfirstdao");
 
-				Assert.IsNull(transaction);
+                // This call is transactional.
+                var blog = service.CreateStateless();
 
-				var first = Container.Resolve<FirstDao>("myfirstdao");
-				var second = Container.Resolve<SecondDao>("myseconddao");
+                var rootService = Container.Resolve<RootService>();
 
-				// This call is transactional
-				var blog = first.CreateStateless();
+                var blogs = rootService.FindAllStateless(typeof(Blog));
+                Assert.AreEqual(1, blogs.Length);
+            }
 
-				// TODO: Assert transaction was committed
-				//transaction = session.GetCurrentTransaction();
-				//Assert.IsTrue(transaction.WasCommitted);
+            Assert.IsNull(transaction);
+            // TODO: Assert transaction was committed
+            //Assert.IsTrue(transaction.WasCommitted);
+        }
 
-				try
-				{
-					second.CreateWithExceptionStateless2(blog);
-				}
-				catch (Exception)
-				{
-					// Expected
-				}
+        [Test]
+        public void SessionBeingSharedByMultipleTransactionsInSequence()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-				// TODO: Assert transaction was rolled back
-				//transaction = session.GetCurrentTransaction();
-				//Assert.IsTrue(transaction.WasRolledBack);
+            ITransaction transaction;
 
-				var rootService = Container.Resolve<RootService>();
+            using (var session = sessionManager.OpenSession())
+            {
+                transaction = session.GetCurrentTransaction();
+                Assert.IsNull(transaction);
 
-				var blogs = rootService.FindAllStateless(typeof(Blog));
-				Assert.AreEqual(1, blogs.Length);
-				var blogItems = rootService.FindAllStateless(typeof(BlogItem));
-				Assert.IsEmpty(blogItems);
-			}
+                var service = Container.Resolve<FirstDao>("myfirstdao");
 
-			Assert.IsNull(transaction);
-		}
+                // This call is transactional.
+                service.Create();
 
-		[Test]
-		public void TransactionNotHijackingTheSession()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+                // This call is transactional.
+                service.Create("ps2's blogs");
 
-			ITransaction transaction;
+                // This call is transactional.
+                service.Create("game cube's blogs");
 
-			using (var session = sessionManager.OpenSession())
-			{
-				transaction = session.GetCurrentTransaction();
+                var rootService = Container.Resolve<RootService>();
 
-				Assert.IsNull(transaction);
+                var blogs = rootService.FindAll(typeof(Blog));
+                Assert.AreEqual(3, blogs.Length);
+            }
 
-				var service = Container.Resolve<FirstDao>("myfirstdao");
+            Assert.IsNull(transaction);
+            // TODO: Assert transaction was committed
+            //Assert.IsTrue(transaction.WasCommitted);
+        }
 
-				// This call is transactional
-				var blog = service.Create();
+        [Test]
+        public void SessionBeingSharedByMultipleTransactionsInSequenceStateless()
+        {
+            var sessionManager = Container.Resolve<ISessionManager>();
 
-				var rootService = Container.Resolve<RootService>();
+            ITransaction transaction;
 
-				var blogs = rootService.FindAll(typeof(Blog));
-				Assert.AreEqual(1, blogs.Length);
-			}
+            using (var session = sessionManager.OpenStatelessSession())
+            {
+                transaction = session.GetCurrentTransaction();
 
-			Assert.IsNull(transaction);
-			// TODO: Assert transaction was committed
-			//Assert.IsTrue(transaction.WasCommitted);
-		}
+                Assert.IsNull(transaction);
 
-		[Test]
-		public void TransactionNotHijackingTheStatelessSession()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+                var service = Container.Resolve<FirstDao>("myfirstdao");
 
-			ITransaction transaction;
+                // This call is transactional.
+                service.CreateStateless();
 
-			using (var session = sessionManager.OpenStatelessSession())
-			{
-				transaction = session.GetCurrentTransaction();
+                // This call is transactional.
+                service.CreateStateless("ps2's blogs");
 
-				Assert.IsNull(transaction);
+                // This call is transactional.
+                service.CreateStateless("game cube's blogs");
 
-				var service = Container.Resolve<FirstDao>("myfirstdao");
+                var rootService = Container.Resolve<RootService>();
 
-				// This call is transactional
-				var blog = service.CreateStateless();
+                var blogs = rootService.FindAllStateless(typeof(Blog));
+                Assert.AreEqual(3, blogs.Length);
+            }
 
-				var rootService = Container.Resolve<RootService>();
+            Assert.IsNull(transaction);
+            // TODO: Assert transaction was committed
+            //Assert.IsTrue(transaction.WasCommitted);
+        }
 
-				var blogs = rootService.FindAllStateless(typeof(Blog));
-				Assert.AreEqual(1, blogs.Length);
-			}
+        [Test]
+        public void CallWithException()
+        {
+            var service = Container.Resolve<RootService>();
 
-			Assert.IsNull(transaction);
-			// TODO: Assert transaction was committed
-			//Assert.IsTrue(transaction.WasCommitted);
-		}
+            try
+            {
+                service.CallWithException();
+            }
+            catch (NotSupportedException)
+            {
+            }
 
-		[Test]
-		public void SessionBeingSharedByMultipleTransactionsInSequence()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+            // Ensure rollback happened.
 
-			ITransaction transaction;
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
 
-			using (var session = sessionManager.OpenSession())
-			{
-				transaction = session.GetCurrentTransaction();
+            Assert.IsEmpty(blogs);
+            Assert.IsEmpty(blogitems);
+        }
 
-				Assert.IsNull(transaction);
+        [Test]
+        public void CallWithExceptionStateless()
+        {
+            var service = Container.Resolve<RootService>();
 
-				var service = Container.Resolve<FirstDao>("myfirstdao");
+            try
+            {
+                service.CallWithExceptionStateless();
+            }
+            catch (NotSupportedException)
+            {
+            }
 
-				// This call is transactional
-				service.Create();
+            // Ensure rollback happened.
 
-				// This call is transactional
-				service.Create("ps2's blogs");
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
 
-				// This call is transactional
-				service.Create("game cube's blogs");
+            Assert.IsEmpty(blogs);
+            Assert.IsEmpty(blogitems);
+        }
 
-				var rootService = Container.Resolve<RootService>();
+        [Test]
+        public void CallWithException2()
+        {
+            var service = Container.Resolve<RootService>();
 
-				var blogs = rootService.FindAll(typeof(Blog));
-				Assert.AreEqual(3, blogs.Length);
-			}
+            try
+            {
+                service.CallWithException2();
+            }
+            catch (NotSupportedException)
+            {
+            }
 
-			Assert.IsNull(transaction);
-			// TODO: Assert transaction was committed
-			//Assert.IsTrue(transaction.WasCommitted);
-		}
+            // Ensure rollback happened.
 
-		[Test]
-		public void SessionBeingSharedByMultipleTransactionsInSequenceStateless()
-		{
-			var sessionManager = Container.Resolve<ISessionManager>();
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
 
-			ITransaction transaction;
+            Assert.IsEmpty(blogs);
+            Assert.IsEmpty(blogitems);
+        }
 
-			using (var session = sessionManager.OpenStatelessSession())
-			{
-				transaction = session.GetCurrentTransaction();
+        [Test]
+        public void CallWithExceptionStateless2()
+        {
+            var service = Container.Resolve<RootService>();
 
-				Assert.IsNull(transaction);
+            try
+            {
+                service.CallWithExceptionStateless2();
+            }
+            catch (NotSupportedException)
+            {
+            }
 
-				var service = Container.Resolve<FirstDao>("myfirstdao");
+            // Ensure rollback happened.
 
-				// This call is transactional
-				service.CreateStateless();
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
 
-				// This call is transactional
-				service.CreateStateless("ps2's blogs");
-
-				// This call is transactional
-				service.CreateStateless("game cube's blogs");
-
-				var rootService = Container.Resolve<RootService>();
-
-				var blogs = rootService.FindAllStateless(typeof(Blog));
-				Assert.AreEqual(3, blogs.Length);
-			}
-
-			Assert.IsNull(transaction);
-			// TODO: Assert transaction was committed
-			//Assert.IsTrue(transaction.WasCommitted);
-		}
-
-		[Test]
-		public void CallWithException()
-		{
-			var service = Container.Resolve<RootService>();
-
-			try
-			{
-				service.CallWithException();
-			}
-			catch (NotSupportedException)
-			{
-			}
-
-			// Ensure rollback happened
-
-			var blogs = service.FindAll(typeof(Blog));
-			var blogitems = service.FindAll(typeof(BlogItem));
-
-			Assert.IsEmpty(blogs);
-			Assert.IsEmpty(blogitems);
-		}
-
-		[Test]
-		public void CallWithExceptionStateless()
-		{
-			var service = Container.Resolve<RootService>();
-
-			try
-			{
-				service.CallWithExceptionStateless();
-			}
-			catch (NotSupportedException)
-			{
-			}
-
-			// Ensure rollback happened
-
-			var blogs = service.FindAllStateless(typeof(Blog));
-			var blogitems = service.FindAllStateless(typeof(BlogItem));
-
-			Assert.IsEmpty(blogs);
-			Assert.IsEmpty(blogitems);
-		}
-
-		[Test]
-		public void CallWithException2()
-		{
-			var service = Container.Resolve<RootService>();
-
-			try
-			{
-				service.CallWithException2();
-			}
-			catch (NotSupportedException)
-			{
-			}
-
-			// Ensure rollback happened
-
-			var blogs = service.FindAll(typeof(Blog));
-			var blogitems = service.FindAll(typeof(BlogItem));
-
-			Assert.IsEmpty(blogs);
-			Assert.IsEmpty(blogitems);
-		}
-
-		[Test]
-		public void CallWithExceptionStateless2()
-		{
-			var service = Container.Resolve<RootService>();
-
-			try
-			{
-				service.CallWithExceptionStateless2();
-			}
-			catch (NotSupportedException)
-			{
-			}
-
-			// Ensure rollback happened
-
-			var blogs = service.FindAllStateless(typeof(Blog));
-			var blogitems = service.FindAllStateless(typeof(BlogItem));
-
-			Assert.IsEmpty(blogs);
-			Assert.IsEmpty(blogitems);
-		}
-	}
+            Assert.IsEmpty(blogs);
+            Assert.IsEmpty(blogitems);
+        }
+    }
 }

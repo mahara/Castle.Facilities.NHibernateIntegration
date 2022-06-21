@@ -16,36 +16,36 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System.Collections;
-	using System.Threading;
+    using System.Collections;
+    using System.Threading;
 
-	/// <summary>
-	/// Provides an implementation of <see cref="ISessionStore" />
-	/// which relies on <see cref="AsyncLocal{T}" />.
-	/// </summary>
-	public class AsyncLocalSessionStore : AbstractDictStackSessionStore
-	{
-		private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new AsyncLocal<IDictionary>();
-		private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new AsyncLocal<IDictionary>();
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="AsyncLocal{T}" />.
+    /// </summary>
+    public class AsyncLocalSessionStore : AbstractDictStackSessionStore
+    {
+        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new AsyncLocal<IDictionary>();
+        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new AsyncLocal<IDictionary>();
 
-		protected override IDictionary GetDictionary()
-		{
-			return _sessionAsyncLocal.Value;
-		}
+        protected override IDictionary GetDictionary()
+        {
+            return _sessionAsyncLocal.Value;
+        }
 
-		protected override void StoreDictionary(IDictionary dictionary)
-		{
-			_sessionAsyncLocal.Value = dictionary;
-		}
+        protected override void StoreDictionary(IDictionary dictionary)
+        {
+            _sessionAsyncLocal.Value = dictionary;
+        }
 
-		protected override IDictionary GetStatelessSessionDictionary()
-		{
-			return _statelessSessionAsyncLocal.Value;
-		}
+        protected override IDictionary GetStatelessSessionDictionary()
+        {
+            return _statelessSessionAsyncLocal.Value;
+        }
 
-		protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
-		{
-			_statelessSessionAsyncLocal.Value = dictionary;
-		}
-	}
+        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        {
+            _statelessSessionAsyncLocal.Value = dictionary;
+        }
+    }
 }

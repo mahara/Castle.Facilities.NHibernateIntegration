@@ -16,19 +16,19 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using System.Collections.Generic;
+    using System.Collections.Generic;
 
-	public class Blog
-	{
-		public Blog()
-		{
-			Items = new List<BlogItem>();
-		}
+    public class Blog
+    {
+        public Blog()
+        {
+            Items = new List<BlogItem>();
+        }
 
-		public virtual int Id { get; set; }
+        public virtual int Id { get; set; }
 
-		public virtual string Name { get; set; }
+        public virtual string Name { get; set; }
 
-		public virtual IList<BlogItem> Items { get; set; }
-	}
+        public virtual IList<BlogItem> Items { get; set; }
+    }
 }

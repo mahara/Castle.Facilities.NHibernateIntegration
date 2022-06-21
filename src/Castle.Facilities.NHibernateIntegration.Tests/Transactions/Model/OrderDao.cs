@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,114 +16,114 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using NHibernate;
+    using NHibernate;
 
-	using NHibernateIntegration.Components.Dao;
+    using NHibernateIntegration.Components.Dao;
 
-	using Services.Transaction;
+    using NUnit.Framework;
 
-	[Transactional]
-	public class OrderDao : NHibernateGenericDao
-	{
-		private readonly ISessionManager sessManager;
+    using Services.Transaction;
 
-		public OrderDao(ISessionManager sessManager) : base(sessManager, "db2")
-		{
-			this.sessManager = sessManager;
-		}
+    [Transactional]
+    public class OrderDao : NHibernateGenericDao
+    {
+        private readonly ISessionManager _sessionManager;
 
-		[Transaction]
-		public virtual Order Create(float val)
-		{
-			using (var session = sessManager.OpenSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+        public OrderDao(ISessionManager sessionManager) : base(sessionManager, "db2")
+        {
+            _sessionManager = sessionManager;
+        }
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+        [Transaction]
+        public virtual Order Create(float val)
+        {
+            using (var session = _sessionManager.OpenSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				var order = new Order();
-				order.Value = val;
-				session.Save(order);
+                var order = new Order
+                {
+                    Value = val
+                };
+                session.Save(order);
 
-				return order;
-			}
-		}
+                return order;
+            }
+        }
 
-		[Transaction]
-		public virtual void Update(Order order, float newval)
-		{
-			using (var session = sessManager.OpenSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+        [Transaction]
+        public virtual void Update(Order order, float newval)
+        {
+            using (var session = _sessionManager.OpenSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+                order.Value = newval;
 
-				order.Value = newval;
+                session.Update(order);
+            }
+        }
 
-				session.Update(order);
-			}
-		}
+        [Transaction]
+        public virtual void Delete(int orderId)
+        {
+            using (var session = _sessionManager.OpenSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-		[Transaction]
-		public virtual void Delete(int orderId)
-		{
-			using (var session = sessManager.OpenSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+                var order = (Order) session.Load(typeof(Order), orderId);
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+                session.Delete(order);
+            }
+        }
 
-				var order = (Order) session.Load(typeof(Order), orderId);
+        [Transaction]
+        public virtual Order CreateStateless(float val)
+        {
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				session.Delete(order);
-			}
-		}
+                var order = new Order
+                {
+                    Value = val
+                };
+                session.Insert(order);
 
-		[Transaction]
-		public virtual Order CreateStateless(float val)
-		{
-			using (var session = sessManager.OpenStatelessSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+                return order;
+            }
+        }
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+        [Transaction]
+        public virtual void UpdateStateless(Order order, float newval)
+        {
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				var order = new Order();
-				order.Value = val;
-				session.Insert(order);
+                order.Value = newval;
 
-				return order;
-			}
-		}
+                session.Update(order);
+            }
+        }
 
-		[Transaction]
-		public virtual void UpdateStateless(Order order, float newval)
-		{
-			using (var session = sessManager.OpenStatelessSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+        [Transaction]
+        public virtual void DeleteStateless(int orderId)
+        {
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+                var order = (Order) session.Get(typeof(Order).FullName, orderId);
 
-				order.Value = newval;
-
-				session.Update(order);
-			}
-		}
-
-		[Transaction]
-		public virtual void DeleteStateless(int orderId)
-		{
-			using (var session = sessManager.OpenStatelessSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
-
-				NUnit.Framework.Assert.IsNotNull(transaction);
-
-				var order = (Order) session.Get(typeof(Order).FullName, orderId);
-
-				session.Delete(order);
-			}
-		}
-	}
+                session.Delete(order);
+            }
+        }
+    }
 }

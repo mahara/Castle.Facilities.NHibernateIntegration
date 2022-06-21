@@ -16,62 +16,62 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-	using NHibernate;
+    using NHibernate;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	public class MySecondDao
-	{
-		private readonly ISessionManager _sessionManager;
+    public class MySecondDao
+    {
+        private readonly ISessionManager _sessionManager;
 
-		public MySecondDao(ISessionManager sessionManager)
-		{
-			_sessionManager = sessionManager;
-		}
+        public MySecondDao(ISessionManager sessionManager)
+        {
+            _sessionManager = sessionManager;
+        }
 
-		public void PerformPieceOfOperation(ISession previousSession)
-		{
-			Assert.IsNotNull(previousSession);
+        public void PerformPieceOfOperation(ISession previousSession)
+        {
+            Assert.IsNotNull(previousSession);
 
-			using (var session = _sessionManager.OpenSession())
-			{
-				Assert.IsNotNull(session);
-				Assert.IsTrue(SessionDelegate.AreEqual(session, previousSession));
-			}
-		}
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsNotNull(session);
+                Assert.IsTrue(SessionDelegate.AreEqual(session, previousSession));
+            }
+        }
 
-		public void PerformPieceOfOperation2(ISession previousSession)
-		{
-			Assert.IsNotNull(previousSession);
+        public void PerformPieceOfOperation2(ISession previousSession)
+        {
+            Assert.IsNotNull(previousSession);
 
-			using (var session = _sessionManager.OpenSession())
-			{
-				Assert.IsNotNull(session);
-				// Assert.AreNotSame(session, previousSession);
-				Assert.IsFalse(ReferenceEquals(session, previousSession));
-			}
-		}
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsNotNull(session);
+                // Assert.AreNotSame(session, previousSession);
+                Assert.IsFalse(ReferenceEquals(session, previousSession));
+            }
+        }
 
-		public void PerformStatelessPieceOfOperation(IStatelessSession previousSession)
-		{
-			Assert.IsNotNull(previousSession);
+        public void PerformStatelessPieceOfOperation(IStatelessSession previousSession)
+        {
+            Assert.IsNotNull(previousSession);
 
-			using (var session = _sessionManager.OpenStatelessSession())
-			{
-				Assert.IsNotNull(session);
-				Assert.IsTrue(StatelessSessionDelegate.AreEqual(session, previousSession));
-			}
-		}
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsNotNull(session);
+                Assert.IsTrue(StatelessSessionDelegate.AreEqual(session, previousSession));
+            }
+        }
 
-		public void PerformStatelessPieceOfOperation2(IStatelessSession previousSession)
-		{
-			Assert.IsNotNull(previousSession);
+        public void PerformStatelessPieceOfOperation2(IStatelessSession previousSession)
+        {
+            Assert.IsNotNull(previousSession);
 
-			using (var session = _sessionManager.OpenStatelessSession())
-			{
-				Assert.IsNotNull(session);
-				Assert.IsFalse(ReferenceEquals(session, previousSession));
-			}
-		}
-	}
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsNotNull(session);
+                Assert.IsFalse(ReferenceEquals(session, previousSession));
+            }
+        }
+    }
 }

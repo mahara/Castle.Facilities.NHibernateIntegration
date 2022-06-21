@@ -16,26 +16,26 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[NHSessionAware]
-	public class BlogRepository
-	{
-		private readonly ISessionStore _sessionStore;
-		private readonly ISessionManager _sessionManager;
+    [NHSessionAware]
+    public class BlogRepository
+    {
+        private readonly ISessionStore _sessionStore;
+        private readonly ISessionManager _sessionManager;
 
-		public BlogRepository(ISessionStore sessionStore, ISessionManager sessionManager)
-		{
-			_sessionStore = sessionStore;
-			_sessionManager = sessionManager;
-		}
+        public BlogRepository(ISessionStore sessionStore, ISessionManager sessionManager)
+        {
+            _sessionStore = sessionStore;
+            _sessionManager = sessionManager;
+        }
 
-		[NHSessionRequired]
-		public virtual void FetchAll()
-		{
-			Assert.IsNotNull(_sessionStore.FindCompatibleSession(Constants.DefaultAlias));
+        [NHSessionRequired]
+        public virtual void FetchAll()
+        {
+            Assert.IsNotNull(_sessionStore.FindCompatibleSession(Constants.DefaultAlias));
 
-			_sessionManager.OpenSession();
-		}
-	}
+            _sessionManager.OpenSession();
+        }
+    }
 }

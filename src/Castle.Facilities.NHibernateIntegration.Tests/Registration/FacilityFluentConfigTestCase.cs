@@ -17,12 +17,10 @@
 namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 {
     using Castle.Core.Configuration;
-    using Castle.Core.Resource;
     using Castle.Facilities.AutoTx;
     using Castle.Facilities.NHibernateIntegration.SessionStores;
     using Castle.MicroKernel.Facilities;
     using Castle.Windsor;
-    using Castle.Windsor.Configuration.Interpreters;
 
     using NHibernate.Cfg;
 

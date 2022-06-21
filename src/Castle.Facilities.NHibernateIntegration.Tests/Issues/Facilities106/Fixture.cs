@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,38 +16,35 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
 {
-	using Builders;
+    using Builders;
 
-	using Core.Configuration;
+    using Core.Configuration;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class Fixture : IssueTestCase
-	{
-		protected override string ConfigurationFile
-		{
-			get { return "EmptyConfiguration.xml"; }
-		}
+    [TestFixture]
+    public class Fixture : IssueTestCase
+    {
+        protected override string ConfigurationFile =>
+            "EmptyConfiguration.xml";
 
-		[Test]
-		public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
-		{
-			IConfiguration castleConfiguration = new MutableConfiguration("myConfig");
-			castleConfiguration.Attributes["nhibernateConfigFile"] =
-				@"Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
-			var b = new XmlConfigurationBuilder();
-			var cfg = b.GetConfiguration(castleConfiguration);
-			Assert.IsNotNull(cfg);
-			var str = cfg.Properties["connection.provider"];
-			Assert.AreEqual("DummyProvider", str);
-
-			str = cfg.Properties["connection.connection_string"];
-			Assert.IsNotEmpty(str);
-			str = cfg.Properties["connection.driver_class"];
-			Assert.IsNotEmpty(str);
-			str = cfg.Properties["dialect"];
-			Assert.IsNotEmpty(str);
-		}
-	}
+        [Test]
+        public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
+        {
+            IConfiguration castleConfiguration = new MutableConfiguration("myConfig");
+            castleConfiguration.Attributes["nhibernateConfigFile"] =
+                "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
+            var b = new XmlConfigurationBuilder();
+            var cfg = b.GetConfiguration(castleConfiguration);
+            Assert.IsNotNull(cfg);
+            var str = cfg.Properties["connection.provider"];
+            Assert.AreEqual("DummyProvider", str);
+            str = cfg.Properties["connection.connection_string"];
+            Assert.IsNotEmpty(str);
+            str = cfg.Properties["connection.driver_class"];
+            Assert.IsNotEmpty(str);
+            str = cfg.Properties["dialect"];
+            Assert.IsNotEmpty(str);
+        }
+    }
 }

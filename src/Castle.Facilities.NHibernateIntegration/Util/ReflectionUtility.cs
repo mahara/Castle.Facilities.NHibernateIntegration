@@ -16,56 +16,59 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Util
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Reflection;
+    using System;
+    using System.Collections.Generic;
+    using System.Reflection;
 
-	/// <summary>
-	/// Utility classes for NHibernate.
-	/// Contains methods to get properties of an entity, etc.
-	/// </summary>
-	public class ReflectionUtility
-	{
-		private static readonly BindingFlags BindingFlags =
-			BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.NonPublic;
+    /// <summary>
+    /// Utility classes for NHibernate.
+    /// Contains methods to get properties of an entity, etc.
+    /// </summary>
+    public class ReflectionUtility
+    {
+        private static readonly BindingFlags BindingFlags =
+            BindingFlags.Instance |
+            BindingFlags.GetProperty |
+            BindingFlags.Public |
+            BindingFlags.NonPublic;
 
-		/// <summary>
-		/// Gets the readable (non indexed) properties names and values.
-		/// The keys holds the names of the properties.
-		/// The values are the values of the properties.
-		/// </summary>
-		public static IDictionary<string, object> GetPropertiesDictionary(object obj)
-		{
-			IDictionary<string, object> ht = new Dictionary<string, object>();
+        /// <summary>
+        /// Gets the readable (non indexed) properties names and values.
+        /// The keys holds the names of the properties.
+        /// The values are the values of the properties.
+        /// </summary>
+        public static IDictionary<string, object> GetPropertiesDictionary(object obj)
+        {
+            IDictionary<string, object> ht = new Dictionary<string, object>();
 
-			foreach (var property in obj.GetType().GetProperties(BindingFlags))
-			{
-				if (property.CanRead && property.GetIndexParameters().Length == 0)
-				{
-					ht[property.Name] = property.GetValue(obj, null);
-				}
-			}
+            foreach (var property in obj.GetType().GetProperties(BindingFlags))
+            {
+                if (property.CanRead && property.GetIndexParameters().Length == 0)
+                {
+                    ht[property.Name] = property.GetValue(obj, null);
+                }
+            }
 
-			return ht;
-		}
+            return ht;
+        }
 
-		/// <summary>
-		/// Determines whether type is simple enough to need just ToString() to show its state.
-		/// string, int, bool, and enums are simple. Anything else is false.
-		/// </summary>
-		public static bool IsSimpleType(Type type)
-		{
-			if (type == typeof(string)
-				|| type.IsPrimitive
-				|| type == typeof(DateTime) || type == typeof(DateTimeOffset)
-				|| type.IsEnum)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
+        /// <summary>
+        /// Determines whether type is simple enough to need just ToString() to show its state.
+        /// string, int, bool, and enums are simple. Anything else is false.
+        /// </summary>
+        public static bool IsSimpleType(Type type)
+        {
+            if (type == typeof(string)
+                || type.IsPrimitive
+                || type == typeof(DateTime) || type == typeof(DateTimeOffset)
+                || type.IsEnum)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
 }

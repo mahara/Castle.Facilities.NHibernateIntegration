@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,28 +16,19 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
 {
-	using NHibernate;
-	using NHibernate.Cfg;
+    using NHibernate;
+    using NHibernate.Cfg;
 
-	public class MyDao
-	{
-		private readonly ISessionFactory _sessionFactory;
-		private readonly Configuration _configuration;
+    public class MyDao
+    {
+        public MyDao(ISessionFactory sessionFactory, Configuration configuration)
+        {
+            SessionFactory = sessionFactory;
+            Configuration = configuration;
+        }
 
-		public MyDao(ISessionFactory sessionFactory, Configuration configuration)
-		{
-			_sessionFactory = sessionFactory;
-			_configuration = configuration;
-		}
+        public ISessionFactory SessionFactory { get; }
 
-		public ISessionFactory SessionFactory
-		{
-			get { return _sessionFactory; }
-		}
-
-		public Configuration Cfg
-		{
-			get { return _configuration; }
-		}
-	}
+        public Configuration Configuration { get; }
+    }
 }

@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,32 +16,30 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities152
 {
-	using Castle.Core.Resource;
-	using Castle.Facilities.NHibernateIntegration.SessionStores;
-	using Castle.Windsor;
-	using Castle.Windsor.Configuration.Interpreters;
+    using Castle.Core.Resource;
+    using Castle.Facilities.NHibernateIntegration.SessionStores;
+    using Castle.Windsor;
+    using Castle.Windsor.Configuration.Interpreters;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class Fixture
-	{
-		[Test]
-		public void Should_Read_IsWeb_Configuration_From_Xml_Registration()
-		{
-			var file1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
-			var file2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
+    [TestFixture]
+    public class Fixture
+    {
+        [Test]
+        public void ShouldReadIsWebConfigurationFromXmlRegistration()
+        {
+            var file1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
+            var file2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
 
-			var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file1)));
+            var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file1)));
+            var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file2)));
 
-			var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file2)));
+            var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
+            var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
 
-			var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
-
-			var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
-
-			Assert.IsInstanceOf(typeof(WebSessionStore), sessionStoreWhenIsWebTrue);
-			Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStoreWhenIsWebFalse);
-		}
-	}
+            Assert.IsInstanceOf(typeof(WebSessionStore), sessionStoreWhenIsWebTrue);
+            Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStoreWhenIsWebFalse);
+        }
+    }
 }

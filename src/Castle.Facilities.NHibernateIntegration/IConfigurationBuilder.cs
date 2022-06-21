@@ -16,20 +16,20 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-	using Core.Configuration;
+    using Core.Configuration;
 
-	using NHibernate.Cfg;
+    using NHibernate.Cfg;
 
-	/// <summary>
-	/// Builds up the NHibernate <see cref="Configuration" />.
-	/// </summary>
-	public interface IConfigurationBuilder
-	{
-		/// <summary>
-		/// Builds the <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
-		/// </summary>
-		/// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-		/// <returns>The <see cref="Configuration" />.</returns>
-		Configuration GetConfiguration(IConfiguration facilityConfiguration);
-	}
+    /// <summary>
+    /// Builds up the NHibernate <see cref="Configuration" />.
+    /// </summary>
+    public interface IConfigurationBuilder
+    {
+        /// <summary>
+        /// Builds the <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
+        /// </summary>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>The <see cref="Configuration" />.</returns>
+        Configuration GetConfiguration(IConfiguration facilityConfiguration);
+    }
 }

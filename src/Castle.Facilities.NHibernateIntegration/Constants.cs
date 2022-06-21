@@ -16,19 +16,19 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-	/// <summary>
-	/// Exposes constants used by the facility and its internal components.
-	/// </summary>
-	public class Constants
-	{
-		/// <summary>
-		///
-		/// </summary>
-		public static readonly string DefaultAlias = "nh.facility.default";
+    /// <summary>
+    /// Exposes constants used by the facility and its internal components.
+    /// </summary>
+    public class Constants
+    {
+        /// <summary>
+        ///
+        /// </summary>
+        public static readonly string DefaultAlias = "nh.facility.default";
 
-		/// <summary>
-		/// Key at which the configuration for a specific SessionFactory is stored.
-		/// </summary>
-		public static readonly string SessionFactoryConfiguration = "Configuration";
-	}
+        /// <summary>
+        /// Key at which the configuration for a specific SessionFactory is stored.
+        /// </summary>
+        public static readonly string SessionFactoryConfiguration = "Configuration";
+    }
 }

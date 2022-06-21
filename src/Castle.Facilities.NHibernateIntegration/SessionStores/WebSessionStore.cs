@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,71 +16,71 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using MicroKernel.Facilities;
+    using System.Collections;
+    using System.Web;
 
-	using System.Collections;
-	using System.Web;
+    using MicroKernel.Facilities;
 
-	/// <summary>
-	/// Provides an implementation of <see cref="ISessionStore" />
-	/// which relies on <see cref="HttpContext" />. Suitable for web projects.
-	/// </summary>
-	public class WebSessionStore : AbstractDictStackSessionStore
-	{
-		/// <summary>
-		/// Gets the dictionary.
-		/// </summary>
-		/// <returns></returns>
-		protected override IDictionary GetDictionary()
-		{
-			var currentContext = ObtainSessionContext();
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="HttpContext" />. Suitable for web projects.
+    /// </summary>
+    public class WebSessionStore : AbstractDictStackSessionStore
+    {
+        /// <summary>
+        /// Gets the dictionary.
+        /// </summary>
+        /// <returns></returns>
+        protected override IDictionary GetDictionary()
+        {
+            var currentContext = ObtainSessionContext();
 
-			return currentContext.Items[SlotKey] as IDictionary;
-		}
+            return currentContext.Items[SlotKey] as IDictionary;
+        }
 
-		/// <summary>
-		/// Stores the dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected override void StoreDictionary(IDictionary dictionary)
-		{
-			var currentContext = ObtainSessionContext();
+        /// <summary>
+        /// Stores the dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected override void StoreDictionary(IDictionary dictionary)
+        {
+            var currentContext = ObtainSessionContext();
 
-			currentContext.Items[SlotKey] = dictionary;
-		}
+            currentContext.Items[SlotKey] = dictionary;
+        }
 
-		/// <summary>
-		/// Gets the IStatelessSession dictionary.
-		/// </summary>
-		/// <returns>A dictionary.</returns>
-		protected override IDictionary GetStatelessSessionDictionary()
-		{
-			var currentContext = ObtainSessionContext();
+        /// <summary>
+        /// Gets the IStatelessSession dictionary.
+        /// </summary>
+        /// <returns>A dictionary.</returns>
+        protected override IDictionary GetStatelessSessionDictionary()
+        {
+            var currentContext = ObtainSessionContext();
 
-			return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
-		}
+            return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
+        }
 
-		/// <summary>
-		/// Stores the IStatelessSession dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
-		{
-			var currentContext = ObtainSessionContext();
+        /// <summary>
+        /// Stores the IStatelessSession dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        {
+            var currentContext = ObtainSessionContext();
 
-			currentContext.Items[StatelessSessionSlotKey] = dictionary;
-		}
+            currentContext.Items[StatelessSessionSlotKey] = dictionary;
+        }
 
-		private static HttpContext ObtainSessionContext()
-		{
-			var currentContext = HttpContext.Current;
+        private static HttpContext ObtainSessionContext()
+        {
+            var currentContext = HttpContext.Current;
 
-			if (currentContext == null)
-			{
-				throw new FacilityException("WebSessionStore: Could not obtain reference to HttpContext");
-			}
+            if (currentContext == null)
+            {
+                throw new FacilityException("WebSessionStore: Could not obtain reference to HttpContext.");
+            }
 
-			return currentContext;
-		}
-	}
+            return currentContext;
+        }
+    }
 }

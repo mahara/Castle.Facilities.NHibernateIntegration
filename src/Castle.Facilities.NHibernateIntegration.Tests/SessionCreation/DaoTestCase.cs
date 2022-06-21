@@ -16,65 +16,65 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-	using MicroKernel.Registration;
+    using MicroKernel.Registration;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class DaoTestCase : AbstractNHibernateTestCase
-	{
-		protected override void ConfigureContainer()
-		{
-			Container.Register(Component.For<MyDao>().Named("mydao"));
-			Container.Register(Component.For<MySecondDao>().Named("myseconddao"));
-		}
+    [TestFixture]
+    public class DaoTestCase : AbstractNHibernateTestCase
+    {
+        protected override void ConfigureContainer()
+        {
+            Container.Register(Component.For<MyDao>().Named("mydao"));
+            Container.Register(Component.For<MySecondDao>().Named("myseconddao"));
+        }
 
-		[Test]
-		public void SessionIsShared()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void SessionIsShared()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.PerformComplexOperation1();
-		}
+            dao.PerformComplexOperation1();
+        }
 
-		[Test]
-		public void SessionDisposedIsNotReused()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void SessionDisposedIsNotReused()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.PerformComplexOperation2();
-		}
+            dao.PerformComplexOperation2();
+        }
 
-		[Test]
-		public void ClosingAndDisposing()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void ClosingAndDisposing()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.DoOpenCloseAndDispose();
-		}
+            dao.DoOpenCloseAndDispose();
+        }
 
-		[Test]
-		public void StatelessSessionIsShared()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void StatelessSessionIsShared()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.PerformStatelessComplexOperation1();
-		}
+            dao.PerformStatelessComplexOperation1();
+        }
 
-		[Test]
-		public void StatelessSessionDisposedIsNotReused()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void StatelessSessionDisposedIsNotReused()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.PerformStatelessComplexOperation2();
-		}
+            dao.PerformStatelessComplexOperation2();
+        }
 
-		[Test]
-		public void StatelessSessionClosingAndDisposing()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void StatelessSessionClosingAndDisposing()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			dao.DoStatelessOpenCloseAndDispose();
-		}
-	}
+            dao.DoStatelessOpenCloseAndDispose();
+        }
+    }
 }

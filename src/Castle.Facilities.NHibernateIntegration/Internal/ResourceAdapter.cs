@@ -16,66 +16,66 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
-	using Castle.Services.Transaction;
+    using System;
 
-	using System;
+    using Castle.Services.Transaction;
 
-	using ITransaction = NHibernate.ITransaction;
+    using ITransaction = NHibernate.ITransaction;
 
-	/// <summary>
-	/// Adapter to <see cref="IResource" /> so a NHibernate transaction can be enlisted
-	/// within <see cref="Services.Transaction.ITransaction" /> instances.
-	/// </summary>
-	public class ResourceAdapter : IResource, IDisposable
-	{
-		private readonly bool _isAmbient;
-		private readonly ITransaction _transaction;
+    /// <summary>
+    /// Adapter to <see cref="IResource" /> so a NHibernate transaction can be enlisted
+    /// within <see cref="Services.Transaction.ITransaction" /> instances.
+    /// </summary>
+    public class ResourceAdapter : IResource, IDisposable
+    {
+        private readonly bool _isAmbient;
+        private readonly ITransaction _transaction;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ResourceAdapter" /> class.
-		/// </summary>
-		/// <param name="transaction">The transaction.</param>
-		/// <param name="isAmbient"></param>
-		public ResourceAdapter(ITransaction transaction, bool isAmbient)
-		{
-			_transaction = transaction;
-			_isAmbient = isAmbient;
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ResourceAdapter" /> class.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="isAmbient"></param>
+        public ResourceAdapter(ITransaction transaction, bool isAmbient)
+        {
+            _transaction = transaction;
+            _isAmbient = isAmbient;
+        }
 
-		/// <summary>
-		/// </summary>
-		public void Dispose()
-		{
-			_transaction.Dispose();
-		}
+        /// <summary>
+        /// </summary>
+        public void Dispose()
+        {
+            _transaction.Dispose();
+        }
 
-		/// <summary>
-		/// Implementors should start the transaction on the underlying resource.
-		/// </summary>
-		public void Start()
-		{
-			_transaction.Begin();
-		}
+        /// <summary>
+        /// Implementors should start the transaction on the underlying resource.
+        /// </summary>
+        public void Start()
+        {
+            _transaction.Begin();
+        }
 
-		/// <summary>
-		/// Implementors should commit the transaction on the underlying resource.
-		/// </summary>
-		public void Commit()
-		{
-			_transaction.Commit();
-		}
+        /// <summary>
+        /// Implementors should commit the transaction on the underlying resource.
+        /// </summary>
+        public void Commit()
+        {
+            _transaction.Commit();
+        }
 
-		/// <summary>
-		/// Implementors should rollback the transaction on the underlying resource.
-		/// </summary>
-		public void Rollback()
-		{
-			// HACK: It was supposed to only a test but it fixed the escalated transaction rollback issue.
-			//		 Not sure if this the right way to do it (probably not).
-			if (!_isAmbient)
-			{
-				_transaction.Rollback();
-			}
-		}
-	}
+        /// <summary>
+        /// Implementors should rollback the transaction on the underlying resource.
+        /// </summary>
+        public void Rollback()
+        {
+            // HACK: It was supposed to only a test but it fixed the escalated transaction rollback issue.
+            //		 Not sure if this the right way to do it (probably not).
+            if (!_isAmbient)
+            {
+                _transaction.Rollback();
+            }
+        }
+    }
 }

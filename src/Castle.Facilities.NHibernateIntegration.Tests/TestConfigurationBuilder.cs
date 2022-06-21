@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,41 +16,45 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using Builders;
+    using System.Configuration;
 
-	using Core.Configuration;
+    using Builders;
 
-	using System.Configuration;
+    using Core.Configuration;
 
-	using Configuration = NHibernate.Cfg.Configuration;
+    using Configuration = NHibernate.Cfg.Configuration;
 
-	public class TestConfigurationBuilder : IConfigurationBuilder
-	{
-		private readonly IConfigurationBuilder defaultConfigurationBuilder;
+    public class TestConfigurationBuilder : IConfigurationBuilder
+    {
+        private readonly IConfigurationBuilder _defaultConfigurationBuilder;
 
-		public TestConfigurationBuilder()
-		{
-			defaultConfigurationBuilder = new DefaultConfigurationBuilder();
-		}
+        public TestConfigurationBuilder()
+        {
+            _defaultConfigurationBuilder = new DefaultConfigurationBuilder();
+        }
 
-		#region IConfigurationBuilder Members
+        #region IConfigurationBuilder Members
 
-		public Configuration GetConfiguration(IConfiguration config)
-		{
-			var nhConfig = defaultConfigurationBuilder.GetConfiguration(config);
-			nhConfig.Properties["dialect"] = ConfigurationManager.AppSettings["nhf.dialect"];
-			nhConfig.Properties["connection.driver_class"] = ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-			nhConfig.Properties["connection.provider"] = ConfigurationManager.AppSettings["nhf.connection.provider"];
-			nhConfig.Properties["connection.connection_string"] =
-				ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-			if (config.Attributes["id"] != "sessionFactory1")
-			{
-				nhConfig.Properties["connection.connection_string"] =
-					ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
-			}
-			return nhConfig;
-		}
+        public Configuration GetConfiguration(IConfiguration config)
+        {
+            var nhConfig = _defaultConfigurationBuilder.GetConfiguration(config);
+            nhConfig.Properties["dialect"] =
+                ConfigurationManager.AppSettings["nhf.dialect"];
+            nhConfig.Properties["connection.driver_class"] =
+                ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+            nhConfig.Properties["connection.provider"] =
+                ConfigurationManager.AppSettings["nhf.connection.provider"];
+            nhConfig.Properties["connection.connection_string"] =
+                ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
+            if (config.Attributes["id"] != "sessionFactory1")
+            {
+                nhConfig.Properties["connection.connection_string"] =
+                    ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
+            }
 
-		#endregion
-	}
+            return nhConfig;
+        }
+
+        #endregion
+    }
 }

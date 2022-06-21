@@ -16,70 +16,70 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
-	using NHibernate.Cfg;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
 
-	using System.Collections.Generic;
-	using System.IO;
-	using System.Runtime.Serialization.Formatters.Binary;
+    using NHibernate.Cfg;
 
-	/// <summary>
-	/// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
-	/// and whether that file should be trusted or a new Configuration should be built.
-	/// </summary>
-	public class DefaultConfigurationPersister : IConfigurationPersister
-	{
-		/// <summary>
-		/// Gets the <see cref="Configuration" /> from the file.
-		/// </summary>
-		/// <param name="filename">The name of the file to read from.</param>
-		/// <returns>The <see cref="Configuration" />.</returns>
-		public virtual Configuration ReadConfiguration(string filename)
-		{
-			var formatter = new BinaryFormatter();
-			using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-			{
-				return formatter.Deserialize(fileStream) as Configuration;
-			}
-		}
+    /// <summary>
+    /// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
+    /// and whether that file should be trusted or a new Configuration should be built.
+    /// </summary>
+    public class DefaultConfigurationPersister : IConfigurationPersister
+    {
+        /// <summary>
+        /// Gets the <see cref="Configuration" /> from the file.
+        /// </summary>
+        /// <param name="filename">The name of the file to read from.</param>
+        /// <returns>The <see cref="Configuration" />.</returns>
+        public virtual Configuration ReadConfiguration(string filename)
+        {
+            var formatter = new BinaryFormatter();
+            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
+            {
+                return formatter.Deserialize(fileStream) as Configuration;
+            }
+        }
 
-		/// <summary>
-		/// Writes the <see cref="Configuration" /> to the file.
-		/// </summary>
-		/// <param name="filename">The name of the file to write to.</param>
-		/// <param name="configuration">The <see cref="Configuration" />.</param>
-		public virtual void WriteConfiguration(string filename, Configuration configuration)
-		{
-			var formatter = new BinaryFormatter();
-			using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-			{
-				formatter.Serialize(fileStream, configuration);
-			}
-		}
+        /// <summary>
+        /// Writes the <see cref="Configuration" /> to the file.
+        /// </summary>
+        /// <param name="filename">The name of the file to write to.</param>
+        /// <param name="configuration">The <see cref="Configuration" />.</param>
+        public virtual void WriteConfiguration(string filename, Configuration configuration)
+        {
+            var formatter = new BinaryFormatter();
+            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fileStream, configuration);
+            }
+        }
 
-		/// <summary>
-		/// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
-		/// </summary>
-		/// <param name="filename">The name of the file containing the <see cref="Configuration" />.</param>
-		/// <param name="dependencies">The files that the serialized configuration depends on. </param>
-		/// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
-		public virtual bool IsNewConfigurationRequired(string filename, IList<string> dependencies)
-		{
-			if (!File.Exists(filename))
-			{
-				return true;
-			}
+        /// <summary>
+        /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
+        /// </summary>
+        /// <param name="filename">The name of the file containing the <see cref="Configuration" />.</param>
+        /// <param name="dependencies">The files that the serialized configuration depends on. </param>
+        /// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
+        public virtual bool IsNewConfigurationRequired(string filename, IList<string> dependencies)
+        {
+            if (!File.Exists(filename))
+            {
+                return true;
+            }
 
-			var lastModified = File.GetLastWriteTime(filename);
+            var lastModified = File.GetLastWriteTime(filename);
 
-			var requiresNew = false;
+            var requiresNew = false;
 
-			for (var i = 0; i < dependencies.Count && !requiresNew; i++)
-			{
-				var dependencyLastModified = File.GetLastWriteTime(dependencies[i]);
-				requiresNew |= dependencyLastModified > lastModified;
-			}
+            for (var i = 0; i < dependencies.Count && !requiresNew; i++)
+            {
+                var dependencyLastModified = File.GetLastWriteTime(dependencies[i]);
+                requiresNew |= dependencyLastModified > lastModified;
+            }
 
-			return requiresNew;
-		}
-	}
+            return requiresNew;
+        }
+    }
 }

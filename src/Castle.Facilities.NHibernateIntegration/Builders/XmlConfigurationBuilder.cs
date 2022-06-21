@@ -16,39 +16,40 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
-	using Core.Configuration;
-	using Core.Resource;
+    using System.Xml;
 
-	using Internal;
+    using Core.Configuration;
+    using Core.Resource;
 
-	using NHibernate.Cfg;
+    using Internal;
 
-	using System.Xml;
+    using NHibernate.Cfg;
 
-	/// <summary>
-	/// The configuration builder for NHibernate's own cfg.xml.
-	/// </summary>
-	public class XmlConfigurationBuilder : IConfigurationBuilder
-	{
-		/// <summary>
-		/// Returns the <see cref="Configuration" /> object for the given xml.
-		/// </summary>
-		/// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-		/// <returns>The <see cref="Configuration" />.</returns>
-		public Configuration GetConfiguration(IConfiguration facilityConfiguration)
-		{
-			var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"];
-			IResource configurationResource = new FileAssemblyResource(configurationFile);
+    /// <summary>
+    /// The configuration builder for NHibernate's own cfg.xml.
+    /// </summary>
+    public class XmlConfigurationBuilder : IConfigurationBuilder
+    {
+        /// <summary>
+        /// Returns the <see cref="Configuration" /> object for the given xml.
+        /// </summary>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>The <see cref="Configuration" />.</returns>
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        {
+            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"];
+            IResource configurationResource = new FileAssemblyResource(configurationFile);
 
-			Configuration configuration;
-			using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
-			{
-				configuration = new Configuration();
-				configuration.Configure(reader);
-			}
-			configurationResource.Dispose();
+            Configuration configuration;
+            using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
+            {
+                configuration = new Configuration();
+                configuration.Configure(reader);
+            }
 
-			return configuration;
-		}
-	}
+            configurationResource.Dispose();
+
+            return configuration;
+        }
+    }
 }

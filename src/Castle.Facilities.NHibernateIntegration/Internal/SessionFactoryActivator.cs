@@ -16,64 +16,65 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
-	using Castle.Core;
-	using Castle.MicroKernel;
-	using Castle.MicroKernel.ComponentActivator;
-	using Castle.MicroKernel.Context;
+    using Castle.Core;
+    using Castle.MicroKernel;
+    using Castle.MicroKernel.ComponentActivator;
+    using Castle.MicroKernel.Context;
 
-	using NHibernate;
-	using NHibernate.Cfg;
+    using NHibernate;
+    using NHibernate.Cfg;
 
-	/// <summary>
-	/// Postpones the initiation of SessionFactory until Resolve.
-	/// </summary>
-	public class SessionFactoryActivator : DefaultComponentActivator
-	{
-		/// <summary>
-		/// Constructor for SessionFactoryActivator.
-		/// </summary>
-		/// <param name="model"></param>
-		/// <param name="kernel"></param>
-		/// <param name="onCreation"></param>
-		/// <param name="onDestruction"></param>
-		public SessionFactoryActivator(ComponentModel model,
-									   IKernelInternal kernel,
-									   ComponentInstanceDelegate onCreation,
-									   ComponentInstanceDelegate onDestruction)
-			: base(model, kernel, onCreation, onDestruction)
-		{
-		}
+    /// <summary>
+    /// Postpones the initiation of SessionFactory until Resolve.
+    /// </summary>
+    public class SessionFactoryActivator : DefaultComponentActivator
+    {
+        /// <summary>
+        /// Constructor for SessionFactoryActivator.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="kernel"></param>
+        /// <param name="onCreation"></param>
+        /// <param name="onDestruction"></param>
+        public SessionFactoryActivator(ComponentModel model,
+                                       IKernelInternal kernel,
+                                       ComponentInstanceDelegate onCreation,
+                                       ComponentInstanceDelegate onDestruction)
+            : base(model, kernel, onCreation, onDestruction)
+        {
+        }
 
-		/// <summary>
-		/// Calls the contributors.
-		/// </summary>
-		protected virtual void RaiseCreatingSessionFactory()
-		{
-			var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
-			var contributors = Kernel.ResolveAll<IConfigurationContributor>();
-			foreach (var contributor in contributors)
-			{
-				contributor.Process(Model.Name, configuration);
-			}
-		}
+        /// <summary>
+        /// Calls the contributors.
+        /// </summary>
+        protected virtual void RaiseCreatingSessionFactory()
+        {
+            var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
 
-		/// <summary>
-		/// Creates the <see cref="ISessionFactory" /> from the configuration.
-		/// </summary>
-		/// <param name="context"></param>
-		/// <param name="burden"></param>
-		/// <returns></returns>
-		public override object Create(CreationContext context, Burden burden)
-		{
-			RaiseCreatingSessionFactory();
+            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+            foreach (var contributor in contributors)
+            {
+                contributor.Process(Model.Name, configuration);
+            }
+        }
 
-			var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactoryConfiguration];
+        /// <summary>
+        /// Creates the <see cref="ISessionFactory" /> from the configuration.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="burden"></param>
+        /// <returns></returns>
+        public override object Create(CreationContext context, Burden burden)
+        {
+            RaiseCreatingSessionFactory();
 
-			var sessionFactory = configuration.BuildSessionFactory();
+            var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactoryConfiguration];
 
-			burden.SetRootInstance(sessionFactory);
+            var sessionFactory = configuration.BuildSessionFactory();
 
-			return sessionFactory;
-		}
-	}
+            burden.SetRootInstance(sessionFactory);
+
+            return sessionFactory;
+        }
+    }
 }

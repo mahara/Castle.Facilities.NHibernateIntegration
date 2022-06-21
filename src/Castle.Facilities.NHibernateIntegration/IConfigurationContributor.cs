@@ -16,18 +16,18 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-	using NHibernate.Cfg;
+    using NHibernate.Cfg;
 
-	/// <summary>
-	/// Allows implementors to modify NHibernate <see cref="Configuration" />.
-	/// </summary>
-	public interface IConfigurationContributor
-	{
-		/// <summary>
-		/// Modifies available <see cref="Configuration" /> instances.
-		/// </summary>
-		/// <param name="name">The name of the session factory.</param>
-		/// <param name="configuration">The configuration for session factory.</param>
-		void Process(string name, Configuration configuration);
-	}
+    /// <summary>
+    /// Allows implementors to modify NHibernate <see cref="Configuration" />.
+    /// </summary>
+    public interface IConfigurationContributor
+    {
+        /// <summary>
+        /// Modifies available <see cref="Configuration" /> instances.
+        /// </summary>
+        /// <param name="name">The name of the session factory.</param>
+        /// <param name="configuration">The configuration for session factory.</param>
+        void Process(string name, Configuration configuration);
+    }
 }

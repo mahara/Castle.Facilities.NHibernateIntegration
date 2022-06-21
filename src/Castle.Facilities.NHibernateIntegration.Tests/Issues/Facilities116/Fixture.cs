@@ -16,121 +16,126 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 {
-	using Builders;
+    using System;
+    using System.Configuration;
+    using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Threading;
 
-	using Castle.MicroKernel;
+    using Builders;
 
-	using Core.Configuration;
-	using Core.Resource;
+    using Castle.MicroKernel;
 
-	using MicroKernel.SubSystems.Configuration;
+    using Core.Configuration;
+    using Core.Resource;
 
-	using NUnit.Framework;
+    using MicroKernel.SubSystems.Configuration;
 
-	using System;
-	using System.Configuration;
-	using System.IO;
-	using System.Runtime.Serialization.Formatters.Binary;
-	using System.Threading;
+    using NUnit.Framework;
 
-	using Windsor.Configuration.Interpreters;
+    using Windsor.Configuration.Interpreters;
 
-	using Configuration = NHibernate.Cfg.Configuration;
+    using Configuration = NHibernate.Cfg.Configuration;
 
-	[TestFixture]
-	public class Fixture : IssueTestCase
-	{
-		protected override string ConfigurationFile
-		{
-			get { return "EmptyConfiguration.xml"; }
-		}
+    [TestFixture]
+    public class Fixture : IssueTestCase
+    {
+        protected override string ConfigurationFile =>
+            "EmptyConfiguration.xml";
 
-		private const string Filename = "myconfig.dat";
+        private const string Filename = "myconfig.dat";
 
-		private IConfiguration _configuration;
-		private IConfigurationBuilder _configurationBuilder;
+        private IConfiguration _configuration;
+        private IConfigurationBuilder _configurationBuilder;
 
-		public override void OnSetUp()
-		{
-			var configurationStore = new DefaultConfigurationStore();
-			var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
-			var xmlInterpreter = new XmlInterpreter(resource);
-			xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-			_configuration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
-			_configurationBuilder = new PersistentConfigurationBuilder();
-		}
+        public override void OnSetUp()
+        {
+            var configurationStore = new DefaultConfigurationStore();
+            var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
+            var xmlInterpreter = new XmlInterpreter(resource);
+            xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
+            _configuration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _configurationBuilder = new PersistentConfigurationBuilder();
+        }
 
-		public override void OnTearDown()
-		{
-			File.Delete(Filename);
-		}
+        public override void OnTearDown()
+        {
+            File.Delete(Filename);
+        }
 
-		[Test]
-		public void Can_create_serialized_file_in_the_disk()
-		{
-			Assert.IsFalse(File.Exists(Filename));
-			_configurationBuilder.GetConfiguration(_configuration);
-			Assert.IsTrue(File.Exists(Filename));
-			var bf = new BinaryFormatter();
-			Configuration nhConfig;
-			using (var fileStream = new FileStream(Filename, FileMode.Open))
-			{
-				nhConfig = bf.Deserialize(fileStream) as Configuration;
-			}
-			Assert.IsNotNull(nhConfig);
+        [Test]
+        public void CanCreateSerializedFileInTheDisk()
+        {
+            Assert.IsFalse(File.Exists(Filename));
 
-			ConfigureConnectionSettings(nhConfig);
+            _configurationBuilder.GetConfiguration(_configuration);
+            Assert.IsTrue(File.Exists(Filename));
 
-			nhConfig.BuildSessionFactory();
-		}
+            var bf = new BinaryFormatter();
+            Configuration nhConfig;
+            using (var fileStream = new FileStream(Filename, FileMode.Open))
+            {
+                nhConfig = bf.Deserialize(fileStream) as Configuration;
+            }
 
-		[Test]
-		public void Can_deserialize_file_from_the_disk_if_new_enough()
-		{
-			Assert.IsFalse(File.Exists(Filename));
-			var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-			Assert.IsTrue(File.Exists(Filename));
-			var dateTime = File.GetLastWriteTime(Filename);
-			Thread.Sleep(1000);
-			nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-			Assert.AreEqual(File.GetLastWriteTime(Filename), dateTime);
-			Assert.IsNotNull(_configuration);
+            Assert.IsNotNull(nhConfig);
 
-			ConfigureConnectionSettings(nhConfig);
+            ConfigureConnectionSettings(nhConfig);
 
-			nhConfig.BuildSessionFactory();
-		}
+            nhConfig.BuildSessionFactory();
+        }
 
-		[Test]
-		public void Can_deserialize_file_from_the_disk_if_one_of_the_dependencies_is_newer()
-		{
-			Assert.IsFalse(File.Exists(Filename));
-			var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-			Assert.IsTrue(File.Exists(Filename));
-			var dateTime = File.GetLastWriteTime(Filename);
-			Thread.Sleep(1000);
-			var dateTime2 = DateTime.Now;
-			File.Create("SampleDllFile").Dispose();
-			File.SetLastWriteTime("SampleDllFile", dateTime2);
-			nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-			Assert.Greater(File.GetLastWriteTime(Filename), dateTime);
-			Assert.IsNotNull(_configuration);
+        [Test]
+        public void CanDeserializeFileFromTheDiskIfNewEnough()
+        {
+            Assert.IsFalse(File.Exists(Filename));
 
-			ConfigureConnectionSettings(nhConfig);
+            var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.IsTrue(File.Exists(Filename));
 
-			nhConfig.BuildSessionFactory();
-		}
+            var dateTime = File.GetLastWriteTime(Filename);
+            Thread.Sleep(1000);
+            nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.AreEqual(File.GetLastWriteTime(Filename), dateTime);
+            Assert.IsNotNull(_configuration);
 
-		private static void ConfigureConnectionSettings(Configuration nhConfig)
-		{
-			nhConfig.Properties["dialect"] =
-				ConfigurationManager.AppSettings["nhf.dialect"];
-			nhConfig.Properties["connection.driver_class"] =
-				ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-			nhConfig.Properties["connection.provider"] =
-				ConfigurationManager.AppSettings["nhf.connection.provider"];
-			nhConfig.Properties["connection.connection_string"] =
-				ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-		}
-	}
+            ConfigureConnectionSettings(nhConfig);
+
+            nhConfig.BuildSessionFactory();
+        }
+
+        [Test]
+        public void CanDeserializeFileFromTheDiskIfOneOfTheDependenciesIsNewer()
+        {
+            Assert.IsFalse(File.Exists(Filename));
+
+            var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.IsTrue(File.Exists(Filename));
+
+            var dateTime = File.GetLastWriteTime(Filename);
+            Thread.Sleep(1000);
+            var dateTime2 = DateTime.Now;
+            File.Create("SampleDllFile").Dispose();
+            File.SetLastWriteTime("SampleDllFile", dateTime2);
+            nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.Greater(File.GetLastWriteTime(Filename), dateTime);
+            Assert.IsNotNull(_configuration);
+
+            ConfigureConnectionSettings(nhConfig);
+
+            nhConfig.BuildSessionFactory();
+        }
+
+        private static void ConfigureConnectionSettings(Configuration nhConfig)
+        {
+            nhConfig.Properties["dialect"] =
+                ConfigurationManager.AppSettings["nhf.dialect"];
+            nhConfig.Properties["connection.driver_class"] =
+                ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+            nhConfig.Properties["connection.provider"] =
+                ConfigurationManager.AppSettings["nhf.connection.provider"];
+            nhConfig.Properties["connection.connection_string"] =
+                ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
+        }
+    }
 }

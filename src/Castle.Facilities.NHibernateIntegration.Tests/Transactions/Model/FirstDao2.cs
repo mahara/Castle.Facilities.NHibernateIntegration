@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,52 +17,56 @@
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
 
-	using Services.Transaction;
+    using Services.Transaction;
 
-	[Transactional]
-	public class FirstDao2
-	{
-		private readonly ISessionManager sessManager;
+    [Transactional]
+    public class FirstDao2
+    {
+        private readonly ISessionManager _sessionManager;
 
-		public FirstDao2(ISessionManager sessManager)
-		{
-			this.sessManager = sessManager;
-		}
+        public FirstDao2(ISessionManager sessionManager)
+        {
+            _sessionManager = sessionManager;
+        }
 
-		[Transaction]
-		public virtual Blog Create()
-		{
-			return Create("xbox blog");
-		}
+        [Transaction]
+        public virtual Blog Create()
+        {
+            return Create("Xbox Blog");
+        }
 
-		[Transaction]
-		public virtual Blog Create(string name)
-		{
-			using (var session = sessManager.OpenSession())
-			{
-				var blog = new Blog();
-				blog.Name = name;
-				session.Save(blog);
-				return blog;
-			}
-		}
+        [Transaction]
+        public virtual Blog Create(string name)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var blog = new Blog
+                {
+                    Name = name
+                };
+                session.Save(blog);
+                return blog;
+            }
+        }
 
-		[Transaction]
-		public virtual Blog CreateStateless()
-		{
-			return Create("xbox blog");
-		}
+        [Transaction]
+        public virtual Blog CreateStateless()
+        {
+            return Create("Xbox Blog");
+        }
 
-		[Transaction]
-		public virtual Blog CreateStateless(string name)
-		{
-			using (var session = sessManager.OpenStatelessSession())
-			{
-				var blog = new Blog();
-				blog.Name = name;
-				session.Insert(blog);
-				return blog;
-			}
-		}
-	}
+        [Transaction]
+        public virtual Blog CreateStateless(string name)
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                var blog = new Blog
+                {
+                    Name = name
+                };
+                session.Insert(blog);
+                return blog;
+            }
+        }
+    }
 }

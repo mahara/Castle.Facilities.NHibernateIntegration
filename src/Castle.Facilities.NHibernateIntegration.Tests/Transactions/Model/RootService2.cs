@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,56 +16,51 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using NHibernateIntegration.Components.Dao;
+    using System;
 
-	using Services.Transaction;
+    using NHibernateIntegration.Components.Dao;
 
-	using System;
+    using Services.Transaction;
 
-	[Transactional]
-	public class RootService2 : NHibernateGenericDao
-	{
-		private readonly FirstDao2 firstDao;
-		private readonly SecondDao2 secondDao;
-		private OrderDao2 orderDao;
+    [Transactional]
+    public class RootService2 : NHibernateGenericDao
+    {
+        private readonly FirstDao2 _firstDao;
+        private readonly SecondDao2 _secondDao;
 
-		public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessManager)
-			: base(sessManager)
-		{
-			this.firstDao = firstDao;
-			this.secondDao = secondDao;
-		}
+        public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessionManager)
+            : base(sessionManager)
+        {
+            _firstDao = firstDao;
+            _secondDao = secondDao;
+        }
 
-		public OrderDao2 OrderDao
-		{
-			get { return orderDao; }
-			set { orderDao = value; }
-		}
+        public OrderDao2 OrderDao { get; set; }
 
-		[Transaction(Distributed = true)]
-		public virtual void DoTwoDBOperation_Create(bool throwException)
-		{
-			var blog = firstDao.Create();
-			secondDao.Create(blog);
-			orderDao.Create(1.122f);
+        [Transaction(Distributed = true)]
+        public virtual void DoTwoDbOperationCreate(bool throwException)
+        {
+            var blog = _firstDao.Create();
+            _secondDao.Create(blog);
+            OrderDao.Create(1.122f);
 
-			if (throwException)
-			{
-				throw new InvalidOperationException("Nah, giving up");
-			}
-		}
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
+        }
 
-		[Transaction(Distributed = true)]
-		public virtual void DoTwoDBOperation_Create_Stateless(bool throwException)
-		{
-			var blog = firstDao.CreateStateless();
-			secondDao.CreateStateless(blog);
-			orderDao.CreateStateless(1.122f);
+        [Transaction(Distributed = true)]
+        public virtual void DoTwoDbOperationCreateStateless(bool throwException)
+        {
+            var blog = _firstDao.CreateStateless();
+            _secondDao.CreateStateless(blog);
+            OrderDao.CreateStateless(1.122f);
 
-			if (throwException)
-			{
-				throw new InvalidOperationException("Nah, giving up");
-			}
-		}
-	}
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
+        }
+    }
 }

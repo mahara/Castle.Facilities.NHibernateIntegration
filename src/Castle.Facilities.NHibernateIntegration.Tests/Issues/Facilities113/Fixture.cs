@@ -16,42 +16,40 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
 {
-	using MicroKernel.Registration;
+    using MicroKernel.Registration;
 
-	using NHibernate;
-	using NHibernate.Cfg;
+    using NHibernate;
+    using NHibernate.Cfg;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	using Rhino.Mocks;
+    using Rhino.Mocks;
 
-	[TestFixture]
-	public class Fixture : IssueTestCase
-	{
-		protected override string ConfigurationFile
-		{
-			get { return "DefaultConfiguration.xml"; }
-		}
+    [TestFixture]
+    public class Fixture : IssueTestCase
+    {
+        protected override string ConfigurationFile =>
+            "DefaultConfiguration.xml";
 
-		[Test]
-		public void Calls_ConfigurationContributors_before_SessionFactory_is_initialized()
-		{
-			var configurator = MockRepository.GenerateMock<IConfigurationContributor>();
-			var configurator2 = MockRepository.GenerateMock<IConfigurationContributor>();
-			Container.Register(
-				Component.For<IConfigurationContributor>()
-						 .Named("c1")
-						 .Instance(configurator));
-			Container.Register(
-				Component.For<IConfigurationContributor>()
-						 .Named("c2")
-						 .Instance(configurator2));
+        [Test]
+        public void CallsConfigurationContributorsBeforeSessionFactoryIsInitialized()
+        {
+            var configurator = MockRepository.GenerateMock<IConfigurationContributor>();
+            var configurator2 = MockRepository.GenerateMock<IConfigurationContributor>();
+            Container.Register(
+                Component.For<IConfigurationContributor>()
+                         .Named("c1")
+                         .Instance(configurator));
+            Container.Register(
+                Component.For<IConfigurationContributor>()
+                         .Named("c2")
+                         .Instance(configurator2));
 
-			var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
-			Container.Resolve<ISessionFactory>("sessionFactory1");
+            var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
+            Container.Resolve<ISessionFactory>("sessionFactory1");
 
-			configurator.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
-			configurator2.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
-		}
-	}
+            configurator.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
+            configurator2.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
+        }
+    }
 }

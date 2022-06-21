@@ -16,115 +16,116 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Builders
 {
-	using Castle.Core.Logging;
+    using System.Collections.Generic;
+    using System.Text.RegularExpressions;
 
-	using Core.Configuration;
+    using Castle.Core.Logging;
 
-	using NHibernate.Cfg;
+    using Core.Configuration;
 
-	using Persisters;
+    using NHibernate.Cfg;
 
-	using System.Collections.Generic;
-	using System.Text.RegularExpressions;
+    using Persisters;
 
-	/// <summary>
-	/// Serializes the <see cref="Configuration" /> for subsequent initializations.
-	/// </summary>
-	public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
-	{
-		private const string DEFAULT_EXTENSION = "dat";
+    /// <summary>
+    /// Serializes the <see cref="Configuration" /> for subsequent initializations.
+    /// </summary>
+    public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
+    {
+        private const string DEFAULT_EXTENSION = ".dat";
 
-		private readonly ILogger _logger = NullLogger.Instance;
+        private readonly ILogger _logger = NullLogger.Instance;
 
-		private readonly IConfigurationPersister _configurationPersister;
+        private readonly IConfigurationPersister _configurationPersister;
 
-		/// <summary>
-		/// Initializes the persistent <see cref="Configuration" /> builder
-		/// with an specific <see cref="IConfigurationPersister" />
-		/// </summary>
-		public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
-		{
-			_configurationPersister = configurationPersister;
-		}
+        /// <summary>
+        /// Initializes the persistent <see cref="Configuration" /> builder
+        /// with an specific <see cref="IConfigurationPersister" />
+        /// </summary>
+        public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
+        {
+            _configurationPersister = configurationPersister;
+        }
 
-		/// <summary>
-		/// Initializes the persistent <see cref="Configuration" /> builder
-		/// using the default <see cref="IConfigurationPersister" />
-		/// </summary>
-		public PersistentConfigurationBuilder()
-			: this(new DefaultConfigurationPersister())
-		{
-		}
+        /// <summary>
+        /// Initializes the persistent <see cref="Configuration" /> builder
+        /// using the default <see cref="IConfigurationPersister" />
+        /// </summary>
+        public PersistentConfigurationBuilder()
+            : this(new DefaultConfigurationPersister())
+        {
+        }
 
-		/// <summary>
-		/// Returns the Deserialized Configuration.
-		/// </summary>
-		/// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-		/// <returns>The <see cref="Configuration" />.</returns>
-		public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
-		{
-			if (_logger.IsDebugEnabled)
-			{
-				_logger.Debug("Building the Configuration");
-			}
+        /// <summary>
+        /// Returns the Deserialized Configuration.
+        /// </summary>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>The <see cref="Configuration" />.</returns>
+        public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        {
+            if (_logger.IsDebugEnabled)
+            {
+                _logger.Debug("Building the Configuration");
+            }
 
-			var filename = GetFilenameFrom(facilityConfiguration);
-			var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
+            var filename = GetFilenameFrom(facilityConfiguration);
+            var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
 
-			Configuration cfg;
-			if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
-			{
-				if (_logger.IsDebugEnabled)
-				{
-					_logger.Debug("Configuration is either old or some of the dependencies have changed");
-				}
-				cfg = base.GetConfiguration(facilityConfiguration);
-				_configurationPersister.WriteConfiguration(filename, cfg);
-			}
-			else
-			{
-				cfg = _configurationPersister.ReadConfiguration(filename);
-			}
+            Configuration cfg;
+            if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
+            {
+                if (_logger.IsDebugEnabled)
+                {
+                    _logger.Debug("Configuration is either old or some of the dependencies have changed");
+                }
 
-			return cfg;
-		}
+                cfg = base.GetConfiguration(facilityConfiguration);
+                _configurationPersister.WriteConfiguration(filename, cfg);
+            }
+            else
+            {
+                cfg = _configurationPersister.ReadConfiguration(filename);
+            }
 
-		private string GetFilenameFrom(IConfiguration configuration)
-		{
-			var filename = configuration.Attributes["fileName"]
-						   ?? configuration.Attributes["id"] + "." + DEFAULT_EXTENSION;
+            return cfg;
+        }
 
-			return StripInvalidCharacters(filename);
-		}
+        private string GetFilenameFrom(IConfiguration configuration)
+        {
+            var filename = configuration.Attributes["fileName"]
+                           ?? configuration.Attributes["id"] + DEFAULT_EXTENSION;
 
-		private string StripInvalidCharacters(string input)
-		{
-			return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
-		}
+            return StripInvalidCharacters(filename);
+        }
 
-		private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
-		{
-			IList<string> list = new List<string>();
+        private string StripInvalidCharacters(string input)
+        {
+            return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
+        }
 
-			var assemblies = configuration.Children["assemblies"];
-			if (assemblies != null)
-			{
-				foreach (var assembly in assemblies.Children)
-				{
-					list.Add(assembly.Value + ".dll");
-				}
-			}
+        private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
+        {
+            IList<string> list = new List<string>();
 
-			var dependsOn = configuration.Children["dependsOn"];
-			if (dependsOn != null)
-			{
-				foreach (var on in dependsOn.Children)
-				{
-					list.Add(on.Value);
-				}
-			}
+            var assemblies = configuration.Children["assemblies"];
+            if (assemblies != null)
+            {
+                foreach (var assembly in assemblies.Children)
+                {
+                    list.Add(assembly.Value + ".dll");
+                }
+            }
 
-			return list;
-		}
-	}
+            var dependsOn = configuration.Children["dependsOn"];
+            if (dependsOn != null)
+            {
+                foreach (var on in dependsOn.Children)
+                {
+                    list.Add(on.Value);
+                }
+            }
+
+            return list;
+        }
+    }
 }

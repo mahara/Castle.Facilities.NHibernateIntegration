@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,127 +16,122 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System;
-	using System.Collections;
-	using System.Collections.Specialized;
-	using System.Runtime.CompilerServices;
-	using System.Runtime.Remoting.Messaging;
+    using System;
+    using System.Collections;
+    using System.Collections.Specialized;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.Remoting.Messaging;
 
-	/// <summary>
-	///
-	/// </summary>
-	public abstract class AbstractDictStackSessionStore : AbstractSessionStore
-	{
-		private readonly string _slotKey;
-		private readonly string _statelessSessionSlotKey;
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class AbstractDictStackSessionStore : AbstractSessionStore
+    {
+        protected AbstractDictStackSessionStore()
+        {
+            SlotKey = string.Format("nh.facility.stacks.session.{0}", Guid.NewGuid());
+            StatelessSessionSlotKey = string.Format("nh.facility.stacks.statelessSession.{0}", Guid.NewGuid());
+        }
 
-		protected AbstractDictStackSessionStore()
-		{
-			_slotKey = string.Format("nh.facility.stacks.session.{0}", Guid.NewGuid());
-			_statelessSessionSlotKey = string.Format("nh.facility.stacks.statelessSession.{0}", Guid.NewGuid());
-		}
+        /// <summary>
+        /// The Session storage name for <see cref="CallContext" />.
+        /// </summary>
+        protected string SlotKey { get; }
 
-		/// <summary>
-		/// The name used for storage in <see cref="CallContext" />.
-		/// </summary>
-		protected string SlotKey
-		{
-			get { return _slotKey; }
-		}
+        /// <summary>
+        /// The StatelessSession storage name for <see cref="CallContext" />.
+        /// </summary>
+        protected string StatelessSessionSlotKey { get; }
 
-		/// <summary>
-		/// The name used for storage in <see cref="CallContext" />.
-		/// </summary>
-		protected string StatelessSessionSlotKey
-		{
-			get { return _statelessSessionSlotKey; }
-		}
+        /// <summary>
+        /// Gets the stack of <see cref="SessionDelegate" /> objects for the specified <paramref name="alias" />.
+        /// </summary>
+        /// <param name="alias">The alias.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        protected override Stack GetStackFor(string alias)
+        {
+            if (alias == null)
+            {
+                throw new ArgumentNullException("alias");
+            }
 
-		/// <summary>
-		/// Gets the stack of <see cref="SessionDelegate" /> objects for the specified <paramref name="alias" />.
-		/// </summary>
-		/// <param name="alias">The alias.</param>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.Synchronized)]
-		protected override Stack GetStackFor(string alias)
-		{
-			if (alias == null) throw new ArgumentNullException("alias");
+            var alias2Stack = GetDictionary();
 
-			var alias2Stack = GetDictionary();
+            if (alias2Stack == null)
+            {
+                alias2Stack = new HybridDictionary(true);
 
-			if (alias2Stack == null)
-			{
-				alias2Stack = new HybridDictionary(true);
+                StoreDictionary(alias2Stack);
+            }
 
-				StoreDictionary(alias2Stack);
-			}
 
-			var stack = alias2Stack[alias] as Stack;
+            if (!(alias2Stack[alias] is Stack stack))
+            {
+                stack = Stack.Synchronized(new Stack());
 
-			if (stack == null)
-			{
-				stack = Stack.Synchronized(new Stack());
+                alias2Stack[alias] = stack;
+            }
 
-				alias2Stack[alias] = stack;
-			}
+            return stack;
+        }
 
-			return stack;
-		}
+        /// <summary>
+        /// Gets the dictionary.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract IDictionary GetDictionary();
 
-		/// <summary>
-		/// Gets the dictionary.
-		/// </summary>
-		/// <returns></returns>
-		protected abstract IDictionary GetDictionary();
+        /// <summary>
+        /// Stores the dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected abstract void StoreDictionary(IDictionary dictionary);
 
-		/// <summary>
-		/// Stores the dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected abstract void StoreDictionary(IDictionary dictionary);
+        /// <summary>
+        /// Gets the stack of <see cref="StatelessSessionDelegate" /> objects
+        /// for the specified <paramref name="alias" />.
+        /// </summary>
+        /// <param name="alias">The alias.</param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.Synchronized)]
+        protected override Stack GetStatelessSessionStackFor(string alias)
+        {
+            if (alias == null)
+            {
+                throw new ArgumentNullException("alias");
+            }
 
-		/// <summary>
-		/// Gets the stack of <see cref="StatelessSessionDelegate" /> objects
-		/// for the specified <paramref name="alias" />.
-		/// </summary>
-		/// <param name="alias">The alias.</param>
-		/// <returns></returns>
-		[MethodImpl(MethodImplOptions.Synchronized)]
-		protected override Stack GetStatelessSessionStackFor(string alias)
-		{
-			if (alias == null) throw new ArgumentNullException("alias");
+            var alias2Stack = GetStatelessSessionDictionary();
 
-			var alias2Stack = GetStatelessSessionDictionary();
+            if (alias2Stack == null)
+            {
+                alias2Stack = new HybridDictionary(true);
 
-			if (alias2Stack == null)
-			{
-				alias2Stack = new HybridDictionary(true);
+                StoreStatelessSessionDictionary(alias2Stack);
+            }
 
-				StoreStatelessSessionDictionary(alias2Stack);
-			}
 
-			var stack = alias2Stack[alias] as Stack;
+            if (!(alias2Stack[alias] is Stack stack))
+            {
+                stack = Stack.Synchronized(new Stack());
 
-			if (stack == null)
-			{
-				stack = Stack.Synchronized(new Stack());
+                alias2Stack[alias] = stack;
+            }
 
-				alias2Stack[alias] = stack;
-			}
+            return stack;
+        }
 
-			return stack;
-		}
+        /// <summary>
+        /// Gets the IStatelessSession dictionary.
+        /// </summary>
+        /// <returns>A dictionary.</returns>
+        protected abstract IDictionary GetStatelessSessionDictionary();
 
-		/// <summary>
-		/// Gets the IStatelessSession dictionary.
-		/// </summary>
-		/// <returns>A dictionary.</returns>
-		protected abstract IDictionary GetStatelessSessionDictionary();
-
-		/// <summary>
-		/// Stores the IStatelessSession dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected abstract void StoreStatelessSessionDictionary(IDictionary dictionary);
-	}
+        /// <summary>
+        /// Stores the IStatelessSession dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected abstract void StoreStatelessSessionDictionary(IDictionary dictionary);
+    }
 }

@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,49 +17,49 @@
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
 
-	using System;
+    using System;
 
-	public class SecondDao2
-	{
-		private readonly ISessionManager sessManager;
+    public class SecondDao2
+    {
+        private readonly ISessionManager _sessionManager;
 
-		public SecondDao2(ISessionManager sessManager)
-		{
-			this.sessManager = sessManager;
-		}
+        public SecondDao2(ISessionManager sessionManager)
+        {
+            _sessionManager = sessionManager;
+        }
 
-		public BlogItem Create(Blog blog)
-		{
-			using (var session = sessManager.OpenSession())
-			{
-				var item = new BlogItem();
+        public BlogItem Create(Blog blog)
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Save(item);
 
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
+                return item;
+            }
+        }
 
-				session.Save(item);
+        public BlogItem CreateStateless(Blog blog)
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                var item = new BlogItem
+                {
+                    ParentBlog = blog,
+                    Title = "splinter cell is cool!",
+                    Text = "x",
+                    DateTime = DateTime.Now,
+                };
+                session.Insert(item);
 
-				return item;
-			}
-		}
-
-		public BlogItem CreateStateless(Blog blog)
-		{
-			using (var session = sessManager.OpenStatelessSession())
-			{
-				var item = new BlogItem();
-
-				item.ParentBlog = blog;
-				item.ItemDate = DateTime.Now;
-				item.Text = "x";
-				item.Title = "splinter cell is cool!";
-
-				session.Insert(item);
-
-				return item;
-			}
-		}
-	}
+                return item;
+            }
+        }
+    }
 }

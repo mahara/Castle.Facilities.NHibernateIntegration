@@ -16,37 +16,37 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
-	using Castle.Services.Transaction;
+    using Castle.Services.Transaction;
 
-	/// <summary>
-	/// Synchronization to ensure the stateless session disposal on the end of a transaction.
-	/// </summary>
-	public class StatelessSessionDisposeSynchronization : ISynchronization
-	{
-		private readonly StatelessSessionDelegate _session;
+    /// <summary>
+    /// Synchronization to ensure the stateless session disposal on the end of a transaction.
+    /// </summary>
+    public class StatelessSessionDisposeSynchronization : ISynchronization
+    {
+        private readonly StatelessSessionDelegate _session;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="StatelessSessionDisposeSynchronization" /> class.
-		/// </summary>
-		/// <param name="session">The session.</param>
-		public StatelessSessionDisposeSynchronization(StatelessSessionDelegate session)
-		{
-			_session = session;
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatelessSessionDisposeSynchronization" /> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        public StatelessSessionDisposeSynchronization(StatelessSessionDelegate session)
+        {
+            _session = session;
+        }
 
-		/// <summary>
-		/// Implementors may have code executing just before the transaction completes.
-		/// </summary>
-		public void BeforeCompletion()
-		{
-		}
+        /// <summary>
+        /// Implementors may have code executing just before the transaction completes.
+        /// </summary>
+        public void BeforeCompletion()
+        {
+        }
 
-		/// <summary>
-		/// Implementors may have code executing just after the transaction completes.
-		/// </summary>
-		public void AfterCompletion()
-		{
-			_session.InternalClose(false);
-		}
-	}
+        /// <summary>
+        /// Implementors may have code executing just after the transaction completes.
+        /// </summary>
+        public void AfterCompletion()
+        {
+            _session.InternalClose(false);
+        }
+    }
 }

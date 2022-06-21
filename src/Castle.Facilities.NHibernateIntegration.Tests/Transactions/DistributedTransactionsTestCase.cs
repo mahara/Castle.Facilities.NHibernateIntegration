@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,169 +16,169 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using MicroKernel.Registration;
+    using System;
 
-	using NUnit.Framework;
+    using MicroKernel.Registration;
 
-	using Services.Transaction;
+    using NUnit.Framework;
 
-	using System;
+    using Services.Transaction;
 
-	[TestFixture]
-	public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
-	{
-		protected override string ConfigurationFile
-		{
-			get { return "Transactions/TwoDatabaseConfiguration.xml"; }
-		}
+    [TestFixture]
+    public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
+    {
+        protected override string ConfigurationFile =>
+            "Transactions/TwoDatabaseConfiguration.xml";
 
-		protected override void ConfigureContainer()
-		{
-			Container.Register(Component.For<RootService2>().Named("root"));
-			Container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
-			Container.Register(Component.For<SecondDao2>().Named("myseconddao"));
-			Container.Register(Component.For<OrderDao2>().Named("myorderdao"));
-		}
+        protected override void ConfigureContainer()
+        {
+            Container.Register(Component.For<RootService2>().Named("root"));
+            Container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
+            Container.Register(Component.For<SecondDao2>().Named("myseconddao"));
+            Container.Register(Component.For<OrderDao2>().Named("myorderdao"));
+        }
 
-		[Test]
-		[Explicit("Requires MSDTC to be running.")]
-		public void SuccessfulSituationWithTwoDatabases()
-		{
-			var service = Container.Resolve<RootService2>();
-			var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void SuccessfulSituationWithTwoDatabases()
+        {
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
-			try
-			{
-				service.DoTwoDBOperation_Create(false);
-			}
-			catch (Exception ex)
-			{
-				if (ex.InnerException != null && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
-				{
-					Assert.Ignore("MTS is not available");
-				}
+            try
+            {
+                service.DoTwoDbOperationCreate(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null
+                    && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
+                {
+                    Assert.Ignore("MTS is not available");
+                }
 
-				throw;
-			}
+                throw;
+            }
 
-			var blogs = service.FindAll(typeof(Blog));
-			var blogitems = service.FindAll(typeof(BlogItem));
-			var orders = orderDao.FindAll(typeof(Order));
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
 
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.IsNotNull(orders);
-			Assert.AreEqual(1, blogs.Length);
-			Assert.AreEqual(1, blogitems.Length);
-			Assert.AreEqual(1, orders.Length);
-		}
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.IsNotNull(orders);
+            Assert.AreEqual(1, blogs.Length);
+            Assert.AreEqual(1, blogitems.Length);
+            Assert.AreEqual(1, orders.Length);
+        }
 
-		[Test]
-		[Explicit("Requires MSDTC to be running.")]
-		public void ExceptionOnEndWithTwoDatabases()
-		{
-			var service = Container.Resolve<RootService2>();
-			var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void ExceptionOnEndWithTwoDatabases()
+        {
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
-			try
-			{
-				service.DoTwoDBOperation_Create(true);
-			}
-			catch (InvalidOperationException)
-			{
-				// Expected
-			}
-			catch (RollbackResourceException e)
-			{
-				foreach (var resource in e.FailedResources)
-				{
-					Console.WriteLine(resource.Second);
-				}
+            try
+            {
+                service.DoTwoDbOperationCreate(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+            catch (RollbackResourceException e)
+            {
+                foreach (var resource in e.FailedResources)
+                {
+                    Console.WriteLine(resource.Second);
+                }
 
-				throw;
-			}
+                throw;
+            }
 
-			var blogs = service.FindAll(typeof(Blog));
-			var blogitems = service.FindAll(typeof(BlogItem));
-			var orders = orderDao.FindAll(typeof(Order));
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
 
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.IsNotNull(orders);
-			Assert.AreEqual(0, blogs.Length);
-			Assert.AreEqual(0, blogitems.Length);
-			Assert.AreEqual(0, orders.Length);
-		}
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.IsNotNull(orders);
+            Assert.AreEqual(0, blogs.Length);
+            Assert.AreEqual(0, blogitems.Length);
+            Assert.AreEqual(0, orders.Length);
+        }
 
-		[Test]
-		[Explicit("Requires MSDTC to be running.")]
-		public void SuccessfulSituationWithTwoDatabasesStateless()
-		{
-			var service = Container.Resolve<RootService2>();
-			var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void SuccessfulSituationWithTwoDatabasesStateless()
+        {
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
-			try
-			{
-				service.DoTwoDBOperation_Create_Stateless(false);
-			}
-			catch (Exception ex)
-			{
-				if (ex.InnerException != null && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
-				{
-					Assert.Ignore("MTS is not available");
-				}
+            try
+            {
+                service.DoTwoDbOperationCreateStateless(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null
+                    && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
+                {
+                    Assert.Ignore("MTS is not available");
+                }
 
-				throw;
-			}
+                throw;
+            }
 
-			var blogs = service.FindAllStateless(typeof(Blog));
-			var blogitems = service.FindAllStateless(typeof(BlogItem));
-			var orders = orderDao.FindAllStateless(typeof(Order));
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
 
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.IsNotNull(orders);
-			Assert.AreEqual(1, blogs.Length);
-			Assert.AreEqual(1, blogitems.Length);
-			Assert.AreEqual(1, orders.Length);
-		}
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.IsNotNull(orders);
+            Assert.AreEqual(1, blogs.Length);
+            Assert.AreEqual(1, blogitems.Length);
+            Assert.AreEqual(1, orders.Length);
+        }
 
-		[Test]
-		[Ignore("Unresolved failed test.")]
-		// TODO: System.Data.SqlClient.SqlException : New request is not allowed to start because it should come with valid transaction descriptor.
-		public void ExceptionOnEndWithTwoDatabasesStateless()
-		{
-			var service = Container.Resolve<RootService2>();
-			var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+        [Test]
+        [Ignore("Unresolved failed test.")]
+        // TODO: System.Data.SqlClient.SqlException : New request is not allowed to start because it should come with valid transaction descriptor.
+        public void ExceptionOnEndWithTwoDatabasesStateless()
+        {
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
 
-			try
-			{
-				service.DoTwoDBOperation_Create_Stateless(true);
-			}
-			catch (InvalidOperationException)
-			{
-				// Expected
-			}
-			catch (RollbackResourceException e)
-			{
-				foreach (var resource in e.FailedResources)
-				{
-					Console.WriteLine(resource.Second);
-				}
+            try
+            {
+                service.DoTwoDbOperationCreateStateless(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+            catch (RollbackResourceException e)
+            {
+                foreach (var resource in e.FailedResources)
+                {
+                    Console.WriteLine(resource.Second);
+                }
 
-				throw;
-			}
+                throw;
+            }
 
-			var blogs = service.FindAllStateless(typeof(Blog));
-			var blogitems = service.FindAllStateless(typeof(BlogItem));
-			var orders = orderDao.FindAllStateless(typeof(Order));
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
 
-			Assert.IsNotNull(blogs);
-			Assert.IsNotNull(blogitems);
-			Assert.IsNotNull(orders);
-			Assert.AreEqual(0, blogs.Length);
-			Assert.AreEqual(0, blogitems.Length);
-			Assert.AreEqual(0, orders.Length);
-		}
-	}
+            Assert.IsNotNull(blogs);
+            Assert.IsNotNull(blogitems);
+            Assert.IsNotNull(orders);
+            Assert.AreEqual(0, blogs.Length);
+            Assert.AreEqual(0, blogitems.Length);
+            Assert.AreEqual(0, orders.Length);
+        }
+    }
 }

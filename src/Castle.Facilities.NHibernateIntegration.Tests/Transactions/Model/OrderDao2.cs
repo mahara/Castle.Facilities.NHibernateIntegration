@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,54 +16,58 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-	using NHibernate;
+    using NHibernate;
 
-	using NHibernateIntegration.Components.Dao;
+    using NHibernateIntegration.Components.Dao;
 
-	using Services.Transaction;
+    using NUnit.Framework;
 
-	[Transactional]
-	public class OrderDao2 : NHibernateGenericDao
-	{
-		private readonly ISessionManager sessManager;
+    using Services.Transaction;
 
-		public OrderDao2(ISessionManager sessManager) : base(sessManager, "db2")
-		{
-			this.sessManager = sessManager;
-		}
+    [Transactional]
+    public class OrderDao2 : NHibernateGenericDao
+    {
+        private readonly ISessionManager _sessionManager;
 
-		[Transaction]
-		public virtual Order Create(float val)
-		{
-			using (var session = sessManager.OpenSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+        public OrderDao2(ISessionManager sessionManager) : base(sessionManager, "db2")
+        {
+            _sessionManager = sessionManager;
+        }
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+        [Transaction]
+        public virtual Order Create(float val)
+        {
+            using (var session = _sessionManager.OpenSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				var order = new Order();
-				order.Value = val;
-				session.Save(order);
+                var order = new Order
+                {
+                    Value = val
+                };
+                session.Save(order);
 
-				return order;
-			}
-		}
+                return order;
+            }
+        }
 
-		[Transaction]
-		public virtual Order CreateStateless(float val)
-		{
-			using (var session = sessManager.OpenStatelessSession("db2"))
-			{
-				var transaction = session.GetCurrentTransaction();
+        [Transaction]
+        public virtual Order CreateStateless(float val)
+        {
+            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            {
+                var transaction = session.GetCurrentTransaction();
+                Assert.IsNotNull(transaction);
 
-				NUnit.Framework.Assert.IsNotNull(transaction);
+                var order = new Order
+                {
+                    Value = val
+                };
+                session.Insert(order);
 
-				var order = new Order();
-				order.Value = val;
-				session.Insert(order);
-
-				return order;
-			}
-		}
-	}
+                return order;
+            }
+        }
+    }
 }

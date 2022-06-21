@@ -16,163 +16,169 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using NHibernate;
+    using System;
+    using System.Collections;
 
-	using System;
-	using System.Collections;
+    using NHibernate;
 
-	/// <summary>
-	///
-	/// </summary>
-	public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
-	{
-		/// <summary>
-		/// Gets the stack of <see cref="SessionDelegate" /> objects for the specified <paramref name="alias" />.
-		/// </summary>
-		/// <param name="alias">The alias.</param>
-		/// <returns></returns>
-		protected abstract Stack GetStackFor(string alias);
+    /// <summary>
+    ///
+    /// </summary>
+    public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
+    {
+        /// <summary>
+        /// Gets the stack of <see cref="SessionDelegate" /> objects for the specified <paramref name="alias" />.
+        /// </summary>
+        /// <param name="alias">The alias.</param>
+        /// <returns></returns>
+        protected abstract Stack GetStackFor(string alias);
 
-		/// <summary>
-		/// Should return a previously stored session for the given alias if available,
-		/// otherwise null.
-		/// </summary>
-		/// <param name="alias"></param>
-		/// <returns></returns>
-		public SessionDelegate FindCompatibleSession(string alias)
-		{
-			var stack = GetStackFor(alias);
+        /// <summary>
+        /// Should return a previously stored session for the given alias if available,
+        /// otherwise null.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public SessionDelegate FindCompatibleSession(string alias)
+        {
+            var stack = GetStackFor(alias);
 
-			if (stack.Count == 0) return null;
+            if (stack.Count == 0)
+            {
+                return null;
+            }
 
-			return stack.Peek() as SessionDelegate;
-		}
+            return stack.Peek() as SessionDelegate;
+        }
 
-		/// <summary>
-		/// Should store the specified session instance.
-		/// </summary>
-		/// <param name="alias"></param>
-		/// <param name="session"></param>
-		public void Store(string alias, SessionDelegate session)
-		{
-			var stack = GetStackFor(alias);
+        /// <summary>
+        /// Should store the specified session instance.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <param name="session"></param>
+        public void Store(string alias, SessionDelegate session)
+        {
+            var stack = GetStackFor(alias);
 
-			stack.Push(session);
+            stack.Push(session);
 
-			session.SessionStoreCookie = stack;
-		}
+            session.SessionStoreCookie = stack;
+        }
 
-		/// <summary>
-		/// Should remove the session from the store only.
-		/// </summary>
-		/// <param name="session"></param>
-		public void Remove(SessionDelegate session)
-		{
-			var stack = (Stack) session.SessionStoreCookie;
+        /// <summary>
+        /// Should remove the session from the store only.
+        /// </summary>
+        /// <param name="session"></param>
+        public void Remove(SessionDelegate session)
+        {
+            var stack = (Stack) session.SessionStoreCookie;
 
-			if (stack == null)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove called " +
-												  "with no cookie - no pun intended");
-			}
+            if (stack == null)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove called " +
+                                                  "with no cookie - no pun intended");
+            }
 
-			if (stack.Count == 0)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove called " +
-												  "for an empty stack");
-			}
+            if (stack.Count == 0)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove called " +
+                                                  "for an empty stack");
+            }
 
-			var current = stack.Peek() as ISession;
+            var current = stack.Peek() as ISession;
 
-			if (session != current)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove tried to " +
-												  "remove a session which is not on the top or not in the stack at all");
-			}
+            if (session != current)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove tried to " +
+                                                  "remove a session which is not on the top or not in the stack at all");
+            }
 
-			stack.Pop();
-		}
+            stack.Pop();
+        }
 
-		/// <summary>
-		/// Returns <c>true</c> if the current activity
-		/// (which is an execution activity context) has no sessions available
-		/// </summary>
-		/// <param name="alias"></param>
-		/// <returns></returns>
-		public bool IsCurrentActivityEmptyFor(string alias)
-		{
-			var stack = GetStackFor(alias);
-			var statelessSessionStack = GetStatelessSessionStackFor(alias);
+        /// <summary>
+        /// Returns <c>true</c> if the current activity
+        /// (which is an execution activity context) has no sessions available
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public bool IsCurrentActivityEmptyFor(string alias)
+        {
+            var stack = GetStackFor(alias);
+            var statelessSessionStack = GetStatelessSessionStackFor(alias);
 
-			return stack.Count == 0 && statelessSessionStack.Count == 0;
-		}
+            return stack.Count == 0 && statelessSessionStack.Count == 0;
+        }
 
-		/// <summary>
-		/// Gets the stack of <see cref="StatelessSessionDelegate" /> objects
-		/// for the specified <paramref name="alias" />.
-		/// </summary>
-		/// <param name="alias">The alias.</param>
-		/// <returns></returns>
-		protected abstract Stack GetStatelessSessionStackFor(string alias);
+        /// <summary>
+        /// Gets the stack of <see cref="StatelessSessionDelegate" /> objects
+        /// for the specified <paramref name="alias" />.
+        /// </summary>
+        /// <param name="alias">The alias.</param>
+        /// <returns></returns>
+        protected abstract Stack GetStatelessSessionStackFor(string alias);
 
-		/// <summary>
-		/// Should return a previously stored stateless session for the given alias if available,
-		/// otherwise null.
-		/// </summary>
-		/// <param name="alias"></param>
-		/// <returns></returns>
-		public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
-		{
-			var stack = GetStatelessSessionStackFor(alias);
+        /// <summary>
+        /// Should return a previously stored stateless session for the given alias if available,
+        /// otherwise null.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        {
+            var stack = GetStatelessSessionStackFor(alias);
 
-			if (stack.Count == 0) return null;
+            if (stack.Count == 0)
+            {
+                return null;
+            }
 
-			return stack.Peek() as StatelessSessionDelegate;
-		}
+            return stack.Peek() as StatelessSessionDelegate;
+        }
 
-		/// <summary>
-		/// Should store the specified stateless session instance.
-		/// </summary>
-		/// <param name="alias"></param>
-		/// <param name="session"></param>
-		public void Store(string alias, StatelessSessionDelegate session)
-		{
-			var stack = GetStatelessSessionStackFor(alias);
+        /// <summary>
+        /// Should store the specified stateless session instance.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <param name="session"></param>
+        public void Store(string alias, StatelessSessionDelegate session)
+        {
+            var stack = GetStatelessSessionStackFor(alias);
 
-			stack.Push(session);
+            stack.Push(session);
 
-			session.SessionStoreCookie = stack;
-		}
+            session.SessionStoreCookie = stack;
+        }
 
-		/// <summary>
-		/// Should remove the stateless session from the store only.
-		/// </summary>
-		/// <param name="session"></param>
-		public void Remove(StatelessSessionDelegate session)
-		{
-			var stack = (Stack) session.SessionStoreCookie;
+        /// <summary>
+        /// Should remove the stateless session from the store only.
+        /// </summary>
+        /// <param name="session"></param>
+        public void Remove(StatelessSessionDelegate session)
+        {
+            var stack = (Stack) session.SessionStoreCookie;
 
-			if (stack == null)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove called " +
-												  "with no cookie - no pun intended");
-			}
+            if (stack == null)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove called " +
+                                                  "with no cookie - no pun intended");
+            }
 
-			if (stack.Count == 0)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove called " +
-												  "for an empty stack");
-			}
+            if (stack.Count == 0)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove called " +
+                                                  "for an empty stack");
+            }
 
-			var current = stack.Peek() as IStatelessSession;
+            var current = stack.Peek() as IStatelessSession;
 
-			if (session != current)
-			{
-				throw new InvalidProgramException("AbstractSessionStore.Remove tried to " +
-												  "remove a session which is not on the top or not in the stack at all");
-			}
+            if (session != current)
+            {
+                throw new InvalidProgramException("AbstractSessionStore.Remove tried to " +
+                                                  "remove a session which is not on the top or not in the stack at all");
+            }
 
-			stack.Pop();
-		}
-	}
+            stack.Pop();
+        }
+    }
 }

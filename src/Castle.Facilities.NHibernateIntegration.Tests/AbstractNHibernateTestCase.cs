@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,89 +16,87 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using Castle.Facilities.AutoTx;
+    using Castle.Facilities.AutoTx;
 
-	using Core.Resource;
+    using Core.Resource;
 
-	using NHibernate.Cfg;
-	using NHibernate.Tool.hbm2ddl;
+    using NHibernate.Cfg;
+    using NHibernate.Tool.hbm2ddl;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	using Rhino.Mocks;
+    using Rhino.Mocks;
 
-	using Windsor;
-	using Windsor.Configuration.Interpreters;
+    using Windsor;
+    using Windsor.Configuration.Interpreters;
 
-	public abstract class AbstractNHibernateTestCase
-	{
-		protected IWindsorContainer Container;
-		protected MockRepository MockRepository;
+    public abstract class AbstractNHibernateTestCase
+    {
+        protected IWindsorContainer Container;
+        protected MockRepository MockRepository;
 
-		public AbstractNHibernateTestCase()
-		{
-			MockRepository = new MockRepository();
-		}
+        public AbstractNHibernateTestCase()
+        {
+            MockRepository = new MockRepository();
+        }
 
-		protected virtual string ConfigurationFile
-		{
-			get { return "DefaultConfiguration.xml"; }
-		}
+        protected virtual string ConfigurationFile =>
+            "DefaultConfiguration.xml";
 
-		protected virtual void ExportDatabaseSchema()
-		{
-			var cfgs = Container.ResolveAll<Configuration>();
-			foreach (var cfg in cfgs)
-			{
-				var export = new SchemaExport(cfg);
-				export.Create(false, true);
-			}
-		}
+        protected virtual void ExportDatabaseSchema()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Create(false, true);
+            }
+        }
 
-		protected virtual void DropDatabaseSchema()
-		{
-			var cfgs = Container.ResolveAll<Configuration>();
-			foreach (var cfg in cfgs)
-			{
-				var export = new SchemaExport(cfg);
-				export.Drop(false, true);
-			}
-		}
+        protected virtual void DropDatabaseSchema()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Drop(false, true);
+            }
+        }
 
-		[SetUp]
-		public virtual void SetUp()
-		{
-			Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
-			Container.AddFacility<AutoTxFacility>();
-			ConfigureContainer();
-			ExportDatabaseSchema();
-			OnSetUp();
-		}
+        [SetUp]
+        public virtual void SetUp()
+        {
+            Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
+            Container.AddFacility<AutoTxFacility>();
+            ConfigureContainer();
+            ExportDatabaseSchema();
+            OnSetUp();
+        }
 
-		[TearDown]
-		public virtual void TearDown()
-		{
-			OnTearDown();
-			DropDatabaseSchema();
-			Container.Dispose();
-			Container = null;
-		}
+        [TearDown]
+        public virtual void TearDown()
+        {
+            OnTearDown();
+            DropDatabaseSchema();
+            Container.Dispose();
+            Container = null;
+        }
 
-		protected virtual void ConfigureContainer()
-		{
-		}
+        protected virtual void ConfigureContainer()
+        {
+        }
 
-		public virtual void OnSetUp()
-		{
-		}
+        public virtual void OnSetUp()
+        {
+        }
 
-		public virtual void OnTearDown()
-		{
-		}
+        public virtual void OnTearDown()
+        {
+        }
 
-		protected string GetContainerFile()
-		{
-			return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
-		}
-	}
+        protected string GetContainerFile()
+        {
+            return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
+        }
+    }
 }

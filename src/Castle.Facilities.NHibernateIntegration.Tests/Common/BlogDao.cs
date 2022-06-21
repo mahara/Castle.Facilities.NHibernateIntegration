@@ -16,58 +16,60 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using MicroKernel;
+    using System.Collections;
+    using System.Collections.Generic;
 
-	using System.Collections;
-	using System.Collections.Generic;
+    using MicroKernel;
 
-	public class BlogDao
-	{
-		protected readonly IKernel Kernel;
-		protected readonly ISessionManager SessionManager;
+    public class BlogDao
+    {
+        protected readonly IKernel Kernel;
+        protected readonly ISessionManager SessionManager;
 
-		public BlogDao(IKernel kernel, ISessionManager sessionManager)
-		{
-			Kernel = kernel;
-			SessionManager = sessionManager;
-		}
+        public BlogDao(IKernel kernel, ISessionManager sessionManager)
+        {
+            Kernel = kernel;
+            SessionManager = sessionManager;
+        }
 
-		public Blog CreateBlog(string name)
-		{
-			using (var session = SessionManager.OpenSession())
-			{
-				var blog = new Blog();
-				blog.Name = name;
-				blog.Items = new List<BlogItem>();
+        public Blog CreateBlog(string name)
+        {
+            using (var session = SessionManager.OpenSession())
+            {
+                var blog = new Blog
+                {
+                    Name = name,
+                    Items = new List<BlogItem>()
+                };
 
-				session.Save(blog);
+                session.Save(blog);
 
-				return blog;
-			}
-		}
+                return blog;
+            }
+        }
 
-		public IList ObtainBlogs()
-		{
-			using (var session = SessionManager.OpenSession())
-			{
-				return session.CreateQuery("from Blog").List();
-			}
-		}
+        public IList ObtainBlogs()
+        {
+            using (var session = SessionManager.OpenSession())
+            {
+                return session.CreateQuery("from Blog").List();
+            }
+        }
 
-		public void DeleteAll()
-		{
-			using (var session = SessionManager.OpenSession())
-			{
-				session.Delete("from Blog");
-			}
-		}
+        public void DeleteAll()
+        {
+            using (var session = SessionManager.OpenSession())
+            {
+                session.Delete("from Blog");
+            }
+        }
 
-		public IList ObtainBlogsStateless()
-		{
-			using (var session = SessionManager.OpenStatelessSession())
-			{
-				return session.CreateQuery("from Blog").List();
-			}
-		}
-	}
+        public IList ObtainBlogsStateless()
+        {
+            using (var session = SessionManager.OpenStatelessSession())
+            {
+                return session.CreateQuery("from Blog").List();
+            }
+        }
+    }
 }

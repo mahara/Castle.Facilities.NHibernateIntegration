@@ -16,91 +16,91 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-	using NHibernate;
+    using NHibernate;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	public class MyDao
-	{
-		private readonly ISessionManager _sessionManager;
-		private readonly MySecondDao _otherDao;
+    public class MyDao
+    {
+        private readonly ISessionManager _sessionManager;
+        private readonly MySecondDao _otherDao;
 
-		public MyDao(ISessionManager sessionManager, MySecondDao otherDao)
-		{
-			_sessionManager = sessionManager;
-			_otherDao = otherDao;
-		}
+        public MyDao(ISessionManager sessionManager, MySecondDao otherDao)
+        {
+            _sessionManager = sessionManager;
+            _otherDao = otherDao;
+        }
 
-		public void PerformComplexOperation1()
-		{
-			using (var session = _sessionManager.OpenSession())
-			{
-				Assert.IsNotNull(session);
+        public void PerformComplexOperation1()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsNotNull(session);
 
-				_otherDao.PerformPieceOfOperation(session);
-			}
-		}
+                _otherDao.PerformPieceOfOperation(session);
+            }
+        }
 
-		public void PerformComplexOperation2()
-		{
-			ISession previousSession = null;
+        public void PerformComplexOperation2()
+        {
+            ISession previousSession = null;
 
-			using (var session = _sessionManager.OpenSession())
-			{
-				previousSession = session;
-			}
+            using (var session = _sessionManager.OpenSession())
+            {
+                previousSession = session;
+            }
 
-			_otherDao.PerformPieceOfOperation2(previousSession);
-		}
+            _otherDao.PerformPieceOfOperation2(previousSession);
+        }
 
-		public void DoOpenCloseAndDispose()
-		{
-			using (var session = _sessionManager.OpenSession())
-			{
-				Assert.IsTrue(session.IsConnected);
-				Assert.IsTrue(session.IsOpen);
+        public void DoOpenCloseAndDispose()
+        {
+            using (var session = _sessionManager.OpenSession())
+            {
+                Assert.IsTrue(session.IsConnected);
+                Assert.IsTrue(session.IsOpen);
 
-				session.Close();
+                session.Close();
 
-				Assert.IsFalse(session.IsConnected);
-				Assert.IsFalse(session.IsOpen);
-			}
-		}
+                Assert.IsFalse(session.IsConnected);
+                Assert.IsFalse(session.IsOpen);
+            }
+        }
 
-		public void PerformStatelessComplexOperation1()
-		{
-			using (var session = _sessionManager.OpenStatelessSession())
-			{
-				Assert.IsNotNull(session);
+        public void PerformStatelessComplexOperation1()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsNotNull(session);
 
-				_otherDao.PerformStatelessPieceOfOperation(session);
-			}
-		}
+                _otherDao.PerformStatelessPieceOfOperation(session);
+            }
+        }
 
-		public void PerformStatelessComplexOperation2()
-		{
-			IStatelessSession previousSession = null;
+        public void PerformStatelessComplexOperation2()
+        {
+            IStatelessSession previousSession = null;
 
-			using (var session = _sessionManager.OpenStatelessSession())
-			{
-				previousSession = session;
-			}
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                previousSession = session;
+            }
 
-			_otherDao.PerformStatelessPieceOfOperation2(previousSession);
-		}
+            _otherDao.PerformStatelessPieceOfOperation2(previousSession);
+        }
 
-		public void DoStatelessOpenCloseAndDispose()
-		{
-			using (var session = _sessionManager.OpenStatelessSession())
-			{
-				Assert.IsTrue(session.IsConnected);
-				Assert.IsTrue(session.IsOpen);
+        public void DoStatelessOpenCloseAndDispose()
+        {
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                Assert.IsTrue(session.IsConnected);
+                Assert.IsTrue(session.IsOpen);
 
-				session.Close();
+                session.Close();
 
-				Assert.IsFalse(session.IsConnected);
-				Assert.IsFalse(session.IsOpen);
-			}
-		}
-	}
+                Assert.IsFalse(session.IsConnected);
+                Assert.IsFalse(session.IsOpen);
+            }
+        }
+    }
 }

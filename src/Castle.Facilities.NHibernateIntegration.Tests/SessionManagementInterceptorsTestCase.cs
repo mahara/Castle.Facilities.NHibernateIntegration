@@ -16,23 +16,23 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-	using Common;
+    using Common;
 
-	using MicroKernel.Registration;
+    using MicroKernel.Registration;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
-	{
-		[Test]
-		public void SessionRequiredAttr_should_automatically_open_a_Session_under_the_hood()
-		{
-			Container.Register(Component.For<BlogRepository>());
+    [TestFixture]
+    public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
+    {
+        [Test]
+        public void SessionRequiredAttr_should_automatically_open_a_Session_under_the_hood()
+        {
+            Container.Register(Component.For<BlogRepository>());
 
-			Container.Resolve<BlogRepository>().FetchAll();
+            Container.Resolve<BlogRepository>().FetchAll();
 
-			Assert.IsNull(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias));
-		}
-	}
+            Assert.IsNull(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias));
+        }
+    }
 }

@@ -16,33 +16,33 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102
 {
-	using NHibernate;
+    using NHibernate;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class Fixture : IssueTestCase
-	{
-		[Test]
-		public void HasAliassedSessionHasFlushModeSet()
-		{
-			var manager = Container.Resolve<ISessionManager>();
-			var previous = manager.DefaultFlushMode;
-			manager.DefaultFlushMode = (FlushMode) 100;
-			var session = manager.OpenSession("intercepted");
-			Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
-			manager.DefaultFlushMode = previous;
-		}
+    [TestFixture]
+    public class Fixture : IssueTestCase
+    {
+        [Test]
+        public void HasAliassedSessionHasFlushModeSet()
+        {
+            var manager = Container.Resolve<ISessionManager>();
+            var previous = manager.DefaultFlushMode;
+            manager.DefaultFlushMode = (FlushMode) 100;
+            var session = manager.OpenSession("intercepted");
+            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
+            manager.DefaultFlushMode = previous;
+        }
 
-		[Test]
-		public void SessionHasFlushModeSet()
-		{
-			var manager = Container.Resolve<ISessionManager>();
-			var previous = manager.DefaultFlushMode;
-			manager.DefaultFlushMode = (FlushMode) 100;
-			var session = manager.OpenSession();
-			Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
-			manager.DefaultFlushMode = previous;
-		}
-	}
+        [Test]
+        public void SessionHasFlushModeSet()
+        {
+            var manager = Container.Resolve<ISessionManager>();
+            var previous = manager.DefaultFlushMode;
+            manager.DefaultFlushMode = (FlushMode) 100;
+            var session = manager.OpenSession();
+            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
+            manager.DefaultFlushMode = previous;
+        }
+    }
 }

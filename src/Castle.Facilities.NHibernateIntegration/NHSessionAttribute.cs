@@ -16,21 +16,21 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-	using System;
+    using System;
 
-	/// <summary>
-	/// Tells to the facility that the class needs a valid Session.
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-	public class NHSessionAwareAttribute : Attribute
-	{
-	}
+    /// <summary>
+    /// Tells to the facility that the class needs a valid Session.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class NHSessionAwareAttribute : Attribute
+    {
+    }
 
-	/// <summary>
-	/// Mark the methods that needs a Session.
-	/// </summary>
-	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-	public class NHSessionRequiredAttribute : Attribute
-	{
-	}
+    /// <summary>
+    /// Mark the methods that needs a Session.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+    public class NHSessionRequiredAttribute : Attribute
+    {
+    }
 }

@@ -16,17 +16,17 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
 {
-	using Core.Configuration;
+    using Core.Configuration;
 
-	using NHibernate.Cfg;
+    using NHibernate.Cfg;
 
-	public class TestConfigurationBuilder2 : IConfigurationBuilder
-	{
-		public Configuration GetConfiguration(IConfiguration config)
-		{
-			var cfg = new Configuration();
-			cfg.SetProperty("test", "test2");
-			return cfg;
-		}
-	}
+    public class TestConfigurationBuilder2 : IConfigurationBuilder
+    {
+        public Configuration GetConfiguration(IConfiguration config)
+        {
+            var cfg = new Configuration();
+            cfg.SetProperty("test", "test2");
+            return cfg;
+        }
+    }
 }

@@ -16,22 +16,22 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-	using NHibernate.Event;
+    using System.Threading;
+    using System.Threading.Tasks;
 
-	using System.Threading;
-	using System.Threading.Tasks;
+    using NHibernate.Event;
 
-	public class CustomSaveUpdateListener : ISaveOrUpdateEventListener
-	{
-		/// <inheritdoc />
-		public Task OnSaveOrUpdateAsync(SaveOrUpdateEvent @event, CancellationToken cancellationToken)
-		{
-			return Task.CompletedTask;
-		}
+    public class CustomSaveUpdateListener : ISaveOrUpdateEventListener
+    {
+        /// <inheritdoc />
+        public Task OnSaveOrUpdateAsync(SaveOrUpdateEvent @event, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
 
-		/// <inheritdoc />
-		public void OnSaveOrUpdate(SaveOrUpdateEvent @event)
-		{
-		}
-	}
+        /// <inheritdoc />
+        public void OnSaveOrUpdate(SaveOrUpdateEvent @event)
+        {
+        }
+    }
 }

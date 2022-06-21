@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,30 +16,28 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
-	using Common;
+    using Common;
 
-	using NHibernate.Cfg;
+    using NHibernate.Cfg;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
-	{
-		protected override string ConfigurationFile
-		{
-			get { return "Internals/TwoDatabaseConfiguration.xml"; }
-		}
+    [TestFixture]
+    public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
+    {
+        protected override string ConfigurationFile =>
+            "Internals/TwoDatabaseConfiguration.xml";
 
-		[Test]
-		public void SaveUpdateListenerAdded()
-		{
-			var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
+        [Test]
+        public void SaveUpdateListenerAdded()
+        {
+            var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
 
-			Assert.AreEqual(1, configuration.EventListeners.SaveOrUpdateEventListeners.Length);
-			Assert.AreEqual(typeof(CustomSaveUpdateListener), configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType());
+            Assert.AreEqual(1, configuration.EventListeners.SaveOrUpdateEventListeners.Length);
+            Assert.AreEqual(typeof(CustomSaveUpdateListener), configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType());
 
-			Assert.AreEqual(1, configuration.EventListeners.DeleteEventListeners.Length);
-			Assert.AreEqual(typeof(CustomDeleteListener), configuration.EventListeners.DeleteEventListeners[0].GetType());
-		}
-	}
+            Assert.AreEqual(1, configuration.EventListeners.DeleteEventListeners.Length);
+            Assert.AreEqual(typeof(CustomDeleteListener), configuration.EventListeners.DeleteEventListeners[0].GetType());
+        }
+    }
 }

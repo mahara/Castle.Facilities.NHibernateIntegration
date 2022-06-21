@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,49 +16,49 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-	using System.Collections;
-	using System.Runtime.Remoting.Messaging;
+    using System.Collections;
+    using System.Runtime.Remoting.Messaging;
 
-	/// <summary>
-	/// Provides an implementation of <see cref="ISessionStore" />
-	/// which relies on logical <see cref="CallContext" />.
-	/// </summary>
-	public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
-	{
-		/// <summary>
-		/// Gets the dictionary.
-		/// </summary>
-		/// <returns></returns>
-		protected override IDictionary GetDictionary()
-		{
-			return CallContext.LogicalGetData(SlotKey) as IDictionary;
-		}
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on logical <see cref="CallContext" />.
+    /// </summary>
+    public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
+    {
+        /// <summary>
+        /// Gets the dictionary.
+        /// </summary>
+        /// <returns></returns>
+        protected override IDictionary GetDictionary()
+        {
+            return CallContext.LogicalGetData(SlotKey) as IDictionary;
+        }
 
-		/// <summary>
-		/// Stores the dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected override void StoreDictionary(IDictionary dictionary)
-		{
-			CallContext.LogicalSetData(SlotKey, dictionary);
-		}
+        /// <summary>
+        /// Stores the dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected override void StoreDictionary(IDictionary dictionary)
+        {
+            CallContext.LogicalSetData(SlotKey, dictionary);
+        }
 
-		/// <summary>
-		/// Gets the IStatelessSession dictionary.
-		/// </summary>
-		/// <returns>A dictionary.</returns>
-		protected override IDictionary GetStatelessSessionDictionary()
-		{
-			return CallContext.LogicalGetData(StatelessSessionSlotKey) as IDictionary;
-		}
+        /// <summary>
+        /// Gets the IStatelessSession dictionary.
+        /// </summary>
+        /// <returns>A dictionary.</returns>
+        protected override IDictionary GetStatelessSessionDictionary()
+        {
+            return CallContext.LogicalGetData(StatelessSessionSlotKey) as IDictionary;
+        }
 
-		/// <summary>
-		/// Stores the IStatelessSession dictionary.
-		/// </summary>
-		/// <param name="dictionary">The dictionary.</param>
-		protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
-		{
-			CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
-		}
-	}
+        /// <summary>
+        /// Stores the IStatelessSession dictionary.
+        /// </summary>
+        /// <param name="dictionary">The dictionary.</param>
+        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        {
+            CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
+        }
+    }
 }

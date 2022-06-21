@@ -16,26 +16,26 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
 {
-	using MicroKernel.Registration;
+    using MicroKernel.Registration;
 
-	using NUnit.Framework;
+    using NUnit.Framework;
 
-	[TestFixture]
-	public class DaoTestCase : AbstractNHibernateTestCase
-	{
-		protected override void ConfigureContainer()
-		{
-			Container.Register(Component.For<MyDao>().Named("mydao"));
-		}
+    [TestFixture]
+    public class DaoTestCase : AbstractNHibernateTestCase
+    {
+        protected override void ConfigureContainer()
+        {
+            Container.Register(Component.For<MyDao>().Named("mydao"));
+        }
 
-		[Test]
-		public void NHComponentsAvailableToWire()
-		{
-			var dao = Container.Resolve<MyDao>();
+        [Test]
+        public void NHComponentsAvailableToWire()
+        {
+            var dao = Container.Resolve<MyDao>();
 
-			Assert.IsNotNull(dao);
-			Assert.IsNotNull(dao.Cfg);
-			Assert.IsNotNull(dao.SessionFactory);
-		}
-	}
+            Assert.IsNotNull(dao);
+            Assert.IsNotNull(dao.Configuration);
+            Assert.IsNotNull(dao.SessionFactory);
+        }
+    }
 }
