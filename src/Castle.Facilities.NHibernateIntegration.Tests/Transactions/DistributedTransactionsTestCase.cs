@@ -47,7 +47,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                service.DoTwoDbOperationCreate(false);
+                service.TwoDbOperationCreate(false);
             }
             catch (Exception ex)
             {
@@ -81,7 +81,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                service.DoTwoDbOperationCreate(true);
+                service.TwoDbOperationCreate(true);
             }
             catch (InvalidOperationException)
             {
@@ -118,7 +118,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                service.DoTwoDbOperationCreateStateless(false);
+                service.TwoDbOperationCreateStateless(false);
             }
             catch (Exception ex)
             {
@@ -145,7 +145,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
         [Test]
         [Explicit("Requires MSDTC to be running.")]
-        [Ignore("TODO: Resolve failed test.")]
+        [Ignore("TODO: Fix failed test.")]
         // System.Data.SqlClient.SqlException : Distributed transaction completed. Either enlist this session in a new transaction or the NULL transaction.
         public void ExceptionOnEndWithTwoDatabasesStateless()
         {
@@ -154,7 +154,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                service.DoTwoDbOperationCreateStateless(true);
+                service.TwoDbOperationCreateStateless(true);
             }
             catch (InvalidOperationException)
             {

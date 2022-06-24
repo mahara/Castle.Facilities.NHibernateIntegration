@@ -27,7 +27,7 @@
       </factory>
 
       <factory id="sessionFactory2"
-			         alias="db2">
+               alias="db2">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
@@ -40,7 +40,7 @@
       </factory>
 
       <factory id="sessionFactory3"
-			         alias="intercepted">
+               alias="intercepted">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
@@ -53,7 +53,7 @@
       </factory>
 
       <factory id="sessionFactory4"
-			         alias="listeners">
+               alias="listeners">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>

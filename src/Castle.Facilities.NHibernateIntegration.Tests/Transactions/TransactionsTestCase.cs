@@ -32,6 +32,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Container.Register(Component.For<RootService>().Named("root"));
             Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
             Container.Register(Component.For<SecondDao>().Named("myseconddao"));
+            Container.Register(Component.For<OrderDao>().Named("myorderdao"));
         }
 
         [Test]
@@ -83,7 +84,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             var blogName = "Delicious Food!";
 
-            var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
+            var blogA = service.CreateBlogUsingDetachedCriteria(blogName);
             Assert.IsNotNull(blogA);
 
             var blogB = service.FindBlogUsingDetachedCriteria(blogName);
@@ -113,7 +114,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var service = Container.Resolve<RootService>();
 
-            service.SuccessFullCall();
+            service.SuccessfulCall();
 
             var blogs = service.FindAll(typeof(Blog));
             var blogitems = service.FindAll(typeof(BlogItem));
@@ -129,7 +130,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var service = Container.Resolve<RootService>();
 
-            service.SuccessFullCallStateless();
+            service.SuccessfulCallStateless();
 
             var blogs = service.FindAllStateless(typeof(Blog));
             var blogitems = service.FindAllStateless(typeof(BlogItem));

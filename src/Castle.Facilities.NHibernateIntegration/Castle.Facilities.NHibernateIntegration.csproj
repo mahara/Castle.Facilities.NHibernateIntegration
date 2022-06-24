@@ -13,7 +13,8 @@
     <Description>Castle.Facilities.NHibernateIntegration</Description>
     <PackageTags>castle, nhibernate, nhibernateintegration</PackageTags>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <NoWarn>$(NoWarn);NU5125</NoWarn> <!-- remove once tools are truly ready for NuGet's new 'license' element -->
+    <!-- remove once tools are truly ready for NuGet's new 'license' element -->
+    <NoWarn>$(NoWarn);NU5125</NoWarn>
     <AssemblyName>Castle.Facilities.NHibernateIntegration</AssemblyName>
     <RootNamespace>Castle.Facilities.NHibernateIntegration</RootNamespace>
   </PropertyGroup>

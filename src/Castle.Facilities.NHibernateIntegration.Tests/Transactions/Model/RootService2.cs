@@ -38,7 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public OrderDao2 OrderDao { get; set; }
 
         [Transaction(Distributed = true)]
-        public virtual void DoTwoDbOperationCreate(bool throwException)
+        public virtual void TwoDbOperationCreate(bool throwException)
         {
             var blog = _firstDao.Create();
             _secondDao.Create(blog);
@@ -51,7 +51,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction(Distributed = true)]
-        public virtual void DoTwoDbOperationCreateStateless(bool throwException)
+        public virtual void TwoDbOperationCreateStateless(bool throwException)
         {
             var blog = _firstDao.CreateStateless();
             _secondDao.CreateStateless(blog);

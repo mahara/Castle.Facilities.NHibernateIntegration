@@ -67,7 +67,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
                 Assert.IsNotNull(transaction);
 
-                session.Delete("from Blog b where b.Name ='" + name + "'");
+                session.Delete($"from Blog b where b.Name ='{name}'");
                 session.Flush();
             }
         }
@@ -114,7 +114,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
                 Assert.IsNotNull(transaction);
 
-                session.Delete("from Blog b where b.Name ='" + name + "'");
+                session.Delete($"from Blog b where b.Name ='{name}'");
             }
         }
 

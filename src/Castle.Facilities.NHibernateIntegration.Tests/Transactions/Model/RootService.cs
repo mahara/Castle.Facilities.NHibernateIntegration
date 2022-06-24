@@ -40,9 +40,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public OrderDao OrderDao { get; set; }
 
         [Transaction]
-        public virtual Blog CreateBlogStatelessUsingDetachedCriteria(string name)
+        public virtual Blog CreateBlogUsingDetachedCriteria(string name)
         {
-            return _firstDao.CreateStateless(name);
+            return _firstDao.Create(name);
         }
 
         [Transaction]
@@ -56,17 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
-        {
-            var dc = DetachedCriteria.For<Blog>();
-            dc.Add(Property.ForName("Name").Eq(name));
-
-            var session = SessionManager.OpenStatelessSession();
-            return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
-        }
-
-        [Transaction]
-        public virtual BlogItem SuccessFullCall()
+        public virtual BlogItem SuccessfulCall()
         {
             var blog = _firstDao.Create();
             return _secondDao.Create(blog);
@@ -100,7 +90,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual void DoTwoDBOperation_Create(bool throwException)
+        public virtual void TwoDbOperationCreate(bool throwException)
         {
             var blog = _firstDao.Create();
             _secondDao.Create(blog);
@@ -113,7 +103,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual BlogItem SuccessFullCallStateless()
+        public virtual Blog CreateBlogStatelessUsingDetachedCriteria(string name)
+        {
+            return _firstDao.CreateStateless(name);
+        }
+
+        [Transaction]
+        public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
+        {
+            var dc = DetachedCriteria.For<Blog>();
+            dc.Add(Property.ForName("Name").Eq(name));
+
+            var session = SessionManager.OpenStatelessSession();
+            return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
+        }
+
+        [Transaction]
+        public virtual BlogItem SuccessfulCallStateless()
         {
             var blog = _firstDao.CreateStateless();
             return _secondDao.CreateStateless(blog);
