@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
