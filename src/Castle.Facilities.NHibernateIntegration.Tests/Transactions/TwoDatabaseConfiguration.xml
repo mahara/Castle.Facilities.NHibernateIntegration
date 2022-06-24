@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <components>
     <component id="nhibernate.session.interceptor.intercepted"
                type="Castle.Facilities.NHibernateIntegration.Tests.Common.TestInterceptor, Castle.Facilities.NHibernateIntegration.Tests"
@@ -8,7 +8,6 @@
   </components>
 
   <facilities>
-
     <facility type="Castle.Facilities.Logging.LoggingFacility, Castle.Facilities.Logging" />
 
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
@@ -21,6 +20,7 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
@@ -34,6 +34,7 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
@@ -47,6 +48,7 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
@@ -60,9 +62,11 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
+
         <listeners>
           <listener type="Castle.Facilities.NHibernateIntegration.Tests.Common.CustomSaveUpdateListener,Castle.Facilities.NHibernateIntegration.Tests"
                     event="SaveUpdate" />
@@ -73,4 +77,4 @@
 
     </facility>
   </facilities>
-</castle>
+</configuration>

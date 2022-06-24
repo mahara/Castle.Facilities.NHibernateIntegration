@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               isWeb="false">
@@ -20,4 +20,4 @@
 
     </facility>
   </facilities>
-</castle>
+</configuration>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               alias="sessionFactory3"
@@ -27,6 +27,7 @@
                alias="sessionFactory3"
                configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119.TestConfigurationBuilder3, Castle.Facilities.NHibernateIntegration.Tests">
       </factory>
+
     </facility>
   </facilities>
-</castle>
+</configuration>

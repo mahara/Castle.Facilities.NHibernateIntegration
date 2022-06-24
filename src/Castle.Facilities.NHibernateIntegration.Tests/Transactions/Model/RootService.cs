@@ -153,7 +153,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Transaction]
-        public virtual void DoTwoDBOperation_Create_Stateless(bool throwException)
+        public virtual void TwoDbOperationCreateStateless(bool throwException)
         {
             var blog = _firstDao.CreateStateless();
             _secondDao.CreateStateless(blog);

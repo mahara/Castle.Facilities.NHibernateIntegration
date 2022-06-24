@@ -89,7 +89,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var service = Container.Resolve<RootService>();
             var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
-            service.DoTwoDBOperation_Create_Stateless(false);
+            service.TwoDbOperationCreateStateless(false);
 
             var blogs = service.FindAllStateless(typeof(Blog));
             var blogItems = service.FindAllStateless(typeof(BlogItem));
@@ -111,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                service.DoTwoDBOperation_Create_Stateless(true);
+                service.TwoDbOperationCreateStateless(true);
             }
             catch (InvalidOperationException)
             {

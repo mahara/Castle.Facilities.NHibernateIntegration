@@ -53,7 +53,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             if (alias == null)
             {
-                throw new ArgumentNullException("alias");
+                throw new ArgumentNullException(nameof(alias));
             }
 
             var alias2Stack = GetDictionary();
@@ -99,7 +99,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             if (alias == null)
             {
-                throw new ArgumentNullException("alias");
+                throw new ArgumentNullException(nameof(alias));
             }
 
             var alias2Stack = GetStatelessSessionDictionary();

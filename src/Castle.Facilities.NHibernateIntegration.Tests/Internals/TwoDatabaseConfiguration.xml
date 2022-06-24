@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <components>
     <component id="nhibernate.session.interceptor.intercepted"
-		           type="Castle.Facilities.NHibernateIntegration.Tests.Common.TestInterceptor, Castle.Facilities.NHibernateIntegration.Tests"
-		           service="NHibernate.IInterceptor, NHibernate" />
+               type="Castle.Facilities.NHibernateIntegration.Tests.Common.TestInterceptor, Castle.Facilities.NHibernateIntegration.Tests"
+               service="NHibernate.IInterceptor, NHibernate" />
   </components>
-  <facilities>
 
+  <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
-		          configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests">
+              configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests">
 
       <factory id="sessionFactory1">
         <settings>
@@ -18,55 +18,61 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
       </factory>
 
       <factory id="sessionFactory2"
-			         alias="db2">
+               alias="db2">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
       </factory>
 
       <factory id="sessionFactory3"
-			         alias="intercepted">
+               alias="intercepted">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
       </factory>
 
       <factory id="sessionFactory4"
-			         alias="listeners">
+               alias="listeners">
         <settings>
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test2; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
+
         <listeners>
           <listener type="Castle.Facilities.NHibernateIntegration.Tests.Common.CustomSaveUpdateListener,Castle.Facilities.NHibernateIntegration.Tests"
-					          event="SaveUpdate" />
+                    event="SaveUpdate" />
           <listener type="Castle.Facilities.NHibernateIntegration.Tests.Common.CustomDeleteListener,Castle.Facilities.NHibernateIntegration.Tests"
-					          event="Delete" />
+                    event="Delete" />
         </listeners>
       </factory>
+
     </facility>
   </facilities>
-</castle>
+</configuration>

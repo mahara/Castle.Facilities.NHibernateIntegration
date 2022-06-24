@@ -47,7 +47,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// </summary>
         /// <param name="sessionManager">The session manager.</param>
         /// <param name="sessionFactoryAlias">The session factory alias.</param>
-        public NHibernateGenericDao(ISessionManager sessionManager, string sessionFactoryAlias) : this(sessionManager)
+        public NHibernateGenericDao(ISessionManager sessionManager, string sessionFactoryAlias) :
+            this(sessionManager)
         {
             SessionFactoryAlias = sessionFactoryAlias;
         }
@@ -110,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAll for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
                 }
             }
         }
@@ -135,7 +136,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindById for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindById)} for {type.Name}.", ex);
                 }
             }
         }
@@ -155,7 +156,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Create for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(Create)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -174,7 +175,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Update for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(Update)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -193,7 +194,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Delete for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(Delete)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -212,7 +213,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform DeleteAll for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(DeleteAll)} for {type.Name}.", ex);
                 }
             }
         }
@@ -237,7 +238,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Save for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(Save)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -286,7 +287,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllStateless for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
                 }
             }
         }
@@ -311,7 +312,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindByIdStateless for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindByIdStateless)} for {type.Name}.", ex);
                 }
             }
         }
@@ -331,7 +332,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform CreateStateless for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(CreateStateless)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -350,7 +351,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform UpdateStateless for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(UpdateStateless)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -369,7 +370,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform DeleteStateless for " + instance.GetType().Name, ex);
+                    throw new DataException($"Could not perform {nameof(DeleteStateless)} for {instance.GetType().Name}.", ex);
                 }
             }
         }
@@ -384,11 +385,11 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             {
                 try
                 {
-                    session.Delete(string.Format("from {0}", type.Name));
+                    session.Delete($"from {type.Name}");
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform DeleteAllStateless for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(DeleteAllStateless)} for {type.Name}.", ex);
                 }
             }
         }
@@ -485,7 +486,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAll for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
                 }
             }
         }
@@ -511,7 +512,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                throw new ArgumentNullException("queryString");
+                throw new ArgumentNullException(nameof(queryString));
             }
 
             using (var session = GetSession())
@@ -543,7 +544,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Find for custom query : " + queryString, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllWithCustomQuery)}: {queryString}", ex);
                 }
             }
         }
@@ -569,7 +570,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (string.IsNullOrEmpty(namedQuery))
             {
-                throw new ArgumentNullException("namedQuery");
+                throw new ArgumentNullException(nameof(namedQuery));
             }
 
             using (var session = GetSession())
@@ -579,7 +580,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                     var query = session.GetNamedQuery(namedQuery);
                     if (query == null)
                     {
-                        throw new ArgumentException("Cannot find named query", "namedQuery");
+                        throw new ArgumentException("Cannot find named query", nameof(namedQuery));
                     }
 
                     if (firstRow != int.MinValue)
@@ -605,7 +606,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform Find for named query : " + namedQuery, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllWithNamedQuery)}: {namedQuery}", ex);
                 }
             }
         }
@@ -618,7 +619,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             using (var session = GetSession())
@@ -646,7 +647,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (instance == null)
             {
-                throw new ArgumentNullException("instance");
+                throw new ArgumentNullException(nameof(instance));
             }
 
             if (string.IsNullOrEmpty(propertyName))
@@ -658,8 +659,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             if (!properties.ContainsKey(propertyName))
             {
                 throw new ArgumentOutOfRangeException(nameof(propertyName),
-                                                      "Property " + propertyName +
-                                                      " doest not exist for type " + instance.GetType() + ".");
+                                                      $"Property {propertyName} doest not exist for type {instance.GetType()}.");
             }
 
             using (var session = GetSession())
@@ -769,7 +769,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllStateless for " + type.Name, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
                 }
             }
         }
@@ -795,7 +795,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (string.IsNullOrEmpty(queryString))
             {
-                throw new ArgumentNullException("queryString");
+                throw new ArgumentNullException(nameof(queryString));
             }
 
             using (var session = GetStatelessSession())
@@ -827,7 +827,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllWithCustomQueryStateless: " + queryString, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllWithCustomQueryStateless)}: {queryString}", ex);
                 }
             }
         }
@@ -853,7 +853,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             if (string.IsNullOrEmpty(namedQuery))
             {
-                throw new ArgumentNullException("namedQuery");
+                throw new ArgumentNullException(nameof(namedQuery));
             }
 
             using (var session = GetStatelessSession())
@@ -863,7 +863,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                     var query = session.GetNamedQuery(namedQuery);
                     if (query == null)
                     {
-                        throw new ArgumentException("Cannot find named query", "namedQuery");
+                        throw new ArgumentException("Cannot find named query", nameof(namedQuery));
                     }
 
                     if (firstRow != int.MinValue)
@@ -889,7 +889,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 }
                 catch (Exception ex)
                 {
-                    throw new DataException("Could not perform FindAllWithNamedQueryStateless: " + namedQuery, ex);
+                    throw new DataException($"Could not perform {nameof(FindAllWithNamedQueryStateless)}: {namedQuery}", ex);
                 }
             }
         }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<castle>
+<configuration>
   <facilities>
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests"
@@ -13,6 +13,7 @@
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
           <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
         </settings>
+
         <assemblies>
           <assembly>Castle.Facilities.NHibernateIntegration.Tests</assembly>
         </assemblies>
@@ -20,4 +21,4 @@
 
     </facility>
   </facilities>
-</castle>
+</configuration>
