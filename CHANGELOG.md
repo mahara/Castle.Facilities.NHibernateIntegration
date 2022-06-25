@@ -1,12 +1,12 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
-## 5.2.x (202x-xx-xx)
+## 5.2.0 (2022-06-25)
 
 Improvements:
 - Added AsyncLocalSessionStore.
 - Updated Castle.Windsor version to 5.1.2
-- Castle.Services.Transaction version to 5.2.0
-- Castle.Facilities.AutoTx version to 5.2.0
+- Updated Castle.Services.Transaction version to 5.2.0
+- Updated Castle.Facilities.AutoTx version to 5.2.0
 
 Breaking Changes:
 - Set AsyncLocalSessionStore as the default SessionStore.
