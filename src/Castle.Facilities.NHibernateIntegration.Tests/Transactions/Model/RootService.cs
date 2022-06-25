@@ -49,7 +49,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog FindBlogUsingDetachedCriteria(string name)
         {
             var dc = DetachedCriteria.For<Blog>();
-            dc.Add(Property.ForName("Name").Eq(name));
+            //dc.Add(Property.ForName("Name").Eq(name));
+            dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
 
             var session = SessionManager.OpenSession();
             return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
@@ -112,7 +113,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
         {
             var dc = DetachedCriteria.For<Blog>();
-            dc.Add(Property.ForName("Name").Eq(name));
+            //dc.Add(Property.ForName("Name").Eq(name));
+            dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
 
             var session = SessionManager.OpenStatelessSession();
             return dc.GetExecutableCriteria(session).UniqueResult<Blog>();

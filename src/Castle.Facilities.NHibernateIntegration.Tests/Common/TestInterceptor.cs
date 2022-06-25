@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,14 +29,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
         private bool _instantiationCall;
         private bool _onSaveCall;
 
-        public bool ConfirmOnSaveCall()
-        {
-            return _onSaveCall;
-        }
-
         public bool ConfirmInstantiationCall()
         {
             return _instantiationCall;
+        }
+
+        public bool ConfirmOnSaveCall()
+        {
+            return _onSaveCall;
         }
 
         public void ResetState()

@@ -5,6 +5,8 @@
 Improvements:
 - Added AsyncLocalSessionStore.
 - Updated Castle.Windsor version to 5.1.2
+- Castle.Services.Transaction version to 5.2.0
+- Castle.Facilities.AutoTx version to 5.2.0
 
 Breaking Changes:
 - Set AsyncLocalSessionStore as the default SessionStore.
