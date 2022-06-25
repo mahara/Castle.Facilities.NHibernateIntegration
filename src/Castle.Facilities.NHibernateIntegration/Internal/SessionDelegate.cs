@@ -56,6 +56,13 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="canClose">if set to <c>true</c> [can close].</param>
         /// <param name="inner">The inner.</param>
         /// <param name="sessionStore">The session store.</param>
+        /// <remarks>
+        /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0618
+        /// <code>
+        /// #pragma warning disable 0618, 0612
+        /// #pragma warning restore 0618, 0612
+        /// </code>
+        /// </remarks>
         public SessionDelegate(bool canClose, ISession inner, ISessionStore sessionStore)
         {
             InnerSession = inner;
@@ -79,7 +86,7 @@ namespace Castle.Facilities.NHibernateIntegration
             set => _cookie = value;
         }
 
-        #region Dispose delegation
+        #region IDisposable delegation
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -143,23 +150,10 @@ namespace Castle.Facilities.NHibernateIntegration
                 return ReferenceEquals(sdLeft.InnerSession, sdRight.InnerSession);
             }
 
-            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}");
+            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
         }
 
         #region ISession delegation
-
-        /// <inheritdoc />
-        public IQueryable<T> Query<T>(string entityName)
-        {
-            return InnerSession.Query<T>(entityName);
-        }
-
-        /// <inheritdoc />
-        public FlushMode FlushMode
-        {
-            get => InnerSession.FlushMode;
-            set => InnerSession.FlushMode = value;
-        }
 
         /// <summary>
         /// Get the <see cref="T:NHibernate.ISessionFactory" /> that created this instance.
@@ -167,6 +161,17 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <value></value>
         public ISessionFactory SessionFactory =>
             InnerSession.SessionFactory;
+
+        /// <inheritdoc />
+        public ISessionStatistics Statistics =>
+            InnerSession.Statistics;
+
+        /// <inheritdoc />
+        public FlushMode FlushMode
+        {
+            get => InnerSession.FlushMode;
+            set => InnerSession.FlushMode = value;
+        }
 
         /// <inheritdoc />
         public DbConnection Connection =>
@@ -199,303 +204,16 @@ namespace Castle.Facilities.NHibernateIntegration
                          .CurrentTransaction;
 
         /// <inheritdoc />
-        DbConnection ISession.Close()
+        public CacheMode CacheMode
         {
-            return (DbConnection) DoClose(true);
+            get => InnerSession.CacheMode;
+            set => InnerSession.CacheMode = value;
         }
 
         /// <inheritdoc />
-        public void CancelQuery()
+        public ISessionImplementor GetSessionImplementation()
         {
-            InnerSession.CancelQuery();
-        }
-
-        /// <inheritdoc />
-        public bool IsDirty()
-        {
-            return InnerSession.IsDirty();
-        }
-
-        /// <inheritdoc />
-        public bool IsReadOnly(object entityOrProxy)
-        {
-            return InnerSession.IsReadOnly(entityOrProxy);
-        }
-
-        /// <inheritdoc />
-        public void SetReadOnly(object entityOrProxy, bool readOnly)
-        {
-            InnerSession.SetReadOnly(entityOrProxy, readOnly);
-        }
-
-        /// <inheritdoc />
-        public Task FlushAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.FlushAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<bool> IsDirtyAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.IsDirtyAsync(cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task EvictAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.EvictAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> LoadAsync(Type theType, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync(theType, id, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync(entityName, id, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> LoadAsync(Type theType, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync(theType, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> LoadAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync<T>(id, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> LoadAsync<T>(object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync<T>(id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync(entityName, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task LoadAsync(object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LoadAsync(obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task ReplicateAsync(object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.ReplicateAsync(obj, replicationMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task ReplicateAsync(string entityName, object obj, ReplicationMode replicationMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.ReplicateAsync(entityName, obj, replicationMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> SaveAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task SaveAsync(object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveAsync(obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> SaveAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task SaveAsync(string entityName, object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveAsync(entityName, obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task SaveOrUpdateAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveOrUpdateAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task SaveOrUpdateAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveOrUpdateAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task SaveOrUpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.SaveOrUpdateAsync(entityName, obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(string entityName, object obj, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(entityName, obj, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> MergeAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.MergeAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> MergeAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.MergeAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
-        {
-            return InnerSession.MergeAsync(entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
-        {
-            return InnerSession.MergeAsync(entityName, entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task PersistAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.PersistAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task PersistAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.PersistAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task DeleteAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task DeleteAsync(string entityName, object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(entityName, obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<int> DeleteAsync(string query, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(query, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<int> DeleteAsync(string query, object value, IType type, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(query, value, type, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<int> DeleteAsync(string query, object[] values, IType[] types, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(query, values, types, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task LockAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LockAsync(obj, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task LockAsync(string entityName, object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.LockAsync(entityName, obj, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task RefreshAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.RefreshAsync(obj, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task RefreshAsync(object obj, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.RefreshAsync(obj, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.CreateFilterAsync(collection, queryString, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> GetAsync(Type clazz, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync(clazz, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> GetAsync(Type clazz, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync(clazz, id, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync(entityName, id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> GetAsync<T>(object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync<T>(id, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync<T>(id, lockMode, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<string> GetEntityNameAsync(object obj, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetEntityNameAsync(obj, cancellationToken);
+            return InnerSession.GetSessionImplementation();
         }
 
         /// <inheritdoc />
@@ -505,9 +223,9 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public void Flush()
+        public DbConnection Close()
         {
-            InnerSession.Flush();
+            return (DbConnection) DoClose(true);
         }
 
         /// <inheritdoc />
@@ -516,16 +234,7 @@ namespace Castle.Facilities.NHibernateIntegration
             return InnerSession.Disconnect();
         }
 
-        /// <summary>
-        /// Disconnect the <c>ISession</c> from the current ADO.NET connection.
-        /// </summary>
-        /// <returns>
-        /// The connection provided by the application or <see langword="null" />.
-        /// </returns>
-        /// <remarks>
-        /// If the connection was obtained by Hibernate, close it or return it to the connection pool.
-        /// Otherwise return it to the application. This is used by applications which require long transactions.
-        /// </remarks>
+        /// <inheritdoc />
         public IDbConnection Disconnect()
         {
             return InnerSession.Disconnect();
@@ -544,313 +253,9 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public object GetIdentifier(object obj)
+        public void Clear()
         {
-            return InnerSession.GetIdentifier(obj);
-        }
-
-        /// <inheritdoc />
-        public bool Contains(object obj)
-        {
-            return InnerSession.Contains(obj);
-        }
-
-        /// <inheritdoc />
-        public void Evict(object obj)
-        {
-            InnerSession.Evict(obj);
-        }
-
-        /// <inheritdoc />
-        public object Load(Type theType, object id, LockMode lockMode)
-        {
-            return InnerSession.Load(theType, id, lockMode);
-        }
-
-        /// <inheritdoc />
-        public object Load(string entityName, object id, LockMode lockMode)
-        {
-            return InnerSession.Load(entityName, id, lockMode);
-        }
-
-        /// <inheritdoc />
-        public object Load(Type theType, object id)
-        {
-            return InnerSession.Load(theType, id);
-        }
-
-        /// <inheritdoc />
-        public T Load<T>(object id, LockMode lockMode)
-        {
-            return InnerSession.Load<T>(id, lockMode);
-        }
-
-        /// <inheritdoc />
-        public T Load<T>(object id)
-        {
-            return InnerSession.Load<T>(id);
-        }
-
-        /// <inheritdoc />
-        public object Load(string entityName, object id)
-        {
-            return InnerSession.Load(entityName, id);
-        }
-
-        /// <inheritdoc />
-        public void Load(object obj, object id)
-        {
-            InnerSession.Load(obj, id);
-        }
-
-        /// <inheritdoc />
-        public object Get(Type clazz, object id)
-        {
-            return InnerSession.Get(clazz, id);
-        }
-
-        /// <inheritdoc />
-        public object Get(Type clazz, object id, LockMode lockMode)
-        {
-            return InnerSession.Get(clazz, id, lockMode);
-        }
-
-        /// <inheritdoc />
-        public ISessionImplementor GetSessionImplementation()
-        {
-            return InnerSession.GetSessionImplementation();
-        }
-
-#pragma warning disable 0618, 0612
-        /// <inheritdoc />
-        public ISession GetSession(EntityMode entityMode)
-        {
-            return InnerSession.GetSession(entityMode);
-        }
-#pragma warning restore 0618, 0612
-
-        /// <inheritdoc />
-        public IQueryable<T> Query<T>()
-        {
-            return InnerSession.Query<T>();
-        }
-
-        /// <inheritdoc />
-        public object Get(string entityName, object id)
-        {
-            return InnerSession.Get(entityName, id);
-        }
-
-        /// <inheritdoc />
-        public T Get<T>(object id)
-        {
-            return InnerSession.Get<T>(id);
-        }
-
-        /// <inheritdoc />
-        public T Get<T>(object id, LockMode lockMode)
-        {
-            return InnerSession.Get<T>(id, lockMode);
-        }
-
-        /// <inheritdoc />
-        public IFilter EnableFilter(string filterName)
-        {
-            return InnerSession.EnableFilter(filterName);
-        }
-
-        /// <inheritdoc />
-        public IFilter GetEnabledFilter(string filterName)
-        {
-            return InnerSession.GetEnabledFilter(filterName);
-        }
-
-        /// <inheritdoc />
-        public void DisableFilter(string filterName)
-        {
-            InnerSession.DisableFilter(filterName);
-        }
-
-#pragma warning disable 0618, 0612
-        /// <inheritdoc />
-        public IMultiQuery CreateMultiQuery()
-        {
-            return InnerSession.CreateMultiQuery();
-        }
-#pragma warning restore 0618, 0612
-
-        /// <inheritdoc />
-        public void Replicate(object obj, ReplicationMode replicationMode)
-        {
-            InnerSession.Replicate(obj, replicationMode);
-        }
-
-        /// <inheritdoc />
-        public void Replicate(string entityName, object obj, ReplicationMode replicationMode)
-        {
-            InnerSession.Replicate(entityName, obj, replicationMode);
-        }
-
-        /// <inheritdoc />
-        public object Save(object obj)
-        {
-            return InnerSession.Save(obj);
-        }
-
-        /// <inheritdoc />
-        public void Save(object obj, object id)
-        {
-            InnerSession.Save(obj, id);
-        }
-
-        /// <inheritdoc />
-        public object Save(string entityName, object obj)
-        {
-            return InnerSession.Save(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public void Save(string entityName, object obj, object id)
-        {
-            InnerSession.Save(entityName, obj, id);
-        }
-
-        /// <inheritdoc />
-        public void SaveOrUpdate(object obj)
-        {
-            InnerSession.SaveOrUpdate(obj);
-        }
-
-        /// <inheritdoc />
-        public void SaveOrUpdate(string entityName, object obj)
-        {
-            InnerSession.SaveOrUpdate(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public void SaveOrUpdate(string entityName, object obj, object id)
-        {
-            InnerSession.SaveOrUpdate(entityName, obj, id);
-        }
-
-        /// <inheritdoc />
-        public void Update(object obj)
-        {
-            InnerSession.Update(obj);
-        }
-
-        /// <inheritdoc />
-        public void Update(object obj, object id)
-        {
-            InnerSession.Update(obj, id);
-        }
-
-        /// <inheritdoc />
-        public void Update(string entityName, object obj)
-        {
-            InnerSession.Update(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public void Update(string entityName, object obj, object id)
-        {
-            InnerSession.Update(entityName, obj, id);
-        }
-
-        /// <inheritdoc />
-        public object Merge(object obj)
-        {
-            return InnerSession.Merge(obj);
-        }
-
-        /// <inheritdoc />
-        public object Merge(string entityName, object obj)
-        {
-            return InnerSession.Merge(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public T Merge<T>(T entity) where T : class
-        {
-            return InnerSession.Merge(entity);
-        }
-
-        /// <inheritdoc />
-        public T Merge<T>(string entityName, T entity) where T : class
-        {
-            return InnerSession.Merge(entityName, entity);
-        }
-
-        /// <inheritdoc />
-        public void Persist(object obj)
-        {
-            InnerSession.Persist(obj);
-        }
-
-        /// <inheritdoc />
-        public void Persist(string entityName, object obj)
-        {
-            InnerSession.Persist(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public void Delete(object obj)
-        {
-            InnerSession.Delete(obj);
-        }
-
-        /// <inheritdoc />
-        public void Delete(string entityName, object obj)
-        {
-            InnerSession.Delete(entityName, obj);
-        }
-
-        /// <inheritdoc />
-        public int Delete(string query)
-        {
-            return InnerSession.Delete(query);
-        }
-
-        /// <inheritdoc />
-        public int Delete(string query, object value, IType type)
-        {
-            return InnerSession.Delete(query, value, type);
-        }
-
-        /// <inheritdoc />
-        public int Delete(string query, object[] values, IType[] types)
-        {
-            return InnerSession.Delete(query, values, types);
-        }
-
-        /// <inheritdoc />
-        public void Lock(object obj, LockMode lockMode)
-        {
-            InnerSession.Lock(obj, lockMode);
-        }
-
-        /// <inheritdoc />
-        public void Lock(string entityName, object obj, LockMode lockMode)
-        {
-            InnerSession.Lock(entityName, obj, lockMode);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(object obj)
-        {
-            InnerSession.Refresh(obj);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(object obj, LockMode lockMode)
-        {
-            InnerSession.Refresh(obj, lockMode);
-        }
-
-        /// <inheritdoc />
-        public LockMode GetCurrentLockMode(object obj)
-        {
-            return InnerSession.GetCurrentLockMode(obj);
+            InnerSession.Clear();
         }
 
         /// <inheritdoc />
@@ -872,39 +277,69 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria<T>() where T : class
+        public void Flush()
         {
-            return InnerSession.CreateCriteria(typeof(T));
+            InnerSession.Flush();
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria<T>(string alias) where T : class
+        public Task FlushAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.CreateCriteria(typeof(T), alias);
+            return InnerSession.FlushAsync(cancellationToken);
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria(Type persistentClass)
+        public bool IsDirty()
         {
-            return InnerSession.CreateCriteria(persistentClass);
+            return InnerSession.IsDirty();
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria(Type persistentClass, string alias)
+        public Task<bool> IsDirtyAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.CreateCriteria(persistentClass, alias);
+            return InnerSession.IsDirtyAsync(cancellationToken);
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria(string entityName)
+        public bool IsReadOnly(object entityOrProxy)
         {
-            return InnerSession.CreateCriteria(entityName);
+            return InnerSession.IsReadOnly(entityOrProxy);
         }
 
         /// <inheritdoc />
-        public ICriteria CreateCriteria(string entityName, string alias)
+        public void SetReadOnly(object entityOrProxy, bool readOnly)
         {
-            return InnerSession.CreateCriteria(entityName, alias);
+            InnerSession.SetReadOnly(entityOrProxy, readOnly);
+        }
+
+        /// <inheritdoc />
+        public ISession SetBatchSize(int batchSize)
+        {
+            return InnerSession.SetBatchSize(batchSize);
+        }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>()
+        {
+            return InnerSession.Query<T>();
+        }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>(string entityName)
+        {
+            return InnerSession.Query<T>(entityName);
+        }
+
+        /// <inheritdoc />
+        public void CancelQuery()
+        {
+            InnerSession.CancelQuery();
+        }
+
+        /// <inheritdoc />
+        public IQuery GetNamedQuery(string queryName)
+        {
+            return InnerSession.GetNamedQuery(queryName);
         }
 
         /// <inheritdoc />
@@ -932,9 +367,21 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public IQuery CreateQuery(string queryString)
+        public IFilter GetEnabledFilter(string filterName)
         {
-            return InnerSession.CreateQuery(queryString);
+            return InnerSession.GetEnabledFilter(filterName);
+        }
+
+        /// <inheritdoc />
+        public IFilter EnableFilter(string filterName)
+        {
+            return InnerSession.EnableFilter(filterName);
+        }
+
+        /// <inheritdoc />
+        public void DisableFilter(string filterName)
+        {
+            InnerSession.DisableFilter(filterName);
         }
 
         /// <inheritdoc />
@@ -944,9 +391,51 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public IQuery GetNamedQuery(string queryName)
+        public Task<IQuery> CreateFilterAsync(object collection, string queryString, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.GetNamedQuery(queryName);
+            return InnerSession.CreateFilterAsync(collection, queryString, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria<T>() where T : class
+        {
+            return InnerSession.CreateCriteria(typeof(T));
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria<T>(string alias) where T : class
+        {
+            return InnerSession.CreateCriteria(typeof(T), alias);
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(Type type)
+        {
+            return InnerSession.CreateCriteria(type);
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(Type type, string alias)
+        {
+            return InnerSession.CreateCriteria(type, alias);
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(string entityName)
+        {
+            return InnerSession.CreateCriteria(entityName);
+        }
+
+        /// <inheritdoc />
+        public ICriteria CreateCriteria(string entityName, string alias)
+        {
+            return InnerSession.CreateCriteria(entityName, alias);
+        }
+
+        /// <inheritdoc />
+        public IQuery CreateQuery(string queryString)
+        {
+            return InnerSession.CreateQuery(queryString);
         }
 
         /// <inheritdoc />
@@ -955,56 +444,547 @@ namespace Castle.Facilities.NHibernateIntegration
             return InnerSession.CreateSQLQuery(queryString);
         }
 
-        /// <inheritdoc />
-        public void Clear()
-        {
-            InnerSession.Clear();
-        }
-
-        /// <summary>
-        /// End the <c>ISession</c> by disconnecting from the ADO.NET connection and cleaning up.
-        /// </summary>
-        /// <returns>
-        /// The connection provided by the application or <see langword="null" />.
-        /// </returns>
-        /// <remarks>
-        /// It is not strictly necessary to <c>Close()</c> the <c>ISession</c>
-        /// but you must at least <c>Disconnect()</c> it.
-        /// </remarks>
-        public IDbConnection Close()
-        {
-            return DoClose(true);
-        }
-
-        /// <inheritdoc />
-        public string GetEntityName(object obj)
-        {
-            return InnerSession.GetEntityName(obj);
-        }
-
-        /// <inheritdoc />
-        public ISession SetBatchSize(int batchSize)
-        {
-            return InnerSession.SetBatchSize(batchSize);
-        }
-
 #pragma warning disable 0618, 0612
+        /// <inheritdoc />
+        public IMultiQuery CreateMultiQuery()
+        {
+            return InnerSession.CreateMultiQuery();
+        }
+
         /// <inheritdoc />
         public IMultiCriteria CreateMultiCriteria()
         {
             return InnerSession.CreateMultiCriteria();
         }
+
+        /// <inheritdoc />
+        public ISession GetSession(EntityMode entityMode)
+        {
+            return InnerSession.GetSession(entityMode);
+        }
 #pragma warning restore 0618, 0612
 
         /// <inheritdoc />
-        public CacheMode CacheMode
+        public LockMode GetCurrentLockMode(object entity)
         {
-            get => InnerSession.CacheMode;
-            set => InnerSession.CacheMode = value;
+            return InnerSession.GetCurrentLockMode(entity);
         }
 
         /// <inheritdoc />
-        public ISessionStatistics Statistics => InnerSession.Statistics;
+        public void Lock(object entity, LockMode lockMode)
+        {
+            InnerSession.Lock(entity, lockMode);
+        }
+
+        /// <inheritdoc />
+        public void Lock(string entityName, object entity, LockMode lockMode)
+        {
+            InnerSession.Lock(entityName, entity, lockMode);
+        }
+
+        /// <inheritdoc />
+        public Task LockAsync(object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LockAsync(entity, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task LockAsync(string entityName, object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LockAsync(entityName, entity, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public object GetIdentifier(object entity)
+        {
+            return InnerSession.GetIdentifier(entity);
+        }
+
+        /// <inheritdoc />
+        public string GetEntityName(object entity)
+        {
+            return InnerSession.GetEntityName(entity);
+        }
+
+        /// <inheritdoc />
+        public Task<string> GetEntityNameAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetEntityNameAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public bool Contains(object entity)
+        {
+            return InnerSession.Contains(entity);
+        }
+
+        /// <inheritdoc />
+        public void Evict(object entity)
+        {
+            InnerSession.Evict(entity);
+        }
+
+        /// <inheritdoc />
+        public Task EvictAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.EvictAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public T Load<T>(object id)
+        {
+            return InnerSession.Load<T>(id);
+        }
+
+        /// <inheritdoc />
+        public T Load<T>(object id, LockMode lockMode)
+        {
+            return InnerSession.Load<T>(id, lockMode);
+        }
+
+        /// <inheritdoc />
+        public object Load(Type type, object id)
+        {
+            return InnerSession.Load(type, id);
+        }
+
+        /// <inheritdoc />
+        public object Load(Type type, object id, LockMode lockMode)
+        {
+            return InnerSession.Load(type, id, lockMode);
+        }
+
+        /// <inheritdoc />
+        public object Load(string entityName, object id, LockMode lockMode)
+        {
+            return InnerSession.Load(entityName, id, lockMode);
+        }
+
+        /// <inheritdoc />
+        public object Load(string entityName, object id)
+        {
+            return InnerSession.Load(entityName, id);
+        }
+
+        /// <inheritdoc />
+        public void Load(object entity, object id)
+        {
+            InnerSession.Load(entity, id);
+        }
+
+        /// <inheritdoc />
+        public Task<T> LoadAsync<T>(object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync<T>(id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<T> LoadAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync<T>(id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> LoadAsync(Type type, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync(type, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> LoadAsync(Type type, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync(type, id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> LoadAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync(entityName, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> LoadAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync(entityName, id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task LoadAsync(object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.LoadAsync(entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public T Get<T>(object id)
+        {
+            return InnerSession.Get<T>(id);
+        }
+
+        /// <inheritdoc />
+        public T Get<T>(object id, LockMode lockMode)
+        {
+            return InnerSession.Get<T>(id, lockMode);
+        }
+
+        /// <inheritdoc />
+        public object Get(Type type, object id)
+        {
+            return InnerSession.Get(type, id);
+        }
+
+        /// <inheritdoc />
+        public object Get(Type type, object id, LockMode lockMode)
+        {
+            return InnerSession.Get(type, id, lockMode);
+        }
+
+        /// <inheritdoc />
+        public object Get(string entityName, object id)
+        {
+            return InnerSession.Get(entityName, id);
+        }
+
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync<T>(id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync<T>(id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> GetAsync(Type type, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync(type, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> GetAsync(Type type, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync(type, id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync(entityName, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(object entity)
+        {
+            InnerSession.Refresh(entity);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(object entity, LockMode lockMode)
+        {
+            InnerSession.Refresh(entity, lockMode);
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task RefreshAsync(object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.RefreshAsync(entity, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Replicate(object entity, ReplicationMode replicationMode)
+        {
+            InnerSession.Replicate(entity, replicationMode);
+        }
+
+        /// <inheritdoc />
+        public void Replicate(string entityName, object entity, ReplicationMode replicationMode)
+        {
+            InnerSession.Replicate(entityName, entity, replicationMode);
+        }
+
+        /// <inheritdoc />
+        public Task ReplicateAsync(object entity, ReplicationMode replicationMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.ReplicateAsync(entity, replicationMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task ReplicateAsync(string entityName, object entity, ReplicationMode replicationMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.ReplicateAsync(entityName, entity, replicationMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public object Save(object entity)
+        {
+            return InnerSession.Save(entity);
+        }
+
+        /// <inheritdoc />
+        public void Save(object entity, object id)
+        {
+            InnerSession.Save(entity, id);
+        }
+
+        /// <inheritdoc />
+        public object Save(string entityName, object entity)
+        {
+            return InnerSession.Save(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public void Save(string entityName, object entity, object id)
+        {
+            InnerSession.Save(entityName, entity, id);
+        }
+
+        /// <inheritdoc />
+        public Task<object> SaveAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task SaveAsync(object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveAsync(entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> SaveAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task SaveAsync(string entityName, object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveAsync(entityName, entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void SaveOrUpdate(object entity)
+        {
+            InnerSession.SaveOrUpdate(entity);
+        }
+
+        /// <inheritdoc />
+        public void SaveOrUpdate(string entityName, object entity)
+        {
+            InnerSession.SaveOrUpdate(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public void SaveOrUpdate(string entityName, object entity, object id)
+        {
+            InnerSession.SaveOrUpdate(entityName, entity, id);
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveOrUpdateAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveOrUpdateAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task SaveOrUpdateAsync(string entityName, object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.SaveOrUpdateAsync(entityName, entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Update(object entity)
+        {
+            InnerSession.Update(entity);
+        }
+
+        /// <inheritdoc />
+        public void Update(object entity, object id)
+        {
+            InnerSession.Update(entity, id);
+        }
+
+        /// <inheritdoc />
+        public void Update(string entityName, object entity)
+        {
+            InnerSession.Update(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public void Update(string entityName, object entity, object id)
+        {
+            InnerSession.Update(entityName, entity, id);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(string entityName, object entity, object id, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entityName, entity, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public object Merge(object entity)
+        {
+            return InnerSession.Merge(entity);
+        }
+
+        /// <inheritdoc />
+        public object Merge(string entityName, object entity)
+        {
+            return InnerSession.Merge(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public T Merge<T>(T entity) where T : class
+        {
+            return InnerSession.Merge(entity);
+        }
+
+        /// <inheritdoc />
+        public T Merge<T>(string entityName, T entity) where T : class
+        {
+            return InnerSession.Merge(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task<object> MergeAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.MergeAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<object> MergeAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.MergeAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<T> MergeAsync<T>(T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
+        {
+            return InnerSession.MergeAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<T> MergeAsync<T>(string entityName, T entity, CancellationToken cancellationToken = new CancellationToken()) where T : class
+        {
+            return InnerSession.MergeAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Persist(object entity)
+        {
+            InnerSession.Persist(entity);
+        }
+
+        /// <inheritdoc />
+        public void Persist(string entityName, object entity)
+        {
+            InnerSession.Persist(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task PersistAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.PersistAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task PersistAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.PersistAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Delete(object entity)
+        {
+            InnerSession.Delete(entity);
+        }
+
+        /// <inheritdoc />
+        public void Delete(string entityName, object entity)
+        {
+            InnerSession.Delete(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public int Delete(string query)
+        {
+            return InnerSession.Delete(query);
+        }
+
+        /// <inheritdoc />
+        public int Delete(string query, object value, IType type)
+        {
+            return InnerSession.Delete(query, value, type);
+        }
+
+        /// <inheritdoc />
+        public int Delete(string query, object[] values, IType[] types)
+        {
+            return InnerSession.Delete(query, values, types);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<int> DeleteAsync(string query, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(query, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<int> DeleteAsync(string query, object value, IType type, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(query, value, type, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<int> DeleteAsync(string query, object[] values, IType[] types, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(query, values, types, cancellationToken);
+        }
 
         #endregion
     }

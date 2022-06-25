@@ -154,6 +154,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
+                //service.TwoDbOperationCreate(true);
                 service.TwoDbOperationCreateStateless(true);
             }
             catch (InvalidOperationException)

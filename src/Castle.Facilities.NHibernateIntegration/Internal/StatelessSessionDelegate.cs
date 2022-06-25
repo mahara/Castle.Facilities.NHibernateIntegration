@@ -82,7 +82,6 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             DoClose(false);
@@ -112,13 +111,13 @@ namespace Castle.Facilities.NHibernateIntegration
 
         internal IDbConnection InternalClose(bool closing)
         {
-            IDbConnection conn = null;
+            IDbConnection connection = null;
 
             _sessionStore.Remove(this);
 
             if (closing)
             {
-                conn = InnerSession.Connection;
+                connection = InnerSession.Connection;
                 InnerSession.Close();
             }
 
@@ -126,7 +125,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
             _disposed = true;
 
-            return conn;
+            return connection;
         }
 
         /// <summary>
@@ -143,16 +142,10 @@ namespace Castle.Facilities.NHibernateIntegration
                 return ReferenceEquals(ssdLeft.InnerSession, ssdRight.InnerSession);
             }
 
-            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}");
+            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
         }
 
         #region IStatelessSession delegation
-
-        /// <inheritdoc />
-        public IQueryable<T> Query<T>(string entityName)
-        {
-            return InnerSession.Query<T>(entityName);
-        }
 
         /// <summary>
         /// Returns the current ADO.NET connection associated with this instance.
@@ -162,13 +155,16 @@ namespace Castle.Facilities.NHibernateIntegration
         /// it is the application's responsibility to close the connection returned by this call.
         /// Otherwise, the application should not close the connection.
         /// </remarks>
-        public DbConnection Connection => InnerSession.Connection;
+        public DbConnection Connection =>
+            InnerSession.Connection;
 
         /// <inheritdoc />
-        public bool IsConnected => InnerSession.IsConnected;
+        public bool IsOpen =>
+            InnerSession.IsOpen;
 
         /// <inheritdoc />
-        public bool IsOpen => InnerSession.IsOpen;
+        public bool IsConnected =>
+            InnerSession.IsConnected;
 
         /// <inheritdoc />
         /// <remarks>
@@ -180,6 +176,18 @@ namespace Castle.Facilities.NHibernateIntegration
             InnerSession?.GetSessionImplementation()?
                          .ConnectionManager?
                          .CurrentTransaction;
+
+        /// <inheritdoc />
+        public ISessionImplementor GetSessionImplementation()
+        {
+            return InnerSession.GetSessionImplementation();
+        }
+
+        /// <inheritdoc />
+        public void Close()
+        {
+            DoClose(true);
+        }
 
         /// <inheritdoc />
         public ITransaction BeginTransaction()
@@ -200,9 +208,39 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public void Close()
+        public IStatelessSession SetBatchSize(int batchSize)
         {
-            InnerSession.Close();
+            return InnerSession.SetBatchSize(batchSize);
+        }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>()
+        {
+            return InnerSession.Query<T>();
+        }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>(string entityName)
+        {
+            return InnerSession.Query<T>(entityName);
+        }
+
+        /// <inheritdoc />
+        public IQuery GetNamedQuery(string queryName)
+        {
+            return InnerSession.GetNamedQuery(queryName);
+        }
+
+        /// <inheritdoc />
+        public IQueryOver<T, T> QueryOver<T>() where T : class
+        {
+            return InnerSession.QueryOver<T>();
+        }
+
+        /// <inheritdoc />
+        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+        {
+            return InnerSession.QueryOver(alias);
         }
 
         /// <inheritdoc />
@@ -254,33 +292,9 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public void Delete(object entity)
-        {
-            InnerSession.Delete(entity);
-        }
-
-        /// <inheritdoc />
-        public void Delete(string entityName, object entity)
-        {
-            InnerSession.Delete(entityName, entity);
-        }
-
-        /// <inheritdoc />
-        public object Get(string entityName, object id)
-        {
-            return InnerSession.Get(entityName, id);
-        }
-
-        /// <inheritdoc />
         public T Get<T>(object id)
         {
             return InnerSession.Get<T>(id);
-        }
-
-        /// <inheritdoc />
-        public object Get(string entityName, object id, LockMode lockMode)
-        {
-            return InnerSession.Get(entityName, id, lockMode);
         }
 
         /// <inheritdoc />
@@ -290,51 +304,15 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public IQuery GetNamedQuery(string queryName)
+        public object Get(string entityName, object id)
         {
-            return InnerSession.GetNamedQuery(queryName);
+            return InnerSession.Get(entityName, id);
         }
 
         /// <inheritdoc />
-        public Task<object> InsertAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        public object Get(string entityName, object id, LockMode lockMode)
         {
-            return InnerSession.InsertAsync(entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> InsertAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.InsertAsync(entityName, entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task UpdateAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.UpdateAsync(entityName, entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task DeleteAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task DeleteAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.DeleteAsync(entityName, entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
-        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.GetAsync(entityName, id, cancellationToken);
+            return InnerSession.Get(entityName, id, lockMode);
         }
 
         /// <inheritdoc />
@@ -344,15 +322,45 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
+        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.GetAsync<T>(id, lockMode, cancellationToken);
+        }
+
+        /// <inheritdoc />
         public Task<object> GetAsync(string entityName, object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
         {
             return InnerSession.GetAsync(entityName, id, lockMode, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task<T> GetAsync<T>(object id, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        public Task<object> GetAsync(string entityName, object id, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.GetAsync<T>(id, lockMode, cancellationToken);
+            return InnerSession.GetAsync(entityName, id, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(object entity)
+        {
+            InnerSession.Refresh(entity);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(object entity, LockMode lockMode)
+        {
+            InnerSession.Refresh(entity, lockMode);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(string entityName, object entity)
+        {
+            InnerSession.Refresh(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public void Refresh(string entityName, object entity, LockMode lockMode)
+        {
+            InnerSession.Refresh(entityName, entity, lockMode);
         }
 
         /// <inheritdoc />
@@ -362,27 +370,21 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public Task RefreshAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
-        {
-            return InnerSession.RefreshAsync(entityName, entity, cancellationToken);
-        }
-
-        /// <inheritdoc />
         public Task RefreshAsync(object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
         {
             return InnerSession.RefreshAsync(entity, lockMode, cancellationToken);
         }
 
         /// <inheritdoc />
-        public Task RefreshAsync(string entityName, object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
+        public Task RefreshAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.RefreshAsync(entityName, entity, lockMode, cancellationToken);
+            return InnerSession.RefreshAsync(entityName, entity, cancellationToken);
         }
 
         /// <inheritdoc />
-        public ISessionImplementor GetSessionImplementation()
+        public Task RefreshAsync(string entityName, object entity, LockMode lockMode, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.GetSessionImplementation();
+            return InnerSession.RefreshAsync(entityName, entity, lockMode, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -398,51 +400,15 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <inheritdoc />
-        public IQueryOver<T, T> QueryOver<T>() where T : class
+        public Task<object> InsertAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.QueryOver<T>();
+            return InnerSession.InsertAsync(entity, cancellationToken);
         }
 
         /// <inheritdoc />
-        public IQueryOver<T, T> QueryOver<T>(Expression<Func<T>> alias) where T : class
+        public Task<object> InsertAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
         {
-            return InnerSession.QueryOver(alias);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(object entity)
-        {
-            InnerSession.Refresh(entity);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(string entityName, object entity)
-        {
-            InnerSession.Refresh(entityName, entity);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(object entity, LockMode lockMode)
-        {
-            InnerSession.Refresh(entity, lockMode);
-        }
-
-        /// <inheritdoc />
-        public void Refresh(string entityName, object entity, LockMode lockMode)
-        {
-            InnerSession.Refresh(entityName, entity, lockMode);
-        }
-
-        /// <inheritdoc />
-        public IStatelessSession SetBatchSize(int batchSize)
-        {
-            return InnerSession.SetBatchSize(batchSize);
-        }
-
-        /// <inheritdoc />
-        public IQueryable<T> Query<T>()
-        {
-            return InnerSession.Query<T>();
+            return InnerSession.InsertAsync(entityName, entity, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -455,6 +421,42 @@ namespace Castle.Facilities.NHibernateIntegration
         public void Update(string entityName, object entity)
         {
             InnerSession.Update(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task UpdateAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.UpdateAsync(entityName, entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public void Delete(object entity)
+        {
+            InnerSession.Delete(entity);
+        }
+
+        /// <inheritdoc />
+        public void Delete(string entityName, object entity)
+        {
+            InnerSession.Delete(entityName, entity);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entity, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task DeleteAsync(string entityName, object entity, CancellationToken cancellationToken = new CancellationToken())
+        {
+            return InnerSession.DeleteAsync(entityName, entity, cancellationToken);
         }
 
         #endregion
