@@ -43,7 +43,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         protected override string ConfigurationFile =>
             "EmptyConfiguration.xml";
 
-        private const string Filename = "myconfig.dat";
+        private const string FileName = "myconfig.dat";
 
         private IConfiguration _configuration;
         private IConfigurationBuilder _configurationBuilder;
@@ -60,20 +60,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         public override void OnTearDown()
         {
-            File.Delete(Filename);
+            File.Delete(FileName);
         }
 
         [Test]
         public void CanCreateSerializedFileInTheDisk()
         {
-            Assert.IsFalse(File.Exists(Filename));
+            Assert.IsFalse(File.Exists(FileName));
 
             _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(Filename));
+            Assert.IsTrue(File.Exists(FileName));
 
             var bf = new BinaryFormatter();
             Configuration nhConfig;
-            using (var fileStream = new FileStream(Filename, FileMode.Open))
+            using (var fileStream = new FileStream(FileName, FileMode.Open))
             {
                 nhConfig = bf.Deserialize(fileStream) as Configuration;
             }
@@ -88,15 +88,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         [Test]
         public void CanDeserializeFileFromTheDiskIfNewEnough()
         {
-            Assert.IsFalse(File.Exists(Filename));
+            Assert.IsFalse(File.Exists(FileName));
 
             var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(Filename));
+            Assert.IsTrue(File.Exists(FileName));
 
-            var dateTime = File.GetLastWriteTime(Filename);
+            var dateTime = File.GetLastWriteTime(FileName);
             Thread.Sleep(1000);
+
             nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.AreEqual(File.GetLastWriteTime(Filename), dateTime);
+            Assert.AreEqual(File.GetLastWriteTime(FileName), dateTime);
             Assert.IsNotNull(_configuration);
 
             ConfigureConnectionSettings(nhConfig);
@@ -107,18 +108,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         [Test]
         public void CanDeserializeFileFromTheDiskIfOneOfTheDependenciesIsNewer()
         {
-            Assert.IsFalse(File.Exists(Filename));
+            Assert.IsFalse(File.Exists(FileName));
 
             var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(Filename));
+            Assert.IsTrue(File.Exists(FileName));
 
-            var dateTime = File.GetLastWriteTime(Filename);
-            Thread.Sleep(1000);
+            var dateTime = File.GetLastWriteTime(FileName);
+            Thread.Sleep(100);
+
             var dateTime2 = DateTime.Now;
-            File.Create("SampleDllFile").Dispose();
-            File.SetLastWriteTime("SampleDllFile", dateTime2);
+            var fileName = "SampleDllFile";
+            var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, fileName);
+            File.Create(filePath).Dispose();
+            File.SetLastWriteTime(filePath, dateTime2);
+
             nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.Greater(File.GetLastWriteTime(Filename), dateTime);
+            Assert.Greater(File.GetLastWriteTime(filePath), dateTime);
             Assert.IsNotNull(_configuration);
 
             ConfigureConnectionSettings(nhConfig);
