@@ -15,7 +15,7 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-@CALL .\buildscripts\BuildPackages.cmd "config=Release" "version=5.2.0"
+@CALL .\buildscripts\BuildPackages.cmd "config=Release" "version=5.3.0"
 
 
 

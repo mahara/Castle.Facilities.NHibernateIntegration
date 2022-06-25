@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -274,26 +274,26 @@ namespace Castle.Facilities.NHibernateIntegration
             return true;
         }
 
-        private static IsolationLevel TranslateIsolationLevel(IsolationMode mode)
+        private static IsolationLevel TranslateIsolationLevel(System.Transactions.IsolationLevel mode)
         {
             switch (mode)
             {
-                case IsolationMode.Chaos:
+                case System.Transactions.IsolationLevel.Chaos:
                     return IsolationLevel.Chaos;
 
-                case IsolationMode.ReadCommitted:
+                case System.Transactions.IsolationLevel.ReadCommitted:
                     return IsolationLevel.ReadCommitted;
 
-                case IsolationMode.ReadUncommitted:
+                case System.Transactions.IsolationLevel.ReadUncommitted:
                     return IsolationLevel.ReadUncommitted;
 
-                case IsolationMode.RepeatableRead:
+                case System.Transactions.IsolationLevel.RepeatableRead:
                     return IsolationLevel.RepeatableRead;
 
-                case IsolationMode.Serializable:
+                case System.Transactions.IsolationLevel.Serializable:
                     return IsolationLevel.Serializable;
 
-                case IsolationMode.Snapshot:
+                case System.Transactions.IsolationLevel.Snapshot:
                     return IsolationLevel.Snapshot;
 
                 default:

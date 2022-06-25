@@ -55,7 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         private const string Alias = "myAlias";
         private const string InterceptorFormatString = DefaultSessionManager.InterceptorFormatString;
         private const string InterceptorName = DefaultSessionManager.InterceptorName;
-        private const IsolationMode DefaultIsolationMode = IsolationMode.ReadUncommitted;
+        private const System.Transactions.IsolationLevel DefaultIsolationMode = System.Transactions.IsolationLevel.ReadUncommitted;
         private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadUncommitted;
 
         private ISessionStore _sessionStore;

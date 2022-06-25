@@ -1,5 +1,14 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
+## 5.3.x (202x-xx-xx)
+
+Breaking Changes:
+- Upgraded Castle.Services.Transaction version to 5.3.0
+- Upgraded Castle.Facilities.AutoTx version to 5.3.0
+- Replaced Castle.Services.Transaction.TransactionMode with System.Transactions.TransactionScopeOption.
+- Replaced Castle.Services.Transaction.IsolationMode with System.Transactions.IsolationLevel.
+
+
 ## 5.2.0 (2022-06-25)
 
 Improvements:
