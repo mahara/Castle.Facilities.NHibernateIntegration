@@ -1,7 +1,7 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.2.0 (2022-06-xx)
+## 5.2.0 (2022-06-25)
 
 Improvements:
 - Updated **`Castle.Windsor`** version to 5.1.2.
