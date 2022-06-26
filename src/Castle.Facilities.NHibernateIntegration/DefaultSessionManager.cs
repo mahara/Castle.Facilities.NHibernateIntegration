@@ -35,14 +35,14 @@ namespace Castle.Facilities.NHibernateIntegration
     public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     {
         /// <summary>
-        /// Format string for NHibernate interceptor components.
-        /// </summary>
-        public const string InterceptorFormatString = "nhibernate.session.interceptor.{0}";
-
-        /// <summary>
         /// Name for NHibernate Interceptor componentInterceptorName.
         /// </summary>
         public const string InterceptorName = "nhibernate.session.interceptor";
+
+        /// <summary>
+        /// Format string for NHibernate interceptor components.
+        /// </summary>
+        public const string InterceptorFormatString = "nhibernate.session.interceptor.{0}";
 
         private readonly IKernel _kernel;
         private readonly ISessionStore _sessionStore;
@@ -197,7 +197,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 {
                     transaction.Context["nh.session.enlisted"] = list;
 
-                    var level = TranslateIsolationLevel(transaction.IsolationMode);
+                    var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(session.BeginTransaction(level), transaction.IsAmbient));
 
                     list.Add(session);
@@ -259,7 +259,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 {
                     transaction.Context["nh.statelessSession.enlisted"] = list;
 
-                    var level = TranslateIsolationLevel(transaction.IsolationMode);
+                    var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(statelessSession.BeginTransaction(level), transaction.IsAmbient));
 
                     list.Add(statelessSession);
@@ -274,12 +274,16 @@ namespace Castle.Facilities.NHibernateIntegration
             return true;
         }
 
-        private static IsolationLevel TranslateIsolationLevel(System.Transactions.IsolationLevel mode)
+        private static IsolationLevel TranslateTransactionIsolationLevel(
+            System.Transactions.IsolationLevel isolationLevel)
         {
-            switch (mode)
+            switch (isolationLevel)
             {
-                case System.Transactions.IsolationLevel.Chaos:
-                    return IsolationLevel.Chaos;
+                case System.Transactions.IsolationLevel.Serializable:
+                    return IsolationLevel.Serializable;
+
+                case System.Transactions.IsolationLevel.RepeatableRead:
+                    return IsolationLevel.RepeatableRead;
 
                 case System.Transactions.IsolationLevel.ReadCommitted:
                     return IsolationLevel.ReadCommitted;
@@ -287,14 +291,11 @@ namespace Castle.Facilities.NHibernateIntegration
                 case System.Transactions.IsolationLevel.ReadUncommitted:
                     return IsolationLevel.ReadUncommitted;
 
-                case System.Transactions.IsolationLevel.RepeatableRead:
-                    return IsolationLevel.RepeatableRead;
-
-                case System.Transactions.IsolationLevel.Serializable:
-                    return IsolationLevel.Serializable;
-
                 case System.Transactions.IsolationLevel.Snapshot:
                     return IsolationLevel.Snapshot;
+
+                case System.Transactions.IsolationLevel.Chaos:
+                    return IsolationLevel.Chaos;
 
                 default:
                     return IsolationLevel.Unspecified;
@@ -325,7 +326,7 @@ namespace Castle.Facilities.NHibernateIntegration
             if (sessionFactory == null)
             {
                 throw new FacilityException("No ISessionFactory implementation " +
-                                            "associated with the given ISession alias: " + alias);
+                                            $"associated with the given ISession alias: {alias}.");
             }
 
             ISession session;
@@ -365,7 +366,7 @@ namespace Castle.Facilities.NHibernateIntegration
             if (sessionFactory == null)
             {
                 throw new FacilityException("No ISessionFactory implementation " +
-                                            "associated with the given IStatelessSession alias: " + alias);
+                                            $"associated with the given IStatelessSession alias: {alias}.");
             }
 
             var session = sessionFactory.OpenStatelessSession();

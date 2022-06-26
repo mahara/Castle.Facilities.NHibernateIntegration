@@ -53,8 +53,8 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionDelegate" /> class.
         /// </summary>
-        /// <param name="canClose">if set to <c>true</c> [can close].</param>
-        /// <param name="inner">The inner.</param>
+        /// <param name="canClose">Set to <c>true</c> if can close the session.</param>
+        /// <param name="innerSession">The inner session.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <remarks>
         /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0618
@@ -63,9 +63,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// #pragma warning restore 0618, 0612
         /// </code>
         /// </remarks>
-        public SessionDelegate(bool canClose, ISession inner, ISessionStore sessionStore)
+        public SessionDelegate(bool canClose, ISession innerSession, ISessionStore sessionStore)
         {
-            InnerSession = inner;
+            InnerSession = innerSession;
             _sessionStore = sessionStore;
             _canClose = canClose;
         }
@@ -86,7 +86,7 @@ namespace Castle.Facilities.NHibernateIntegration
             set => _cookie = value;
         }
 
-        #region IDisposable delegation
+        #region IDisposable Members
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -153,7 +153,7 @@ namespace Castle.Facilities.NHibernateIntegration
             throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
         }
 
-        #region ISession delegation
+        #region ISession Members
 
         /// <summary>
         /// Get the <see cref="T:NHibernate.ISessionFactory" /> that created this instance.
@@ -250,12 +250,6 @@ namespace Castle.Facilities.NHibernateIntegration
         public void Reconnect(DbConnection connection)
         {
             InnerSession.Reconnect(connection);
-        }
-
-        /// <inheritdoc />
-        public void Clear()
-        {
-            InnerSession.Clear();
         }
 
         /// <inheritdoc />
@@ -516,6 +510,12 @@ namespace Castle.Facilities.NHibernateIntegration
         public bool Contains(object entity)
         {
             return InnerSession.Contains(entity);
+        }
+
+        /// <inheritdoc />
+        public void Clear()
+        {
+            InnerSession.Clear();
         }
 
         /// <inheritdoc />

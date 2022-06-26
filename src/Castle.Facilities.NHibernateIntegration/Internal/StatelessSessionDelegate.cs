@@ -44,7 +44,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Initializes a new instance of the <see cref="StatelessSessionDelegate" /> class.
         /// </summary>
-        /// <param name="canClose">if set to <c>true</c> [can close].</param>
+        /// <param name="canClose">Set to <c>true</c> if can close the session.</param>
         /// <param name="innerSession">The inner session.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <remarks>
@@ -77,7 +77,7 @@ namespace Castle.Facilities.NHibernateIntegration
             set => _cookie = value;
         }
 
-        #region IDisposable delegation
+        #region IDisposable Members
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -145,7 +145,7 @@ namespace Castle.Facilities.NHibernateIntegration
             throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
         }
 
-        #region IStatelessSession delegation
+        #region IStatelessSession Members
 
         /// <summary>
         /// Returns the current ADO.NET connection associated with this instance.
