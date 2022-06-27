@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Buil
 		.gitignore = .gitignore
 		appveyor.yml = appveyor.yml
 		build.cmd = build.cmd
+		build.sh = build.sh
 		BuildPackages.cmd = BuildPackages.cmd
 		CHANGELOG.md = CHANGELOG.md
 		CleanPackages.cmd = CleanPackages.cmd
@@ -23,6 +24,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{1D68E0C9-FFC1-4271-8194-1AD17C318433}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{47F2F74D-7773-450C-B6E7-2D3B7C8814A8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +47,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{47F2F74D-7773-450C-B6E7-2D3B7C8814A8} = {31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A4EC0140-6DD7-4D6D-8F91-38F891D8DC44}
