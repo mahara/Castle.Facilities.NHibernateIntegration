@@ -16,7 +16,11 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
+#if NETFRAMEWORK
     using System.Configuration;
+#else
+    using System.Configuration;
+#endif
 
     using Builders;
 

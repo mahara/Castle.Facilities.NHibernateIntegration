@@ -39,43 +39,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         protected virtual string ConfigurationFile =>
             "DefaultConfiguration.xml";
 
-        protected virtual void ExportDatabaseSchema()
-        {
-            var cfgs = Container.ResolveAll<Configuration>();
-            foreach (var cfg in cfgs)
-            {
-                var export = new SchemaExport(cfg);
-                export.Create(false, true);
-            }
-        }
-
-        protected virtual void DropDatabaseSchema()
-        {
-            var cfgs = Container.ResolveAll<Configuration>();
-            foreach (var cfg in cfgs)
-            {
-                var export = new SchemaExport(cfg);
-                export.Drop(false, true);
-            }
-        }
-
         [SetUp]
         public virtual void SetUp()
         {
             Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
             Container.AddFacility<AutoTxFacility>();
             ConfigureContainer();
-            ExportDatabaseSchema();
+            CreateDatabases();
             OnSetUp();
-        }
-
-        [TearDown]
-        public virtual void TearDown()
-        {
-            OnTearDown();
-            DropDatabaseSchema();
-            Container.Dispose();
-            Container = null;
         }
 
         protected string GetContainerFile()
@@ -87,12 +58,41 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
         }
 
+        protected virtual void CreateDatabases()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Create(false, true);
+            }
+        }
+
         protected virtual void OnSetUp()
         {
         }
 
+        [TearDown]
+        public virtual void TearDown()
+        {
+            OnTearDown();
+            DropDatabases();
+            Container.Dispose();
+            Container = null;
+        }
+
         protected virtual void OnTearDown()
         {
+        }
+
+        protected virtual void DropDatabases()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Drop(false, true);
+            }
         }
     }
 }

@@ -23,11 +23,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
     [TestFixture]
     public class Fixture : IssueTestCase
     {
-        protected override void ExportDatabaseSchema()
+        protected override void CreateDatabases()
         {
         }
 
-        protected override void DropDatabaseSchema()
+        protected override void DropDatabases()
         {
         }
 

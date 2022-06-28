@@ -1,75 +1,85 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net6.0;net48</TargetFrameworks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net48</TargetFrameworks>
+	</PropertyGroup>
 
-  <Import Project="..\..\buildscripts\common.props"></Import>
+	<Import Project="..\..\buildscripts\common.props"></Import>
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <StartupObject>Program</StartupObject>
-    <IsPackable>false</IsPackable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>Castle.Facilities.NHibernateIntegration.Tests</AssemblyName>
-    <RootNamespace>Castle.Facilities.NHibernateIntegration.Tests</RootNamespace>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<StartupObject>Program</StartupObject>
+		<IsPackable>false</IsPackable>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<AssemblyName>Castle.Facilities.NHibernateIntegration.Tests</AssemblyName>
+		<RootNamespace>Castle.Facilities.NHibernateIntegration.Tests</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Reference Include="System.Transactions" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.2.0" />
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="Castle.Core-log4net" Version="4.4.1" />
-    <PackageReference Include="Castle.Core-NLog" Version="4.4.1" />
-    <PackageReference Include="Castle.LoggingFacility" Version="5.1.2" />
-    <PackageReference Include="Castle.Services.Transaction" Version="5.3.0" />
-    <PackageReference Include="Castle.Facilities.AutoTx" Version="5.3.0" />
-    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
-    <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="NHibernate" Version="5.3.12" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-    <PackageReference Include="NUnitLite" Version="3.13.3" />
-    <PackageReference Include="NunitXml.TestLogger" Version="3.0.117" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
-  </ItemGroup>
+	<ItemGroup>
+		<Reference Include="System.Transactions" />
+		<PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
+		<PackageReference Include="System.Net.Primitives" Version="4.3.0" />
+		<PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+		<PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.2.0" />
+		<PackageReference Include="Castle.Core" Version="4.4.1" />
+		<PackageReference Include="Castle.Core-log4net" Version="4.4.1" />
+		<PackageReference Include="Castle.Core-NLog" Version="4.4.1" />
+		<PackageReference Include="Castle.LoggingFacility" Version="5.1.2" />
+		<PackageReference Include="Castle.Services.Transaction" Version="5.3.0" />
+		<PackageReference Include="Castle.Facilities.AutoTx" Version="5.3.0" />
+		<PackageReference Include="Iesi.Collections" Version="4.0.4" />
+		<PackageReference Include="Moq" Version="4.17.2" />
+		<PackageReference Include="NHibernate" Version="5.3.12" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="NUnit" Version="3.13.3" />
+		<PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
+		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+		<PackageReference Include="NUnitLite" Version="3.13.3" />
+		<PackageReference Include="NunitXml.TestLogger" Version="3.0.117" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+	</ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net48'">
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj" />
+	</ItemGroup>
 
-  <!--<ItemGroup>
+	<ItemGroup Condition="'$([MSBuild]::GetTargetFrameworkIdentifier(&quot;$(TargetFramework)&quot;))' == '.NETCoreApp'">
+		<None Include="config\net\App.config" Link="App.config" />
+		<None Remove="config\netfx\App.config" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$([MSBuild]::GetTargetFrameworkIdentifier(&quot;$(TargetFramework)&quot;))' == '.NETFramework'">
+		<None Remove="config\net\App.config" />
+		<None Include="config\netfx\App.config" Link="App.config" />
+	</ItemGroup>
+
+	<!--<ItemGroup>
     <EmbeddedResource Include=".\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>-->
-  <ItemGroup>
-    <EmbeddedResource Include=".\*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include=".\Common\*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include=".\Internals\**\*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include=".\Issues\**\*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include=".\Transactions\**\*.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include=".\*.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include=".\Common\*.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include=".\Internals\**\*.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include=".\Issues\**\*.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+		<EmbeddedResource Include=".\Transactions\**\*.xml">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
 
 </Project>
