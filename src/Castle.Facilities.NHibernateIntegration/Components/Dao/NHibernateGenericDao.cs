@@ -86,33 +86,31 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The <see cref="Array" /> of results.</returns>
         public virtual Array FindAll(Type type, int firstRow, int maxRows)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (firstRow != int.MinValue)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    criteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
+                    criteria.SetMaxResults(maxRows);
                 }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
             }
         }
 
@@ -124,20 +122,18 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The object instance.</returns>
         public virtual object FindById(Type type, object id)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    return session.Load(type, id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(FindById)} for {type.Name}.", ex);
-                }
+                return session.Load(type, id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindById)} for {type.Name}.", ex);
             }
         }
 
@@ -148,16 +144,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The instance</returns>
         public virtual object Create(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    return session.Save(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(Create)} for {instance.GetType().Name}.", ex);
-                }
+                return session.Save(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(Create)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -167,16 +161,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="instance">The instance to be updated on the database.</param>
         public virtual void Update(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(Update)} for {instance.GetType().Name}.", ex);
-                }
+                session.Update(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(Update)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -186,16 +178,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="instance">The instance to be deleted from the database.</param>
         public virtual void Delete(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(Delete)} for {instance.GetType().Name}.", ex);
-                }
+                session.Delete(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(Delete)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -205,16 +195,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="type">type on which the rows on the database should be deleted.</param>
         public virtual void DeleteAll(Type type)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    session.Delete(string.Format("from {0}", type.Name));
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(DeleteAll)} for {type.Name}.", ex);
-                }
+                session.Delete(string.Format("from {0}", type.Name));
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(DeleteAll)} for {type.Name}.", ex);
             }
         }
 
@@ -230,16 +218,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="instance">The instance to be saved.</param>
         public virtual void Save(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
-                {
-                    session.SaveOrUpdate(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(Save)} for {instance.GetType().Name}.", ex);
-                }
+                session.SaveOrUpdate(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(Save)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -262,33 +248,31 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The <see cref="Array" /> of results.</returns>
         public virtual Array FindAllStateless(Type type, int firstRow, int maxRows)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (firstRow != int.MinValue)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    criteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
+                    criteria.SetMaxResults(maxRows);
                 }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
             }
         }
 
@@ -300,20 +284,18 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The object instance.</returns>
         public object FindByIdStateless(Type type, object id)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
-                {
-                    return session.Get(type.FullName, id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(FindByIdStateless)} for {type.Name}.", ex);
-                }
+                return session.Get(type.FullName, id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindByIdStateless)} for {type.Name}.", ex);
             }
         }
 
@@ -324,16 +306,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The instance.</returns>
         public object CreateStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
-                {
-                    return session.Insert(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(CreateStateless)} for {instance.GetType().Name}.", ex);
-                }
+                return session.Insert(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(CreateStateless)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -343,16 +323,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="instance">The instance to be updated on the database.</param>
         public void UpdateStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(UpdateStateless)} for {instance.GetType().Name}.", ex);
-                }
+                session.Update(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(UpdateStateless)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -362,16 +340,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="instance">The instance to be deleted from the database.</param>
         public void DeleteStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(DeleteStateless)} for {instance.GetType().Name}.", ex);
-                }
+                session.Delete(instance);
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(DeleteStateless)} for {instance.GetType().Name}.", ex);
             }
         }
 
@@ -381,16 +357,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="type">type on which the rows on the database should be deleted.</param>
         public void DeleteAllStateless(Type type)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
-                {
-                    session.Delete($"from {type.Name}");
-                }
-                catch (Exception ex)
-                {
-                    throw new DataException($"Could not perform {nameof(DeleteAllStateless)} for {type.Name}.", ex);
-                }
+                session.Delete($"from {type.Name}");
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(DeleteAllStateless)} for {type.Name}.", ex);
             }
         }
 
@@ -445,49 +419,47 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The <see cref="Array" /> of results.</returns>
         public virtual Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (criterias != null)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (criterias != null)
+                    foreach (var cond in criterias)
                     {
-                        foreach (var cond in criterias)
-                        {
-                            criteria.Add(cond);
-                        }
+                        criteria.Add(cond);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            criteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
                 }
-                catch (Exception ex)
+
+                if (sortItems != null)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
+                    foreach (var order in sortItems)
+                    {
+                        criteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    criteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    criteria.SetMaxResults(maxRows);
+                }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAll)} for {type.Name}.", ex);
             }
         }
 
@@ -515,37 +487,35 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentNullException(nameof(queryString));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllWithCustomQuery)}: {queryString}", ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result == null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllWithCustomQuery)}: {queryString}", ex);
             }
         }
 
@@ -573,41 +543,39 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentNullException(nameof(namedQuery));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery);
+                if (query == null)
                 {
-                    var query = session.GetNamedQuery(namedQuery);
-                    if (query == null)
-                    {
-                        throw new ArgumentException("Cannot find named query", nameof(namedQuery));
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    throw new ArgumentException("Cannot find named query", nameof(namedQuery));
                 }
-                catch (Exception ex)
+
+                if (firstRow != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllWithNamedQuery)}: {namedQuery}", ex);
+                    query.SetFirstResult(firstRow);
                 }
+
+                if (maxRows != int.MinValue)
+                {
+                    query.SetMaxResults(maxRows);
+                }
+
+                var result = query.List();
+                if (result == null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllWithNamedQuery)}: {namedQuery}", ex);
             }
         }
 
@@ -622,17 +590,15 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentNullException(nameof(instance));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+            foreach (var value in ReflectionUtility.GetPropertiesDictionary(instance).Values)
             {
-                foreach (var value in ReflectionUtility.GetPropertiesDictionary(instance).Values)
+                if (value is INHibernateProxy or IPersistentCollection)
                 {
-                    if (value is INHibernateProxy || value is IPersistentCollection)
+                    if (!NHibernateUtil.IsInitialized(value))
                     {
-                        if (!NHibernateUtil.IsInitialized(value))
-                        {
-                            session.Lock(instance, LockMode.None);
-                            NHibernateUtil.Initialize(value);
-                        }
+                        session.Lock(instance, LockMode.None);
+                        NHibernateUtil.Initialize(value);
                     }
                 }
             }
@@ -662,17 +628,15 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                                                       $"Property {propertyName} doest not exist for type {instance.GetType()}.");
             }
 
-            using (var session = GetSession())
-            {
-                var value = properties[propertyName];
+            using var session = GetSession();
+            var value = properties[propertyName];
 
-                if (value is INHibernateProxy || value is IPersistentCollection)
+            if (value is INHibernateProxy or IPersistentCollection)
+            {
+                if (!NHibernateUtil.IsInitialized(value))
                 {
-                    if (!NHibernateUtil.IsInitialized(value))
-                    {
-                        session.Lock(instance, LockMode.None);
-                        NHibernateUtil.Initialize(value);
-                    }
+                    session.Lock(instance, LockMode.None);
+                    NHibernateUtil.Initialize(value);
                 }
             }
         }
@@ -728,49 +692,47 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <returns>The <see cref="Array" /> of results.</returns>
         public virtual Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (criterias != null)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (criterias != null)
+                    foreach (var cond in criterias)
                     {
-                        foreach (var cond in criterias)
-                        {
-                            criteria.Add(cond);
-                        }
+                        criteria.Add(cond);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            criteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
                 }
-                catch (Exception ex)
+
+                if (sortItems != null)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
+                    foreach (var order in sortItems)
+                    {
+                        criteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    criteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    criteria.SetMaxResults(maxRows);
+                }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllStateless)} for {type.Name}.", ex);
             }
         }
 
@@ -798,37 +760,35 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentNullException(nameof(queryString));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllWithCustomQueryStateless)}: {queryString}", ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result == null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllWithCustomQueryStateless)}: {queryString}", ex);
             }
         }
 
@@ -856,41 +816,39 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentNullException(nameof(namedQuery));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery);
+                if (query == null)
                 {
-                    var query = session.GetNamedQuery(namedQuery);
-                    if (query == null)
-                    {
-                        throw new ArgumentException("Cannot find named query", nameof(namedQuery));
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    throw new ArgumentException("Cannot find named query", nameof(namedQuery));
                 }
-                catch (Exception ex)
+
+                if (firstRow != int.MinValue)
                 {
-                    throw new DataException($"Could not perform {nameof(FindAllWithNamedQueryStateless)}: {namedQuery}", ex);
+                    query.SetFirstResult(firstRow);
                 }
+
+                if (maxRows != int.MinValue)
+                {
+                    query.SetMaxResults(maxRows);
+                }
+
+                var result = query.List();
+                if (result == null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                throw new DataException($"Could not perform {nameof(FindAllWithNamedQueryStateless)}: {namedQuery}", ex);
             }
         }
 

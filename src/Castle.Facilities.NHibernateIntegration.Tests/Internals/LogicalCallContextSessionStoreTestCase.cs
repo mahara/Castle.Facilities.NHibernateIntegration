@@ -28,7 +28,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     [TestFixture]
     public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
     {
-        private readonly AutoResetEvent _event = new AutoResetEvent(false);
+        private readonly AutoResetEvent _event = new(false);
 
         protected override string ConfigurationFile =>
             "Internals/LogicalCallContextSessionStoreConfiguration.xml";

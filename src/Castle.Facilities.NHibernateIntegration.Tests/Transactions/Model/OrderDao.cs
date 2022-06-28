@@ -37,93 +37,81 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Order Create(float val)
         {
-            using (var session = _sessionManager.OpenSession("db2"))
+            using var session = _sessionManager.OpenSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
+
+            var order = new Order
             {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+                Value = val
+            };
+            session.Save(order);
 
-                var order = new Order
-                {
-                    Value = val
-                };
-                session.Save(order);
-
-                return order;
-            }
+            return order;
         }
 
         [Transaction]
         public virtual void Update(Order order, float newval)
         {
-            using (var session = _sessionManager.OpenSession("db2"))
-            {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+            using var session = _sessionManager.OpenSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
 
-                order.Value = newval;
+            order.Value = newval;
 
-                session.Update(order);
-            }
+            session.Update(order);
         }
 
         [Transaction]
         public virtual void Delete(int orderId)
         {
-            using (var session = _sessionManager.OpenSession("db2"))
-            {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+            using var session = _sessionManager.OpenSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
 
-                var order = (Order) session.Load(typeof(Order), orderId);
+            var order = (Order) session.Load(typeof(Order), orderId);
 
-                session.Delete(order);
-            }
+            session.Delete(order);
         }
 
         [Transaction]
         public virtual Order CreateStateless(float val)
         {
-            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            using var session = _sessionManager.OpenStatelessSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
+
+            var order = new Order
             {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+                Value = val
+            };
+            session.Insert(order);
 
-                var order = new Order
-                {
-                    Value = val
-                };
-                session.Insert(order);
-
-                return order;
-            }
+            return order;
         }
 
         [Transaction]
         public virtual void UpdateStateless(Order order, float newval)
         {
-            using (var session = _sessionManager.OpenStatelessSession("db2"))
-            {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+            using var session = _sessionManager.OpenStatelessSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
 
-                order.Value = newval;
+            order.Value = newval;
 
-                session.Update(order);
-            }
+            session.Update(order);
         }
 
         [Transaction]
         public virtual void DeleteStateless(int orderId)
         {
-            using (var session = _sessionManager.OpenStatelessSession("db2"))
-            {
-                var transaction = session.GetCurrentTransaction();
-                Assert.That(transaction, Is.Not.Null);
+            using var session = _sessionManager.OpenStatelessSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
 
-                var order = (Order) session.Get(typeof(Order).FullName, orderId);
+            var order = (Order) session.Get(typeof(Order).FullName, orderId);
 
-                session.Delete(order);
-            }
+            session.Delete(order);
         }
     }
 }

@@ -19,7 +19,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
     using System;
     using System.Configuration;
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
     using System.Threading;
 
     using Builders;

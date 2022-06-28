@@ -83,7 +83,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         /// </exception>
         public ISessionFactory GetSessionFactory(string alias)
         {
-            if (!(_aliasToKey[alias] is string componentKey))
+            if (_aliasToKey[alias] is not string componentKey)
             {
                 throw new FacilityException($"An {nameof(ISessionFactory)} component was not mapped for the specified alias: {alias}");
             }

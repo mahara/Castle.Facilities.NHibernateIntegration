@@ -65,7 +65,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             }
 
 
-            if (!(alias2Stack[alias] is Stack stack))
+            if (alias2Stack[alias] is not Stack stack)
             {
                 stack = Stack.Synchronized(new Stack());
 
@@ -111,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             }
 
 
-            if (!(alias2Stack[alias] is Stack stack))
+            if (alias2Stack[alias] is not Stack stack)
             {
                 stack = Stack.Synchronized(new Stack());
 

@@ -1,26 +1,20 @@
 ﻿namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
-    using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
-    using Castle.MicroKernel.Registration;
 
     using Newtonsoft.Json;
 
     public class ObjectPersister<T>
     {
-        readonly JsonSerializer _serializer;
+        private readonly JsonSerializer _serializer;
 
         public ObjectPersister()
         {
             _serializer = new JsonSerializer
             {
+                PreserveReferencesHandling = PreserveReferencesHandling.All,
                 TypeNameHandling = TypeNameHandling.All,
-                ReferenceLoopHandling = ReferenceLoopHandling.Error,
+                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
             };
         }
 

@@ -26,7 +26,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
     {
         [Test]
-        public void SessionRequiredAttr_should_automatically_open_a_Session_under_the_hood()
+        public void SessionRequiredAttributeShouldAutomaticallyOpenASessionUnderTheHood()
         {
             Container.Register(Component.For<BlogRepository>());
 

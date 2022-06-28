@@ -95,7 +95,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
 
         private static IWindsorContainer ObtainContainer()
         {
-            if (!(HttpContext.Current.ApplicationInstance is IContainerAccessor containerAccessor))
+            if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
             {
                 throw new FacilityException("You must extend the HttpApplication in your web project " +
                                             "and implement the IContainerAccessor to properly expose your container instance.");

@@ -19,8 +19,6 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     using System.Collections.Generic;
     using System.IO;
 
-    using Newtonsoft.Json;
-
     using NHibernate.Cfg;
 
     /// <summary>
@@ -29,7 +27,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     /// </summary>
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
-        readonly ObjectPersister<Configuration> _persister = new();
+        private readonly ObjectPersister<Configuration> _persister = new();
 
         /// <inheritdoc />
         public virtual Configuration ReadConfiguration(string filePath)

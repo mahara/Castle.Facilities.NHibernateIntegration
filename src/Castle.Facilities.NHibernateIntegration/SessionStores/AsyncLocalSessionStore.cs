@@ -25,8 +25,8 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// </summary>
     public class AsyncLocalSessionStore : AbstractDictStackSessionStore
     {
-        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new AsyncLocal<IDictionary>();
-        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new AsyncLocal<IDictionary>();
+        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new();
 
         protected override IDictionary GetDictionary()
         {

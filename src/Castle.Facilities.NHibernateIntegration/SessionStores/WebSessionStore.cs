@@ -83,7 +83,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// </summary>
     public class WebSessionStore : AbstractDictStackSessionStore
     {
-        private HttpContext _httpContext;
+        private readonly HttpContext _httpContext;
 
         [CLSCompliant(false)]
         public WebSessionStore(HttpContext httpContext)

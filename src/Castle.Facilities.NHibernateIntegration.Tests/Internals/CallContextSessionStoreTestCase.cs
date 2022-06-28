@@ -27,7 +27,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
     public class CallContextSessionStoreTestCase : AbstractNHibernateTestCase
     {
-        private readonly AutoResetEvent _event = new AutoResetEvent(false);
+        private readonly AutoResetEvent _event = new(false);
 
         protected override string ConfigurationFile =>
             "Internals/CallContextSessionStoreConfiguration.xml";
