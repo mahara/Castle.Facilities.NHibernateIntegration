@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Transactions;
 
 using Castle.Facilities.NHibernateIntegration.Internals;
 using Castle.Facilities.NHibernateIntegration.Utilities;
@@ -168,7 +168,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 {
                     transaction.Context[Constants.Session_TransactionEnlistment_TransactionContextKey] = list;
 
-                    var isolationLevel = TranslateIsolationLevel(transaction.IsolationMode);
+                    var isolationLevel = TranslateIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(session.BeginTransaction(isolationLevel), transaction.IsAmbient));
 
                     list.Add(session);
@@ -238,7 +238,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 {
                     transaction.Context[Constants.StatelessSession_TransactionEnlistment_TransactionContextKey] = list;
 
-                    var isolationLevel = TranslateIsolationLevel(transaction.IsolationMode);
+                    var isolationLevel = TranslateIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(session.BeginTransaction(isolationLevel), transaction.IsAmbient));
 
                     list.Add(session);
@@ -253,30 +253,30 @@ namespace Castle.Facilities.NHibernateIntegration
             return true;
         }
 
-        private static IsolationLevel TranslateIsolationLevel(IsolationMode isolationMode)
+        private static System.Data.IsolationLevel TranslateIsolationLevel(IsolationLevel isolationMode)
         {
             switch (isolationMode)
             {
-                case IsolationMode.Chaos:
-                    return IsolationLevel.Chaos;
+                case IsolationLevel.Chaos:
+                    return System.Data.IsolationLevel.Chaos;
 
-                case IsolationMode.ReadCommitted:
-                    return IsolationLevel.ReadCommitted;
+                case IsolationLevel.ReadCommitted:
+                    return System.Data.IsolationLevel.ReadCommitted;
 
-                case IsolationMode.ReadUncommitted:
-                    return IsolationLevel.ReadUncommitted;
+                case IsolationLevel.ReadUncommitted:
+                    return System.Data.IsolationLevel.ReadUncommitted;
 
-                case IsolationMode.RepeatableRead:
-                    return IsolationLevel.RepeatableRead;
+                case IsolationLevel.RepeatableRead:
+                    return System.Data.IsolationLevel.RepeatableRead;
 
-                case IsolationMode.Serializable:
-                    return IsolationLevel.Serializable;
+                case IsolationLevel.Serializable:
+                    return System.Data.IsolationLevel.Serializable;
 
-                case IsolationMode.Snapshot:
-                    return IsolationLevel.Snapshot;
+                case IsolationLevel.Snapshot:
+                    return System.Data.IsolationLevel.Snapshot;
 
                 default:
-                    return IsolationLevel.Unspecified;
+                    return System.Data.IsolationLevel.Unspecified;
             }
         }
 
