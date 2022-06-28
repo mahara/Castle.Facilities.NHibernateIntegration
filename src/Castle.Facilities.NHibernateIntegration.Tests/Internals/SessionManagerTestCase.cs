@@ -14,6 +14,8 @@
 // limitations under the License.
 #endregion
 
+using System.Transactions;
+
 using Castle.Facilities.NHibernateIntegration.Tests.Common;
 using Castle.MicroKernel.Facilities;
 using Castle.Services.Transaction;
@@ -125,7 +127,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -167,7 +169,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -243,7 +245,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -296,7 +298,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -386,7 +388,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -428,7 +430,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -505,7 +507,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
@@ -558,7 +560,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var transactionManager = Container.Resolve<ITransactionManager>();
 
             var transaction = transactionManager.CreateTransaction(
-                TransactionMode.Requires, IsolationMode.Serializable);
+                TransactionMode.Requires, IsolationLevel.Serializable);
 
             transaction.Begin();
 
