@@ -41,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
             var sessionStore = container.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStore);
+            Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
         }
 
         [Test]
@@ -54,17 +54,18 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             // Starts with AsyncLocalSessionStore
             // then change it to WebSessionStore
             // then change it to LogicalCallContextSessionStore.
-            // then change it again to CallContextSessionStore.
-            // The last set session store should be CallContextSessionStore.
+            // then change it again to DummySessionStore.
+            // The last set session store should be DummySessionStore.
             container.AddFacility<NHibernateFacility>(
                 f => f.IsWeb()
                       .SessionStore<LogicalCallContextSessionStore>()
                       .SessionStore<CallContextSessionStore>()
+                      .SessionStore<DummySessionStore>()
                       .ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(DummySessionStore), sessionStore);
+            Assert.That(sessionStore, Is.InstanceOf(typeof(DummySessionStore)));
         }
 
         [Test]
@@ -78,7 +79,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             var sessionManager = container.Resolve<ISessionManager>();
             sessionManager.OpenSession();
 
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(TestConfigurationBuilder)));
+            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
+                        Is.EqualTo(typeof(TestConfigurationBuilder)));
         }
 
         [Test]
@@ -105,7 +107,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<NHibernateFacility>(
                 f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(DummyConfigurationBuilder)));
+            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
+                        Is.EqualTo(typeof(DummyConfigurationBuilder)));
         }
 
         [Test]
@@ -121,7 +124,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
             var sessionStore = container.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(WebSessionStore), sessionStore);
+            Assert.That(sessionStore, Is.InstanceOf(typeof(WebSessionStore)));
         }
     }
 
@@ -150,22 +153,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             throw new System.NotImplementedException();
         }
 
-        public void Remove(SessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public void Remove(StatelessSessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public void Store(string alias, SessionDelegate session)
         {
             throw new System.NotImplementedException();
         }
 
+        public void Remove(SessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public void Store(string alias, StatelessSessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Remove(StatelessSessionDelegate session)
         {
             throw new System.NotImplementedException();
         }

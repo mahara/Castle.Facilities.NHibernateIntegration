@@ -38,7 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var sessionStore = Container.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(LogicalCallContextSessionStore), sessionStore);
+            Assert.That(sessionStore, Is.InstanceOf(typeof(LogicalCallContextSessionStore)));
         }
 
         [Test]
