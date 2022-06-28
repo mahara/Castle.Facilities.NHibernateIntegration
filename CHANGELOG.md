@@ -3,6 +3,7 @@
 ## 5.3.x (202x-xx-xx)
 
 Breaking Changes:
+- Upgraded to .NET 6.0 and .NET Framework 4.8.
 - Upgraded Castle.Services.Transaction version to 5.3.0
 - Upgraded Castle.Facilities.AutoTx version to 5.3.0
 - Replaced Castle.Services.Transaction.TransactionMode with System.Transactions.TransactionScopeOption.

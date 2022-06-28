@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,8 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
     using System.Collections.Generic;
     using System.IO;
-    using System.Runtime.Serialization.Formatters.Binary;
+
+    using Newtonsoft.Json;
 
     using NHibernate.Cfg;
 
@@ -28,48 +29,29 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     /// </summary>
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
-        /// <summary>
-        /// Gets the <see cref="Configuration" /> from the file.
-        /// </summary>
-        /// <param name="filename">The name of the file to read from.</param>
-        /// <returns>The <see cref="Configuration" />.</returns>
-        public virtual Configuration ReadConfiguration(string filename)
+        readonly ObjectPersister<Configuration> _persister = new();
+
+        /// <inheritdoc />
+        public virtual Configuration ReadConfiguration(string filePath)
         {
-            var formatter = new BinaryFormatter();
-            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-            {
-                return formatter.Deserialize(fileStream) as Configuration;
-            }
+            return _persister.Read(filePath);
         }
 
-        /// <summary>
-        /// Writes the <see cref="Configuration" /> to the file.
-        /// </summary>
-        /// <param name="filename">The name of the file to write to.</param>
-        /// <param name="configuration">The <see cref="Configuration" />.</param>
-        public virtual void WriteConfiguration(string filename, Configuration configuration)
+        /// <inheritdoc />
+        public virtual void WriteConfiguration(string filePath, Configuration configuration)
         {
-            var formatter = new BinaryFormatter();
-            using (var fileStream = new FileStream(filename, FileMode.OpenOrCreate))
-            {
-                formatter.Serialize(fileStream, configuration);
-            }
+            _persister.Write(filePath, configuration);
         }
 
-        /// <summary>
-        /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
-        /// </summary>
-        /// <param name="filename">The name of the file containing the <see cref="Configuration" />.</param>
-        /// <param name="dependencies">The files that the serialized configuration depends on. </param>
-        /// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
-        public virtual bool IsNewConfigurationRequired(string filename, IList<string> dependencies)
+        /// <inheritdoc />
+        public virtual bool IsNewConfigurationRequired(string filePath, IList<string> dependencies)
         {
-            if (!File.Exists(filename))
+            if (!File.Exists(filePath))
             {
                 return true;
             }
 
-            var lastModified = File.GetLastWriteTime(filename);
+            var lastModified = File.GetLastWriteTime(filePath);
 
             var requiresNew = false;
 

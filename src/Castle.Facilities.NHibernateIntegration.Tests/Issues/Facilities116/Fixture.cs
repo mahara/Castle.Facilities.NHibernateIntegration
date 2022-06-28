@@ -24,6 +24,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
     using Builders;
 
+    using Castle.Facilities.NHibernateIntegration.Persisters;
     using Castle.MicroKernel;
 
     using Core.Configuration;
@@ -43,7 +44,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         protected override string ConfigurationFile =>
             "EmptyConfiguration.xml";
 
-        private const string FileName = "myconfig.dat";
+        private const string File = "myconfig.dat";
 
         private IConfiguration _configuration;
         private IConfigurationBuilder _configurationBuilder;
@@ -60,71 +61,67 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         public override void OnTearDown()
         {
-            File.Delete(FileName);
+            System.IO.File.Delete(File);
         }
 
         [Test]
         public void CanCreateSerializedFileInTheDisk()
         {
-            Assert.IsFalse(File.Exists(FileName));
+            Assert.That(System.IO.File.Exists(File), Is.False);
 
             _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(FileName));
+            Assert.That(System.IO.File.Exists(File), Is.True);
 
-            var bf = new BinaryFormatter();
-            Configuration nhConfig;
-            using (var fileStream = new FileStream(FileName, FileMode.Open))
-            {
-                nhConfig = bf.Deserialize(fileStream) as Configuration;
-            }
+            var persister = new ObjectPersister<Configuration>();
+            var configuration = persister.Read(File);
 
-            Assert.IsNotNull(nhConfig);
+            Assert.That(configuration, Is.Not.Null);
 
-            ConfigureConnectionSettings(nhConfig);
+            ConfigureConnectionSettings(configuration);
 
-            nhConfig.BuildSessionFactory();
+            configuration.BuildSessionFactory();
         }
 
         [Test]
         public void CanDeserializeFileFromTheDiskIfNewEnough()
         {
-            Assert.IsFalse(File.Exists(FileName));
+            Assert.That(System.IO.File.Exists(File), Is.False);
 
-            var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(FileName));
+            _ = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.That(System.IO.File.Exists(File), Is.True);
 
-            var dateTime = File.GetLastWriteTime(FileName);
+            var dateTime = System.IO.File.GetLastWriteTime(File);
             Thread.Sleep(1000);
 
-            nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.AreEqual(File.GetLastWriteTime(FileName), dateTime);
-            Assert.IsNotNull(_configuration);
+            var configuration = _configurationBuilder.GetConfiguration(_configuration);
+            Assert.That(dateTime, Is.EqualTo(System.IO.File.GetLastWriteTime(File)));
+            Assert.That(_configuration, Is.Not.Null);
 
-            ConfigureConnectionSettings(nhConfig);
+            ConfigureConnectionSettings(configuration);
 
-            nhConfig.BuildSessionFactory();
+            configuration.BuildSessionFactory();
         }
 
         [Test]
         public void CanDeserializeFileFromTheDiskIfOneOfTheDependenciesIsNewer()
         {
-            Assert.IsFalse(File.Exists(FileName));
+            Assert.That(System.IO.File.Exists(File), Is.False);
 
             var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.IsTrue(File.Exists(FileName));
+            Assert.That(System.IO.File.Exists(File), Is.True);
 
-            var dateTime = File.GetLastWriteTime(FileName);
+            var dateTime = System.IO.File.GetLastWriteTime(File);
             Thread.Sleep(100);
 
             var dateTime2 = DateTime.Now;
             var fileName = "SampleDllFile";
             var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, fileName);
-            File.Create(filePath).Dispose();
-            File.SetLastWriteTime(filePath, dateTime2);
+            System.IO.File.Create(filePath).Dispose();
+            System.IO.File.SetLastWriteTime(filePath, dateTime2);
 
             nhConfig = _configurationBuilder.GetConfiguration(_configuration);
-            Assert.Greater(File.GetLastWriteTime(filePath), dateTime);
-            Assert.IsNotNull(_configuration);
+            Assert.That(System.IO.File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime));
+            Assert.That(_configuration, Is.Not.Null);
 
             ConfigureConnectionSettings(nhConfig);
 

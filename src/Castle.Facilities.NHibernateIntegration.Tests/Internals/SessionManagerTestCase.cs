@@ -52,9 +52,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             session.Close();
 
             var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
-            Assert.IsNotNull(interceptor);
-            Assert.IsTrue(interceptor.ConfirmOnSaveCall());
-            Assert.IsTrue(interceptor.ConfirmInstantiationCall());
+            Assert.That(interceptor, Is.Not.Null);
+            Assert.That(interceptor.ConfirmOnSaveCall(), Is.True);
+            Assert.That(interceptor.ConfirmInstantiationCall(), Is.True);
 
             interceptor.ResetState();
         }
@@ -81,38 +81,38 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             // Nested
             using (var session2 = manager.OpenSession())
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session1);
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session1, Is.Not.Null);
 
                 var transaction1 = session1.GetCurrentTransaction();
-                Assert.IsNotNull(transaction1,
+                Assert.That(transaction1, Is.Not.Null,
                                  "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.IsTrue(transaction1.IsActive,
+                Assert.That(transaction1.IsActive, Is.True,
                               "After requesting compatible session, first session is enlisted in transaction too.");
 
                 using (var session3 = manager.OpenSession())
                 {
-                    Assert.IsNotNull(session3);
+                    Assert.That(session3, Is.Not.Null);
 
                     var transaction3 = session3.GetCurrentTransaction();
-                    Assert.IsNotNull(transaction3);
-                    Assert.IsTrue(transaction3.IsActive);
+                    Assert.That(transaction3, Is.Not.Null);
+                    Assert.That(transaction3.IsActive, Is.True);
                 }
 
                 var sessionDelegate1 = (SessionDelegate) session1;
                 var sessionDelegate2 = (SessionDelegate) session2;
 
-                Assert.AreSame(sessionDelegate1.InnerSession, sessionDelegate2.InnerSession);
+                Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(session1.IsConnected, Is.True);
 
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -136,37 +136,37 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             // Nested
             using (var session2 = manager.OpenStatelessSession())
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session1);
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session1, Is.Not.Null);
 
                 var transaction1 = session1.GetCurrentTransaction();
-                Assert.IsNotNull(transaction1,
+                Assert.That(transaction1, Is.Not.Null,
                                  "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.IsTrue(transaction1.IsActive,
+                Assert.That(transaction1.IsActive, Is.True,
                               "After requesting compatible session, first session is enlisted in transaction too.");
 
                 using (var session3 = manager.OpenSession())
                 {
-                    Assert.IsNotNull(session3);
+                    Assert.That(session3, Is.Not.Null);
 
                     var transaction3 = session3.GetCurrentTransaction();
-                    Assert.IsNotNull(transaction3);
-                    Assert.IsTrue(transaction3.IsActive);
+                    Assert.That(transaction3, Is.Not.Null);
+                    Assert.That(transaction3.IsActive, Is.True);
                 }
 
                 var sessionDelegate1 = (StatelessSessionDelegate) session1;
                 var sessionDelegate2 = (StatelessSessionDelegate) session2;
-                Assert.AreSame(sessionDelegate1.InnerSession, sessionDelegate2.InnerSession);
+                Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(session1.IsConnected, Is.True);
 
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -187,17 +187,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             transaction.Begin();
 
             var session = manager.OpenSession();
-            Assert.IsNotNull(session);
-            Assert.IsNotNull(session.GetCurrentTransaction());
-            Assert.IsTrue(session.IsConnected);
+            Assert.That(session, Is.Not.Null);
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -217,23 +217,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             transaction.Begin();
 
             var session1 = manager.OpenSession();
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session1.GetCurrentTransaction());
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session1.IsConnected, Is.True);
 
             var session2 = manager.OpenSession("db2");
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session2.GetCurrentTransaction());
-            Assert.IsTrue(session2.IsConnected);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session2.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -253,17 +253,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             transaction.Begin();
 
             var session = manager.OpenStatelessSession();
-            Assert.IsNotNull(session);
-            Assert.IsNotNull(session.GetCurrentTransaction());
-            Assert.IsTrue(session.IsConnected);
+            Assert.That(session, Is.Not.Null);
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -282,23 +282,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             transaction.Begin();
 
             var session1 = manager.OpenStatelessSession();
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session1.GetCurrentTransaction());
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session1.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session1.IsConnected, Is.True);
 
             var session2 = manager.OpenStatelessSession("db2");
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session2.GetCurrentTransaction());
-            Assert.IsTrue(session2.IsConnected);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
+            Assert.That(session2.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         [Test]
@@ -337,9 +337,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             session.Close();
 
             var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
-            Assert.IsNotNull(interceptor);
-            Assert.IsFalse(interceptor.ConfirmOnSaveCall());
-            Assert.IsFalse(interceptor.ConfirmInstantiationCall());
+            Assert.That(interceptor, Is.Not.Null);
+            Assert.That(interceptor.ConfirmOnSaveCall(), Is.False);
+            Assert.That(interceptor.ConfirmInstantiationCall(), Is.False);
 
             interceptor.ResetState();
         }
@@ -367,30 +367,30 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             // Open connection to second database and enlist session in running transaction.
             using (var session2 = manager.OpenSession("db2"))
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session2.GetCurrentTransaction());
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
             }
             // "real" NH session2 was not disposed because its in active transaction.
 
             // Request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction.
             using (var session3 = manager.OpenSession("db2"))
             {
-                Assert.IsNotNull(session3);
+                Assert.That(session3, Is.Not.Null);
 
                 var transaction3 = session3.GetCurrentTransaction();
-                Assert.IsNotNull(transaction3);
-                Assert.IsTrue(transaction3.IsActive);
+                Assert.That(transaction3, Is.Not.Null);
+                Assert.That(transaction3.IsActive, Is.True);
             }
 
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         /// <summary>
@@ -415,30 +415,30 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             // Open connection to second database and enlist session in running transaction.
             using (var session2 = manager.OpenStatelessSession("db2"))
             {
-                Assert.IsNotNull(session2);
-                Assert.IsNotNull(session2.GetCurrentTransaction());
+                Assert.That(session2, Is.Not.Null);
+                Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
             }
             // "real" NH session2 was not disposed because its in active transaction.
 
             // Request compatible session for db2 --> we must get existing NH session to db2 which should be already enlisted in active transaction.
             using (var session3 = manager.OpenStatelessSession("db2"))
             {
-                Assert.IsNotNull(session3);
+                Assert.That(session3, Is.Not.Null);
 
                 var transaction3 = session3.GetCurrentTransaction();
-                Assert.IsNotNull(transaction3);
-                Assert.IsTrue(transaction3.IsActive);
+                Assert.That(transaction3, Is.Not.Null);
+                Assert.That(transaction3.IsActive, Is.True);
             }
 
-            Assert.IsTrue(session1.IsConnected);
+            Assert.That(session1.IsConnected, Is.True);
 
             transaction.Commit();
 
-            Assert.IsTrue(transaction.Status == TransactionStatus.Committed);
+            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
 
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         [Test]
@@ -450,17 +450,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session2 = manager.OpenSession();
             var session3 = manager.OpenSession();
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session3);
-            Assert.IsTrue(SessionDelegate.AreEqual(session1, session2));
-            Assert.IsTrue(SessionDelegate.AreEqual(session1, session3));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session3, Is.Not.Null);
+            Assert.That(SessionDelegate.AreEqual(session1, session2), Is.True);
+            Assert.That(SessionDelegate.AreEqual(session1, session3), Is.True);
 
             session3.Dispose();
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         [Test]
@@ -472,17 +472,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session2 = manager.OpenStatelessSession();
             var session3 = manager.OpenStatelessSession();
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsNotNull(session3);
-            Assert.IsTrue(StatelessSessionDelegate.AreEqual(session1, session2));
-            Assert.IsTrue(StatelessSessionDelegate.AreEqual(session1, session3));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(session3, Is.Not.Null);
+            Assert.That(StatelessSessionDelegate.AreEqual(session1, session2), Is.True);
+            Assert.That(StatelessSessionDelegate.AreEqual(session1, session3), Is.True);
 
             session3.Dispose();
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         [Test]
@@ -493,14 +493,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session1 = manager.OpenSession();
             var session2 = manager.OpenSession("db2");
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsFalse(ReferenceEquals(session1, session2));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(ReferenceEquals(session1, session2), Is.False);
 
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
 
         [Test]
@@ -511,14 +511,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session1 = manager.OpenStatelessSession();
             var session2 = manager.OpenStatelessSession("db2");
 
-            Assert.IsNotNull(session1);
-            Assert.IsNotNull(session2);
-            Assert.IsFalse(ReferenceEquals(session1, session2));
+            Assert.That(session1, Is.Not.Null);
+            Assert.That(session2, Is.Not.Null);
+            Assert.That(ReferenceEquals(session1, session2), Is.False);
 
             session2.Dispose();
             session1.Dispose();
 
-            Assert.IsTrue(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
     }
 }

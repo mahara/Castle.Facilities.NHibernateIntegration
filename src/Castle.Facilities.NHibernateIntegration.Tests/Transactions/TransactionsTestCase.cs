@@ -85,12 +85,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogName = "Delicious Food!";
 
             var blogA = service.CreateBlogUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogA);
+            Assert.That(blogA, Is.Not.Null);
 
             var blogB = service.FindBlogUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogB);
+            Assert.That(blogB, Is.Not.Null);
 
-            Assert.AreEqual(blogA.Name, blogB.Name);
+            Assert.That(blogB.Name, Is.EqualTo(blogA.Name));
         }
 
         [Test]
@@ -101,12 +101,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogName = "Delicious Food!";
 
             var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogA);
+            Assert.That(blogA, Is.Not.Null);
 
             var blogB = service.FindBlogStatelessUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogB);
+            Assert.That(blogB, Is.Not.Null);
 
-            Assert.AreEqual(blogA.Name, blogB.Name);
+            Assert.That(blogB.Name, Is.EqualTo(blogA.Name));
         }
 
         [Test]
@@ -119,10 +119,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAll(typeof(Blog));
             var blogitems = service.FindAll(typeof(BlogItem));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogs.Length, Is.EqualTo(1));
+            Assert.That(blogitems.Length, Is.EqualTo(1));
         }
 
         [Test]
@@ -135,10 +135,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAllStateless(typeof(Blog));
             var blogitems = service.FindAllStateless(typeof(BlogItem));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogs.Length, Is.EqualTo(1));
+            Assert.That(blogitems.Length, Is.EqualTo(1));
         }
 
         [Test]
@@ -179,7 +179,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(1));
                 var blogItems = rootService.FindAll(typeof(BlogItem));
                 Assert.IsEmpty(blogItems);
             }
@@ -225,7 +225,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(1));
                 var blogItems = rootService.FindAllStateless(typeof(BlogItem));
                 Assert.IsEmpty(blogItems);
             }
@@ -253,7 +253,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(1));
             }
 
             Assert.IsNull(transaction);
@@ -281,7 +281,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(1));
             }
 
             Assert.IsNull(transaction);
@@ -315,7 +315,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(3, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(3));
             }
 
             Assert.IsNull(transaction);
@@ -350,7 +350,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(3, blogs.Length);
+                Assert.That(blogs.Length, Is.EqualTo(3));
             }
 
             Assert.IsNull(transaction);

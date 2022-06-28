@@ -624,7 +624,9 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (_isWeb)
             {
+#if NETFRAMEWORK
                 sessionStoreType = typeof(WebSessionStore);
+#endif
             }
 
             if (_customStore != null)

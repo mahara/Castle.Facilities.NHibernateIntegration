@@ -40,7 +40,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenSession())
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -61,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenSession())
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -82,7 +82,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -104,7 +104,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -126,7 +126,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {
@@ -147,7 +147,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var item = new BlogItem
                 {

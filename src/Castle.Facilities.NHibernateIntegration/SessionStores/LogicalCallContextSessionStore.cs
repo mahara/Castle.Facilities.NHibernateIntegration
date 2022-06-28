@@ -16,6 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+    using System;
+#if NETFRAMEWORK
     using System.Collections;
     using System.Runtime.Remoting.Messaging;
 
@@ -25,40 +27,54 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// </summary>
     public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
     {
-        /// <summary>
-        /// Gets the dictionary.
-        /// </summary>
-        /// <returns></returns>
         protected override IDictionary GetDictionary()
         {
             return CallContext.LogicalGetData(SlotKey) as IDictionary;
         }
 
-        /// <summary>
-        /// Stores the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
         protected override void StoreDictionary(IDictionary dictionary)
         {
             CallContext.LogicalSetData(SlotKey, dictionary);
         }
 
-        /// <summary>
-        /// Gets the IStatelessSession dictionary.
-        /// </summary>
-        /// <returns>A dictionary.</returns>
         protected override IDictionary GetStatelessSessionDictionary()
         {
             return CallContext.LogicalGetData(StatelessSessionSlotKey) as IDictionary;
         }
 
-        /// <summary>
-        /// Stores the IStatelessSession dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
         protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
         {
             CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
         }
     }
+#else
+    using System.Collections;
+
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on .NET Framework logical CallContext.
+    /// </summary>
+    public class LogicalCallContextSessionStore : AbstractDictStackSessionStore
+    {
+        protected override IDictionary GetDictionary()
+        {
+            throw new PlatformNotSupportedException();
+        }
+
+        protected override void StoreDictionary(IDictionary dictionary)
+        {
+            throw new PlatformNotSupportedException();
+        }
+
+        protected override IDictionary GetStatelessSessionDictionary()
+        {
+            throw new PlatformNotSupportedException();
+        }
+
+        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        {
+            throw new PlatformNotSupportedException();
+        }
+    }
+#endif
 }

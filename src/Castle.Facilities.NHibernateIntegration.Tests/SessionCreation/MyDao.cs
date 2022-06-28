@@ -35,7 +35,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.IsNotNull(session);
+                Assert.That(session, Is.Not.Null);
 
                 _otherDao.PerformPieceOfOperation(session);
             }
@@ -57,13 +57,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             using (var session = _sessionManager.OpenSession())
             {
-                Assert.IsTrue(session.IsConnected);
-                Assert.IsTrue(session.IsOpen);
+                Assert.That(session.IsConnected, Is.True);
+                Assert.That(session.IsOpen, Is.True);
 
                 session.Close();
 
-                Assert.IsFalse(session.IsConnected);
-                Assert.IsFalse(session.IsOpen);
+                Assert.That(session.IsConnected, Is.False);
+                Assert.That(session.IsOpen, Is.False);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.IsNotNull(session);
+                Assert.That(session, Is.Not.Null);
 
                 _otherDao.PerformStatelessPieceOfOperation(session);
             }
@@ -93,13 +93,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             using (var session = _sessionManager.OpenStatelessSession())
             {
-                Assert.IsTrue(session.IsConnected);
-                Assert.IsTrue(session.IsOpen);
+                Assert.That(session.IsConnected, Is.True);
+                Assert.That(session.IsOpen, Is.True);
 
                 session.Close();
 
-                Assert.IsFalse(session.IsConnected);
-                Assert.IsFalse(session.IsOpen);
+                Assert.That(session.IsConnected, Is.False);
+                Assert.That(session.IsOpen, Is.False);
             }
         }
     }

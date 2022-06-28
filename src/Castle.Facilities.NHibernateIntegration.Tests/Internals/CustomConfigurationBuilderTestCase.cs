@@ -68,6 +68,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         }
     }
 
+    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
+#if NETFRAMEWORK
     public abstract class AbstractCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
     {
         [Test]
@@ -76,7 +78,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session = Container.Resolve<ISessionManager>().OpenSession();
             var configurationBuilder = (CustomConfigurationBuilder) Container.Resolve<IConfigurationBuilder>();
 
-            Assert.AreEqual(1, configurationBuilder.ConfigurationsCreated);
+            Assert.That(configurationBuilder.ConfigurationsCreated, Is.EqualTo(1));
 
             session.Close();
         }
@@ -125,4 +127,5 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                               .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found"));
         }
     }
+#endif
 }

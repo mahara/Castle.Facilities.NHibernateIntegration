@@ -16,6 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+    using System;
+#if NETFRAMEWORK
     using System.Collections;
     using System.Web;
 
@@ -23,14 +25,11 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
-    /// which relies on <see cref="HttpContext" />. Suitable for web projects.
+    /// which relies on <see cref="HttpContext" />.
+    /// It's intended for legacy ASP.NET projects.
     /// </summary>
     public class WebSessionStore : AbstractDictStackSessionStore
     {
-        /// <summary>
-        /// Gets the dictionary.
-        /// </summary>
-        /// <returns></returns>
         protected override IDictionary GetDictionary()
         {
             var currentContext = ObtainSessionContext();
@@ -38,10 +37,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             return currentContext.Items[SlotKey] as IDictionary;
         }
 
-        /// <summary>
-        /// Stores the dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
         protected override void StoreDictionary(IDictionary dictionary)
         {
             var currentContext = ObtainSessionContext();
@@ -49,10 +44,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             currentContext.Items[SlotKey] = dictionary;
         }
 
-        /// <summary>
-        /// Gets the IStatelessSession dictionary.
-        /// </summary>
-        /// <returns>A dictionary.</returns>
         protected override IDictionary GetStatelessSessionDictionary()
         {
             var currentContext = ObtainSessionContext();
@@ -60,10 +51,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
         }
 
-        /// <summary>
-        /// Stores the IStatelessSession dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
         protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
         {
             var currentContext = ObtainSessionContext();
@@ -73,14 +60,75 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         private static HttpContext ObtainSessionContext()
         {
-            var currentContext = HttpContext.Current;
-
-            if (currentContext == null)
+            var context = HttpContext.Current;
+            if (context == null)
             {
-                throw new FacilityException("WebSessionStore: Could not obtain reference to HttpContext.");
+                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(HttpContext)}.");
             }
 
-            return currentContext;
+            return context;
         }
     }
+#else
+    using System.Collections;
+
+    using MicroKernel.Facilities;
+
+    using Microsoft.AspNetCore.Http;
+
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="_httpContext" />.
+    /// It's intended for ASP.NET (Core) projects.
+    /// </summary>
+    public class WebSessionStore : AbstractDictStackSessionStore
+    {
+        private HttpContext _httpContext;
+
+        [CLSCompliant(false)]
+        public WebSessionStore(HttpContext httpContext)
+        {
+            _httpContext = httpContext;
+        }
+
+        protected override IDictionary GetDictionary()
+        {
+            var currentContext = ObtainSessionContext();
+
+            return currentContext.Items[SlotKey] as IDictionary;
+        }
+
+        protected override void StoreDictionary(IDictionary dictionary)
+        {
+            var currentContext = ObtainSessionContext();
+
+            currentContext.Items[SlotKey] = dictionary;
+        }
+
+        protected override IDictionary GetStatelessSessionDictionary()
+        {
+            var currentContext = ObtainSessionContext();
+
+            return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
+        }
+
+        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        {
+            var currentContext = ObtainSessionContext();
+
+            currentContext.Items[StatelessSessionSlotKey] = dictionary;
+        }
+
+        private HttpContext ObtainSessionContext()
+        {
+            var context = _httpContext;
+            if (context == null)
+            {
+                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(Microsoft.AspNetCore.Http.HttpContext)}.");
+            }
+
+            return context;
+        }
+    }
+#endif
 }

@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
         {
             var componentModel = Container.Kernel.GetHandler("sessionFactory1").ComponentModel;
 
-            Assert.AreEqual(LifestyleType.Singleton, componentModel.LifestyleType);
+            Assert.That(componentModel.LifestyleType, Is.EqualTo(LifestyleType.Singleton));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
                 typeof(DefaultHandler).GetField("lifestyleManager",
                                                 BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
             var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
-            Assert.IsNotNull(lifeStyleManager);
+            Assert.That(lifeStyleManager, Is.Not.Null);
 
             var instanceField =
                 typeof(SingletonLifestyleManager).GetField("instance",
@@ -61,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
             Container.Resolve<ISessionFactory>();
 
             instance = instanceField.GetValue(lifeStyleManager);
-            Assert.IsNotNull(instance);
+            Assert.That(instance, Is.Not.Null);
         }
     }
 }

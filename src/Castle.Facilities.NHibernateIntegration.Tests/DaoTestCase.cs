@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,8 +33,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 
             var blogs = dao.ObtainBlogs();
 
-            Assert.IsNotNull(blogs);
-            Assert.AreEqual(1, blogs.Count);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
         }
 
         [Test]
@@ -47,8 +47,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 
             var blogs = dao.ObtainBlogsStateless();
 
-            Assert.IsNotNull(blogs);
-            Assert.AreEqual(1, blogs.Count);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogs, Has.Count.EqualTo(1));
         }
     }
 }

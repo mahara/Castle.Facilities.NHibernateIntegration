@@ -16,6 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Components
 {
+    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
+#if NETFRAMEWORK
     using System;
 
     using MicroKernel.Registration;
@@ -575,4 +577,5 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             }
         }
     }
+#endif
 }

@@ -36,9 +36,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
                 "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
             var b = new XmlConfigurationBuilder();
             var cfg = b.GetConfiguration(castleConfiguration);
-            Assert.IsNotNull(cfg);
+            Assert.That(cfg, Is.Not.Null);
             var str = cfg.Properties["connection.provider"];
-            Assert.AreEqual("DummyProvider", str);
+            Assert.That(str, Is.EqualTo("DummyProvider"));
             str = cfg.Properties["connection.connection_string"];
             Assert.IsNotEmpty(str);
             str = cfg.Properties["connection.driver_class"];

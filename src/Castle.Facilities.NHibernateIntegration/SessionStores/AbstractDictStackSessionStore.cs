@@ -20,7 +20,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     using System.Collections;
     using System.Collections.Specialized;
     using System.Runtime.CompilerServices;
-    using System.Runtime.Remoting.Messaging;
 
     /// <summary>
     ///
@@ -34,12 +33,12 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 
         /// <summary>
-        /// The Session storage name for <see cref="CallContext" />.
+        /// The Session storage name.
         /// </summary>
         protected string SlotKey { get; }
 
         /// <summary>
-        /// The StatelessSession storage name for <see cref="CallContext" />.
+        /// The StatelessSession storage name.
         /// </summary>
         protected string StatelessSessionSlotKey { get; }
 
@@ -49,7 +48,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// <param name="alias">The alias.</param>
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.Synchronized)]
-        protected override Stack GetStackFor(string alias)
+        protected override Stack GetSessionStackFor(string alias)
         {
             if (alias == null)
             {

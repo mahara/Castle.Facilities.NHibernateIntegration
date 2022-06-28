@@ -155,10 +155,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         #region ISession Members
 
-        /// <summary>
-        /// Get the <see cref="T:NHibernate.ISessionFactory" /> that created this instance.
-        /// </summary>
-        /// <value></value>
+        /// <inheritdoc />
         public ISessionFactory SessionFactory =>
             InnerSession.SessionFactory;
 

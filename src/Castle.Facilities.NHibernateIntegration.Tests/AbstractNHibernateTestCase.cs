@@ -25,19 +25,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
     using NUnit.Framework;
 
-    using Rhino.Mocks;
-
     using Windsor;
     using Windsor.Configuration.Interpreters;
 
     public abstract class AbstractNHibernateTestCase
     {
         protected IWindsorContainer Container;
-        protected MockRepository MockRepository;
 
         public AbstractNHibernateTestCase()
         {
-            MockRepository = new MockRepository();
         }
 
         protected virtual string ConfigurationFile =>
@@ -82,6 +78,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             Container = null;
         }
 
+        protected string GetContainerFile()
+        {
+            return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
+        }
+
         protected virtual void ConfigureContainer()
         {
         }
@@ -92,11 +93,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         public virtual void OnTearDown()
         {
-        }
-
-        protected string GetContainerFile()
-        {
-            return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
         }
     }
 }

@@ -45,8 +45,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
-                Assert.IsTrue(transaction.IsActive);
+                Assert.That(transaction, Is.Not.Null);
+                Assert.That(transaction.IsActive, Is.True);
 
                 var blog = new Blog
                 {
@@ -65,7 +65,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 session.Delete($"from Blog b where b.Name ='{name}'");
                 session.Flush();
@@ -93,8 +93,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
-                Assert.IsTrue(transaction.IsActive);
+                Assert.That(transaction, Is.Not.Null);
+                Assert.That(transaction.IsActive, Is.True);
 
                 var blog = new Blog
                 {
@@ -112,7 +112,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 session.Delete($"from Blog b where b.Name ='{name}'");
             }

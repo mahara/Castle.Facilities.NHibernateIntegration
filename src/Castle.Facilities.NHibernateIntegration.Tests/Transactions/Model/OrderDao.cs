@@ -40,7 +40,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var order = new Order
                 {
@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 order.Value = newval;
 
@@ -72,7 +72,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var order = (Order) session.Load(typeof(Order), orderId);
 
@@ -86,7 +86,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var order = new Order
                 {
@@ -104,7 +104,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 order.Value = newval;
 
@@ -118,7 +118,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = _sessionManager.OpenStatelessSession("db2"))
             {
                 var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Assert.That(transaction, Is.Not.Null);
 
                 var order = (Order) session.Get(typeof(Order).FullName, orderId);
 

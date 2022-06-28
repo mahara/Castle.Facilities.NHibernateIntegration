@@ -58,13 +58,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             // The last set session store should be CallContextSessionStore.
             container.AddFacility<NHibernateFacility>(
                 f => f.IsWeb()
+#if NETFRAMEWORK
                       .SessionStore<LogicalCallContextSessionStore>()
                       .SessionStore<CallContextSessionStore>()
+#endif
+                      .SessionStore<DummySessionStore>()
                       .ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(CallContextSessionStore), sessionStore);
+            Assert.IsInstanceOf(typeof(DummySessionStore), sessionStore);
         }
 
         [Test]
@@ -78,7 +81,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             var sessionManager = container.Resolve<ISessionManager>();
             sessionManager.OpenSession();
 
-            Assert.AreEqual(typeof(TestConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
+            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(TestConfigurationBuilder)));
         }
 
         [Test]
@@ -105,7 +108,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<NHibernateFacility>(
                 f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
-            Assert.AreEqual(typeof(DummyConfigurationBuilder), container.Resolve<IConfigurationBuilder>().GetType());
+            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(DummyConfigurationBuilder)));
         }
 
         [Test]
@@ -130,6 +133,44 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
         public Configuration GetConfiguration(IConfiguration config)
         {
             return new Configuration();
+        }
+    }
+
+    internal class DummySessionStore : ISessionStore
+    {
+        public SessionDelegate FindCompatibleSession(string alias)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public bool IsCurrentActivityEmptyFor(string alias)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Remove(SessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Remove(StatelessSessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Store(string alias, SessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void Store(string alias, StatelessSessionDelegate session)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

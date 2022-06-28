@@ -16,6 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
+#if NETFRAMEWORK
     using Common;
 
     using NHibernate.Cfg;
@@ -33,11 +35,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
 
-            Assert.AreEqual(1, configuration.EventListeners.SaveOrUpdateEventListeners.Length);
-            Assert.AreEqual(typeof(CustomSaveUpdateListener), configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType());
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners.Length, Is.EqualTo(1));
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType(), Is.EqualTo(typeof(CustomSaveUpdateListener)));
 
-            Assert.AreEqual(1, configuration.EventListeners.DeleteEventListeners.Length);
-            Assert.AreEqual(typeof(CustomDeleteListener), configuration.EventListeners.DeleteEventListeners[0].GetType());
+            Assert.That(configuration.EventListeners.DeleteEventListeners.Length, Is.EqualTo(1));
+            Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
         }
     }
+#endif
 }
