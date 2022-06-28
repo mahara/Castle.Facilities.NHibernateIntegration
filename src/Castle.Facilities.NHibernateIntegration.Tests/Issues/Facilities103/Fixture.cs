@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data;
+using System.Transactions;
 
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.MicroKernel;
@@ -38,8 +38,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         private const string Alias = "myAlias";
         private const string SessionInterceptor_ComponentName = Constants.SessionInterceptor_ComponentName;
         private const string SessionInterceptor_ComponentNameFormat = Constants.SessionInterceptor_ComponentNameFormat;
-        private const IsolationMode DefaultIsolationMode = IsolationMode.ReadUncommitted;
-        private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadUncommitted;
+        private const IsolationLevel DefaultIsolationMode = IsolationLevel.ReadUncommitted;
+        private const System.Data.IsolationLevel DefaultIsolationLevel = System.Data.IsolationLevel.ReadUncommitted;
 
         private IKernel _kernel;
         private IDictionary<string, object> _transactionContext;
@@ -75,7 +75,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             {
                 Expect.Call(_kernel.Resolve<ITransactionManager>()).Return(_transactionManager);
                 Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
+                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationMode).Repeat.Any();
                 Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
                 Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
                 Expect.Call(_kernel.HasComponent(string.Format(SessionInterceptor_ComponentNameFormat, Alias))).Return(false);
@@ -111,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             {
                 Expect.Call(_kernel.Resolve<ITransactionManager>()).Return(_transactionManager);
                 Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationMode).Return(DefaultIsolationMode).Repeat.Any();
+                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationMode).Repeat.Any();
                 Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
                 Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
                 Expect.Call(_sessionFactory.OpenStatelessSession()).Return(_statelessSession);
