@@ -49,7 +49,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         private IConfiguration _configuration;
         private IConfigurationBuilder _configurationBuilder;
 
-        public override void OnSetUp()
+        protected override void OnSetUp()
         {
             var configurationStore = new DefaultConfigurationStore();
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
@@ -59,7 +59,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             _configurationBuilder = new PersistentConfigurationBuilder();
         }
 
-        public override void OnTearDown()
+        protected override void OnTearDown()
         {
             System.IO.File.Delete(File);
         }

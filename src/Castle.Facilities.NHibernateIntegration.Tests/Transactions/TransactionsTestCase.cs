@@ -151,7 +151,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var first = Container.Resolve<FirstDao>("myfirstdao");
                 var second = Container.Resolve<SecondDao>("myseconddao");
@@ -184,7 +184,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.IsEmpty(blogItems);
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
         }
 
         [Test]
@@ -197,7 +197,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenStatelessSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var first = Container.Resolve<FirstDao>("myfirstdao");
                 var second = Container.Resolve<SecondDao>("myseconddao");
@@ -230,7 +230,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.IsEmpty(blogItems);
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
         }
 
         [Test]
@@ -243,7 +243,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -256,7 +256,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.That(blogs.Length, Is.EqualTo(1));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -271,7 +271,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenStatelessSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -284,7 +284,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.That(blogs.Length, Is.EqualTo(1));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -299,7 +299,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -318,7 +318,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.That(blogs.Length, Is.EqualTo(3));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -334,7 +334,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 transaction = session.GetCurrentTransaction();
 
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -353,7 +353,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Assert.That(blogs.Length, Is.EqualTo(3));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }

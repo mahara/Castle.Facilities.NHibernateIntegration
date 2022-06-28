@@ -32,7 +32,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
             Container.Resolve<BlogRepository>().FetchAll();
 
-            Assert.IsNull(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias));
+            Assert.That(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias), Is.Null);
         }
     }
 }

@@ -87,11 +87,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
         }
 
-        public virtual void OnSetUp()
+        protected virtual void OnSetUp()
         {
         }
 
-        public virtual void OnTearDown()
+        protected virtual void OnTearDown()
         {
         }
     }

@@ -56,7 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var factory = Container.Resolve<ISessionFactory>();
 
             ISession session1 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             session1 = factory.OpenSession();
             var sessionDelegate1 = new SessionDelegate(true, session1, store);
@@ -64,7 +64,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
             ISession session2 = store.FindCompatibleSession("something in the way she moves");
-            Assert.IsNull(session2);
+            Assert.That(session2, Is.Null);
 
             session2 = store.FindCompatibleSession(Constants.DefaultAlias);
             Assert.That(session2, Is.Not.Null);
@@ -75,7 +75,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             store.Remove(sessionDelegate1);
 
             session1 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
@@ -108,7 +108,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var store = Container.Resolve<ISessionStore>();
 
             ISession session1 = store.FindCompatibleSession("something in the way she moves");
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             ISession session2 = store.FindCompatibleSession(Constants.DefaultAlias);
             Assert.That(session2, Is.Not.Null);
@@ -131,7 +131,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var factory = Container.Resolve<ISessionFactory>();
 
             IStatelessSession session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             session1 = factory.OpenStatelessSession();
             var sessionDelegate1 = new StatelessSessionDelegate(true, session1, store);
@@ -139,7 +139,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
             IStatelessSession session2 = store.FindCompatibleStatelessSession("something in the way she moves");
-            Assert.IsNull(session2);
+            Assert.That(session2, Is.Null);
 
             session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
             Assert.That(session2, Is.Not.Null);
@@ -150,7 +150,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             store.Remove(sessionDelegate1);
 
             session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
         }
@@ -184,7 +184,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var store = Container.Resolve<ISessionStore>();
 
             IStatelessSession session1 = store.FindCompatibleStatelessSession("something in the way she moves");
-            Assert.IsNull(session1);
+            Assert.That(session1, Is.Null);
 
             IStatelessSession session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
             Assert.That(session2, Is.Not.Null);

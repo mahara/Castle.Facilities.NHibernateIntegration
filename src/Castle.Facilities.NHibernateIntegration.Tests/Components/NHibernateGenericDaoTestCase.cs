@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Components
 {
-    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
-#if NETFRAMEWORK
     using System;
 
     using MicroKernel.Registration;
@@ -40,7 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         private NHibernateGenericDao _nhGenericDao1;
         private NHibernateGenericDao _nhGenericDao2;
 
-        public override void OnSetUp()
+        protected override void OnSetUp()
         {
             Container.Register(
                 Component.For<NHibernateGenericDao>()
@@ -90,7 +88,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             }
         }
 
-        public override void OnTearDown()
+        protected override void OnTearDown()
         {
             using (var session = _sessionManager.OpenSession())
             {
@@ -577,5 +575,4 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             }
         }
     }
-#endif
 }

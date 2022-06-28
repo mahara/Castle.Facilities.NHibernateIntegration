@@ -56,7 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
                 typeof(SingletonLifestyleManager).GetField("instance",
                                                            BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
             var instance = instanceField.GetValue(lifeStyleManager);
-            Assert.IsNull(instance);
+            Assert.That(instance, Is.Null);
 
             Container.Resolve<ISessionFactory>();
 

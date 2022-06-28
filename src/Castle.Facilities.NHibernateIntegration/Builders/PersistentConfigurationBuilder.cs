@@ -65,29 +65,29 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         {
             if (_logger.IsDebugEnabled)
             {
-                _logger.Debug("Building the Configuration");
+                _logger.Debug("Building the Configuration.");
             }
 
             var filename = GetFilenameFrom(facilityConfiguration);
             var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
 
-            Configuration cfg;
+            Configuration configuration;
             if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
             {
                 if (_logger.IsDebugEnabled)
                 {
-                    _logger.Debug("Configuration is either old or some of the dependencies have changed");
+                    _logger.Debug("Configuration is either old or some of the dependencies have changed.");
                 }
 
-                cfg = base.GetConfiguration(facilityConfiguration);
-                _configurationPersister.WriteConfiguration(filename, cfg);
+                configuration = base.GetConfiguration(facilityConfiguration);
+                _configurationPersister.WriteConfiguration(filename, configuration);
             }
             else
             {
-                cfg = _configurationPersister.ReadConfiguration(filename);
+                configuration = _configurationPersister.ReadConfiguration(filename);
             }
 
-            return cfg;
+            return configuration;
         }
 
         private string GetFilenameFrom(IConfiguration configuration)
@@ -105,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
         private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
         {
-            IList<string> list = new List<string>();
+            var list = new List<string>();
 
             var assemblies = configuration.Children["assemblies"];
             if (assemblies != null)

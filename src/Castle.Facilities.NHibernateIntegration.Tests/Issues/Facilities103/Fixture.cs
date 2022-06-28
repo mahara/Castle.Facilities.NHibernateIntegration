@@ -38,20 +38,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         protected override string ConfigurationFile =>
             "EmptyConfiguration.xml";
 
-        public override void OnSetUp()
-        {
-            _sessionStore = new AsyncLocalSessionStore();
-            _kernel = new Mock<IKernel>().Object;
-            _factoryResolver = new Mock<ISessionFactoryResolver>().Object;
-            _transactionManager = new Mock<ITransactionManager>().Object;
-            _transaction = new Mock<ITransaction>().Object;
-            _sessionFactory = new Mock<ISessionFactory>().Object;
-            _session = new Mock<ISession>().Object;
-            _statelessSession = new Mock<IStatelessSession>().Object;
-            _contextDictionary = new Hashtable();
-            _sessionManager = new DefaultSessionManager(_sessionStore, _kernel, _factoryResolver);
-        }
-
         private const string Alias = "myAlias";
         private const string InterceptorFormatString = DefaultSessionManager.InterceptorFormatString;
         private const string InterceptorName = DefaultSessionManager.InterceptorName;
@@ -68,6 +54,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         private ISession _session;
         private IStatelessSession _statelessSession;
         private IDictionary _contextDictionary;
+
+        protected override void OnSetUp()
+        {
+            _sessionStore = new AsyncLocalSessionStore();
+            _kernel = new Mock<IKernel>().Object;
+            _factoryResolver = new Mock<ISessionFactoryResolver>().Object;
+            _transactionManager = new Mock<ITransactionManager>().Object;
+            _transaction = new Mock<ITransaction>().Object;
+            _sessionFactory = new Mock<ISessionFactory>().Object;
+            _session = new Mock<ISession>().Object;
+            _statelessSession = new Mock<IStatelessSession>().Object;
+            _contextDictionary = new Hashtable();
+            _sessionManager = new DefaultSessionManager(_sessionStore, _kernel, _factoryResolver);
+        }
 
         [Test]
         public void WhenBeginTransactionFailsSessionIsRemovedFromSessionStore()
@@ -95,7 +95,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
                 Console.WriteLine(ex.ToString());
             }
 
-            Assert.IsNull(_sessionStore.FindCompatibleSession(Alias),
+            Assert.That(_sessionStore.FindCompatibleSession(Alias), Is.Null,
                           "The sessionStore shouldn't contain compatible session if the session creation fails.");
         }
 
@@ -122,8 +122,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
                 Console.WriteLine(ex.ToString());
             }
 
-            Assert.IsNull(_sessionStore.FindCompatibleStatelessSession(Alias),
-                          "The sessionStore shouldn't contain compatible session if the session creation fails.");
+            Assert.That(_sessionStore.FindCompatibleStatelessSession(Alias), Is.Null,
+                        "The sessionStore shouldn't contain compatible session if the session creation fails.");
         }
     }
 }

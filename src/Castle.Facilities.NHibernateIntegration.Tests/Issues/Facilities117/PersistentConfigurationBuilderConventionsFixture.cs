@@ -36,7 +36,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
     [TestFixture]
     public class PersistentConfigurationBuilderConventionsFixture
     {
-        private IConfiguration facilityCfg;
+        private IConfiguration _facilityConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -45,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            facilityCfg = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
         }
 
         [Test]
@@ -53,11 +53,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         {
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
-                .Setup(x => x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat")), It.IsAny<IList<string>>()))
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat")), It.IsAny<IList<string>>()))
                 .Returns(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             Mock.Get(configurationPersister).VerifyAll();
         }
@@ -65,13 +66,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         [Test]
         public void IncludesMappingAssembliesInDependentFileList()
         {
+            var list = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
+
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
-                .Setup(x => x.IsNewConfigurationRequired(It.IsAny<string>(), It.IsIn<IList<string>>(new[] { "Castle.Facilities.NHibernateIntegration.Tests.dll" })))
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(It.IsAny<string>(),
+                                                    It.Is<IList<string>>(x => x.Contains(list[0]))))
                 .Returns(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
-            builder.GetConfiguration(facilityCfg);
+            builder.GetConfiguration(_facilityConfiguration);
 
             Mock.Get(configurationPersister).VerifyAll();
         }

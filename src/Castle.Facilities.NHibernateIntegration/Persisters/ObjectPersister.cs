@@ -19,7 +19,8 @@
         {
             _serializer = new JsonSerializer
             {
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.All,
+                ReferenceLoopHandling = ReferenceLoopHandling.Error,
             };
         }
 
