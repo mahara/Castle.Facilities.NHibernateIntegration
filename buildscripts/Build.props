@@ -13,12 +13,12 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net472</WinExeTargetFrameworks>
-    <WinExeTestTargetFrameworks Condition="'$(WinExeTestTargetFrameworks)' == ''">net472</WinExeTestTargetFrameworks>
-    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net472</WinLibTargetFrameworks>
-    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net472</ExeTargetFrameworks>
-    <ExeTestTargetFrameworks Condition="'$(ExeTestTargetFrameworks)' == ''">net472</ExeTestTargetFrameworks>
-    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net472</LibTargetFrameworks>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net48</WinExeTargetFrameworks>
+    <WinExeTestTargetFrameworks Condition="'$(WinExeTestTargetFrameworks)' == ''">net48</WinExeTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net48</ExeTargetFrameworks>
+    <ExeTestTargetFrameworks Condition="'$(ExeTestTargetFrameworks)' == ''">net48</ExeTestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
@@ -82,11 +82,11 @@
     <NetFrameworkConstants>TRACE;FEATURE_APPDOMAIN;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_SERIALIZATION;FEATURE_SYSTEM_CONFIGURATION</NetFrameworkConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net472|Debug'">
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net48|Debug'">
     <DefineConstants>$(DiagnosticsConstants);$(NetFrameworkConstants)</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net472|Release'">
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net48|Release'">
     <DefineConstants>$(NetFrameworkConstants)</DefineConstants>
   </PropertyGroup>
 
