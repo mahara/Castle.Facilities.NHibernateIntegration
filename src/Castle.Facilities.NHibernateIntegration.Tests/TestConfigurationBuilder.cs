@@ -16,15 +16,13 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-#if NETFRAMEWORK
     using System.Configuration;
-#else
-    using System.Configuration;
-#endif
 
     using Builders;
 
     using Core.Configuration;
+
+    using NUnit.Framework;
 
     using Configuration = NHibernate.Cfg.Configuration;
 
@@ -40,6 +38,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
+
+            var configurationFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
 
             configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];

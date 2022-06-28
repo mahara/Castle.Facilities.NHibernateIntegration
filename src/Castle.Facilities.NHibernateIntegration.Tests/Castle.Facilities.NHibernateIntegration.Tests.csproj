@@ -18,6 +18,8 @@
   <ItemGroup>
     <Reference Include="System.Transactions" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <!--<PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />-->
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
     <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
     <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
@@ -39,22 +41,22 @@
     <PackageReference Include="NUnitLite" Version="3.13.3" />
     <PackageReference Include="NunitXml.TestLogger" Version="3.0.117" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)'=='net48'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$([MSBuild]::GetTargetFrameworkIdentifier(&quot;$(TargetFramework)&quot;))' == '.NETCoreApp'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
     <None Include="config\net\App.config" Link="App.config" />
     <None Remove="config\netfx\App.config" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$([MSBuild]::GetTargetFrameworkIdentifier(&quot;$(TargetFramework)&quot;))' == '.NETFramework'">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <None Remove="config\net\App.config" />
     <None Include="config\netfx\App.config" Link="App.config" />
   </ItemGroup>
@@ -81,5 +83,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="CopyConfigurationFiles" AfterTargets="AfterBuild">
+    <!-- Command Line (dotnet test) -->
+    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.dll.config"
+          Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
+    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.dll.config"
+          Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
+    <!-- Visual Studio Test Explorer -->
+    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config"
+          Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"/>
+    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config"
+          Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
+  </Target>
 
 </Project>
