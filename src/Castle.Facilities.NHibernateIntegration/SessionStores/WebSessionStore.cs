@@ -17,8 +17,8 @@
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     using System;
-#if NETFRAMEWORK
     using System.Collections;
+#if NETFRAMEWORK
     using System.Web;
 
     using MicroKernel.Facilities;
@@ -70,7 +70,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
     }
 #else
-    using System.Collections;
 
     using MicroKernel.Facilities;
 
@@ -78,7 +77,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
-    /// which relies on <see cref="_httpContext" />.
+    /// which relies on <see cref="HttpContext" />.
     /// It's intended for ASP.NET (Core) projects.
     /// </summary>
     public class WebSessionStore : AbstractDictStackSessionStore
@@ -86,9 +85,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         private readonly HttpContext _httpContext;
 
         [CLSCompliant(false)]
-        public WebSessionStore(HttpContext httpContext)
+        public WebSessionStore(IHttpContextAccessor httpContextAccessor)
         {
-            _httpContext = httpContext;
+            _httpContext = httpContextAccessor.HttpContext;
         }
 
         protected override IDictionary GetDictionary()
@@ -124,7 +123,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             var context = _httpContext;
             if (context == null)
             {
-                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(Microsoft.AspNetCore.Http.HttpContext)}.");
+                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(HttpContext)}.");
             }
 
             return context;

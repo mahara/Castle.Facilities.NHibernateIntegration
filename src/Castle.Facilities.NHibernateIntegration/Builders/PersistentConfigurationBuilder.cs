@@ -90,10 +90,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return configuration;
         }
 
-        private string GetFilenameFrom(IConfiguration configuration)
+        private string GetFilenameFrom(IConfiguration facilityConfiguration)
         {
-            var filename = configuration.Attributes["fileName"]
-                           ?? configuration.Attributes["id"] + DEFAULT_EXTENSION;
+            var filename = facilityConfiguration.Attributes["fileName"] ??
+                           facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
 
             return StripInvalidCharacters(filename);
         }
@@ -103,11 +103,11 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
         }
 
-        private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
+        private IList<string> GetDependentFilenamesFrom(IConfiguration facilityConfiguration)
         {
             var list = new List<string>();
 
-            var assemblies = configuration.Children["assemblies"];
+            var assemblies = facilityConfiguration.Children["assemblies"];
             if (assemblies != null)
             {
                 foreach (var assembly in assemblies.Children)
@@ -116,7 +116,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 }
             }
 
-            var dependsOn = configuration.Children["dependsOn"];
+            var dependsOn = facilityConfiguration.Children["dependsOn"];
             if (dependsOn != null)
             {
                 foreach (var on in dependsOn.Children)

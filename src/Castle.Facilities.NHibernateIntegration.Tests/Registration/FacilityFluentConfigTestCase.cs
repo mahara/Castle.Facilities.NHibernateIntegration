@@ -58,11 +58,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             // The last set session store should be CallContextSessionStore.
             container.AddFacility<NHibernateFacility>(
                 f => f.IsWeb()
-#if NETFRAMEWORK
                       .SessionStore<LogicalCallContextSessionStore>()
                       .SessionStore<CallContextSessionStore>()
-#endif
-                      .SessionStore<DummySessionStore>()
                       .ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();

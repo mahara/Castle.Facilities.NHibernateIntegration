@@ -71,7 +71,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         public void Rollback()
         {
             // HACK: It was supposed to only a test but it fixed the escalated transaction rollback issue.
-            //		 Not sure if this the right way to do it (probably not).
+            //       Not sure if this the right way to do it (probably not).
             if (!_isAmbient)
             {
                 _transaction.Rollback();

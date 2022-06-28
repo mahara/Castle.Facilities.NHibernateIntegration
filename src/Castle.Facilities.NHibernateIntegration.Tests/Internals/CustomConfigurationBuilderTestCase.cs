@@ -33,8 +33,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     {
         public int ConfigurationsCreated { get; private set; }
 
-        #region IConfigurationBuilder Members
-
         public Configuration GetConfiguration(IConfiguration config)
         {
             ConfigurationsCreated++;
@@ -56,8 +54,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             return nhConfig;
         }
-
-        #endregion
     }
 
     public class CustomNHibernateFacility : NHibernateFacility
@@ -68,8 +64,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         }
     }
 
-    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
-#if NETFRAMEWORK
     public abstract class AbstractCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
     {
         [Test]
@@ -124,8 +118,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             Assert.That(Method,
                         Throws.TypeOf<FacilityException>()
-                              .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found"));
+                              .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found."));
         }
     }
-#endif
 }

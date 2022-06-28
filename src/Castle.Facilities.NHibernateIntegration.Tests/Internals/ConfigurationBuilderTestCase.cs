@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
-    // TODO: Replace Rhino.Mocks with moq or other .NET-compatible mocking frameworks.
-#if NETFRAMEWORK
     using Common;
 
     using NHibernate.Cfg;
@@ -42,5 +40,4 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
         }
     }
-#endif
 }
