@@ -7,6 +7,7 @@ Breaking Changes:
 - Updated **`Castle.Services.Transaction`** version to 5.3.0.
 - Updated **`Castle.Facilities.AutoTx`** version to 5.3.0.
 - Replaced ```Castle.Services.Transaction.IsolationMode``` with ```System.Transactions.IsolationLevel```.
+- Renamed ```IsolationMode``` to ```IsolationLevel```.
 
 
 ## 5.2.0 (2022-06-25)
