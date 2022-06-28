@@ -66,13 +66,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         [Test]
         public void IncludesMappingAssembliesInDependentFileList()
         {
-            var list = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
+            var dependencies = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
 
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
                 .Setup(x =>
                        x.IsNewConfigurationRequired(It.IsAny<string>(),
-                                                    It.Is<IList<string>>(x => x.Contains(list[0]))))
+                                                    It.Is<IList<string>>(x => x.Contains(dependencies[0]))))
                 .Returns(false);
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
