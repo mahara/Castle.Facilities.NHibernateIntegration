@@ -16,6 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
+#if NETFRAMEWORK
     using System;
     using System.Threading;
 
@@ -193,4 +194,5 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             _event.Set();
         }
     }
+#endif
 }

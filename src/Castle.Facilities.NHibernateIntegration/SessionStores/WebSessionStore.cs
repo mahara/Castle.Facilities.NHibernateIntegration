@@ -82,13 +82,12 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// </summary>
     public class WebSessionStore : AbstractDictStackSessionStore
     {
-        private readonly HttpContext _httpContext;
+        public WebSessionStore()
+        {
+        }
 
         [CLSCompliant(false)]
-        public WebSessionStore(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContext = httpContextAccessor.HttpContext;
-        }
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
 
         protected override IDictionary GetDictionary()
         {
@@ -120,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         private HttpContext ObtainSessionContext()
         {
-            var context = _httpContext;
+            var context = HttpContextAccessor.HttpContext;
             if (context == null)
             {
                 throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(HttpContext)}.");

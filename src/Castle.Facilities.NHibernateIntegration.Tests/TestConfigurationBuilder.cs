@@ -22,8 +22,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
     using Core.Configuration;
 
-    using NUnit.Framework;
-
     using Configuration = NHibernate.Cfg.Configuration;
 
     public class TestConfigurationBuilder : IConfigurationBuilder
