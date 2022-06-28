@@ -257,9 +257,9 @@ namespace Castle.Facilities.NHibernateIntegration
             return true;
         }
 
-        private static System.Data.IsolationLevel TranslateIsolationLevel(IsolationLevel isolationMode)
+        private static System.Data.IsolationLevel TranslateIsolationLevel(IsolationLevel isolationLevel)
         {
-            switch (isolationMode)
+            switch (isolationLevel)
             {
                 case IsolationLevel.Chaos:
                     return System.Data.IsolationLevel.Chaos;
