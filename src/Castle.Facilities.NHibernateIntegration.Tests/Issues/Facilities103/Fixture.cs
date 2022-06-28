@@ -36,8 +36,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
     public class DefaultSessionManagerTestCase : IssueTestCase
     {
         private const string Alias = "myAlias";
-        private const IsolationLevel DefaultIsolationMode = IsolationLevel.ReadCommitted;
-        private const System.Data.IsolationLevel DefaultIsolationLevel = System.Data.IsolationLevel.ReadCommitted;
+        private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadCommitted;
+        private const System.Data.IsolationLevel DefaultDataIsolationLevel = System.Data.IsolationLevel.ReadCommitted;
 
         private IKernel _kernel;
         private IDictionary<string, object> _transactionContext;
@@ -73,14 +73,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             using (MockRepository.Record())
             {
                 Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationMode).Repeat.Any();
+                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationLevel).Repeat.Any();
                 Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
                 Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
                 Expect.Call(_kernel.HasComponent(string.Format(Constants.SessionInterceptor_ComponentNameFormat, Alias))).Return(false);
                 Expect.Call(_kernel.HasComponent(Constants.SessionInterceptor_ComponentName)).Return(false).Repeat.Any();
                 Expect.Call(_sessionFactory.OpenSession()).Return(_session);
                 _session.FlushMode = _sessionManager.DefaultFlushMode;
-                Expect.Call(_session.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
+                Expect.Call(_session.BeginTransaction(DefaultDataIsolationLevel)).Throw(new Exception());
             }
 
             using (MockRepository.Playback())
@@ -108,11 +108,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             using (MockRepository.Record())
             {
                 Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationMode).Repeat.Any();
+                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationLevel).Repeat.Any();
                 Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
                 Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
                 Expect.Call(_sessionFactory.OpenStatelessSession()).Return(_statelessSession);
-                Expect.Call(_statelessSession.BeginTransaction(DefaultIsolationLevel)).Throw(new Exception());
+                Expect.Call(_statelessSession.BeginTransaction(DefaultDataIsolationLevel)).Throw(new Exception());
             }
 
             using (MockRepository.Playback())
