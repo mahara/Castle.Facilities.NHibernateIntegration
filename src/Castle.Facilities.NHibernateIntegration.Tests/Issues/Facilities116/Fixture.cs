@@ -45,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         private const string File = "myconfig.dat";
 
-        private IConfiguration _configuration;
+        private IConfiguration _facilityConfiguration;
         private IConfigurationBuilder _configurationBuilder;
 
         protected override void OnSetUp()
@@ -54,7 +54,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
             var xmlInterpreter = new XmlInterpreter(resource);
             xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            _configuration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
             _configurationBuilder = new PersistentConfigurationBuilder();
         }
 
@@ -68,7 +68,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(System.IO.File.Exists(File), Is.False);
 
-            _configurationBuilder.GetConfiguration(_configuration);
+            _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.Exists(File), Is.True);
 
             var persister = new ObjectPersister<Configuration>();
@@ -86,15 +86,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(System.IO.File.Exists(File), Is.False);
 
-            _ = _configurationBuilder.GetConfiguration(_configuration);
+            _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.Exists(File), Is.True);
 
             var dateTime = System.IO.File.GetLastWriteTime(File);
             Thread.Sleep(1000);
 
-            var configuration = _configurationBuilder.GetConfiguration(_configuration);
+            var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(dateTime, Is.EqualTo(System.IO.File.GetLastWriteTime(File)));
-            Assert.That(_configuration, Is.Not.Null);
+            Assert.That(_facilityConfiguration, Is.Not.Null);
 
             ConfigureConnectionSettings(configuration);
 
@@ -106,7 +106,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             Assert.That(System.IO.File.Exists(File), Is.False);
 
-            var nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.Exists(File), Is.True);
 
             var dateTime = System.IO.File.GetLastWriteTime(File);
@@ -118,24 +118,24 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             System.IO.File.Create(filePath).Dispose();
             System.IO.File.SetLastWriteTime(filePath, dateTime2);
 
-            nhConfig = _configurationBuilder.GetConfiguration(_configuration);
+            var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime));
-            Assert.That(_configuration, Is.Not.Null);
+            Assert.That(_facilityConfiguration, Is.Not.Null);
 
-            ConfigureConnectionSettings(nhConfig);
+            ConfigureConnectionSettings(configuration);
 
-            nhConfig.BuildSessionFactory();
+            configuration.BuildSessionFactory();
         }
 
-        private static void ConfigureConnectionSettings(Configuration nhConfig)
+        private static void ConfigureConnectionSettings(Configuration configuration)
         {
-            nhConfig.Properties["dialect"] =
+            configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];
-            nhConfig.Properties["connection.driver_class"] =
+            configuration.Properties["connection.driver_class"] =
                 ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-            nhConfig.Properties["connection.provider"] =
+            configuration.Properties["connection.provider"] =
                 ConfigurationManager.AppSettings["nhf.connection.provider"];
-            nhConfig.Properties["connection.connection_string"] =
+            configuration.Properties["connection.connection_string"] =
                 ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
         }
     }
