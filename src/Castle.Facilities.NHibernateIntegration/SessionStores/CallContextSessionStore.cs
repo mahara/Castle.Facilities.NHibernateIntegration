@@ -17,64 +17,61 @@
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     using System;
-#if NETFRAMEWORK
     using System.Collections;
+#if NETFRAMEWORK
     using System.Runtime.Remoting.Messaging;
+#endif
 
+#if NETFRAMEWORK
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="CallContext" />.
     /// </summary>
-    public class CallContextSessionStore : AbstractDictStackSessionStore
-    {
-        protected override IDictionary GetDictionary()
-        {
-            return CallContext.GetData(SlotKey) as IDictionary;
-        }
-
-        protected override void StoreDictionary(IDictionary dictionary)
-        {
-            CallContext.SetData(SlotKey, dictionary);
-        }
-
-        protected override IDictionary GetStatelessSessionDictionary()
-        {
-            return CallContext.GetData(StatelessSessionSlotKey) as IDictionary;
-        }
-
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
-        {
-            CallContext.SetData(StatelessSessionSlotKey, dictionary);
-        }
-    }
 #else
-    using System.Collections;
-
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on .NET Framework CallContext.
     /// </summary>
+    /// <exception cref="PlatformNotSupportedException">
+    /// This is not supported in .NET.
+    /// </exception>
+#endif
     public class CallContextSessionStore : AbstractDictStackSessionStore
     {
         protected override IDictionary GetDictionary()
         {
+#if NETFRAMEWORK
+            return CallContext.GetData(SlotKey) as IDictionary;
+#else
             throw new PlatformNotSupportedException();
+#endif
         }
 
         protected override void StoreDictionary(IDictionary dictionary)
         {
+#if NETFRAMEWORK
+            CallContext.SetData(SlotKey, dictionary);
+#else
             throw new PlatformNotSupportedException();
+#endif
         }
 
         protected override IDictionary GetStatelessSessionDictionary()
         {
+#if NETFRAMEWORK
+            return CallContext.GetData(StatelessSessionSlotKey) as IDictionary;
+#else
             throw new PlatformNotSupportedException();
+#endif
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
         {
+#if NETFRAMEWORK
+            CallContext.SetData(StatelessSessionSlotKey, dictionary);
+#else
             throw new PlatformNotSupportedException();
+#endif
         }
     }
-#endif
 }

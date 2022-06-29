@@ -20,45 +20,56 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     using System.Collections;
 #if NETFRAMEWORK
     using System.Web;
+#endif
 
     using MicroKernel.Facilities;
 
+#if NET
+    using Microsoft.AspNetCore.Http;
+#endif
+
+#if NETFRAMEWORK
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="HttpContext" />.
-    /// It's intended for legacy ASP.NET projects.
+    /// This is intended for legacy ASP.NET projects.
     /// </summary>
+#else
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="HttpContext" />.
+    /// This is intended for ASP.NET (Core) projects.
+    /// </summary>
+#endif
     public class WebSessionStore : AbstractDictStackSessionStore
     {
+#if NET
+        [CLSCompliant(false)]
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
+#endif
+
         protected override IDictionary GetDictionary()
         {
-            var currentContext = ObtainSessionContext();
-
-            return currentContext.Items[SlotKey] as IDictionary;
+            return GetSessionContextDictionary(SlotKey);
         }
 
         protected override void StoreDictionary(IDictionary dictionary)
         {
-            var currentContext = ObtainSessionContext();
-
-            currentContext.Items[SlotKey] = dictionary;
+            StoreSessionContextDictionary(SlotKey, dictionary);
         }
 
         protected override IDictionary GetStatelessSessionDictionary()
         {
-            var currentContext = ObtainSessionContext();
-
-            return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
+            return GetSessionContextDictionary(StatelessSessionSlotKey);
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
         {
-            var currentContext = ObtainSessionContext();
-
-            currentContext.Items[StatelessSessionSlotKey] = dictionary;
+            StoreSessionContextDictionary(StatelessSessionSlotKey, dictionary);
         }
 
-        private static HttpContext ObtainSessionContext()
+#if NETFRAMEWORK
+        private HttpContext ObtainSessionContext()
         {
             var context = HttpContext.Current;
             if (context == null)
@@ -68,55 +79,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             return context;
         }
-    }
 #else
-
-    using MicroKernel.Facilities;
-
-    using Microsoft.AspNetCore.Http;
-
-    /// <summary>
-    /// An implementation of <see cref="ISessionStore" />
-    /// which relies on <see cref="HttpContext" />.
-    /// It's intended for ASP.NET (Core) projects.
-    /// </summary>
-    public class WebSessionStore : AbstractDictStackSessionStore
-    {
-        public WebSessionStore()
-        {
-        }
-
-        [CLSCompliant(false)]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
-
-        protected override IDictionary GetDictionary()
-        {
-            var currentContext = ObtainSessionContext();
-
-            return currentContext.Items[SlotKey] as IDictionary;
-        }
-
-        protected override void StoreDictionary(IDictionary dictionary)
-        {
-            var currentContext = ObtainSessionContext();
-
-            currentContext.Items[SlotKey] = dictionary;
-        }
-
-        protected override IDictionary GetStatelessSessionDictionary()
-        {
-            var currentContext = ObtainSessionContext();
-
-            return currentContext.Items[StatelessSessionSlotKey] as IDictionary;
-        }
-
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
-        {
-            var currentContext = ObtainSessionContext();
-
-            currentContext.Items[StatelessSessionSlotKey] = dictionary;
-        }
-
         private HttpContext ObtainSessionContext()
         {
             var context = HttpContextAccessor.HttpContext;
@@ -127,6 +90,26 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
             return context;
         }
-    }
 #endif
+
+        private IDictionary GetSessionContextDictionary(string key)
+        {
+#if NETFRAMEWORK
+            var dictionary = ObtainSessionContext().Items[key];
+#else
+            var dictionary = ObtainSessionContext().Items[key];
+#endif
+
+            return (IDictionary) dictionary;
+        }
+
+        private void StoreSessionContextDictionary(string key, IDictionary value)
+        {
+#if NETFRAMEWORK
+            ObtainSessionContext().Items[key] = value;
+#else
+            ObtainSessionContext().Items[key] = value;
+#endif
+        }
+    }
 }
