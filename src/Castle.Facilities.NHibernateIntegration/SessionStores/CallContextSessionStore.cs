@@ -36,21 +36,21 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// This is not supported in .NET.
     /// </exception>
 #endif
-    public class CallContextSessionStore : AbstractDictStackSessionStore
+    public class CallContextSessionStore : AbstractDictionaryStackSessionStore
     {
-        protected override IDictionary GetDictionary()
+        protected override IDictionary GetSessionDictionary()
         {
 #if NETFRAMEWORK
-            return CallContext.GetData(SlotKey) as IDictionary;
+            return CallContext.GetData(SessionSlotKey) as IDictionary;
 #else
             throw new PlatformNotSupportedException();
 #endif
         }
 
-        protected override void StoreDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary dictionary)
         {
 #if NETFRAMEWORK
-            CallContext.SetData(SlotKey, dictionary);
+            CallContext.SetData(SessionSlotKey, dictionary);
 #else
             throw new PlatformNotSupportedException();
 #endif

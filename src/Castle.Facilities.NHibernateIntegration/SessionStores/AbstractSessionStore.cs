@@ -28,7 +28,8 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     {
         /// <summary>
         /// Returns <c>true</c> if the current activity (which is an execution activity context)
-        /// has no session and/or stateless session available.
+        /// has no <see cref="ISession" />/<see cref="SessionDelegate" />
+        /// and/or <see cref="IStatelessSession" />/<see cref="StatelessSessionDelegate" /> available.
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
@@ -49,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected abstract Stack GetSessionStackFor(string alias);
 
         /// <summary>
-        /// Finds a previously stored session for the given alias if available.
+        /// Finds a previously stored <see cref="SessionDelegate" /> for the given alias if available.
         /// Otherwise, null.
         /// </summary>
         /// <param name="alias"></param>
@@ -67,7 +68,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 
         /// <summary>
-        /// Stores the specified session instance.
+        /// Stores the specified <see cref="SessionDelegate" /> instance.
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="session"></param>
@@ -81,7 +82,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 
         /// <summary>
-        /// Removes the session from the store.
+        /// Removes the <see cref="SessionDelegate" /> from the store.
         /// </summary>
         /// <param name="session"></param>
         public void Remove(SessionDelegate session)
@@ -99,7 +100,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             }
 
             var current = stack.Peek() as ISession;
-
             if (session != current)
             {
                 throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} tried to " +
@@ -107,6 +107,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             }
 
             stack.Pop();
+            session.SessionStoreCookie = null;
         }
 
         /// <summary>
@@ -118,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected abstract Stack GetStatelessSessionStackFor(string alias);
 
         /// <summary>
-        /// Find a previously stored stateless session for the given alias if available.
+        /// Find a previously stored <see cref="StatelessSessionDelegate" /> for the given alias if available.
         /// Otherwise, null.
         /// </summary>
         /// <param name="alias"></param>
@@ -136,26 +137,26 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 
         /// <summary>
-        /// Stores the specified stateless session instance.
+        /// Stores the specified <see cref="StatelessSessionDelegate" /> instance.
         /// </summary>
         /// <param name="alias"></param>
-        /// <param name="session"></param>
-        public void Store(string alias, StatelessSessionDelegate session)
+        /// <param name="statelessSession"></param>
+        public void Store(string alias, StatelessSessionDelegate statelessSession)
         {
             var stack = GetStatelessSessionStackFor(alias);
 
-            stack.Push(session);
+            stack.Push(statelessSession);
 
-            session.SessionStoreCookie = stack;
+            statelessSession.SessionStoreCookie = stack;
         }
 
         /// <summary>
-        /// Removes the stateless session from the store.
+        /// Removes the <see cref="StatelessSessionDelegate" /> from the store.
         /// </summary>
-        /// <param name="session"></param>
-        public void Remove(StatelessSessionDelegate session)
+        /// <param name="statelessSession"></param>
+        public void Remove(StatelessSessionDelegate statelessSession)
         {
-            var stack = (Stack) session.SessionStoreCookie;
+            var stack = (Stack) statelessSession.SessionStoreCookie;
 
             if (stack == null)
             {
@@ -168,14 +169,14 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             }
 
             var current = stack.Peek() as IStatelessSession;
-
-            if (session != current)
+            if (statelessSession != current)
             {
                 throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} tried to " +
                                                   "remove a session which is not on the top or not in the stack at all.");
             }
 
             stack.Pop();
+            statelessSession.SessionStoreCookie = null;
         }
     }
 }

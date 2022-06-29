@@ -41,21 +41,21 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// This is intended for ASP.NET (Core) projects.
     /// </summary>
 #endif
-    public class WebSessionStore : AbstractDictStackSessionStore
+    public class WebSessionStore : AbstractDictionaryStackSessionStore
     {
 #if NET
         [CLSCompliant(false)]
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 #endif
 
-        protected override IDictionary GetDictionary()
+        protected override IDictionary GetSessionDictionary()
         {
-            return GetSessionContextDictionary(SlotKey);
+            return GetSessionContextDictionary(SessionSlotKey);
         }
 
-        protected override void StoreDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary dictionary)
         {
-            StoreSessionContextDictionary(SlotKey, dictionary);
+            StoreSessionContextDictionary(SessionSlotKey, dictionary);
         }
 
         protected override IDictionary GetStatelessSessionDictionary()
