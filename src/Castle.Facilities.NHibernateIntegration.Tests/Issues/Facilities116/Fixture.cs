@@ -16,6 +16,10 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 {
+    //
+    // TODO: Make IObjectPersister<Configuration> working in .NET 6.0 and beyond.
+    //
+#if NETFRAMEWORK
     using System;
     using System.Configuration;
     using System.IO;
@@ -69,6 +73,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         [Test]
         public void CanCreateSerializedFileInTheDisk()
         {
+            CleanUpFiles();
+
             Assert.That(System.IO.File.Exists(File), Is.False);
 
             _configurationBuilder.GetConfiguration(_facilityConfiguration);
@@ -87,6 +93,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         [Test]
         public void CanDeserializeFileFromTheDiskIfNewEnough()
         {
+            CleanUpFiles();
+
             Assert.That(System.IO.File.Exists(File), Is.False);
 
             _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
@@ -107,6 +115,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         [Test]
         public void CanDeserializeFileFromTheDiskIfOneOfTheDependenciesIsNewer()
         {
+            CleanUpFiles();
+
             Assert.That(System.IO.File.Exists(File), Is.False);
 
             _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
@@ -141,5 +151,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             configuration.Properties["connection.connection_string"] =
                 ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
         }
+
+        private static void CleanUpFiles()
+        {
+            if (System.IO.File.Exists(File))
+            {
+                System.IO.File.Delete(File);
+            }
+        }
     }
+#endif
 }

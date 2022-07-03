@@ -67,9 +67,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(blogs, Is.Not.Null);
             Assert.That(blogitems, Is.Not.Null);
             Assert.That(orders, Is.Not.Null);
-            Assert.That(blogs.Length, Is.EqualTo(1));
-            Assert.That(blogitems.Length, Is.EqualTo(1));
-            Assert.That(orders.Length, Is.EqualTo(1));
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
         [Test]
@@ -138,9 +138,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(blogs, Is.Not.Null);
             Assert.That(blogitems, Is.Not.Null);
             Assert.That(orders, Is.Not.Null);
-            Assert.That(blogs.Length, Is.EqualTo(1));
-            Assert.That(blogitems.Length, Is.EqualTo(1));
-            Assert.That(orders.Length, Is.EqualTo(1));
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
         [Test]
