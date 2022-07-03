@@ -33,9 +33,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
         {
             var dao = Container.Resolve<MyDao>();
 
-            Assert.IsNotNull(dao);
-            Assert.IsNotNull(dao.Configuration);
-            Assert.IsNotNull(dao.SessionFactory);
+            Assert.That(dao, Is.Not.Null);
+            Assert.That(dao.Configuration, Is.Not.Null);
+            Assert.That(dao.SessionFactory, Is.Not.Null);
         }
     }
 }

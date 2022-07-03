@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
@@ -32,20 +33,50 @@
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
     <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
-    <Copyright>Copyright 2004-$(CurrentYear) Castle Project - http://www.castleproject.org/</Copyright>
+    <Copyright>Copyright 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
     <ContentTargetFolders>.</ContentTargetFolders>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net472'">
-    <DefineConstants>$(DefineConstants);FEATURE_PERFCOUNTERS;FEATURE_GAC;FEATURE_ISUPPORTINITIALIZE;FEATURE_REMOTING;FEATURE_SECURITY_PERMISSIONS;FEATURE_SYSTEM_CONFIGURATION;FEATURE_SERIALIZATION;FEATURE_URIMEMBERS;FEATURE_GETCALLINGASSEMBLY;FEATURE_APPDOMAIN;FEATURE_CODEDOM;FEATURE_ASSEMBLIES;CASTLE_SERVICES_LOGGING;FEATURE_EVENTLOG</DefineConstants>
+  <PropertyGroup>
+    <DiagnosticsConstants>DEBUG</DiagnosticsConstants>
+    <NetConstants>TRACE</NetConstants>
+    <NetFrameworkConstants>TRACE;FEATURE_APPDOMAIN;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_SERIALIZATION;FEATURE_SYSTEM_CONFIGURATION</NetFrameworkConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net48|Debug'">
+    <DefineConstants>$(DiagnosticsConstants);$(NetFrameworkConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net48|Release'">
+    <DefineConstants>$(NetFrameworkConstants)</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
+    <!--
+      https://andrewlock.net/using-reference-assemblies-to-build-net-framework-libararies-on-linux-without-mono/
+    -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <!--
+      https://github.com/dotnet/runtime/issues/59163
+      https://github.com/dotnet/sdk/issues/19521
+    -->
+    <Reference Include="System.Net.Http" />
+    <PackageReference Include="IndexRange" Version="1.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\CHANGELOG.md" />
-    <Content Include="..\..\LICENSE">
-      <PackagePath></PackagePath>
-    </Content>
+    <Content Include="..\..\LICENSE" Pack="True" PackagePath="" />
     <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" />
+    <Content Include="..\..\buildscripts\readme.txt" />
   </ItemGroup>
 
   <ItemGroup>

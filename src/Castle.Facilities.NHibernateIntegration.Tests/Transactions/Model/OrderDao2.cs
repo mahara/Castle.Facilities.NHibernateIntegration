@@ -37,37 +37,33 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Order Create(float val)
         {
-            using (var session = _sessionManager.OpenSession("db2"))
+            using var session = _sessionManager.OpenSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
+
+            var order = new Order
             {
-                var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Value = val
+            };
+            session.Save(order);
 
-                var order = new Order
-                {
-                    Value = val
-                };
-                session.Save(order);
-
-                return order;
-            }
+            return order;
         }
 
         [Transaction]
         public virtual Order CreateStateless(float val)
         {
-            using (var session = _sessionManager.OpenStatelessSession("db2"))
+            using var session = _sessionManager.OpenStatelessSession("db2");
+            var transaction = session.GetCurrentTransaction();
+            Assert.That(transaction, Is.Not.Null);
+
+            var order = new Order
             {
-                var transaction = session.GetCurrentTransaction();
-                Assert.IsNotNull(transaction);
+                Value = val
+            };
+            session.Insert(order);
 
-                var order = new Order
-                {
-                    Value = val
-                };
-                session.Insert(order);
-
-                return order;
-            }
+            return order;
         }
     }
 }

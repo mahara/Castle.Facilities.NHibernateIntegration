@@ -41,24 +41,20 @@ namespace Explicit.NuGet.Versions
             var packageNuspecDictionary = new Dictionary<string, NuspecContentEntry>();
             foreach (var packageFilePath in packageDiscoverDirectoryInfo.GetFiles("*.nupkg", SearchOption.AllDirectories))
             {
-                using (var zipFile = ZipFile.Read(packageFilePath.FullName))
+                using var zipFile = ZipFile.Read(packageFilePath.FullName);
+                foreach (var zipEntry in zipFile.Entries)
                 {
-                    foreach (var zipEntry in zipFile.Entries)
+                    if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
                     {
-                        if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
+                        using var zipEntryReader = new StreamReader(zipEntry.OpenReader());
+                        var nuspecXml = zipEntryReader.ReadToEnd();
+                        packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
                         {
-                            using (var zipEntryReader = new StreamReader(zipEntry.OpenReader()))
-                            {
-                                var nuspecXml = zipEntryReader.ReadToEnd();
-                                packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
-                                {
-                                    EntryName = zipEntry.FileName,
-                                    Contents = nuspecXml
-                                };
+                            EntryName = zipEntry.FileName,
+                            Contents = nuspecXml
+                        };
 
-                                break;
-                            }
-                        }
+                        break;
                     }
                 }
             }
@@ -91,7 +87,9 @@ namespace Explicit.NuGet.Versions
         {
             WalkDocumentNodes(nuspecXmlDocument.ChildNodes, node =>
             {
-                if (node.Name.ToLowerInvariant() == "dependency" && !string.IsNullOrEmpty(node.Attributes["id"].Value) && node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
+                if (node.Name.ToLowerInvariant() == "dependency"
+                    && !string.IsNullOrEmpty(node.Attributes["id"].Value)
+                    && node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var currentVersion = node.Attributes["version"].Value;
                     if (!node.Attributes["version"].Value.StartsWith("[") && !node.Attributes["version"].Value.EndsWith("]"))
@@ -115,11 +113,9 @@ namespace Explicit.NuGet.Versions
         {
             foreach (var packageFile in packageMetaData.ToList())
             {
-                using (var zipFile = ZipFile.Read(packageFile.Key))
-                {
-                    zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
-                    zipFile.Save();
-                }
+                using var zipFile = ZipFile.Read(packageFile.Key);
+                zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
+                zipFile.Save();
             }
         }
 

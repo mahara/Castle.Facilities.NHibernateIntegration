@@ -1,6 +1,6 @@
 @ECHO OFF
 REM ****************************************************************************
-REM Copyright 2004-2022 Castle Project - http://www.castleproject.org/
+REM Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
 REM You may obtain a copy of the License at
@@ -17,8 +17,8 @@ REM ****************************************************************************
 
 SET PACKAGES_DIRECTORY=build
 
-dotnet clean -c Debug
-dotnet clean -c Release
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
 IF EXIST %PACKAGES_DIRECTORY% RMDIR %PACKAGES_DIRECTORY% /S /Q
 
 

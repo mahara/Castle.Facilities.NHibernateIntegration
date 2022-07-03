@@ -30,7 +30,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102
             var previous = manager.DefaultFlushMode;
             manager.DefaultFlushMode = (FlushMode) 100;
             var session = manager.OpenSession("intercepted");
-            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
             manager.DefaultFlushMode = previous;
         }
 
@@ -41,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102
             var previous = manager.DefaultFlushMode;
             manager.DefaultFlushMode = (FlushMode) 100;
             var session = manager.OpenSession();
-            Assert.AreEqual(manager.DefaultFlushMode, session.FlushMode);
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
             manager.DefaultFlushMode = previous;
         }
     }

@@ -34,42 +34,34 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         public Blog CreateBlog(string name)
         {
-            using (var session = SessionManager.OpenSession())
+            using var session = SessionManager.OpenSession();
+            var blog = new Blog
             {
-                var blog = new Blog
-                {
-                    Name = name,
-                    Items = new List<BlogItem>()
-                };
+                Name = name,
+                Items = new List<BlogItem>()
+            };
 
-                session.Save(blog);
+            session.Save(blog);
 
-                return blog;
-            }
+            return blog;
         }
 
         public IList ObtainBlogs()
         {
-            using (var session = SessionManager.OpenSession())
-            {
-                return session.CreateQuery("from Blog").List();
-            }
+            using var session = SessionManager.OpenSession();
+            return session.CreateQuery("from Blog").List();
         }
 
         public void DeleteAll()
         {
-            using (var session = SessionManager.OpenSession())
-            {
-                session.Delete("from Blog");
-            }
+            using var session = SessionManager.OpenSession();
+            session.Delete("from Blog");
         }
 
         public IList ObtainBlogsStateless()
         {
-            using (var session = SessionManager.OpenStatelessSession())
-            {
-                return session.CreateQuery("from Blog").List();
-            }
+            using var session = SessionManager.OpenStatelessSession();
+            return session.CreateQuery("from Blog").List();
         }
     }
 }

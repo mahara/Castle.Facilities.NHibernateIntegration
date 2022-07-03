@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Web
 {
+#if NETFRAMEWORK
     using System;
     using System.Web;
 
@@ -94,21 +95,22 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
 
         private static IWindsorContainer ObtainContainer()
         {
-            if (!(HttpContext.Current.ApplicationInstance is IContainerAccessor containerAccessor))
+            if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
             {
                 throw new FacilityException("You must extend the HttpApplication in your web project " +
-                                            "and implement the IContainerAccessor to properly expose your container instance");
+                                            "and implement the IContainerAccessor to properly expose your container instance.");
             }
 
             var container = containerAccessor.Container;
 
             if (container == null)
             {
-                throw new FacilityException("The container seems to be unavailable (null) in " +
-                                            "your HttpApplication subclass");
+                throw new FacilityException("The container seems to be unavailable (null) " +
+                                            "in your HttpApplication subclass.");
             }
 
             return container;
         }
     }
+#endif
 }

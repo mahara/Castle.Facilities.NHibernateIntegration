@@ -277,29 +277,16 @@ namespace Castle.Facilities.NHibernateIntegration
         private static IsolationLevel TranslateTransactionIsolationLevel(
             System.Transactions.IsolationLevel isolationLevel)
         {
-            switch (isolationLevel)
+            return isolationLevel switch
             {
-                case System.Transactions.IsolationLevel.Serializable:
-                    return IsolationLevel.Serializable;
-
-                case System.Transactions.IsolationLevel.RepeatableRead:
-                    return IsolationLevel.RepeatableRead;
-
-                case System.Transactions.IsolationLevel.ReadCommitted:
-                    return IsolationLevel.ReadCommitted;
-
-                case System.Transactions.IsolationLevel.ReadUncommitted:
-                    return IsolationLevel.ReadUncommitted;
-
-                case System.Transactions.IsolationLevel.Snapshot:
-                    return IsolationLevel.Snapshot;
-
-                case System.Transactions.IsolationLevel.Chaos:
-                    return IsolationLevel.Chaos;
-
-                default:
-                    return IsolationLevel.Unspecified;
-            }
+                System.Transactions.IsolationLevel.Serializable => IsolationLevel.Serializable,
+                System.Transactions.IsolationLevel.RepeatableRead => IsolationLevel.RepeatableRead,
+                System.Transactions.IsolationLevel.ReadCommitted => IsolationLevel.ReadCommitted,
+                System.Transactions.IsolationLevel.ReadUncommitted => IsolationLevel.ReadUncommitted,
+                System.Transactions.IsolationLevel.Snapshot => IsolationLevel.Snapshot,
+                System.Transactions.IsolationLevel.Chaos => IsolationLevel.Chaos,
+                _ => IsolationLevel.Unspecified,
+            };
         }
 
         private ITransaction ObtainCurrentTransaction()

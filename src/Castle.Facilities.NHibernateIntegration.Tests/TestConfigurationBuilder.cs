@@ -26,35 +26,34 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
     public class TestConfigurationBuilder : IConfigurationBuilder
     {
-        private readonly IConfigurationBuilder _defaultConfigurationBuilder;
+        private readonly IConfigurationBuilder _configurationBuilder;
 
         public TestConfigurationBuilder()
         {
-            _defaultConfigurationBuilder = new DefaultConfigurationBuilder();
+            _configurationBuilder = new DefaultConfigurationBuilder();
         }
 
-        #region IConfigurationBuilder Members
-
-        public Configuration GetConfiguration(IConfiguration config)
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            var nhConfig = _defaultConfigurationBuilder.GetConfiguration(config);
-            nhConfig.Properties["dialect"] =
+            var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
+
+            var configurationFile = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
+
+            configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];
-            nhConfig.Properties["connection.driver_class"] =
+            configuration.Properties["connection.driver_class"] =
                 ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-            nhConfig.Properties["connection.provider"] =
+            configuration.Properties["connection.provider"] =
                 ConfigurationManager.AppSettings["nhf.connection.provider"];
-            nhConfig.Properties["connection.connection_string"] =
+            configuration.Properties["connection.connection_string"] =
                 ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-            if (config.Attributes["id"] != "sessionFactory1")
+            if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
             {
-                nhConfig.Properties["connection.connection_string"] =
+                configuration.Properties["connection.connection_string"] =
                     ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
             }
 
-            return nhConfig;
+            return configuration;
         }
-
-        #endregion
     }
 }

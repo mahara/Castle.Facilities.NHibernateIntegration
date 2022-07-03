@@ -40,15 +40,14 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         public NHibernateSessionInterceptor(ISessionManager sessionManager)
         {
             _sessionManager = sessionManager;
-
-            Logger = NullLogger.Instance;
         }
 
         /// <summary>
         /// Gets or sets the logger.
         /// </summary>
         /// <value>The logger.</value>
-        public ILogger Logger { get; set; }
+        public ILogger Logger { get; set; } =
+            NullLogger.Instance;
 
         /// <summary>
         /// Intercepts the specified invocation and creates a transaction if necessary.

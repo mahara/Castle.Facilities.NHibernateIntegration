@@ -41,43 +41,37 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog Create(string name)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+            var transaction = session.GetCurrentTransaction();
+
+            Assert.That(transaction, Is.Not.Null);
+            Assert.That(transaction.IsActive, Is.True);
+
+            var blog = new Blog
             {
-                var transaction = session.GetCurrentTransaction();
+                Name = name
+            };
+            session.Save(blog);
 
-                Assert.IsNotNull(transaction);
-                Assert.IsTrue(transaction.IsActive);
-
-                var blog = new Blog
-                {
-                    Name = name
-                };
-                session.Save(blog);
-
-                return blog;
-            }
+            return blog;
         }
 
         [Transaction]
         public virtual void Delete(string name)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                var transaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenSession();
+            var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+            Assert.That(transaction, Is.Not.Null);
 
-                session.Delete($"from Blog b where b.Name ='{name}'");
-                session.Flush();
-            }
+            session.Delete($"from Blog b where b.Name ='{name}'");
+            session.Flush();
         }
 
         public virtual void AddBlogRef(BlogRef blogRef)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                session.Save(blogRef);
-            }
+            using var session = _sessionManager.OpenSession();
+            session.Save(blogRef);
         }
 
         [Transaction]
@@ -89,41 +83,35 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog CreateStateless(string name)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+            var transaction = session.GetCurrentTransaction();
+
+            Assert.That(transaction, Is.Not.Null);
+            Assert.That(transaction.IsActive, Is.True);
+
+            var blog = new Blog
             {
-                var transaction = session.GetCurrentTransaction();
-
-                Assert.IsNotNull(transaction);
-                Assert.IsTrue(transaction.IsActive);
-
-                var blog = new Blog
-                {
-                    Name = name
-                };
-                session.Insert(blog);
-                return blog;
-            }
+                Name = name
+            };
+            session.Insert(blog);
+            return blog;
         }
 
         [Transaction]
         public virtual void DeleteStateless(string name)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                var transaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenStatelessSession();
+            var transaction = session.GetCurrentTransaction();
 
-                Assert.IsNotNull(transaction);
+            Assert.That(transaction, Is.Not.Null);
 
-                session.Delete($"from Blog b where b.Name ='{name}'");
-            }
+            session.Delete($"from Blog b where b.Name ='{name}'");
         }
 
         public virtual void AddBlogRefStateless(BlogRef blogRef)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                session.Insert(blogRef);
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+            session.Insert(blogRef);
         }
     }
 }

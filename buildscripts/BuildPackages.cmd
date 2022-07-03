@@ -1,6 +1,6 @@
 @ECHO OFF
 REM ****************************************************************************
-REM Copyright 2004-2022 Castle Project - http://www.castleproject.org/
+REM Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
 REM You may obtain a copy of the License at
@@ -15,17 +15,12 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-:INITIALIZE_ARGUMENTS
+:INITIALIZE_VARIABLES
 SET %1
-SET %2
-
 REM ECHO arg1 = %1
+SET %2
 REM ECHO arg2 = %2
 
-GOTO INITIALIZE_VARIABLES
-
-
-:INITIALIZE_VARIABLES
 SET CONFIGURATION="Release"
 SET BUILD_VERSION="1.0.0"
 
@@ -47,10 +42,8 @@ GOTO RESTORE_PACKAGES
 
 
 :RESTORE_PACKAGES
-REM dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
-dotnet restore .\buildscripts\BuildScripts.csproj
-dotnet restore .\src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj
-dotnet restore .\src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj
+dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln
+dotnet restore .\src\Castle.Facilities.NHibernateIntegration.sln
 
 GOTO BUILD
 
@@ -62,8 +55,8 @@ REM ECHO Building "%config%" packages with version "%version%"...
 ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
 ECHO ---------------------------------------------------
 
-REM dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
-dotnet build Castle.Facilities.NHibernateIntegration.sln -c %CONFIGURATION% /p:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
+dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
+dotnet build Castle.Facilities.NHibernateIntegration.sln --configuration %CONFIGURATION% -property:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
 
 GOTO TEST
 
@@ -76,12 +69,12 @@ ECHO ----------------
 
 dotnet test .\src\Castle.Facilities.NHibernateIntegration.Tests --no-restore || exit /b 1
 
-REM GOTO NUGET_EXPLICIT_VERSIONS
+GOTO NUGET_EXPLICIT_VERSIONS
 
 
-REM :NUGET_EXPLICIT_VERSIONS
+:NUGET_EXPLICIT_VERSIONS
 
-REM .\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle.Facilities.NHibernateIntegration"
+.\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle."
 
 
 

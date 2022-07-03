@@ -38,8 +38,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities152
             var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
             var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
 
-            Assert.IsInstanceOf(typeof(WebSessionStore), sessionStoreWhenIsWebTrue);
-            Assert.IsInstanceOf(typeof(AsyncLocalSessionStore), sessionStoreWhenIsWebFalse);
+            Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf(typeof(WebSessionStore)));
+            Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
         }
     }
 }

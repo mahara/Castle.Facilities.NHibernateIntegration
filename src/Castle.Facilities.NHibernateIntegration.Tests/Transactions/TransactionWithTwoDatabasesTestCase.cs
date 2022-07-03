@@ -48,12 +48,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogItems = service.FindAll(typeof(BlogItem));
             var orders = orderDao.FindAll(typeof(Order));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogItems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogItems.Length);
-            Assert.AreEqual(1, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogItems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
         [Test]
         public void ExceptionOnEndWithTwoDatabases()
@@ -74,12 +74,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogitems = service.FindAll(typeof(BlogItem));
             var orders = orderDao.FindAll(typeof(Order));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(0, blogs.Length);
-            Assert.AreEqual(0, blogitems.Length);
-            Assert.AreEqual(0, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs.Length, Is.EqualTo(0));
+            Assert.That(blogitems.Length, Is.EqualTo(0));
+            Assert.That(orders.Length, Is.EqualTo(0));
         }
 
 
@@ -95,12 +95,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogItems = service.FindAllStateless(typeof(BlogItem));
             var orders = orderDao.FindAllStateless(typeof(Order));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogItems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogItems.Length);
-            Assert.AreEqual(1, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogItems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
         [Test]
@@ -122,12 +122,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogItems = service.FindAllStateless(typeof(BlogItem));
             var orders = orderDao.FindAllStateless(typeof(Order));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogItems);
-            Assert.IsNotNull(orders);
-            Assert.AreEqual(0, blogs.Length);
-            Assert.AreEqual(0, blogItems.Length);
-            Assert.AreEqual(0, orders.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs.Length, Is.EqualTo(0));
+            Assert.That(blogItems.Length, Is.EqualTo(0));
+            Assert.That(orders.Length, Is.EqualTo(0));
         }
     }
 }

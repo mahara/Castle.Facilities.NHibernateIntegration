@@ -33,11 +33,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
 
-            Assert.AreEqual(1, configuration.EventListeners.SaveOrUpdateEventListeners.Length);
-            Assert.AreEqual(typeof(CustomSaveUpdateListener), configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType());
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners, Has.Length.EqualTo(1));
+            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType(), Is.EqualTo(typeof(CustomSaveUpdateListener)));
 
-            Assert.AreEqual(1, configuration.EventListeners.DeleteEventListeners.Length);
-            Assert.AreEqual(typeof(CustomDeleteListener), configuration.EventListeners.DeleteEventListeners[0].GetType());
+            Assert.That(configuration.EventListeners.DeleteEventListeners, Has.Length.EqualTo(1));
+            Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
         }
     }
 }

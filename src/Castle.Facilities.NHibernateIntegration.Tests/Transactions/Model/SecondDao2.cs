@@ -30,36 +30,32 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
         public BlogItem Create(Blog blog)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+            var item = new BlogItem
             {
-                var item = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTime.Now,
-                };
-                session.Save(item);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTime.Now,
+            };
+            session.Save(item);
 
-                return item;
-            }
+            return item;
         }
 
         public BlogItem CreateStateless(Blog blog)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+            var item = new BlogItem
             {
-                var item = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTime.Now,
-                };
-                session.Insert(item);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTime.Now,
+            };
+            session.Insert(item);
 
-                return item;
-            }
+            return item;
         }
     }
 }

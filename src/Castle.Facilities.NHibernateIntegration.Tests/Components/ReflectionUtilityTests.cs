@@ -31,7 +31,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         }
 
         [Test]
-        public void Can_get_properties_as_dictionary()
+        public void CanGetPropertiesAsDictionary()
         {
             var blog = new Blog
             {
@@ -49,7 +49,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         }
 
         [Test]
-        public void SimpleType_returns_true_for_enum_string_datetime_and_primitivetypes_()
+        public void SimpleTypeReturnsTrueForEnumStringDatetimeAndPrimitiveTypes()
         {
             Assert.True(ReflectionUtility.IsSimpleType(typeof(string)));
             Assert.True(ReflectionUtility.IsSimpleType(typeof(DateTime)));

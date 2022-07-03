@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,23 +29,23 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Gets the <see cref="Configuration" /> from the file.
         /// </summary>
-        /// <param name="filename">The name of the file to read from.</param>
+        /// <param name="filePath">The path of the file to read from.</param>
         /// <returns>The <see cref="Configuration" />.</returns>
-        Configuration ReadConfiguration(string filename);
+        Configuration ReadConfiguration(string filePath);
 
         /// <summary>
         /// Writes the <see cref="Configuration" /> to the file.
         /// </summary>
-        /// <param name="filename">The name of the file to write to.</param>
+        /// <param name="filePath">The path of the file to write to.</param>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
-        void WriteConfiguration(string filename, Configuration configuration);
+        void WriteConfiguration(string filePath, Configuration configuration);
 
         /// <summary>
         /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
         /// </summary>
-        /// <param name="filename">The name of the file containing the <see cref="Configuration" />.</param>
+        /// <param name="filePath">The path of the file containing the <see cref="Configuration" />.</param>
         /// <param name="dependencies">The files that the serialized configuration depends on.</param>
         /// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
-        bool IsNewConfigurationRequired(string filename, IList<string> dependencies);
+        bool IsNewConfigurationRequired(string filePath, IList<string> dependencies);
     }
 }

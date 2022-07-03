@@ -33,8 +33,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     {
         public int ConfigurationsCreated { get; private set; }
 
-        #region IConfigurationBuilder Members
-
         public Configuration GetConfiguration(IConfiguration config)
         {
             ConfigurationsCreated++;
@@ -56,8 +54,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             return nhConfig;
         }
-
-        #endregion
     }
 
     public class CustomNHibernateFacility : NHibernateFacility
@@ -76,7 +72,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var session = Container.Resolve<ISessionManager>().OpenSession();
             var configurationBuilder = (CustomConfigurationBuilder) Container.Resolve<IConfigurationBuilder>();
 
-            Assert.AreEqual(1, configurationBuilder.ConfigurationsCreated);
+            Assert.That(configurationBuilder.ConfigurationsCreated, Is.EqualTo(1));
 
             session.Close();
         }
@@ -122,7 +118,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             Assert.That(Method,
                         Throws.TypeOf<FacilityException>()
-                              .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found"));
+                              .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found."));
         }
     }
 }

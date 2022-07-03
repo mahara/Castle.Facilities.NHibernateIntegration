@@ -23,17 +23,17 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="AsyncLocal{T}" />.
     /// </summary>
-    public class AsyncLocalSessionStore : AbstractDictStackSessionStore
+    public class AsyncLocalSessionStore : AbstractDictionaryStackSessionStore
     {
-        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new AsyncLocal<IDictionary>();
-        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new AsyncLocal<IDictionary>();
+        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new();
 
-        protected override IDictionary GetDictionary()
+        protected override IDictionary GetSessionDictionary()
         {
             return _sessionAsyncLocal.Value;
         }
 
-        protected override void StoreDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary dictionary)
         {
             _sessionAsyncLocal.Value = dictionary;
         }

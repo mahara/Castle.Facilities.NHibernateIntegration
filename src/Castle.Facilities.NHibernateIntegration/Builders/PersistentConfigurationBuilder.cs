@@ -65,35 +65,35 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         {
             if (_logger.IsDebugEnabled)
             {
-                _logger.Debug("Building the Configuration");
+                _logger.Debug("Building the Configuration.");
             }
 
             var filename = GetFilenameFrom(facilityConfiguration);
             var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
 
-            Configuration cfg;
+            Configuration configuration;
             if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
             {
                 if (_logger.IsDebugEnabled)
                 {
-                    _logger.Debug("Configuration is either old or some of the dependencies have changed");
+                    _logger.Debug("Configuration is either old or some of the dependencies have changed.");
                 }
 
-                cfg = base.GetConfiguration(facilityConfiguration);
-                _configurationPersister.WriteConfiguration(filename, cfg);
+                configuration = base.GetConfiguration(facilityConfiguration);
+                _configurationPersister.WriteConfiguration(filename, configuration);
             }
             else
             {
-                cfg = _configurationPersister.ReadConfiguration(filename);
+                configuration = _configurationPersister.ReadConfiguration(filename);
             }
 
-            return cfg;
+            return configuration;
         }
 
-        private string GetFilenameFrom(IConfiguration configuration)
+        private string GetFilenameFrom(IConfiguration facilityConfiguration)
         {
-            var filename = configuration.Attributes["fileName"]
-                           ?? configuration.Attributes["id"] + DEFAULT_EXTENSION;
+            var filename = facilityConfiguration.Attributes["fileName"] ??
+                           facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
 
             return StripInvalidCharacters(filename);
         }
@@ -103,11 +103,11 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
         }
 
-        private IList<string> GetDependentFilenamesFrom(IConfiguration configuration)
+        private IList<string> GetDependentFilenamesFrom(IConfiguration facilityConfiguration)
         {
-            IList<string> list = new List<string>();
+            var list = new List<string>();
 
-            var assemblies = configuration.Children["assemblies"];
+            var assemblies = facilityConfiguration.Children["assemblies"];
             if (assemblies != null)
             {
                 foreach (var assembly in assemblies.Children)
@@ -116,7 +116,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 }
             }
 
-            var dependsOn = configuration.Children["dependsOn"];
+            var dependsOn = facilityConfiguration.Children["dependsOn"];
             if (dependsOn != null)
             {
                 foreach (var on in dependsOn.Children)

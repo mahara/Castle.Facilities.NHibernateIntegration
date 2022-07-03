@@ -47,12 +47,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 service.DoBlogRefOperation(blog);
 
-                // Expects a constraint exception on Commit
+                // Expects a constraint exception on Commit.
                 Assert.Fail("Must fail.");
             }
             catch (Exception)
             {
-                // transaction exception expected
+                // Transaction exception expected.
             }
         }
 
@@ -68,12 +68,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 service.DoBlogRefOperationStateless(blog);
 
-                // Expects a constraint exception on Commit
+                // Expects a constraint exception on Commit.
                 Assert.Fail("Must fail.");
             }
             catch (Exception)
             {
-                // transaction exception expected
+                // Transaction exception expected.
             }
         }
 
@@ -85,12 +85,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogName = "Delicious Food!";
 
             var blogA = service.CreateBlogUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogA);
+            Assert.That(blogA, Is.Not.Null);
 
             var blogB = service.FindBlogUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogB);
+            Assert.That(blogB, Is.Not.Null);
 
-            Assert.AreEqual(blogA.Name, blogB.Name);
+            Assert.That(blogB.Name, Is.EqualTo(blogA.Name));
         }
 
         [Test]
@@ -101,12 +101,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogName = "Delicious Food!";
 
             var blogA = service.CreateBlogStatelessUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogA);
+            Assert.That(blogA, Is.Not.Null);
 
             var blogB = service.FindBlogStatelessUsingDetachedCriteria(blogName);
-            Assert.IsNotNull(blogB);
+            Assert.That(blogB, Is.Not.Null);
 
-            Assert.AreEqual(blogA.Name, blogB.Name);
+            Assert.That(blogB.Name, Is.EqualTo(blogA.Name));
         }
 
         [Test]
@@ -119,10 +119,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAll(typeof(Blog));
             var blogitems = service.FindAll(typeof(BlogItem));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
         }
 
         [Test]
@@ -135,10 +135,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAllStateless(typeof(Blog));
             var blogitems = service.FindAllStateless(typeof(BlogItem));
 
-            Assert.IsNotNull(blogs);
-            Assert.IsNotNull(blogitems);
-            Assert.AreEqual(1, blogs.Length);
-            Assert.AreEqual(1, blogitems.Length);
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
         }
 
         [Test]
@@ -151,17 +151,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var first = Container.Resolve<FirstDao>("myfirstdao");
                 var second = Container.Resolve<SecondDao>("myseconddao");
 
-                // This call is transactional
+                // This call is transactional.
                 var blog = first.Create();
 
                 // TODO: Assert transaction was committed
+                //var sessionImplementation = session.GetSessionImplementation();
+                //var connectionManager = sessionImplementation.ConnectionManager;
+                //var tx = connectionManager.CurrentTransaction;
                 //transaction = session.GetCurrentTransaction();
-                //Assert.IsTrue(transaction.WasCommitted);
+                //Assert.That(transaction.WasCommitted, Is.True);
 
                 try
                 {
@@ -169,22 +172,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 }
                 catch (Exception)
                 {
-                    // Expected
+                    // Expected.
                 }
 
                 // TODO: Assert transaction was rolled back
                 //transaction = session.GetCurrentTransaction();
-                //Assert.IsTrue(transaction.WasRolledBack);
+                //Assert.That(transaction.WasRolledBack, Is.True);
 
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(1));
                 var blogItems = rootService.FindAll(typeof(BlogItem));
-                Assert.IsEmpty(blogItems);
+                Assert.That(blogItems, Is.Empty);
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
         }
 
         [Test]
@@ -197,7 +200,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenStatelessSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var first = Container.Resolve<FirstDao>("myfirstdao");
                 var second = Container.Resolve<SecondDao>("myseconddao");
@@ -225,12 +228,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(1));
                 var blogItems = rootService.FindAllStateless(typeof(BlogItem));
-                Assert.IsEmpty(blogItems);
+                Assert.That(blogItems, Is.Empty);
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
         }
 
         [Test]
@@ -243,7 +246,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -253,10 +256,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(1));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -271,7 +274,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenStatelessSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -281,10 +284,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(1, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(1));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -299,7 +302,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             using (var session = sessionManager.OpenSession())
             {
                 transaction = session.GetCurrentTransaction();
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -315,10 +318,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAll(typeof(Blog));
-                Assert.AreEqual(3, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(3));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
@@ -334,7 +337,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 transaction = session.GetCurrentTransaction();
 
-                Assert.IsNull(transaction);
+                Assert.That(transaction, Is.Null);
 
                 var service = Container.Resolve<FirstDao>("myfirstdao");
 
@@ -350,16 +353,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 var rootService = Container.Resolve<RootService>();
 
                 var blogs = rootService.FindAllStateless(typeof(Blog));
-                Assert.AreEqual(3, blogs.Length);
+                Assert.That(blogs, Has.Length.EqualTo(3));
             }
 
-            Assert.IsNull(transaction);
+            Assert.That(transaction, Is.Null);
             // TODO: Assert transaction was committed
             //Assert.IsTrue(transaction.WasCommitted);
         }
 
         [Test]
-        public void CallWithException()
+        public void CallWithException1()
         {
             var service = Container.Resolve<RootService>();
 
@@ -376,30 +379,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAll(typeof(Blog));
             var blogitems = service.FindAll(typeof(BlogItem));
 
-            Assert.IsEmpty(blogs);
-            Assert.IsEmpty(blogitems);
-        }
-
-        [Test]
-        public void CallWithExceptionStateless()
-        {
-            var service = Container.Resolve<RootService>();
-
-            try
-            {
-                service.CallWithExceptionStateless();
-            }
-            catch (NotSupportedException)
-            {
-            }
-
-            // Ensure rollback happened.
-
-            var blogs = service.FindAllStateless(typeof(Blog));
-            var blogitems = service.FindAllStateless(typeof(BlogItem));
-
-            Assert.IsEmpty(blogs);
-            Assert.IsEmpty(blogitems);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
         }
 
         [Test]
@@ -420,8 +401,30 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAll(typeof(Blog));
             var blogitems = service.FindAll(typeof(BlogItem));
 
-            Assert.IsEmpty(blogs);
-            Assert.IsEmpty(blogitems);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
+        }
+
+        [Test]
+        public void CallWithExceptionStateless1()
+        {
+            var service = Container.Resolve<RootService>();
+
+            try
+            {
+                service.CallWithExceptionStateless();
+            }
+            catch (NotSupportedException)
+            {
+            }
+
+            // Ensure rollback happened.
+
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
         }
 
         [Test]
@@ -442,8 +445,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             var blogs = service.FindAllStateless(typeof(Blog));
             var blogitems = service.FindAllStateless(typeof(BlogItem));
 
-            Assert.IsEmpty(blogs);
-            Assert.IsEmpty(blogitems);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
         }
     }
 }

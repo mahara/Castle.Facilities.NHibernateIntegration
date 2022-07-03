@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
         [NHSessionRequired]
         public virtual void FetchAll()
         {
-            Assert.IsNotNull(_sessionStore.FindCompatibleSession(Constants.DefaultAlias));
+            Assert.That(_sessionStore.FindCompatibleSession(Constants.DefaultAlias), Is.Not.Null);
 
             _sessionManager.OpenSession();
         }

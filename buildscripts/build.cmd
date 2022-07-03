@@ -1,6 +1,6 @@
 @ECHO OFF
 REM ****************************************************************************
-REM Copyright 2004-2022 Castle Project - http://www.castleproject.org/
+REM Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
 REM You may obtain a copy of the License at
@@ -14,6 +14,7 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM ****************************************************************************
 
+
 if "%1" == "" goto no_config
 if "%1" NEQ "" goto set_config
 
@@ -26,16 +27,14 @@ SET Configuration=Release
 GOTO restore_packages
 
 :restore_packages
-dotnet restore ./tools/Explicit.NuGet.Versions/Explicit.NuGet.Versions.csproj
-dotnet restore ./buildscripts/BuildScripts.csproj
-dotnet restore ./src/Castle.Facilities.NHibernateIntegration/Castle.Facilities.NHibernateIntegration.csproj
-dotnet restore ./src/Castle.Facilities.NHibernateIntegration.Tests/Castle.Facilities.NHibernateIntegration.Tests.csproj
+dotnet restore ./tools/Explicit.NuGet.Versions/Explicit.NuGet.Versions.sln
+dotnet restore ./src/Castle.Facilities.NHibernateIntegration.sln
 
 GOTO build
 
 :build
 dotnet build ./tools/Explicit.NuGet.Versions/Explicit.NuGet.Versions.sln
-dotnet build Castle.Facilities.NHibernateIntegration.sln -c %Configuration%
+dotnet build Castle.Facilities.NHibernateIntegration.sln --configuration %Configuration%
 GOTO test
 
 :test
@@ -50,7 +49,7 @@ GOTO nuget_explicit_versions
 
 :nuget_explicit_versions
 
-.\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle.Facilities.NHibernateIntegration"
+.\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle."
 
 
 
