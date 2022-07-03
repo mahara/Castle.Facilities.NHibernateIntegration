@@ -17,8 +17,8 @@ REM ****************************************************************************
 
 SET PACKAGES_DIRECTORY=build
 
-dotnet clean -c Debug
-dotnet clean -c Release
+dotnet clean --configuration Debug
+dotnet clean --configuration Release
 IF EXIST %PACKAGES_DIRECTORY% RMDIR %PACKAGES_DIRECTORY% /S /Q
 
 

@@ -13,8 +13,8 @@
 # limitations under the License.
 # ****************************************************************************
 
-#!/bin/bash
 
+#!/bin/bash
 
 set -e
 MONO_TAG=${MONO_TAG:-6.0.0.334}

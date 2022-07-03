@@ -13,8 +13,8 @@
 # limitations under the License.
 # ****************************************************************************
 
-#!/bin/bash
 
+#!/bin/bash
 
 shopt -s expand_aliases
 
