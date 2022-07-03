@@ -21,12 +21,9 @@ using Castle.MicroKernel;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
 
+using Moq;
+
 using NUnit.Framework;
-
-using Rhino.Mocks;
-
-using Is = Rhino.Mocks.Constraints.Is;
-using List = Rhino.Mocks.Constraints.List;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
 {
@@ -48,41 +45,43 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         [Test]
         public void DerivesValidFilenameFromSessionFactoryIdWhenNotExplicitlySpecified()
         {
-            var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
-            configurationPersister.Expect(
-                x =>
-                x.IsNewConfigurationRequired(null, null))
-                 .IgnoreArguments()
-                 .Constraints(Is.Equal("sessionFactory1.dat"), Is.Anything())
-                 .Return(false);
+            var configurationPersister = new Mock<IConfigurationPersister>().Object;
+            Mock.Get(configurationPersister)
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(
+                           It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
+                           It.IsAny<IList<string>>()))
+                .Returns(false)
+                .Verifiable();
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
             builder.GetConfiguration(_facilityConfiguration);
 
-            configurationPersister.VerifyAllExpectations();
+            Mock.Get(configurationPersister).VerifyAll();
         }
 
         [Test]
         public void IncludesMappingAssembliesInDependentFiles()
         {
-            var dependentFileNames = new[]
+            var dependentFileNames = new List<string>
             {
                 "Castle.Facilities.NHibernateIntegration.Tests.dll",
             };
 
-            var configurationPersister = MockRepository.GenerateMock<IConfigurationPersister>();
-            configurationPersister.Expect(
-                x =>
-                x.IsNewConfigurationRequired(null, null))
-                 .IgnoreArguments()
-                 .Constraints(Is.Anything(),
-                              List.ContainsAll(dependentFileNames))
-                 .Return(false);
+            var configurationPersister = new Mock<IConfigurationPersister>().Object;
+            Mock.Get(configurationPersister)
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(
+                           It.IsAny<string>(),
+                           It.Is<IList<string>>(
+                               x => x.All(dependentFileNames.Contains))))
+                .Returns(false)
+                .Verifiable();
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
             builder.GetConfiguration(_facilityConfiguration);
 
-            configurationPersister.VerifyAllExpectations();
+            Mock.Get(configurationPersister).VerifyAll();
         }
     }
 }

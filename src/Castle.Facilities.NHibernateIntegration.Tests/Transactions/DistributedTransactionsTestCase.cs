@@ -14,7 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
+#if NETFRAMEWORK
 using System.Transactions;
 
 using Castle.MicroKernel.Registration;
@@ -180,3 +180,4 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
     }
 }
+#endif
