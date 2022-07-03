@@ -47,7 +47,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         protected override string ConfigurationFile =>
             "EmptyConfiguration.xml";
 
-        private const string File = "myconfig.dat";
+        private const string FilePath = "myconfig.dat";
 
         private readonly Func<IObjectPersister<Configuration>> _objectPersisterMethod =
             () => ObjectPersisterFactory.Create<Configuration>();
@@ -67,7 +67,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         protected override void OnTearDown()
         {
-            System.IO.File.Delete(File);
+            File.Delete(FilePath);
         }
 
         [Test]
@@ -75,13 +75,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             CleanUpFiles();
 
-            Assert.That(System.IO.File.Exists(File), Is.False);
+            Assert.That(File.Exists(FilePath), Is.False);
 
             _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(System.IO.File.Exists(File), Is.True);
+            Assert.That(File.Exists(FilePath), Is.True);
 
             var persister = _objectPersisterMethod();
-            var configuration = persister.Read(File);
+            var configuration = persister.Read(FilePath);
 
             Assert.That(configuration, Is.Not.Null);
 
@@ -95,16 +95,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             CleanUpFiles();
 
-            Assert.That(System.IO.File.Exists(File), Is.False);
+            Assert.That(File.Exists(FilePath), Is.False);
 
             _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(System.IO.File.Exists(File), Is.True);
+            Assert.That(File.Exists(FilePath), Is.True);
 
-            var dateTime = System.IO.File.GetLastWriteTime(File);
+            var dateTime = File.GetLastWriteTime(FilePath);
             Thread.Sleep(1000);
 
             var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(dateTime, Is.EqualTo(System.IO.File.GetLastWriteTime(File)));
+            Assert.That(dateTime, Is.EqualTo(File.GetLastWriteTime(FilePath)));
             Assert.That(_facilityConfiguration, Is.Not.Null);
 
             ConfigureConnectionSettings(configuration);
@@ -117,22 +117,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         {
             CleanUpFiles();
 
-            Assert.That(System.IO.File.Exists(File), Is.False);
+            Assert.That(File.Exists(FilePath), Is.False);
 
             _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(System.IO.File.Exists(File), Is.True);
+            Assert.That(File.Exists(FilePath), Is.True);
 
-            var dateTime = System.IO.File.GetLastWriteTime(File);
+            var dateTime = File.GetLastWriteTime(FilePath);
             Thread.Sleep(100);
 
             var dateTime2 = DateTime.Now;
             var fileName = "SampleDllFile";
             var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, fileName);
-            System.IO.File.Create(filePath).Dispose();
-            System.IO.File.SetLastWriteTime(filePath, dateTime2);
+            File.Create(filePath).Dispose();
+            File.SetLastWriteTime(filePath, dateTime2);
 
             var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(System.IO.File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime));
+            Assert.That(File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime));
             Assert.That(_facilityConfiguration, Is.Not.Null);
 
             ConfigureConnectionSettings(configuration);
@@ -154,9 +154,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         private static void CleanUpFiles()
         {
-            if (System.IO.File.Exists(File))
+            if (File.Exists(FilePath))
             {
-                System.IO.File.Delete(File);
+                File.Delete(FilePath);
             }
         }
     }
