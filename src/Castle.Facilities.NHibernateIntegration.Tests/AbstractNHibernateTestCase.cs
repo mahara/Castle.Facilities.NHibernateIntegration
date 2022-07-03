@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.IO;
-
 using Castle.Core.Resource;
 using Castle.Facilities.AutoTx;
 using Castle.Windsor;
@@ -26,14 +24,11 @@ using NHibernate.Tool.hbm2ddl;
 
 using NUnit.Framework;
 
-using Rhino.Mocks;
-
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     public abstract class AbstractNHibernateTestCase
     {
         protected IWindsorContainer Container;
-        protected MockRepository MockRepository = new();
 
         protected virtual string ConfigurationFilePath =>
             "DefaultConfiguration.xml";
