@@ -14,7 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
+#if NETFRAMEWORK
 using System.Web;
 
 using Castle.MicroKernel.Facilities;
@@ -112,3 +112,4 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
         }
     }
 }
+#endif

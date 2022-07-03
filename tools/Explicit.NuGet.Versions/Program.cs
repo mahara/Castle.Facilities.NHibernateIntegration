@@ -47,25 +47,22 @@ namespace Explicit.NuGet.Versions
 
             foreach (var packageFilePath in packageDiscoverDirectory.GetFiles("*.nupkg", SearchOption.AllDirectories))
             {
-                using (var zipFile = ZipFile.Read(packageFilePath.FullName))
+                using var zipFile = ZipFile.Read(packageFilePath.FullName);
+
+                foreach (var zipEntry in zipFile.Entries)
                 {
-                    foreach (var zipEntry in zipFile.Entries)
+                    if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
                     {
-                        if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
+                        using var zipEntryReader = new StreamReader(zipEntry.OpenReader());
+
+                        var nuspecXml = zipEntryReader.ReadToEnd();
+                        packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
                         {
-                            using (var zipEntryReader = new StreamReader(zipEntry.OpenReader()))
-                            {
-                                var nuspecXml = zipEntryReader.ReadToEnd();
+                            EntryName = zipEntry.FileName,
+                            Contents = nuspecXml,
+                        };
 
-                                packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
-                                {
-                                    EntryName = zipEntry.FileName,
-                                    Contents = nuspecXml,
-                                };
-
-                                break;
-                            }
-                        }
+                        break;
                     }
                 }
             }
@@ -127,11 +124,10 @@ namespace Explicit.NuGet.Versions
         {
             foreach (var packageFile in packageMetaData.ToList())
             {
-                using (var zipFile = ZipFile.Read(packageFile.Key))
-                {
-                    zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
-                    zipFile.Save();
-                }
+                using var zipFile = ZipFile.Read(packageFile.Key);
+
+                zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
+                zipFile.Save();
             }
         }
 
@@ -151,10 +147,7 @@ namespace Explicit.NuGet.Versions
                 _encoding = encoding;
             }
 
-            public override Encoding Encoding
-            {
-                get { return _encoding; }
-            }
+            public override Encoding Encoding => _encoding;
         }
     }
 }
