@@ -46,8 +46,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         private const string File = "myconfig.dat";
 
         private readonly Func<IObjectPersister<Configuration>> _objectPersisterMethod =
+#if NETFRAMEWORK
             () => new BinaryObjectPersister<Configuration>();
+#else
+            () => new NewtonsoftJsonObjectPersister<Configuration>();
         //() => new JsonObjectPersister<Configuration>();
+#endif
 
         private IConfiguration _facilityConfiguration;
         private IConfigurationBuilder _configurationBuilder;
