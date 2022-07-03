@@ -14,35 +14,68 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
-
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+    using System.Collections.Generic;
+#if NETFRAMEWORK
+    using System.Runtime.Remoting.Messaging;
+#endif
+
+#if NETFRAMEWORK
     /// <summary>
     /// Provides an implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="LogicalCallContext" />.
     /// </summary>
+#else
+    /// <summary>
+    /// Provides an implementation of <see cref="ISessionStore" />
+    /// which relies on .NET Framework <c>LogicalCallContext</c>.
+    /// </summary>
+    /// <exception cref="PlatformNotSupportedException">
+    /// This is not supported anymore in .NET (Core).
+    /// </exception>
+    [Obsolete("'LogicalCallContext' is not supported on .NET (Core).")]
+#endif
     public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
     {
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
+#if NETFRAMEWORK
             return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionSlotKey);
+#else
+            var message = "'LogicalCallContext' is not supported on .NET (Core).";
+            throw new PlatformNotSupportedException(message);
+#endif
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
+#if NETFRAMEWORK
             CallContext.LogicalSetData(SessionSlotKey, dictionary);
+#else
+            var message = "'LogicalCallContext' is not supported on .NET (Core).";
+            throw new PlatformNotSupportedException(message);
+#endif
         }
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
+#if NETFRAMEWORK
             return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionSlotKey);
+#else
+            var message = "'LogicalCallContext' is not supported on .NET (Core).";
+            throw new PlatformNotSupportedException(message);
+#endif
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
+#if NETFRAMEWORK
             CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
+#else
+            var message = "'LogicalCallContext' is not supported on .NET (Core).";
+            throw new PlatformNotSupportedException(message);
+#endif
         }
     }
 }
