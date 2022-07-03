@@ -14,19 +14,17 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Transactions;
 
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.MicroKernel;
 using Castle.Services.Transaction;
 
+using Moq;
+
 using NHibernate;
 
 using NUnit.Framework;
-
-using Rhino.Mocks;
 
 using ITransaction = Castle.Services.Transaction.ITransaction;
 
@@ -55,85 +53,72 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 
         protected override void OnSetUp()
         {
-            _kernel = MockRepository.DynamicMock<IKernel>();
+            _kernel = new Mock<IKernel>().Object;
             _transactionContext = new Dictionary<string, object>();
-            _transaction = MockRepository.DynamicMock<ITransaction>();
-            _transactionManager = MockRepository.DynamicMock<ITransactionManager>();
-            _sessionFactoryResolver = MockRepository.DynamicMock<ISessionFactoryResolver>();
-            _sessionFactory = MockRepository.DynamicMock<ISessionFactory>();
+            _transaction = new Mock<ITransaction>().Object;
+            _transactionManager = new Mock<ITransactionManager>().Object;
+            _sessionFactoryResolver = new Mock<ISessionFactoryResolver>().Object;
+            _sessionFactory = new Mock<ISessionFactory>().Object;
             _sessionStore = new AsyncLocalSessionStore();
             _sessionManager = new DefaultSessionManager(_kernel, _sessionFactoryResolver, _sessionStore);
-            _session = MockRepository.DynamicMock<ISession>();
-            _statelessSession = MockRepository.DynamicMock<IStatelessSession>();
+            _session = new Mock<ISession>().Object;
+            _statelessSession = new Mock<IStatelessSession>().Object;
         }
 
         [Test]
         public void WhenBeginTransactionFails_SessionIsRemovedFromSessionStore()
         {
-            using (MockRepository.Record())
+            Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
+            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultIsolationLevel);
+            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
+            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(Constants.SessionInterceptor_ComponentNameFormat, Alias))).Returns(false);
+            Mock.Get(_kernel).Setup(x => x.HasComponent(Constants.SessionInterceptor_ComponentName)).Returns(false);
+            Mock.Get(_sessionFactory).Setup(x => x.OpenSession()).Returns(_session);
+            Mock.Get(_session).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
+
+            try
             {
-                Expect.Call(_kernel.Resolve<ITransactionManager>()).Return(_transactionManager);
-                Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationLevel).Repeat.Any();
-                Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
-                Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
-                Expect.Call(_kernel.HasComponent(string.Format(Constants.SessionInterceptor_ComponentNameFormat, Alias))).Return(false);
-                Expect.Call(_kernel.HasComponent(Constants.SessionInterceptor_ComponentName)).Return(false).Repeat.Any();
-                Expect.Call(_sessionFactory.OpenSession()).Return(_session);
-                _session.FlushMode = _sessionManager.DefaultFlushMode;
-                Expect.Call(_session.BeginTransaction(DefaultDataIsolationLevel)).Throw(new Exception());
+                _sessionManager.OpenSession(Alias);
+
+                Assert.Fail("Exception not thrown.");
+            }
+            catch (Exception ex)
+            {
+                // Expected.
+                Console.WriteLine(ex.ToString());
             }
 
-            using (MockRepository.Playback())
-            {
-                try
-                {
-                    _sessionManager.OpenSession(Alias);
-
-                    Assert.Fail("Exception not thrown.");
-                }
-                catch (Exception ex)
-                {
-                    // Expected.
-                    Console.WriteLine(ex.ToString());
-                }
-
-                Assert.That(_sessionStore.FindCompatibleSession(Alias), Is.Null,
-                            "The session store shouldn't contain compatible session if the session creation fails.");
-            }
+            Assert.That(_sessionStore.FindCompatibleSession(Alias), Is.Null,
+                        "The session store shouldn't contain compatible session if the session creation fails.");
         }
 
         [Test]
         public void WhenBeginTransactionFails_StatelessSessionIsRemovedFromSessionStore()
         {
-            using (MockRepository.Record())
+            Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
+            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultIsolationLevel);
+            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
+            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_sessionFactory).Setup(x => x.OpenStatelessSession()).Returns(_statelessSession);
+            Mock.Get(_statelessSession).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
+
+            try
             {
-                Expect.Call(_kernel.Resolve<ITransactionManager>()).Return(_transactionManager);
-                Expect.Call(_transaction.Context).Return(_transactionContext).Repeat.Any();
-                Expect.Call(_transaction.IsolationLevel).Return(DefaultIsolationLevel).Repeat.Any();
-                Expect.Call(_transactionManager.CurrentTransaction).Return(_transaction);
-                Expect.Call(_sessionFactoryResolver.GetSessionFactory(Alias)).Return(_sessionFactory);
-                Expect.Call(_sessionFactory.OpenStatelessSession()).Return(_statelessSession);
-                Expect.Call(_statelessSession.BeginTransaction(DefaultDataIsolationLevel)).Throw(new Exception());
+                _sessionManager.OpenStatelessSession(Alias);
+
+                Assert.Fail("Exception not thrown.");
+            }
+            catch (Exception ex)
+            {
+                // Expected.
+                Console.WriteLine(ex.ToString());
             }
 
-            using (MockRepository.Playback())
-            {
-                try
-                {
-                    _sessionManager.OpenStatelessSession(Alias);
-
-                    Assert.Fail("Exception not thrown.");
-                }
-                catch (Exception ex)
-                {
-                    // Expected.
-                    Console.WriteLine(ex.ToString());
-                }
-
-                Assert.That(_sessionStore.FindCompatibleStatelessSession(Alias), Is.Null,
-                            "The session store shouldn't contain compatible stateless session if the session creation fails.");
-            }
+            Assert.That(_sessionStore.FindCompatibleStatelessSession(Alias), Is.Null,
+                        "The session store shouldn't contain compatible stateless session if the session creation fails.");
         }
     }
 }
