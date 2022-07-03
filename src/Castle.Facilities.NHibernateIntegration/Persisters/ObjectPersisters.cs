@@ -2,9 +2,21 @@
 {
     using System.IO;
     using System.Runtime.Serialization.Formatters.Binary;
-    using System.Security.Cryptography;
 
     using Newtonsoft.Json;
+
+    public class ObjectPersisterFactory
+    {
+        public static IObjectPersister<T> Create<T>()
+        {
+#if NETFRAMEWORK
+            return new BinaryObjectPersister<T>();
+#else
+            return new NewtonsoftJsonObjectPersister<T>();
+            //return new JsonObjectPersister<Configuration>();
+#endif
+        }
+    }
 
     public interface IObjectPersister<T>
     {
