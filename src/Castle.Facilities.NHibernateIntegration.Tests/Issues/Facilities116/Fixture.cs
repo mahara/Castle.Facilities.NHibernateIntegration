@@ -45,6 +45,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         private const string File = "myconfig.dat";
 
+        private readonly Func<IObjectPersister<Configuration>> _objectPersisterMethod =
+            () => new BinaryObjectPersister<Configuration>();
+        //() => new JsonObjectPersister<Configuration>();
+
         private IConfiguration _facilityConfiguration;
         private IConfigurationBuilder _configurationBuilder;
 
@@ -71,7 +75,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.Exists(File), Is.True);
 
-            var persister = new BinaryObjectPersister<Configuration>();
+            var persister = _objectPersisterMethod();
             var configuration = persister.Read(File);
 
             Assert.That(configuration, Is.Not.Null);

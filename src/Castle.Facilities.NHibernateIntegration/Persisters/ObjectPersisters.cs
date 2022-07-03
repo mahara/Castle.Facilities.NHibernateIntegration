@@ -85,7 +85,8 @@
 
         public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate)
         {
-            System.Text.Json.JsonSerializer.Serialize(@object, _options);
+            using var stream = new FileStream(filePath, mode);
+            System.Text.Json.JsonSerializer.Serialize(stream, @object, _options);
         }
     }
 }
