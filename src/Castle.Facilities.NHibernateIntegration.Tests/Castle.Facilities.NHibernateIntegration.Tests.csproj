@@ -62,12 +62,12 @@
     <None Include="config\netfx\App.config" Link="App.config" />
   </ItemGroup>
 
-  <!--<ItemGroup>
-    <EmbeddedResource Include=".\**\*.xml">
+  <ItemGroup>
+    <EmbeddedResource Include="**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-  </ItemGroup>-->
-  <ItemGroup>
+  </ItemGroup>
+  <!--<ItemGroup>
     <EmbeddedResource Include=".\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -83,21 +83,25 @@
     <EmbeddedResource Include=".\Transactions\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
-  </ItemGroup>
+  </ItemGroup>-->
 
   <!--
     https://stackoverflow.com/questions/55541912/using-an-app-config-file-with-nunit3-in-a-net-core-console-app
   -->
   <Target Name="CopyConfigurationFiles" AfterTargets="AfterBuild">
     <!-- Command Line (dotnet test) -->
-    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.dll.config"
+    <Copy SourceFiles="config\net\App.config"
+          DestinationFiles="$(OutDir)\testhost.dll.config"
           Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
-    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.dll.config"
+    <Copy SourceFiles="config\netfx\App.config"
+          DestinationFiles="$(OutDir)\testhost.dll.config"
           Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
     <!-- Visual Studio Test Explorer -->
-    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config"
+    <Copy SourceFiles="config\net\App.config"
+          DestinationFiles="$(OutDir)\testhost.x86.dll.config"
           Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'"/>
-    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config"
+    <Copy SourceFiles="config\netfx\App.config"
+          DestinationFiles="$(OutDir)\testhost.x86.dll.config"
           Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'"/>
   </Target>
 
