@@ -21,7 +21,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Reference Include="System.Transactions" />
     <PackageReference Include="System.Text.Json" Version="6.0.5" />
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Castle.Windsor" Version="5.1.2" />
@@ -34,6 +33,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Transactions" />
   </ItemGroup>
 
 </Project>
