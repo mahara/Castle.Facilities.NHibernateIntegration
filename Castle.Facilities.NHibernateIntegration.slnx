@@ -11,6 +11,10 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/Castle Build/.github/" />
+  <Folder Name="/Castle Build/.github/workflows/">
+    <File Path=".github/workflows/build.yml" />
+  </Folder>
   <Folder Name="/Castle Build/buildscripts/">
     <File Path="buildscripts/AssemblyInfo.Global.cs" />
     <File Path="buildscripts/Build.props" />
