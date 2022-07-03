@@ -16,16 +16,25 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.LoggingFacility" Version="5.1.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="coverlet.collector" Version="3.1.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
+    <PackageReference Include="Moq" Version="4.17.2" />
     <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.1.0">
+    <PackageReference Include="NUnit.Analyzers" Version="3.3.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="RhinoMocks" Version="3.6.1" />
+    <PackageReference Include="NunitXml.TestLogger" Version="3.0.127" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
   </ItemGroup>
 
   <ItemGroup>
@@ -33,9 +42,34 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+
+    <None Update="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="**\*.xml" Exclude="bin\**\*.xml;obj\**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
+
+
+
+  <!--
+    https://stackoverflow.com/questions/55541912/using-an-app-config-file-with-nunit3-in-a-net-core-console-app
+  -->
+  <Target Name="CopyConfigurationFiles" AfterTargets="AfterBuild">
+
+    <!-- Command Line (dotnet test) -->
+    <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\testhost.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
+
+    <!-- Visual Studio Test Explorer -->
+    <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
+
+  </Target>
 
 </Project>
