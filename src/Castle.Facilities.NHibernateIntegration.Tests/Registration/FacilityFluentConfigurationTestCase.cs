@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Core.Configuration;
 using Castle.Facilities.AutoTx;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
@@ -89,8 +87,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<NHibernateFacility>(
                 f =>
                 f.IsWeb()
+#if NETFRAMEWORK
                  .SessionStore<LogicalCallContextSessionStore>()
                  .SessionStore<CallContextSessionStore>()
+#endif
                  .SessionStore<DummySessionStore>()
                  .ConfigurationBuilder<DummyConfigurationBuilder>());
 
