@@ -63,7 +63,7 @@ ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
 ECHO ---------------------------------------------------
 
 REM dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
-dotnet build Castle.Facilities.NHibernateIntegration.sln -c %CONFIGURATION% /p:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
+dotnet build Castle.Facilities.NHibernateIntegration.sln --configuration %CONFIGURATION% -property:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
 
 GOTO TEST
 
