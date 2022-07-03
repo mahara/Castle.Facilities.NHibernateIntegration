@@ -1,53 +1,57 @@
 @ECHO OFF
 
 
+SET BUILD_CONFIGURATION=Release
+SET BUILD_VERSION=1.0.0
+
+
 :INITIALIZE_ARGUMENTS
+
 SET %1
 REM ECHO arg1 = %1
 SET %2
 REM ECHO arg2 = %2
 
 
-:INITIALIZE_VARIABLES
-SET CONFIGURATION=Release
-SET BUILD_VERSION=1.0.0
+:SET_BUILD_CONFIGURATION
 
-
-:SET_CONFIGURATION
-IF "%config%"=="" GOTO SET_BUILD_VERSION
-SET CONFIGURATION=%config%
+IF "%configuration%"=="" GOTO SET_BUILD_VERSION
+SET BUILD_CONFIGURATION=%configuration%
 
 
 :SET_BUILD_VERSION
-IF "%version%"=="" GOTO RESTORE_PACKAGES
+
+IF "%version%"=="" GOTO BUILD
 SET BUILD_VERSION=%version%
-
-ECHO ---------------------------------------------------
-REM ECHO Building "%config%" packages with version "%version%"...
-ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
-ECHO ---------------------------------------------------
-
-
-:RESTORE_PACKAGES
-dotnet restore "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj"
-dotnet restore "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj"
-dotnet restore "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj"
 
 
 :BUILD
-dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --no-restore
-dotnet build "Castle.Facilities.NHibernateIntegration.sln" -c %CONFIGURATION% /p:PACKAGE_BUILD_VERSION=%BUILD_VERSION% --no-restore || EXIT /B 4
 
+ECHO ----------------------------------------------------
+ECHO Building "%BUILD_CONFIGURATION%" packages with version "%BUILD_VERSION%"...
+ECHO ----------------------------------------------------
 
-:NUGET_EXPLICIT_VERSIONS
+dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration %BUILD_CONFIGURATION% -property:PACKAGE_BUILD_VERSION=%BUILD_VERSION% || EXIT /B 4
 
-"tools\Explicit.NuGet.Versions\build\nev.exe" "build" "Castle."
+dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release || EXIT /B 4
+"tools\Explicit.NuGet.Versions\build\nev.exe" "build" "Castle." || EXIT /B 4
 
 
 :TEST
 
-ECHO ----------------
-ECHO Running Tests...
-ECHO ----------------
+REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test
+REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-vstest
+REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
+REM https://github.com/spekt/nunit.testlogger/issues/56
 
-dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests" --no-restore || EXIT /B 8
+ECHO ------------------------------------
+ECHO Running .NET (net6.0) Unit Tests
+ECHO ------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || EXIT /B 8
+
+ECHO --------------------------------------------
+ECHO Running .NET Framework (net48) Unit Tests
+ECHO --------------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || EXIT /B 8

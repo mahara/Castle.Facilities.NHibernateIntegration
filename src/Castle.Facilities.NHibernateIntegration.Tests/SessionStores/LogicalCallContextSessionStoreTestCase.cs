@@ -14,9 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Threading;
-
+#if NETFRAMEWORK
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 
 using NHibernate;
@@ -204,3 +202,4 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internal
         }
     }
 }
+#endif

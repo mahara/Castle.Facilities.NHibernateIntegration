@@ -6,6 +6,7 @@
     https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties
     https://learn.microsoft.com/en-us/cpp/build/reference/common-macros-for-build-commands-and-properties
     https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
+    https://github.com/castleproject/Core/pull/616
   -->
 
   <!--
@@ -13,18 +14,19 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net48</WinExeTargetFrameworks>
-    <WinExeTestTargetFrameworks Condition="'$(WinExeTestTargetFrameworks)' == ''">net48</WinExeTestTargetFrameworks>
-    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net48</ExeTargetFrameworks>
-    <ExeTestTargetFrameworks Condition="'$(ExeTestTargetFrameworks)' == ''">net48</ExeTestTargetFrameworks>
-    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net6.0-windows</WinExeTargetFrameworks>
+    <WinExeTestTargetFrameworks Condition="'$(WinExeTestTargetFrameworks)' == ''">net6.0-windows</WinExeTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net6.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net6.0</ExeTargetFrameworks>
+    <ExeTestTargetFrameworks Condition="'$(ExeTestTargetFrameworks)' == ''">net6.0;net48</ExeTestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net6.0;net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ReportAnalyzer>false</ReportAnalyzer>
 
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -37,7 +39,6 @@
     <BuildVersion Condition="'$(PACKAGE_BUILD_VERSION)' != ''">$(PACKAGE_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 
     <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
     <AssemblyOriginatorKeyFile>..\..\buildscripts\$(AssemblyOriginatorKeyFileName)</AssemblyOriginatorKeyFile>
@@ -64,7 +65,7 @@
     <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
     <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
 
-    <PackageLicenseUrl Condition="'$(PackageLicenseUrl)' == ''">http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
     <PackageIcon Condition="'$(PackageIcon)' == ''">castle_facilities_nhibernateintegration-logo.png</PackageIcon>
@@ -79,6 +80,7 @@
 
   <PropertyGroup>
     <DiagnosticsConstants>DEBUG</DiagnosticsConstants>
+    <NetConstants>TRACE</NetConstants>
     <NetFrameworkConstants>TRACE;FEATURE_APPDOMAIN;FEATURE_ASSEMBLYBUILDER_SAVE;FEATURE_SERIALIZATION;FEATURE_SYSTEM_CONFIGURATION</NetFrameworkConstants>
   </PropertyGroup>
 

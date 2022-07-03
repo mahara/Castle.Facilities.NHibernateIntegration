@@ -16,6 +16,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Buil
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9B1A5B3C-8599-4818-9D31-AC32A93F9917}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7B47ACC3-0CC6-4128-946C-1AB6F4C525B9}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+	EndProjectSection
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{98E0675A-511A-40A9-A675-A35FE9A4D5CC}"
 	ProjectSection(SolutionItems) = preProject
 		buildscripts\AssemblyInfo.Global.cs = buildscripts\AssemblyInfo.Global.cs
@@ -48,6 +55,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{9B1A5B3C-8599-4818-9D31-AC32A93F9917} = {620C7DEE-97B6-43DB-92CA-6847F3BDD3A0}
+		{7B47ACC3-0CC6-4128-946C-1AB6F4C525B9} = {9B1A5B3C-8599-4818-9D31-AC32A93F9917}
 		{98E0675A-511A-40A9-A675-A35FE9A4D5CC} = {620C7DEE-97B6-43DB-92CA-6847F3BDD3A0}
 	EndGlobalSection
 EndGlobal

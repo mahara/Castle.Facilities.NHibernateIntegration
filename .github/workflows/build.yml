@@ -1,0 +1,81 @@
+# https://github.com/actions/setup-dotnet
+
+
+name: Build
+
+on: [ push, pull_request ]
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  DOTNET_ROLL_FORWARD: Major
+
+jobs:
+
+  Test:
+
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        project:
+          - 'Castle.Facilities.NHibernateIntegration.sln'
+        framework: [net6.0, net48]
+        configuration: [Release]
+        exclude:
+          - os: ubuntu-latest
+            framework: net48
+          - os: macos-latest
+            framework: net48
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      TestResults_Trx_FileName: 'TestResults.trx'
+      TestResults_MarkDown_FileName: 'TestResults.md' # Report file name for LiquidTestReports.Markdown
+
+    steps:
+
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+        # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
+        # https://github.com/orgs/community/discussions/25713
+      - name: Setup Environment Variables
+        run: |
+          $WorkingDirectory = "$env:GITHUB_WORKSPACE"
+          $ProjectName = [System.IO.Path]::GetFileNameWithoutExtension("${{matrix.project}}")
+          $TestResults_ArtifactName = "TestResults_${ProjectName}_${{matrix.os}}_${{matrix.framework}}_${{matrix.configuration}}"
+          $TestResults_NUnit_FileName = "${ProjectName}_${{matrix.os}}_${{matrix.framework}}_${{matrix.configuration}}_TestResults-NUnit.xml"
+
+          Write-Host "Project Name: $ProjectName"
+          Write-Host "Test Results Artifact Name: $TestResults_ArtifactName"
+          Write-Host "Working Directory: $WorkingDirectory"
+
+          Write-Output "ProjectName=$ProjectName" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Output "TestResults_ArtifactName=$TestResults_ArtifactName" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Output "TestResults_NUnit_FileName=$TestResults_NUnit_FileName" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # Set the Azure DevOps default working directory env variable, so our tests only need to deal with a single env variable
+          Write-Output "SYSTEM_DEFAULTWORKINGDIRECTORY=$WorkingDirectory" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # Title for LiquidTestReports.Markdown
+          Write-Output "Title=Test Run for $ProjectName - ${{matrix.os}} - ${{matrix.framework}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+        shell: pwsh
+
+      - name: Build
+        run: |
+          dotnet build ${{matrix.project}} --configuration ${{matrix.configuration}} --framework ${{matrix.framework}}
+
+      - name: Test
+        run: |
+          dotnet test ${{matrix.project}} --configuration ${{matrix.configuration}} --framework ${{matrix.framework}} --no-build --no-restore --blame-hang --blame-hang-dump-type mini --blame-hang-timeout 10minutes --results-directory:"${{github.workspace}}/${{env.TestResults_ArtifactName}}/${{env.ProjectName}}" --logger:"console;verbosity=detailed" --logger:"trx;LogFileName=${{env.TestResults_Trx_FileName}}" --logger "nunit;LogFileName=${{env.TestResults_NUnit_FileName}};format=nunit3" --logger:"liquid.md;LogFileName=${{env.TestResults_MarkDown_FileName}};Title=${{env.Title}};"
+
+      - name: Upload Test Results Artifacts
+        uses: actions/upload-artifact@v3
+        if: ${{always()}}
+        with:
+          name: '${{env.TestResults_ArtifactName}}'
+          path: '${{github.workspace}}/${{env.TestResults_ArtifactName}}'

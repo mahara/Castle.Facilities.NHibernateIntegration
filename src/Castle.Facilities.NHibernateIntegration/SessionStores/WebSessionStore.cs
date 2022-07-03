@@ -14,59 +14,101 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.Web;
-
-using Castle.MicroKernel.Facilities;
-
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+    using System;
+    using System.Collections.Generic;
+#if NETFRAMEWORK
+    using System.Web;
+#endif
+
+    using Castle.MicroKernel.Facilities;
+#if NET
+
+    using Microsoft.AspNetCore.Http;
+#endif
+
+#if NET
     /// <summary>
     /// Provides an implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="HttpContext" />.
-    /// This is intended for ASP.NET projects.
+    /// This is intended for ASP.NET (Core) projects.
     /// </summary>
+#else
+    /// <summary>
+    /// Provides an implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="HttpContext" />.
+    /// This is intended for legacy ASP.NET projects.
+    /// </summary>
+#endif
     public class WebSessionStore : AbstractDictionaryStackSessionStore
     {
+#if NET
+        [CLSCompliant(false)]
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
+#endif
+
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            var httpContext = ObtainHttpContext();
-
-            return (IDictionary<string, Stack<SessionDelegate>>) httpContext.Items[SessionSlotKey];
+            return GetSessionDictionaryFromWebContext<IDictionary<string, Stack<SessionDelegate>>>(SessionSlotKey);
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            var httpContext = ObtainHttpContext();
-
-            httpContext.Items[SessionSlotKey] = dictionary;
+            StoreSessionDictionaryInWebContext(SessionSlotKey, dictionary);
         }
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            var httpContext = ObtainHttpContext();
-
-            return (IDictionary<string, Stack<StatelessSessionDelegate>>) httpContext.Items[StatelessSessionSlotKey];
+            return GetSessionDictionaryFromWebContext<IDictionary<string, Stack<StatelessSessionDelegate>>>(StatelessSessionSlotKey);
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            var httpContext = ObtainHttpContext();
-
-            httpContext.Items[StatelessSessionSlotKey] = dictionary;
+            StoreSessionDictionaryInWebContext(StatelessSessionSlotKey, dictionary);
         }
 
-        private static HttpContext ObtainHttpContext()
+        private T GetSessionDictionaryFromWebContext<T>(string key)
         {
-            var httpContext = HttpContext.Current;
-
-            if (httpContext == null)
+#if NET
+            if (!GetWebContext().Items.TryGetValue(key, out var value))
             {
-                var message = $"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.";
-                throw new FacilityException(message);
+                return default!;
+            }
+#else
+            var value = GetWebContext().Items[key];
+#endif
+
+            return (T) value!;
+        }
+
+        private void StoreSessionDictionaryInWebContext<T>(string key, T value)
+        {
+            GetWebContext().Items[key] = value;
+        }
+
+#if NET
+        private HttpContext GetWebContext()
+        {
+            var context = HttpContextAccessor?.HttpContext;
+            if (context == null)
+            {
+                throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
             }
 
-            return httpContext;
+            return context;
         }
+#else
+        private HttpContext GetWebContext()
+        {
+            var context = HttpContext.Current;
+            if (context == null)
+            {
+                throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
+            }
+
+            return context;
+        }
+#endif
     }
 }
