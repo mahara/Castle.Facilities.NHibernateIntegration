@@ -16,12 +16,12 @@
 
 using Castle.MicroKernel.Registration;
 
+using Moq;
+
 using NHibernate;
 using NHibernate.Cfg;
 
 using NUnit.Framework;
-
-using Rhino.Mocks;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
 {
@@ -33,8 +33,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
         [Test]
         public void Calls_ConfigurationContributors_Before_SessionFactory_IsInitialized()
         {
-            var configurator1 = MockRepository.GenerateMock<IConfigurationContributor>();
-            var configurator2 = MockRepository.GenerateMock<IConfigurationContributor>();
+            var configurator1 = new Mock<IConfigurationContributor>().Object;
+            var configurator2 = new Mock<IConfigurationContributor>().Object;
             Container.Register(
                 Component.For<IConfigurationContributor>()
                          .Named("c1")
@@ -47,8 +47,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
             var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
             Container.Resolve<ISessionFactory>("sessionFactory1");
 
-            configurator1.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
-            configurator2.AssertWasCalled(x => x.Process("sessionFactory1", configuration));
+            Mock.Get(configurator1).Verify(x => x.Process("sessionFactory1", configuration));
+            Mock.Get(configurator2).Verify(x => x.Process("sessionFactory1", configuration));
         }
     }
 }

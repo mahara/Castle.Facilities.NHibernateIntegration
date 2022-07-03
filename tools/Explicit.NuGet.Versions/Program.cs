@@ -29,37 +29,43 @@ namespace Explicit.NuGet.Versions
     {
         private static void Main(string[] args)
         {
-            if (args.Length != 2) return;
+            if (args.Length != 2)
+            {
+                return;
+            }
 
             var packageDiscoveryDirectory = Path.Combine(Environment.CurrentDirectory, args[0]);
             var packageDiscoverDirectoryInfo = new DirectoryInfo(packageDiscoveryDirectory);
             var packageMetaData = ReadNuspecFromPackages(packageDiscoverDirectoryInfo);
+
             UpdateNuspecManifestContent(packageMetaData, args[1]);
+
             WriteNuspecToPackages(packageMetaData);
         }
 
         private static Dictionary<string, NuspecContentEntry> ReadNuspecFromPackages(DirectoryInfo packageDiscoverDirectoryInfo)
         {
             var packageNuspecDictionary = new Dictionary<string, NuspecContentEntry>();
+
             foreach (var packageFilePath in packageDiscoverDirectoryInfo.GetFiles("*.nupkg", SearchOption.AllDirectories))
             {
-                using (var zipFile = ZipFile.Read(packageFilePath.FullName))
+                using var zipFile = ZipFile.Read(packageFilePath.FullName);
+
+                foreach (var zipEntry in zipFile.Entries)
                 {
-                    foreach (var zipEntry in zipFile.Entries)
+                    if (zipEntry.FileName.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase))
                     {
-                        if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
+                        using var zipEntryReader = new StreamReader(zipEntry.OpenReader());
+
+                        var nuspecXml = zipEntryReader.ReadToEnd();
+
+                        packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
                         {
-                            using (var zipEntryReader = new StreamReader(zipEntry.OpenReader()))
-                            {
-                                var nuspecXml = zipEntryReader.ReadToEnd();
-                                packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
-                                {
-                                    Contents = nuspecXml,
-                                    EntryName = zipEntry.FileName,
-                                };
-                                break;
-                            }
-                        }
+                            EntryName = zipEntry.FileName,
+                            Contents = nuspecXml,
+                        };
+
+                        break;
                     }
                 }
             }
@@ -72,12 +78,19 @@ namespace Explicit.NuGet.Versions
             foreach (var packageFile in packageMetaData.ToList())
             {
                 var nuspecXmlDocument = new XmlDocument();
+
                 nuspecXmlDocument.LoadXml(packageFile.Value.Contents);
 
                 SetPackageDependencyVersionsToBeExplicitForXmlDocument(nuspecXmlDocument, dependencyNugetId);
 
                 string updatedNuspecXmlDocument;
-                using (var writer = new StringWriterWithEncoding(Encoding.UTF8))
+
+                // UTF8 Encoding without BOM
+                var encoding = new UTF8Encoding();
+                // UTF8 Encoding with BOM
+                //var encoding = Encoding.UTF8;
+
+                using (var writer = new StringWriterWithEncoding(encoding))
                 using (var xmlWriter = new XmlTextWriter(writer) { Formatting = Formatting.Indented })
                 {
                     nuspecXmlDocument.Save(xmlWriter);
@@ -92,12 +105,15 @@ namespace Explicit.NuGet.Versions
         {
             WalkDocumentNodes(nuspecXmlDocument.ChildNodes, node =>
             {
-                if (node.Name.ToLowerInvariant() == "dependency" && !string.IsNullOrEmpty(node.Attributes["id"].Value) && node.Attributes["id"].Value.ToLowerInvariant().StartsWith(nugetIdFilter))
+                if (string.Equals(node.Name, "dependency", StringComparison.OrdinalIgnoreCase) &&
+                    !string.IsNullOrEmpty(node.Attributes!["id"]!.Value) &&
+                    node.Attributes!["id"]!.Value.StartsWith(nugetIdFilter, StringComparison.OrdinalIgnoreCase))
                 {
-                    var currentVersion = node.Attributes["version"].Value;
-                    if (!node.Attributes["version"].Value.StartsWith("[") && !node.Attributes["version"].Value.EndsWith("]"))
+                    var dependencyVersion = node.Attributes!["version"]!.Value;
+                    if (!(dependencyVersion.StartsWith('[') ||
+                          dependencyVersion.EndsWith(']')))
                     {
-                        node.Attributes["version"].Value = $"[{currentVersion}]";
+                        node.Attributes!["version"]!.Value = $"[{dependencyVersion}]";
                     }
                 }
             });
@@ -108,6 +124,7 @@ namespace Explicit.NuGet.Versions
             foreach (XmlNode node in nodes)
             {
                 callback(node);
+
                 WalkDocumentNodes(node.ChildNodes, callback);
             }
         }
@@ -116,29 +133,29 @@ namespace Explicit.NuGet.Versions
         {
             foreach (var packageFile in packageMetaData.ToList())
             {
-                using (var zipFile = ZipFile.Read(packageFile.Key))
-                {
-                    zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
-                    zipFile.Save();
-                }
+                using var zipFile = ZipFile.Read(packageFile.Key);
+
+                zipFile.UpdateEntry(packageFile.Value.EntryName, packageFile.Value.Contents);
+
+                zipFile.Save();
             }
         }
 
-        internal class NuspecContentEntry
+        internal record NuspecContentEntry
         {
-            public string EntryName { get; set; }
+            public string EntryName { get; set; } = string.Empty;
 
-            public string Contents { get; set; }
-        }
-    }
-
-    public sealed class StringWriterWithEncoding : StringWriter
-    {
-        public StringWriterWithEncoding(Encoding encoding)
-        {
-            Encoding = encoding;
+            public string Contents { get; set; } = string.Empty;
         }
 
-        public override Encoding Encoding { get; }
+        internal sealed class StringWriterWithEncoding : StringWriter
+        {
+            public StringWriterWithEncoding(Encoding encoding)
+            {
+                Encoding = encoding;
+            }
+
+            public override Encoding Encoding { get; }
+        }
     }
 }
