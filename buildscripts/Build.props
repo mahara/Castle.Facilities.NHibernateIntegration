@@ -19,15 +19,15 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net48</WinExeTargetFrameworks>
-    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net48</WinTestTargetFrameworks>
-    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net48</ExeTargetFrameworks>
-    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net48</TestTargetFrameworks>
-    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net6.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net6.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net6.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net6.0</ExeTargetFrameworks>
+    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net6.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net6.0;net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 
     <PackageOutputPath>..\..\build\</PackageOutputPath>
@@ -47,7 +47,6 @@
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <ReportAnalyzer>false</ReportAnalyzer>
   </PropertyGroup>
 
@@ -69,7 +68,7 @@
     <PackageVersion>$(BuildVersion)</PackageVersion>
     <PackageTags Condition="'$(PackageTags)' == ''">$(Product)</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseUrl Condition="'$(PackageLicenseUrl)' == ''">http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
     <PackageIcon Condition="'$(PackageIcon)' == ''">castle_facilities_nhibernateintegration-logo.png</PackageIcon>
@@ -82,7 +81,16 @@
 
   <PropertyGroup>
     <DiagnosticsConstants>DEBUG</DiagnosticsConstants>
+    <NetConstants>TRACE</NetConstants>
     <NetFrameworkConstants>TRACE</NetFrameworkConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net6.0|Debug'">
+    <DefineConstants>$(DiagnosticsConstants);$(NetConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net6.0|Release'">
+    <DefineConstants>$(NetConstants)</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)|$(Configuration)' == 'net48|Debug'">
