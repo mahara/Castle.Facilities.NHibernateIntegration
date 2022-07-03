@@ -28,7 +28,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
         private readonly IObjectPersister<Configuration> _persister =
-            new JsonObjectPersister<Configuration>();
+            new BinaryObjectPersister<Configuration>();
 
         /// <inheritdoc />
         public virtual Configuration ReadConfiguration(string filePath)

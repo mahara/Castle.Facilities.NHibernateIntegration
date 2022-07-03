@@ -1,6 +1,8 @@
 ﻿namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
     using System.IO;
+    using System.Runtime.Serialization.Formatters.Binary;
+    using System.Security.Cryptography;
 
     using Newtonsoft.Json;
 
@@ -15,12 +17,20 @@
     {
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
-            throw new System.NotImplementedException();
+            var formatter = new BinaryFormatter();
+            using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            return (T) formatter.Deserialize(fileStream);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
         }
 
         public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate)
         {
-            throw new System.NotImplementedException();
+            var formatter = new BinaryFormatter();
+            using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            formatter.Serialize(fileStream, @object);
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
         }
     }
 

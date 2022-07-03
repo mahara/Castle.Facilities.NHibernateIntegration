@@ -71,7 +71,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(System.IO.File.Exists(File), Is.True);
 
-            var persister = new JsonObjectPersister<Configuration>();
+            var persister = new BinaryObjectPersister<Configuration>();
             var configuration = persister.Read(File);
 
             Assert.That(configuration, Is.Not.Null);
