@@ -1,4 +1,4 @@
 @ECHO OFF
 
 
-@CALL "buildscripts\BuildPackages.cmd" "config=Release" "version=5.3.0"
+@CALL "buildscripts\BuildPackages.cmd" "configuration=Release" "version=5.3.0"
