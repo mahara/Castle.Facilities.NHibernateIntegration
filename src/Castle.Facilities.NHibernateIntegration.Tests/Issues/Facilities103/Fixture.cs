@@ -87,7 +87,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             {
                 _sessionManager.OpenSession(Alias);
 
-                Assert.Fail("DbException not thrown");
+                Assert.Fail("DbException not thrown.");
             }
             catch (Exception ex)
             {
@@ -96,7 +96,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             }
 
             Assert.That(_sessionStore.FindCompatibleSession(Alias), Is.Null,
-                          "The sessionStore shouldn't contain compatible session if the session creation fails.");
+                        "The sessionStore shouldn't contain compatible session if the session creation fails.");
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             {
                 _sessionManager.OpenStatelessSession(Alias);
 
-                Assert.Fail("DbException not thrown");
+                Assert.Fail("DbException not thrown.");
             }
             catch (Exception ex)
             {
