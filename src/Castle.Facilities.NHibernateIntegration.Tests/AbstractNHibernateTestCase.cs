@@ -45,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
             Container.AddFacility<AutoTxFacility>();
             ConfigureContainer();
-            CreateDatabases();
+            CreateDatabaseSchemas();
             OnSetUp();
         }
 
@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
         }
 
-        protected virtual void CreateDatabases()
+        protected virtual void CreateDatabaseSchemas()
         {
             var cfgs = Container.ResolveAll<Configuration>();
             foreach (var cfg in cfgs)
@@ -76,7 +76,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         public virtual void TearDown()
         {
             OnTearDown();
-            DropDatabases();
+            DropDatabaseSchemas();
             Container.Dispose();
             Container = null;
         }
@@ -85,7 +85,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
         }
 
-        protected virtual void DropDatabases()
+        protected virtual void DropDatabaseSchemas()
         {
             var cfgs = Container.ResolveAll<Configuration>();
             foreach (var cfg in cfgs)
