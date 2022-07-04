@@ -8,6 +8,7 @@ Breaking Changes:
 - Upgraded Castle.Facilities.AutoTx version to 5.3.0
 - Replaced Castle.Services.Transaction.TransactionMode with System.Transactions.TransactionScopeOption.
 - Replaced Castle.Services.Transaction.IsolationMode with System.Transactions.IsolationLevel.
+- Restructured AbstractDictionaryStackSessionStore.
 
 
 ## 5.2.0 (2022-06-25)

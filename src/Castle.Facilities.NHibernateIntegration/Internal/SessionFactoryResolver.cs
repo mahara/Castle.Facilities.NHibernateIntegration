@@ -17,8 +17,7 @@
 namespace Castle.Facilities.NHibernateIntegration.Internal
 {
     using System;
-    using System.Collections;
-    using System.Collections.Specialized;
+    using System.Collections.Generic;
 
     using Castle.MicroKernel;
     using Castle.MicroKernel.Facilities;
@@ -38,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
     /// </remarks>
     public class SessionFactoryResolver : ISessionFactoryResolver
     {
-        private readonly IDictionary _aliasToKey = new HybridDictionary(true);
+        private readonly IDictionary<string, string> _dictionary = new Dictionary<string, string>();
         private readonly IKernel _kernel;
 
         /// <summary>
@@ -63,12 +62,12 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         /// </param>
         public void RegisterAliasComponentIdMapping(string alias, string componentKey)
         {
-            if (_aliasToKey.Contains(alias))
+            if (_dictionary.ContainsKey(alias))
             {
-                throw new ArgumentException($"A mapping already exists for the specified alias: {alias}");
+                throw new ArgumentException($"A mapping already exists for the specified alias: {alias}.");
             }
 
-            _aliasToKey.Add(alias, componentKey);
+            _dictionary.Add(alias, componentKey);
         }
 
         /// <summary>
@@ -83,9 +82,9 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         /// </exception>
         public ISessionFactory GetSessionFactory(string alias)
         {
-            if (_aliasToKey[alias] is not string componentKey)
+            if (!_dictionary.TryGetValue(alias, out var componentKey))
             {
-                throw new FacilityException($"An {nameof(ISessionFactory)} component was not mapped for the specified alias: {alias}");
+                throw new FacilityException($"An {nameof(ISessionFactory)} component was not mapped for the specified alias: {alias}.");
             }
 
             return _kernel.Resolve<ISessionFactory>(componentKey);

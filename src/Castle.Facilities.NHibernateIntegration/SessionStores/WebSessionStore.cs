@@ -17,7 +17,7 @@
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     using System;
-    using System.Collections;
+    using System.Collections.Generic;
 #if NETFRAMEWORK
     using System.Web;
 #endif
@@ -48,24 +48,24 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         public IHttpContextAccessor HttpContextAccessor { get; set; }
 #endif
 
-        protected override IDictionary GetSessionDictionary()
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return GetSessionContextDictionary(SessionSlotKey);
+            return GetWebContextDictionary<IDictionary<string, Stack<SessionDelegate>>>(SessionSlotKey);
         }
 
-        protected override void StoreSessionDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            StoreSessionContextDictionary(SessionSlotKey, dictionary);
+            StoreWebContextDictionary(SessionSlotKey, dictionary);
         }
 
-        protected override IDictionary GetStatelessSessionDictionary()
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return GetSessionContextDictionary(StatelessSessionSlotKey);
+            return GetWebContextDictionary<IDictionary<string, Stack<StatelessSessionDelegate>>>(StatelessSessionSlotKey);
         }
 
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            StoreSessionContextDictionary(StatelessSessionSlotKey, dictionary);
+            StoreWebContextDictionary(StatelessSessionSlotKey, dictionary);
         }
 
 #if NETFRAMEWORK
@@ -92,18 +92,21 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 #endif
 
-        private IDictionary GetSessionContextDictionary(string key)
+        private T GetWebContextDictionary<T>(string key)
         {
 #if NETFRAMEWORK
-            var dictionary = ObtainSessionContext().Items[key];
+            var value = ObtainSessionContext().Items[key];
 #else
-            var dictionary = ObtainSessionContext().Items[key];
+            if (!ObtainSessionContext().Items.TryGetValue(key, out var value))
+            {
+                return default;
+            }
 #endif
 
-            return (IDictionary) dictionary;
+            return (T) value;
         }
 
-        private void StoreSessionContextDictionary(string key, IDictionary value)
+        private void StoreWebContextDictionary<T>(string key, T value)
         {
 #if NETFRAMEWORK
             ObtainSessionContext().Items[key] = value;

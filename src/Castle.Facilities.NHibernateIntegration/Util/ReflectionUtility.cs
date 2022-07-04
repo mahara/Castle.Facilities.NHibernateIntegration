@@ -39,17 +39,17 @@ namespace Castle.Facilities.NHibernateIntegration.Util
         /// </summary>
         public static IDictionary<string, object> GetPropertiesDictionary(object obj)
         {
-            IDictionary<string, object> ht = new Dictionary<string, object>();
+            var dictionary = new Dictionary<string, object>();
 
             foreach (var property in obj.GetType().GetProperties(BindingFlags))
             {
                 if (property.CanRead && property.GetIndexParameters().Length == 0)
                 {
-                    ht[property.Name] = property.GetValue(obj, null);
+                    dictionary[property.Name] = property.GetValue(obj, null);
                 }
             }
 
-            return ht;
+            return dictionary;
         }
 
         /// <summary>

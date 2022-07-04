@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Threading;
 
     /// <summary>
@@ -25,25 +25,25 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// </summary>
     public class AsyncLocalSessionStore : AbstractDictionaryStackSessionStore
     {
-        private readonly AsyncLocal<IDictionary> _sessionAsyncLocal = new();
-        private readonly AsyncLocal<IDictionary> _statelessSessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary<string, Stack<SessionDelegate>>> _sessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary<string, Stack<StatelessSessionDelegate>>> _statelessSessionAsyncLocal = new();
 
-        protected override IDictionary GetSessionDictionary()
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
             return _sessionAsyncLocal.Value;
         }
 
-        protected override void StoreSessionDictionary(IDictionary dictionary)
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
             _sessionAsyncLocal.Value = dictionary;
         }
 
-        protected override IDictionary GetStatelessSessionDictionary()
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
             return _statelessSessionAsyncLocal.Value;
         }
 
-        protected override void StoreStatelessSessionDictionary(IDictionary dictionary)
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
             _statelessSessionAsyncLocal.Value = dictionary;
         }
