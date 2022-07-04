@@ -1,7 +1,10 @@
 ﻿namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
+    using System;
     using System.IO;
+#if NETFRAMEWORK
     using System.Runtime.Serialization.Formatters.Binary;
+#endif
 
     using Newtonsoft.Json;
 
@@ -22,27 +25,31 @@
     {
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate);
 
-        public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate);
+        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate);
     }
 
     public class BinaryObjectPersister<T> : IObjectPersister<T>
     {
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
+#if NETFRAMEWORK
             var formatter = new BinaryFormatter();
             using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
             return (T) formatter.Deserialize(fileStream);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
 
-        public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate)
+        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
+#if NETFRAMEWORK
             var formatter = new BinaryFormatter();
             using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
-#pragma warning disable SYSLIB0011 // Type or member is obsolete
             formatter.Serialize(fileStream, @object);
-#pragma warning restore SYSLIB0011 // Type or member is obsolete
+#else
+            throw new PlatformNotSupportedException();
+#endif
         }
     }
 
@@ -68,7 +75,7 @@
             return _serializer.Deserialize<T>(jsonReader);
         }
 
-        public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate)
+        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
             using var stream = new FileStream(filePath, mode);
             using var writer = new StreamWriter(stream);
@@ -95,7 +102,7 @@
             return System.Text.Json.JsonSerializer.Deserialize<T>(stream, _options);
         }
 
-        public void Write(string filePath, T @object, FileMode mode = FileMode.OpenOrCreate)
+        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
             using var stream = new FileStream(filePath, mode);
             System.Text.Json.JsonSerializer.Serialize(stream, @object, _options);

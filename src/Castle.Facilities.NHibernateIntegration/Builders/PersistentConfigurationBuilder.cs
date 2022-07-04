@@ -98,12 +98,12 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return StripInvalidCharacters(filename);
         }
 
-        private string StripInvalidCharacters(string input)
+        private static string StripInvalidCharacters(string input)
         {
             return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
         }
 
-        private IList<string> GetDependentFilenamesFrom(IConfiguration facilityConfiguration)
+        private static IList<string> GetDependentFilenamesFrom(IConfiguration facilityConfiguration)
         {
             var list = new List<string>();
 

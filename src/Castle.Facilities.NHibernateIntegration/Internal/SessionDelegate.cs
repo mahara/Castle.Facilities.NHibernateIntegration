@@ -150,7 +150,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 return ReferenceEquals(sdLeft.InnerSession, sdRight.InnerSession);
             }
 
-            throw new NotSupportedException($"AreEqual: left is {left.GetType().Name} and right is {right.GetType().Name}.");
+            throw new NotSupportedException($"{nameof(AreEqual)}: left is {left.GetType().Name} and right is {right.GetType().Name}.");
         }
 
         #region ISession Members

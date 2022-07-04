@@ -50,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             var dao = Container.Resolve<MyDao>();
 
-            dao.DoOpenCloseAndDispose();
+            dao.DoOpenCloseAndDisposeOperation();
         }
 
         [Test]
@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             var dao = Container.Resolve<MyDao>();
 
-            dao.PerformStatelessComplexOperation1();
+            dao.PerformComplexStatelessOperation1();
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             var dao = Container.Resolve<MyDao>();
 
-            dao.PerformStatelessComplexOperation2();
+            dao.PerformComplexStatelessOperation2();
         }
 
         [Test]
@@ -74,7 +74,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             var dao = Container.Resolve<MyDao>();
 
-            dao.DoStatelessOpenCloseAndDispose();
+            dao.DoStatelessOpenCloseAndDisposeOperation();
         }
     }
 }

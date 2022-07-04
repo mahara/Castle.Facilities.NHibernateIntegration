@@ -56,7 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// </summary>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
+        protected static void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
         {
             if (facilityConfiguration == null)
             {
@@ -105,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// </summary>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
+        protected static void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
         {
             if (facilityConfiguration == null)
             {
@@ -168,7 +168,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// </remarks>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
         /// <param name="targetAssembly">The target assembly name.</param>
-        protected void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssembly)
+        protected static void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssembly)
         {
             // Get an array of all assemblies referenced by targetAssembly
             var referencedAssemblies = Assembly.Load(targetAssembly).GetReferencedAssemblies();
@@ -194,7 +194,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             }
         }
 
-        private Assembly ObtainAssembly(string assembly)
+        private static Assembly ObtainAssembly(string assembly)
         {
             try
             {

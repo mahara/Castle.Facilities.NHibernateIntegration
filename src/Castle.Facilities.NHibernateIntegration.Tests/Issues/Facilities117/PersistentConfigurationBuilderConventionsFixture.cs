@@ -55,7 +55,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             Mock.Get(configurationPersister)
                 .Setup(x =>
                        x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat")), It.IsAny<IList<string>>()))
-                .Returns(false);
+                .Returns(false)
+                .Verifiable();
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
             builder.GetConfiguration(_facilityConfiguration);
@@ -73,7 +74,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
                 .Setup(x =>
                        x.IsNewConfigurationRequired(It.IsAny<string>(),
                                                     It.Is<IList<string>>(x => x.Contains(dependencies[0]))))
-                .Returns(false);
+                .Returns(false)
+                .Verifiable();
 
             var builder = new PersistentConfigurationBuilder(configurationPersister);
             builder.GetConfiguration(_facilityConfiguration);

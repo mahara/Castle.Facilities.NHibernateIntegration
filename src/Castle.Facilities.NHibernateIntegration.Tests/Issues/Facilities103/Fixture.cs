@@ -39,8 +39,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             "EmptyConfiguration.xml";
 
         private const string Alias = "myAlias";
-        private const string InterceptorFormatString = DefaultSessionManager.InterceptorFormatString;
-        private const string InterceptorName = DefaultSessionManager.InterceptorName;
+        private const string InterceptorKey = DefaultSessionManager.InterceptorKey;
+        private const string InterceptorKeyFormatString = DefaultSessionManager.InterceptorKeyFormatString;
         private const System.Transactions.IsolationLevel DefaultTransactionIsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted;
         private const IsolationLevel DefaultDataIsolationLevel = IsolationLevel.ReadUncommitted;
 
@@ -66,7 +66,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             _session = new Mock<ISession>().Object;
             _statelessSession = new Mock<IStatelessSession>().Object;
             _contextDictionary = new Hashtable();
-            _sessionManager = new DefaultSessionManager(_sessionStore, _kernel, _factoryResolver);
+            _sessionManager = new DefaultSessionManager(_kernel, _sessionStore, _factoryResolver);
         }
 
         [Test]
@@ -75,23 +75,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
             Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
             Mock.Get(_factoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
-            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(InterceptorFormatString, Alias))).Returns(false);
-            Mock.Get(_kernel).Setup(x => x.HasComponent(InterceptorName)).Returns(false);
+            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(InterceptorKeyFormatString, Alias))).Returns(false);
+            Mock.Get(_kernel).Setup(x => x.HasComponent(InterceptorKey)).Returns(false);
             Mock.Get(_sessionFactory).Setup(x => x.OpenSession()).Returns(_session);
             _session.FlushMode = _sessionManager.DefaultFlushMode;
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
             Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultTransactionIsolationLevel);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
             Mock.Get(_session).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try
             {
                 _sessionManager.OpenSession(Alias);
 
-                Assert.Fail("DbException not thrown.");
+                Assert.Fail("Exception not thrown.");
             }
             catch (Exception ex)
             {
-                // Ignore
+                // Expected.
                 Console.WriteLine(ex.ToString());
             }
 
@@ -106,24 +106,24 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
             Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
             Mock.Get(_factoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
             Mock.Get(_sessionFactory).Setup(x => x.OpenStatelessSession()).Returns(_statelessSession);
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
             Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultTransactionIsolationLevel);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
             Mock.Get(_statelessSession).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try
             {
                 _sessionManager.OpenStatelessSession(Alias);
 
-                Assert.Fail("DbException not thrown.");
+                Assert.Fail("Exception not thrown.");
             }
             catch (Exception ex)
             {
-                // Ignore
+                // Expected.
                 Console.WriteLine(ex.ToString());
             }
 
             Assert.That(_sessionStore.FindCompatibleStatelessSession(Alias), Is.Null,
-                        "The sessionStore shouldn't contain compatible session if the session creation fails.");
+                        "The sessionStore shouldn't contain compatible stateless session if the session creation fails.");
         }
     }
 }

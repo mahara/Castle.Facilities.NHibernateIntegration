@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,7 +36,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
             using var session = _sessionManager.OpenSession();
             Assert.That(session, Is.Not.Null);
 
-            _otherDao.PerformPieceOfOperation(session);
+            _otherDao.PerformSimpleOperation(session);
         }
 
         public void PerformComplexOperation2()
@@ -48,30 +48,29 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
                 previousSession = session;
             }
 
-            _otherDao.PerformPieceOfOperation2(previousSession);
+            _otherDao.PerformSimpleOperation2(previousSession);
         }
 
-        public void DoOpenCloseAndDispose()
+        public void DoOpenCloseAndDisposeOperation()
         {
             using var session = _sessionManager.OpenSession();
             Assert.That(session.IsConnected, Is.True);
             Assert.That(session.IsOpen, Is.True);
 
             session.Close();
-
             Assert.That(session.IsConnected, Is.False);
             Assert.That(session.IsOpen, Is.False);
         }
 
-        public void PerformStatelessComplexOperation1()
+        public void PerformComplexStatelessOperation1()
         {
             using var session = _sessionManager.OpenStatelessSession();
             Assert.That(session, Is.Not.Null);
 
-            _otherDao.PerformStatelessPieceOfOperation(session);
+            _otherDao.PerformSimpleStatelessOperation(session);
         }
 
-        public void PerformStatelessComplexOperation2()
+        public void PerformComplexStatelessOperation2()
         {
             IStatelessSession previousSession = null;
 
@@ -80,17 +79,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
                 previousSession = session;
             }
 
-            _otherDao.PerformStatelessPieceOfOperation2(previousSession);
+            _otherDao.PerformSimpleStatelessOperation2(previousSession);
         }
 
-        public void DoStatelessOpenCloseAndDispose()
+        public void DoStatelessOpenCloseAndDisposeOperation()
         {
             using var session = _sessionManager.OpenStatelessSession();
             Assert.That(session.IsConnected, Is.True);
             Assert.That(session.IsOpen, Is.True);
 
             session.Close();
-
             Assert.That(session.IsConnected, Is.False);
             Assert.That(session.IsOpen, Is.False);
         }

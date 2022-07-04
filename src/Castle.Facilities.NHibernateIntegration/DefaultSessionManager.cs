@@ -35,36 +35,40 @@ namespace Castle.Facilities.NHibernateIntegration
     public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     {
         /// <summary>
-        /// Name for NHibernate Interceptor componentInterceptorName.
+        /// Default <see cref="IInterceptor" /> component key.
         /// </summary>
-        public const string InterceptorName = "nhibernate.session.interceptor";
+        public const string InterceptorKey = "nhibernate.session.interceptor";
 
         /// <summary>
-        /// Format string for NHibernate interceptor components.
+        /// Format string for <see cref="IInterceptor" /> component key.
         /// </summary>
-        public const string InterceptorFormatString = "nhibernate.session.interceptor.{0}";
+        public const string InterceptorKeyFormatString = "nhibernate.session.interceptor.{0}";
 
         private readonly IKernel _kernel;
         private readonly ISessionStore _sessionStore;
-        private readonly ISessionFactoryResolver _factoryResolver;
+        private readonly ISessionFactoryResolver _sessionFactoryResolver;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultSessionManager" /> class.
         /// </summary>
-        /// <param name="sessionStore">The session store.</param>
-        /// <param name="kernel">The kernel.</param>
-        /// <param name="factoryResolver">The factory resolver.</param>
-        public DefaultSessionManager(ISessionStore sessionStore, IKernel kernel, ISessionFactoryResolver factoryResolver)
+        /// <param name="kernel">The <see cref="IKernel" />.</param>
+        /// <param name="sessionStore">The <see cref="ISessionStore" />.</param>
+        /// <param name="sessionFactoryResolver">The <see cref="ISessionFactoryResolver" />.</param>
+        public DefaultSessionManager(
+            IKernel kernel,
+            ISessionStore sessionStore,
+            ISessionFactoryResolver sessionFactoryResolver)
         {
             _kernel = kernel;
             _sessionStore = sessionStore;
-            _factoryResolver = factoryResolver;
+            _sessionFactoryResolver = sessionFactoryResolver;
         }
 
         /// <summary>
-        /// The default flush mode.
+        /// The default <see cref="ISession"/> flush mode.
         /// </summary>
-        public FlushMode DefaultFlushMode { get; set; } = FlushMode.Auto;
+        public FlushMode DefaultFlushMode { get; set; } =
+            FlushMode.Auto;
 
         /// <summary>
         /// Returns a valid opened and connected <see cref="ISession" /> instance.
@@ -87,7 +91,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 throw new ArgumentNullException(nameof(alias));
             }
 
-            var transaction = ObtainCurrentTransaction();
+            var transaction = GetCurrentTransaction();
 
             var wrapped = _sessionStore.FindCompatibleSession(alias);
 
@@ -129,7 +133,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 throw new ArgumentNullException(nameof(alias));
             }
 
-            var transaction = ObtainCurrentTransaction();
+            var transaction = GetCurrentTransaction();
 
             var wrapped = _sessionStore.FindCompatibleStatelessSession(alias);
 
@@ -157,9 +161,10 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="transaction">The transaction.</param>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        protected bool EnlistIfNecessary(bool weAreSessionOwner,
-                                         ITransaction transaction,
-                                         SessionDelegate session)
+        protected static bool EnlistIfNecessary(
+            bool weAreSessionOwner,
+            ITransaction transaction,
+            SessionDelegate session)
         {
             if (transaction == null)
             {
@@ -219,9 +224,10 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="transaction">The transaction.</param>
         /// <param name="statelessSession">The stateless session.</param>
         /// <returns></returns>
-        protected bool EnlistIfNecessary(bool weAreSessionOwner,
-                                         ITransaction transaction,
-                                         StatelessSessionDelegate statelessSession)
+        protected static bool EnlistIfNecessary(
+            bool weAreSessionOwner,
+            ITransaction transaction,
+            StatelessSessionDelegate statelessSession)
         {
             if (transaction == null)
             {
@@ -289,10 +295,9 @@ namespace Castle.Facilities.NHibernateIntegration
             };
         }
 
-        private ITransaction ObtainCurrentTransaction()
+        private ITransaction GetCurrentTransaction()
         {
             var transactionManager = _kernel.Resolve<ITransactionManager>();
-
             return transactionManager.CurrentTransaction;
         }
 
@@ -308,17 +313,17 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private ISession CreateSession(string alias)
         {
-            var sessionFactory = _factoryResolver.GetSessionFactory(alias);
+            var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
 
             if (sessionFactory == null)
             {
-                throw new FacilityException("No ISessionFactory implementation " +
-                                            $"associated with the given ISession alias: {alias}.");
+                throw new FacilityException($"No {nameof(ISessionFactory)} implementation " +
+                                            $"associated with the given {nameof(ISession)} alias: {alias}.");
             }
 
             ISession session;
 
-            var aliasedInterceptorId = string.Format(InterceptorFormatString, alias);
+            var aliasedInterceptorId = string.Format(InterceptorKeyFormatString, alias);
 
             if (_kernel.HasComponent(aliasedInterceptorId))
             {
@@ -328,9 +333,9 @@ namespace Castle.Facilities.NHibernateIntegration
                                         .Interceptor(interceptor)
                                         .OpenSession();
             }
-            else if (_kernel.HasComponent(InterceptorName))
+            else if (_kernel.HasComponent(InterceptorKey))
             {
-                var interceptor = _kernel.Resolve<IInterceptor>(InterceptorName);
+                var interceptor = _kernel.Resolve<IInterceptor>(InterceptorKey);
 
                 session = sessionFactory.WithOptions()
                                         .Interceptor(interceptor)
@@ -348,12 +353,12 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private IStatelessSession CreateStatelessSession(string alias)
         {
-            var sessionFactory = _factoryResolver.GetSessionFactory(alias);
+            var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
 
             if (sessionFactory == null)
             {
-                throw new FacilityException("No ISessionFactory implementation " +
-                                            $"associated with the given IStatelessSession alias: {alias}.");
+                throw new FacilityException($"No {nameof(ISessionFactory)} implementation " +
+                                            $"associated with the given {nameof(IStatelessSession)} alias: {alias}.");
             }
 
             var session = sessionFactory.OpenStatelessSession();

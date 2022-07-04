@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
             _sessionManager = sessionManager;
         }
 
-        public void PerformPieceOfOperation(ISession previousSession)
+        public void PerformSimpleOperation(ISession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
@@ -38,17 +38,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
             Assert.That(SessionDelegate.AreEqual(session, previousSession), Is.True);
         }
 
-        public void PerformPieceOfOperation2(ISession previousSession)
+        public void PerformSimpleOperation2(ISession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
             using var session = _sessionManager.OpenSession();
             Assert.That(session, Is.Not.Null);
-            // Assert.AreNotSame(session, previousSession);
             Assert.That(ReferenceEquals(session, previousSession), Is.False);
         }
 
-        public void PerformStatelessPieceOfOperation(IStatelessSession previousSession)
+        public void PerformSimpleStatelessOperation(IStatelessSession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
@@ -57,7 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
             Assert.That(StatelessSessionDelegate.AreEqual(session, previousSession), Is.True);
         }
 
-        public void PerformStatelessPieceOfOperation2(IStatelessSession previousSession)
+        public void PerformSimpleStatelessOperation2(IStatelessSession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 

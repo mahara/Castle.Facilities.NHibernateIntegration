@@ -34,22 +34,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
         [Test]
         public void CallsConfigurationContributorsBeforeSessionFactoryIsInitialized()
         {
-            var configurator1 = new Mock<IConfigurationContributor>();
-            var configurator2 = new Mock<IConfigurationContributor>();
+            var configurator1 = new Mock<IConfigurationContributor>().Object;
+            var configurator2 = new Mock<IConfigurationContributor>().Object;
             Container.Register(
                 Component.For<IConfigurationContributor>()
                          .Named("c1")
-                         .Instance(configurator1.Object));
+                         .Instance(configurator1));
             Container.Register(
                 Component.For<IConfigurationContributor>()
                          .Named("c2")
-                         .Instance(configurator2.Object));
+                         .Instance(configurator2));
 
             var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
             Container.Resolve<ISessionFactory>("sessionFactory1");
 
-            configurator1.Verify(x => x.Process("sessionFactory1", configuration));
-            configurator2.Verify(x => x.Process("sessionFactory1", configuration));
+            Mock.Get(configurator1).Verify(x => x.Process("sessionFactory1", configuration));
+            Mock.Get(configurator2).Verify(x => x.Process("sessionFactory1", configuration));
         }
     }
 }
