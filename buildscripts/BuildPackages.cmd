@@ -42,39 +42,42 @@ GOTO RESTORE_PACKAGES
 
 
 :RESTORE_PACKAGES
-dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln
-dotnet restore .\src\Castle.Facilities.NHibernateIntegration.sln
+dotnet restore .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
+dotnet restore .\src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj
+dotnet restore .\src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj
 
 GOTO BUILD
 
 
 :BUILD
 
-ECHO ---------------------------------------------------
-REM ECHO Building "%config%" packages with version "%version%"...
+ECHO ----------------------------------------------------
 ECHO Building "%CONFIGURATION%" packages with version "%BUILD_VERSION%"...
-ECHO ---------------------------------------------------
+ECHO ----------------------------------------------------
 
-dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --no-restore
-dotnet build Castle.Facilities.NHibernateIntegration.sln --configuration %CONFIGURATION% -property:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore
+dotnet build .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --configuration "Release" --no-restore || exit /b 1
+dotnet build .\Castle.Facilities.NHibernateIntegration.sln --configuration %CONFIGURATION% -property:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% --no-restore || exit /b 1
+.\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle."
 
 GOTO TEST
 
 
 :TEST
 
-ECHO ----------------
-ECHO Running Tests...
-ECHO ----------------
+REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
+REM https://github.com/spekt/nunit.testlogger/issues/56
 
-dotnet test .\src\Castle.Facilities.NHibernateIntegration.Tests --no-restore || exit /b 1
+ECHO ----------------------------
+ECHO Running .NET (net6.0) Tests
+ECHO ----------------------------
 
-GOTO NUGET_EXPLICIT_VERSIONS
+dotnet test .\src\Castle.Facilities.NHibernateIntegration.Tests --configuration %CONFIGURATION% --framework net6.0 --no-build --output .\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%CONFIGURATION%\net6.0 --results-directory .\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%CONFIGURATION% --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests-Net-TestResults.xml;format=nunit3" || exit /b 1
 
+ECHO ------------------------------------
+ECHO Running .NET Framework (net48) Tests
+ECHO ------------------------------------
 
-:NUGET_EXPLICIT_VERSIONS
-
-.\tools\Explicit.NuGet.Versions\build\nev.exe ".\build" "Castle."
+dotnet test .\src\Castle.Facilities.NHibernateIntegration.Tests --configuration %CONFIGURATION% --framework net48 --no-build --output .\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%CONFIGURATION%\net48 --results-directory .\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%CONFIGURATION% --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests-NetFramework-TestResults.xml;format=nunit3" || exit /b 1
 
 
 

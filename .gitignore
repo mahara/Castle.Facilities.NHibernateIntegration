@@ -14,7 +14,6 @@ temp/
 
 *.suo
 *.user
-*.sln.docstates
 *.dbmdl
 *.dbconfig
 *.log

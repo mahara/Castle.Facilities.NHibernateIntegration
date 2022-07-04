@@ -16,10 +16,15 @@ REM ****************************************************************************
 
 
 SET PACKAGES_DIRECTORY=build
+SET NEV_BIN_DIRECTORY=".\tools\Explicit.NuGet.Versions\build"
 
 dotnet clean --configuration Debug
 dotnet clean --configuration Release
 IF EXIST %PACKAGES_DIRECTORY% RMDIR %PACKAGES_DIRECTORY% /S /Q
+
+dotnet clean .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --configuration Debug
+dotnet clean .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --configuration Release
+IF EXIST %NEV_BIN_DIRECTORY% RMDIR %NEV_BIN_DIRECTORY% /S /Q
 
 
 
