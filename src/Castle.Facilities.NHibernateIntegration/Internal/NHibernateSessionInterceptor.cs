@@ -86,8 +86,6 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
             }
         }
 
-        #region IOnBehalfAware
-
         /// <summary>
         /// Sets the intercepted component's ComponentModel.
         /// </summary>
@@ -96,7 +94,5 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             _metaInfo = (MethodInfo[]) target.ExtendedProperties[NHibernateSessionComponentInspector.SessionRequiredMetaInfo];
         }
-
-        #endregion
     }
 }

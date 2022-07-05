@@ -31,20 +31,20 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
         [Test]
         public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
         {
-            IConfiguration castleConfiguration = new MutableConfiguration("myConfig");
-            castleConfiguration.Attributes["nhibernateConfigFile"] =
+            IConfiguration facilityConfiguration = new MutableConfiguration("myConfig");
+            facilityConfiguration.Attributes["nhibernateConfigFile"] =
                 "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
             var b = new XmlConfigurationBuilder();
-            var cfg = b.GetConfiguration(castleConfiguration);
-            Assert.That(cfg, Is.Not.Null);
-            var str = cfg.Properties["connection.provider"];
-            Assert.That(str, Is.EqualTo("DummyProvider"));
-            str = cfg.Properties["connection.connection_string"];
-            Assert.IsNotEmpty(str);
-            str = cfg.Properties["connection.driver_class"];
-            Assert.IsNotEmpty(str);
-            str = cfg.Properties["dialect"];
-            Assert.IsNotEmpty(str);
+            var configuration = b.GetConfiguration(facilityConfiguration);
+            Assert.That(configuration, Is.Not.Null);
+            var value = configuration.Properties["connection.provider"];
+            Assert.That(value, Is.EqualTo("DummyProvider"));
+            value = configuration.Properties["connection.connection_string"];
+            Assert.That(value, Is.Not.Empty);
+            value = configuration.Properties["connection.driver_class"];
+            Assert.That(value, Is.Not.Empty);
+            value = configuration.Properties["dialect"];
+            Assert.That(value, Is.Not.Empty);
         }
     }
 }

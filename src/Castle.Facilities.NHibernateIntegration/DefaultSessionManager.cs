@@ -303,12 +303,12 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private SessionDelegate WrapSession(bool hasTransaction, ISession session)
         {
-            return new SessionDelegate(!hasTransaction, session, _sessionStore);
+            return new SessionDelegate(session, _sessionStore, !hasTransaction);
         }
 
         private StatelessSessionDelegate WrapStatelessSession(bool hasTransaction, IStatelessSession statelessSession)
         {
-            return new StatelessSessionDelegate(!hasTransaction, statelessSession, _sessionStore);
+            return new StatelessSessionDelegate(statelessSession, _sessionStore, !hasTransaction);
         }
 
         private ISession CreateSession(string alias)

@@ -45,20 +45,6 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         }
 
         /// <summary>
-        /// Calls the contributors.
-        /// </summary>
-        protected virtual void RaiseCreatingSessionFactory()
-        {
-            var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
-
-            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
-            foreach (var contributor in contributors)
-            {
-                contributor.Process(Model.Name, configuration);
-            }
-        }
-
-        /// <summary>
         /// Creates the <see cref="ISessionFactory" /> from the configuration.
         /// </summary>
         /// <param name="context"></param>
@@ -75,6 +61,20 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
             burden.SetRootInstance(sessionFactory);
 
             return sessionFactory;
+        }
+
+        /// <summary>
+        /// Calls the contributors.
+        /// </summary>
+        protected virtual void RaiseCreatingSessionFactory()
+        {
+            var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
+
+            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+            foreach (var contributor in contributors)
+            {
+                contributor.Process(Model.Name, configuration);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +28,8 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
     /// </summary>
     public class ResourceAdapter : IResource, IDisposable
     {
-        private readonly bool _isAmbient;
         private readonly ITransaction _transaction;
+        private readonly bool _isAmbient;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceAdapter" /> class.

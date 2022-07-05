@@ -44,8 +44,6 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
             }
         }
 
-        #region IDisposable Members
-
         /// <summary>
         /// Disposes the allocated resources.
         /// </summary>
@@ -53,10 +51,6 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             _innerResource.Dispose();
         }
-
-        #endregion
-
-        #region IResource Members
 
         /// <summary>
         /// Returns an instance of Castle.Core.Resource.IResource created according to the relativePath using itself as the root.
@@ -92,7 +86,5 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             return _innerResource.GetStreamReader();
         }
-
-        #endregion
     }
 }

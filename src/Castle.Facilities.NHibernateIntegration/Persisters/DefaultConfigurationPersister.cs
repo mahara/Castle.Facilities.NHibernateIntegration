@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         }
 
         /// <inheritdoc />
-        public virtual void WriteConfiguration(string filePath, Configuration configuration)
+        public virtual void WriteConfiguration(Configuration configuration, string filePath)
         {
             _persister.Write(configuration, filePath);
         }

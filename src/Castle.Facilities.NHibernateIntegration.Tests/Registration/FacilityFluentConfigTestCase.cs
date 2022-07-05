@@ -130,7 +130,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
     internal class DummyConfigurationBuilder : IConfigurationBuilder
     {
-        public Configuration GetConfiguration(IConfiguration config)
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             return new Configuration();
         }

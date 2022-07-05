@@ -33,26 +33,26 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     {
         public int ConfigurationsCreated { get; private set; }
 
-        public Configuration GetConfiguration(IConfiguration config)
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             ConfigurationsCreated++;
 
-            var nhConfig = new DefaultConfigurationBuilder().GetConfiguration(config);
-            nhConfig.Properties["dialect"] =
+            var configuration = new DefaultConfigurationBuilder().GetConfiguration(facilityConfiguration);
+            configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];
-            nhConfig.Properties["connection.driver_class"] =
+            configuration.Properties["connection.driver_class"] =
                 ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-            nhConfig.Properties["connection.provider"] =
+            configuration.Properties["connection.provider"] =
                 ConfigurationManager.AppSettings["nhf.connection.provider"];
-            nhConfig.Properties["connection.connection_string"] =
+            configuration.Properties["connection.connection_string"] =
                 ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-            if (config.Attributes["id"] != "sessionFactory1")
+            if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
             {
-                nhConfig.Properties["connection.connection_string"] =
+                configuration.Properties["connection.connection_string"] =
                     ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
             }
 
-            return nhConfig;
+            return configuration;
         }
     }
 

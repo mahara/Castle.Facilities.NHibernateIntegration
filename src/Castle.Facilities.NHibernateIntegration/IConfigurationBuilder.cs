@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,10 +26,10 @@ namespace Castle.Facilities.NHibernateIntegration
     public interface IConfigurationBuilder
     {
         /// <summary>
-        /// Builds the <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
+        /// Builds the NHibernate <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
         /// </summary>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>The <see cref="Configuration" />.</returns>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
         Configuration GetConfiguration(IConfiguration facilityConfiguration);
     }
 }

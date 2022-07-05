@@ -57,10 +57,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         }
 
         /// <summary>
-        /// Returns the Deserialized Configuration.
+        /// Returns the deserialized NHibernate <see cref="Configuration" />.
         /// </summary>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>The <see cref="Configuration" />.</returns>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
         public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             if (_logger.IsDebugEnabled)
@@ -68,11 +68,11 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 _logger.Debug("Building the Configuration.");
             }
 
-            var filename = GetFilenameFrom(facilityConfiguration);
-            var dependentFilenames = GetDependentFilenamesFrom(facilityConfiguration);
+            var filePath = GetFilePathFrom(facilityConfiguration);
+            var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
 
             Configuration configuration;
-            if (_configurationPersister.IsNewConfigurationRequired(filename, dependentFilenames))
+            if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
             {
                 if (_logger.IsDebugEnabled)
                 {
@@ -80,17 +80,17 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 }
 
                 configuration = base.GetConfiguration(facilityConfiguration);
-                _configurationPersister.WriteConfiguration(filename, configuration);
+                _configurationPersister.WriteConfiguration(configuration, filePath);
             }
             else
             {
-                configuration = _configurationPersister.ReadConfiguration(filename);
+                configuration = _configurationPersister.ReadConfiguration(filePath);
             }
 
             return configuration;
         }
 
-        private string GetFilenameFrom(IConfiguration facilityConfiguration)
+        private static string GetFilePathFrom(IConfiguration facilityConfiguration)
         {
             var filename = facilityConfiguration.Attributes["fileName"] ??
                            facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
@@ -103,7 +103,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
         }
 
-        private static IList<string> GetDependentFilenamesFrom(IConfiguration facilityConfiguration)
+        private static IList<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
         {
             var list = new List<string>();
 

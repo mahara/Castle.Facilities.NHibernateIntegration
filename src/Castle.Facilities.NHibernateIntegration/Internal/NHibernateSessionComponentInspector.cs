@@ -28,7 +28,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
     /// </summary>
     public class NHibernateSessionComponentInspector : IContributeComponentModelConstruction
     {
-        internal const string SessionRequiredMetaInfo = "nhfacility.SessionRequiredMetaInfo";
+        internal const string SessionRequiredMetaInfo = "nhfacility.sessionRequiredMetaInfo";
 
         private const string ComponentModelName = "session.interceptor";
 
@@ -45,15 +45,16 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             if (model.Implementation.IsDefined(typeof(NHSessionAwareAttribute), true))
             {
-                model.Dependencies.Add(new DependencyModel(ComponentModelName, typeof(NHibernateSessionInterceptor), false));
+                model.Dependencies.Add(
+                    new DependencyModel(ComponentModelName, typeof(NHibernateSessionInterceptor), false));
 
                 var methods = model.Implementation
                                    .GetMethods(BindingFlags)
                                    .Where(m => m.IsDefined(typeof(NHSessionRequiredAttribute), false));
-
                 model.ExtendedProperties[SessionRequiredMetaInfo] = methods.ToArray();
 
-                model.Interceptors.Add(new InterceptorReference(typeof(NHibernateSessionInterceptor)));
+                model.Interceptors.Add(
+                    new InterceptorReference(typeof(NHibernateSessionInterceptor)));
             }
         }
     }

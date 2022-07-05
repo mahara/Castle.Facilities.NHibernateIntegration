@@ -53,9 +53,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Initializes a new instance of the <see cref="SessionDelegate" /> class.
         /// </summary>
-        /// <param name="canClose">Set to <c>true</c> if can close the session.</param>
         /// <param name="innerSession">The inner session.</param>
         /// <param name="sessionStore">The session store.</param>
+        /// <param name="canClose">Set to <c>true</c> if can close the session.</param>
         /// <remarks>
         /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0618
         /// <code>
@@ -63,7 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// #pragma warning restore 0618, 0612
         /// </code>
         /// </remarks>
-        public SessionDelegate(bool canClose, ISession innerSession, ISessionStore sessionStore)
+        public SessionDelegate(ISession innerSession, ISessionStore sessionStore, bool canClose)
         {
             InnerSession = innerSession;
             _sessionStore = sessionStore;
@@ -86,8 +86,6 @@ namespace Castle.Facilities.NHibernateIntegration
             set => _cookie = value;
         }
 
-        #region IDisposable Members
-
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -95,8 +93,6 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             DoClose(false);
         }
-
-        #endregion
 
         /// <summary>
         /// Does the close.

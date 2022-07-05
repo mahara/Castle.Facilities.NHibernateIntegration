@@ -32,13 +32,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
     /// </summary>
     public class DefaultConfigurationBuilder : IConfigurationBuilder
     {
-        private const string NHMappingAttributesAssemblyName = "NHibernate.Mapping.Attributes";
+        private const string NHibernateMappingAttributesAssemblyName = "NHibernate.Mapping.Attributes";
 
-        /// <summary>
-        /// Builds the <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
-        /// </summary>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>The <see cref="Configuration" />.</returns>
+        /// <inheritdoc />
         public virtual Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             var configuration = new Configuration();
@@ -77,7 +73,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// </summary>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
+        protected static void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
         {
             if (facilityConfiguration == null)
             {
@@ -87,11 +83,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             foreach (var item in facilityConfiguration.Children)
             {
                 var name = item.Attributes["name"];
-                var assembly = item.Attributes["assembly"];
-
-                if (assembly != null)
+                var assemblyName = item.Attributes["assembly"];
+                if (assemblyName != null)
                 {
-                    configuration.AddResource(name, ObtainAssembly(assembly));
+                    configuration.AddResource(name, LoadAssembly(assemblyName));
                 }
                 else
                 {
@@ -139,7 +134,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// </summary>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        protected void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
+        protected static void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
         {
             if (facilityConfiguration == null)
             {
@@ -148,16 +143,16 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             foreach (var item in facilityConfiguration.Children)
             {
-                var assembly = item.Value;
+                var assemblyName = item.Value;
 
-                configuration.AddAssembly(assembly);
+                configuration.AddAssembly(assemblyName);
 
-                GenerateMappingFromAttributesIfNeeded(configuration, assembly);
+                GenerateMappingFromAttributesIfNeeded(configuration, assemblyName);
             }
         }
 
         /// <summary>
-        /// If <paramref name="targetAssembly" /> has a reference on <c>NHibernate.Mapping.Attributes</c>,
+        /// If <paramref name="targetAssemblyName" /> has a reference on <c>NHibernate.Mapping.Attributes</c>,
         /// then use the NHibernate mapping attributes contained in that assembly to update NHibernate configuration (<paramref name="configuration" />).
         /// Else, do nothing.
         /// </summary>
@@ -166,43 +161,46 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// when using this facility without NHibernate mapping attributes,
         /// all calls to that library are made using reflection.
         /// </remarks>
-        /// <param name="configuration">The <see cref="Configuration" />.</param>
-        /// <param name="targetAssembly">The target assembly name.</param>
-        protected static void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssembly)
+        /// <param name="configuration">The NHibernate <see cref="Configuration" />.</param>
+        /// <param name="targetAssemblyName">The target assembly name.</param>
+        protected static void GenerateMappingFromAttributesIfNeeded(Configuration configuration, string targetAssemblyName)
         {
-            // Get an array of all assemblies referenced by targetAssembly
-            var referencedAssemblies = Assembly.Load(targetAssembly).GetReferencedAssemblies();
+            // Get all assemblies referenced by targetAssembly.
+            var referencedAssemblies = Assembly.Load(targetAssemblyName).GetReferencedAssemblies();
 
-            // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly
+            // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly.
             if (Array.Exists(referencedAssemblies,
-                             (AssemblyName x) => x.Name.Equals(NHMappingAttributesAssemblyName)))
+                             (AssemblyName x) => x.Name.Equals(NHibernateMappingAttributesAssemblyName)))
             {
-                // Obtains, by reflexion, the necessary tools to generate NH mapping from attributes
-                var HbmSerializerType =
-                    Type.GetType(string.Concat(NHMappingAttributesAssemblyName,
+                // Obtains, by reflection, the necessary tools to generate NHibernate mapping from attributes.
+                var hbmSerializerType =
+                    Type.GetType(string.Concat(NHibernateMappingAttributesAssemblyName,
                                                ".HbmSerializer, ",
-                                               NHMappingAttributesAssemblyName));
-                var hbmSerializer = Activator.CreateInstance(HbmSerializerType);
-                var validate = HbmSerializerType.GetProperty("Validate");
-                var serialize = HbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
+                                               NHibernateMappingAttributesAssemblyName));
+                var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
+                var validateProperty = hbmSerializerType.GetProperty("Validate");
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
 
-                // Enable validation of mapping documents generated from the mapping attributes
-                validate.SetValue(hbmSerializer, true, null);
+                // Enable validation of mapping documents generated from the mapping attributes.
+                validateProperty.SetValue(hbmSerializer, true, null);
 
-                // Generates a stream of mapping documents from all decorated classes in targetAssembly and add it to NH config
-                configuration.AddInputStream((MemoryStream) serialize.Invoke(hbmSerializer, new object[] { Assembly.Load(targetAssembly) }));
+                // Generates a stream of mapping documents from all decorated classes in targetAssembly
+                // and add it to NHibernate configuration.
+                configuration.AddInputStream(
+                    (MemoryStream) serializeMethod.Invoke(hbmSerializer,
+                                                          new object[] { Assembly.Load(targetAssemblyName) }));
             }
         }
 
-        private static Assembly ObtainAssembly(string assembly)
+        private static Assembly LoadAssembly(string assemblyName)
         {
             try
             {
-                return Assembly.Load(assembly);
+                return Assembly.Load(assemblyName);
             }
             catch (Exception ex)
             {
-                var message = string.Format("The assembly {0} could not be loaded.", assembly);
+                var message = string.Format("The assembly '{0}' could not be loaded.", assemblyName);
 
                 throw new ConfigurationErrorsException(message, ex);
             }

@@ -95,7 +95,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             if (session != current)
             {
                 throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} tried to " +
-                                                  $"remove a {nameof(ISession)} which is not on the top or not in the stack at all");
+                                                  $"remove an {nameof(ISession)} which is not on the top or not in the stack at all.");
             }
 
             stack.Pop();

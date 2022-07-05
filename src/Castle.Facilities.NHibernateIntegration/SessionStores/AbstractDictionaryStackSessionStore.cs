@@ -37,12 +37,12 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         }
 
         /// <summary>
-        /// The <see cref="SessionDelegate" /> storage name.
+        /// The <see cref="SessionDelegate" /> storage key.
         /// </summary>
         protected string SessionSlotKey { get; }
 
         /// <summary>
-        /// The <see cref="StatelessSessionDelegate" /> storage name.
+        /// The <see cref="StatelessSessionDelegate" /> storage key.
         /// </summary>
         protected string StatelessSessionSlotKey { get; }
 

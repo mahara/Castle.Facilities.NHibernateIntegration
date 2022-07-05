@@ -36,9 +36,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Writes the <see cref="Configuration" /> to the file.
         /// </summary>
-        /// <param name="filePath">The path of the file to write to.</param>
         /// <param name="configuration">The <see cref="Configuration" />.</param>
-        void WriteConfiguration(string filePath, Configuration configuration);
+        /// <param name="filePath">The path of the file to write to.</param>
+        void WriteConfiguration(Configuration configuration, string filePath);
 
         /// <summary>
         /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.

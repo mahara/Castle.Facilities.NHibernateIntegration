@@ -1,4 +1,4 @@
-#region License
+﻿#region License
 // Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,20 +34,18 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// Returns the <see cref="Configuration" /> object for the given xml.
         /// </summary>
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>The <see cref="Configuration" />.</returns>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
         public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"];
-            IResource configurationResource = new FileAssemblyResource(configurationFile);
-
             Configuration configuration;
-            using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
+
+            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"];
+            using (var configurationResource = new FileAssemblyResource(configurationFile))
             {
+                using var reader = XmlReader.Create(configurationResource.GetStreamReader());
                 configuration = new Configuration();
                 configuration.Configure(reader);
             }
-
-            configurationResource.Dispose();
 
             return configuration;
         }

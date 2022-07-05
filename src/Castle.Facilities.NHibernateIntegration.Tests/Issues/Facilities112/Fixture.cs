@@ -30,13 +30,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
     [Explicit("Should be dropped, too much intrusion.")]
     public class LazyInitializationTestCase : IssueTestCase
     {
-        protected override string ConfigurationFile => "DefaultConfiguration.xml";
+        protected override string ConfigurationFile =>
+            "DefaultConfiguration.xml";
 
         [Test]
         public virtual void SessionFactoryIsSingleton()
         {
             var componentModel = Container.Kernel.GetHandler("sessionFactory1").ComponentModel;
-
             Assert.That(componentModel.LifestyleType, Is.EqualTo(LifestyleType.Singleton));
         }
 

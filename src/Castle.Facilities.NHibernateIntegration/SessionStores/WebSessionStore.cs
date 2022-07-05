@@ -50,26 +50,49 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return GetWebContextDictionary<IDictionary<string, Stack<SessionDelegate>>>(SessionSlotKey);
+            return GetSessionDictionaryFromWebContext<IDictionary<string, Stack<SessionDelegate>>>(SessionSlotKey);
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
         {
-            StoreWebContextDictionary(SessionSlotKey, dictionary);
+            StoreSessionDictionaryInWebContext(SessionSlotKey, dictionary);
         }
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return GetWebContextDictionary<IDictionary<string, Stack<StatelessSessionDelegate>>>(StatelessSessionSlotKey);
+            return GetSessionDictionaryFromWebContext<IDictionary<string, Stack<StatelessSessionDelegate>>>(StatelessSessionSlotKey);
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
         {
-            StoreWebContextDictionary(StatelessSessionSlotKey, dictionary);
+            StoreSessionDictionaryInWebContext(StatelessSessionSlotKey, dictionary);
+        }
+
+        private T GetSessionDictionaryFromWebContext<T>(string key)
+        {
+#if NETFRAMEWORK
+            var value = GetWebContext().Items[key];
+#else
+            if (!GetWebContext().Items.TryGetValue(key, out var value))
+            {
+                return default;
+            }
+#endif
+
+            return (T) value;
+        }
+
+        private void StoreSessionDictionaryInWebContext<T>(string key, T value)
+        {
+#if NETFRAMEWORK
+            GetWebContext().Items[key] = value;
+#else
+            GetWebContext().Items[key] = value;
+#endif
         }
 
 #if NETFRAMEWORK
-        private HttpContext ObtainSessionContext()
+        private HttpContext GetWebContext()
         {
             var context = HttpContext.Current;
             if (context == null)
@@ -80,7 +103,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             return context;
         }
 #else
-        private HttpContext ObtainSessionContext()
+        private HttpContext GetWebContext()
         {
             var context = HttpContextAccessor.HttpContext;
             if (context == null)
@@ -91,28 +114,5 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
             return context;
         }
 #endif
-
-        private T GetWebContextDictionary<T>(string key)
-        {
-#if NETFRAMEWORK
-            var value = ObtainSessionContext().Items[key];
-#else
-            if (!ObtainSessionContext().Items.TryGetValue(key, out var value))
-            {
-                return default;
-            }
-#endif
-
-            return (T) value;
-        }
-
-        private void StoreWebContextDictionary<T>(string key, T value)
-        {
-#if NETFRAMEWORK
-            ObtainSessionContext().Items[key] = value;
-#else
-            ObtainSessionContext().Items[key] = value;
-#endif
-        }
     }
 }

@@ -60,7 +60,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1, Is.Null);
 
             session1 = factory.OpenSession();
-            var sessionDelegate1 = new SessionDelegate(true, session1, store);
+            var sessionDelegate1 = new SessionDelegate(session1, store, true);
             store.Store(Constants.DefaultAlias, sessionDelegate1);
             Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
@@ -88,7 +88,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var factory = Container.Resolve<ISessionFactory>();
 
             var session1 = factory.OpenSession();
-            var sessionDelegate1 = new SessionDelegate(true, session1, store);
+            var sessionDelegate1 = new SessionDelegate(session1, store, true);
             store.Store(Constants.DefaultAlias, sessionDelegate1);
 
             ISession session2 = store.FindCompatibleSession(Constants.DefaultAlias);
@@ -136,7 +136,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             Assert.That(session1, Is.Null);
 
             session1 = factory.OpenStatelessSession();
-            var sessionDelegate1 = new StatelessSessionDelegate(true, session1, store);
+            var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
             store.Store(Constants.DefaultAlias, sessionDelegate1);
             Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
@@ -164,7 +164,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var factory = Container.Resolve<ISessionFactory>();
 
             var session1 = factory.OpenStatelessSession();
-            var sessionDelegate1 = new StatelessSessionDelegate(true, session1, store);
+            var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
             store.Store(Constants.DefaultAlias, sessionDelegate1);
             IStatelessSession session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
 
