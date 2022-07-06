@@ -1,11 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="..\..\buildscripts\common.props"></Import>
+
   <PropertyGroup>
     <TargetFrameworks>net6.0;net48</TargetFrameworks>
-    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
-
-  <Import Project="..\..\buildscripts\common.props"></Import>
 
   <PropertyGroup>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

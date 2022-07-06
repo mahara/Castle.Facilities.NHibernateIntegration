@@ -249,7 +249,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             if (!Kernel.HasComponent(typeof(ITransactionManager)))
             {
-                _logger.Info("No Transaction Manager registered on Kernel, registering default Transaction Manager");
+                _logger.Info($"No {nameof(ITransactionManager)} implementation registered on Kernel, registering default {nameof(ITransactionManager)} implementation.");
 
                 Kernel.Register(
                     Component.For<ITransactionManager>()

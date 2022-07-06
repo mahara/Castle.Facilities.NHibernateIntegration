@@ -7,7 +7,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
     <BuildVersion>0.0.0</BuildVersion>
-    <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)'!=''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
+    <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)' != ''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>

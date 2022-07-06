@@ -1,32 +1,76 @@
-image: Visual Studio 2022
+image:
+- Visual Studio 2022
+- Ubuntu
 
-build:
-  verbosity: minimal
-  publish_nuget: false
 
+# ----------------
+#  ALL BUILD JOBS
+# ----------------
 skip_tags: false
-
 test: off
 
-init:
-- ps: >-
-    if ($env:APPVEYOR_REPO_TAG -eq "true")
-    {
-        Update-AppveyorBuild -Version ($env:APPVEYOR_REPO_TAG_NAME).TrimStart("v")
-    }
 
-on_success:
-- ps: >-
-    if ($env:APPVEYOR_REPO_TAG -eq "true")
-    {
-        nuget push ".\build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
-    }
+for:
+- # -----------------
+  #  LINUX BUILD JOB
+  # -----------------
+  matrix:
+    only:
+    - image: Ubuntu
 
-build_script:
+  # build and run tests
+  build_script:
+  - uname -a
+  - ./build.sh
+
+  # upload test results
+  after_build:
+  - find "$APPVEYOR_BUILD_FOLDER" -type f -name '*TestResults.xml' -print0 | xargs -0 -I '{}' curl -F 'file=@{}' "https://ci.appveyor.com/api/testresults/nunit3/$APPVEYOR_JOB_ID"
+
+  # deployment is handled exclusively by the Windows build job (below)
+  deploy: off
+
+
+- # -------------------
+  #  WINDOWS BUILD JOB
+  # -------------------
+  matrix:
+    only:
+    - image: Visual Studio 2022
+
+  # update AppVeyor build version; this matters for deployments
+  init:
+  - ps: |
+      # https://www.appveyor.com/docs/build-worker-api/
+      # https://www.appveyor.com/docs/branches/
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+          Update-AppveyorBuild -Version ($env:APPVEYOR_REPO_TAG_NAME).TrimStart("v")
+      }
+
+  # build and run tests
+  build_script:
   - cmd: build.cmd
 
-artifacts:
- - path: build\*.nupkg
+  # upload test results
+  after_build:
+  - ps: |
+      $wc = New-Object System.Net.WebClient
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "Castle.Facilities.NHibernateIntegration.Tests-Net-TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "Castle.Facilities.NHibernateIntegration.Tests-NetFramework-TestResults.xml"))
+
+  # push packages to NuGet on tag builds
+  on_success:
+  - ps: |
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+          nuget push ".\build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+      }
+
+  # upload packages to AppVeyor
+  artifacts:
+  - path: build\*.nupkg
+    name: net
 
 
 

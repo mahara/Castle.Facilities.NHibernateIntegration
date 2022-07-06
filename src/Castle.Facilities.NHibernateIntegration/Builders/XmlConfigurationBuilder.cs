@@ -19,7 +19,6 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
     using System.Xml;
 
     using Core.Configuration;
-    using Core.Resource;
 
     using Internal;
 

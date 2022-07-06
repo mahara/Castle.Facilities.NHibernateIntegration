@@ -15,16 +15,16 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-SET PACKAGES_DIRECTORY=build
-SET NEV_BIN_DIRECTORY=".\tools\Explicit.NuGet.Versions\build"
+SET PACKAGES_FOLDER=build
+SET NEV_BIN_FOLDER=".\tools\Explicit.NuGet.Versions\bin"
+SET NEV_OBJ_FOLDER=".\tools\Explicit.NuGet.Versions\obj"
 
 dotnet clean --configuration Debug
 dotnet clean --configuration Release
-IF EXIST %PACKAGES_DIRECTORY% RMDIR %PACKAGES_DIRECTORY% /S /Q
+IF EXIST %PACKAGES_FOLDER% RMDIR %PACKAGES_FOLDER% /S /Q
 
-dotnet clean .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --configuration Debug
-dotnet clean .\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln --configuration Release
-IF EXIST %NEV_BIN_DIRECTORY% RMDIR %NEV_BIN_DIRECTORY% /S /Q
+IF EXIST %NEV_BIN_FOLDER% RMDIR %NEV_BIN_FOLDER% /S /Q
+IF EXIST %NEV_OBJ_FOLDER% RMDIR %NEV_OBJ_FOLDER% /S /Q
 
 
 
