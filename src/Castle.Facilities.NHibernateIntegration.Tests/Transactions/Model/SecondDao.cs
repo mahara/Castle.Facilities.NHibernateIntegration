@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Services.Transaction;
 
 using NUnit.Framework;
@@ -35,123 +33,117 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual BlogItem Create(Blog blog)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+            session.Save(blogItem);
 
-                session.Save(blogItem);
-
-                return blogItem;
-            }
+            return blogItem;
         }
 
         [Transaction]
         public virtual BlogItem CreateWithException1(Blog blog)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
-
-                throw new NotSupportedException("I dont feel like supporting this.");
-            }
+            throw new NotSupportedException("I dont feel like supporting this.");
         }
 
         [Transaction]
         public virtual BlogItem CreateWithException2(Blog blog)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+            session.Save(blogItem);
 
-                session.Save(blogItem);
-
-                throw new NotSupportedException("I dont feel like supporting this.");
-            }
+            throw new NotSupportedException("I dont feel like supporting this.");
         }
 
         [Transaction]
         public virtual BlogItem CreateStateless(Blog blog)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+            session.Insert(blogItem);
 
-                session.Insert(blogItem);
-
-                return blogItem;
-            }
+            return blogItem;
         }
 
         [Transaction]
         public virtual BlogItem CreateWithExceptionStateless1(Blog blog)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
-
-                throw new NotSupportedException("I dont feel like supporting this.");
-            }
+            throw new NotSupportedException("I dont feel like supporting this.");
         }
 
         [Transaction]
         public virtual BlogItem CreateWithExceptionStateless2(Blog blog)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+
+            var blogItem = new BlogItem
             {
-                Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+            session.Insert(blogItem);
 
-                session.Insert(blogItem);
-
-                throw new NotSupportedException("I dont feel like supporting this.");
-            }
+            throw new NotSupportedException("I dont feel like supporting this.");
         }
     }
 }
