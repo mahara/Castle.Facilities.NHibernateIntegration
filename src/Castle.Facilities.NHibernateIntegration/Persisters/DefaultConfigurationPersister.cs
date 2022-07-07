@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.IO;
-
 using NHibernate.Cfg;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
@@ -43,7 +40,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
                 return true;
             }
 
-            if (dependentFilePaths == null || dependentFilePaths.Count == 0)
+            if (dependentFilePaths is null || dependentFilePaths.Count == 0)
             {
                 return false;
             }

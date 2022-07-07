@@ -39,41 +39,38 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog Create(string name)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                var sessionTransaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenSession();
 
-                Assert.That(sessionTransaction, Is.Not.Null);
-                Assert.That(sessionTransaction.IsActive);
+            var sessionTransaction = session.GetCurrentTransaction();
 
-                var blog = new Blog { Name = name };
-                session.Save(blog);
-                return blog;
-            }
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
+
+            var blog = new Blog { Name = name };
+            session.Save(blog);
+            return blog;
         }
 
         [Transaction]
         public virtual void Delete(string name)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                var sessionTransaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenSession();
 
-                Assert.That(sessionTransaction, Is.Not.Null);
-                Assert.That(sessionTransaction.IsActive);
+            var sessionTransaction = session.GetCurrentTransaction();
 
-                session.Delete($"from {nameof(Blog)} b where b.{nameof(Blog.Name)} = '{name}'");
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
 
-                session.Flush();
-            }
+            session.Delete($"from {nameof(Blog)} b where b.{nameof(Blog.Name)} = '{name}'");
+
+            session.Flush();
         }
 
         public virtual void AddBlogRef(BlogRef blogRef)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                session.Save(blogRef);
-            }
+            using var session = _sessionManager.OpenSession();
+
+            session.Save(blogRef);
         }
 
         [Transaction]
@@ -85,39 +82,36 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog CreateStateless(string name)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                var sessionTransaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenStatelessSession();
 
-                Assert.That(sessionTransaction, Is.Not.Null);
-                Assert.That(sessionTransaction.IsActive);
+            var sessionTransaction = session.GetCurrentTransaction();
 
-                var blog = new Blog { Name = name };
-                session.Insert(blog);
-                return blog;
-            }
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
+
+            var blog = new Blog { Name = name };
+            session.Insert(blog);
+            return blog;
         }
 
         [Transaction]
         public virtual void DeleteStateless(string name)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                var sessionTransaction = session.GetCurrentTransaction();
+            using var session = _sessionManager.OpenStatelessSession();
 
-                Assert.That(sessionTransaction, Is.Not.Null);
-                Assert.That(sessionTransaction.IsActive);
+            var sessionTransaction = session.GetCurrentTransaction();
 
-                session.Delete($"from {nameof(Blog)} b where b.{nameof(Blog.Name)} = '{name}'");
-            }
+            Assert.That(sessionTransaction, Is.Not.Null);
+            Assert.That(sessionTransaction.IsActive);
+
+            session.Delete($"from {nameof(Blog)} b where b.{nameof(Blog.Name)} = '{name}'");
         }
 
         public virtual void AddBlogRefStateless(BlogRef blogRef)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                session.Insert(blogRef);
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+
+            session.Insert(blogRef);
         }
     }
 }

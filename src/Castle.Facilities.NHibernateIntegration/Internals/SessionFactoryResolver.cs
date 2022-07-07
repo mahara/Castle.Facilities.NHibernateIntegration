@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
 
@@ -56,6 +53,13 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
                 throw new ArgumentNullException(nameof(id));
             }
 
+#if NET
+            if (!_aliasToId.TryAdd(alias, id))
+            {
+                var message = $"A mapping already exists for the specified alias: '{alias}'.";
+                throw new ArgumentException(message);
+            }
+#else
             if (_aliasToId.ContainsKey(alias))
             {
                 var message = $"A mapping already exists for the specified alias: '{alias}'.";
@@ -63,6 +67,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
             }
 
             _aliasToId.Add(alias, id);
+#endif
         }
 
         public ISessionFactory GetSessionFactory(string alias)
