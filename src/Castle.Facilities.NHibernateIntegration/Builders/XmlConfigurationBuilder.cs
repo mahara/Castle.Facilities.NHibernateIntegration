@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Xml;
 
 using Castle.Core.Configuration;
@@ -40,17 +39,14 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             var filePath = facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName] ??
                            throw new ArgumentNullException(nameof(facilityConfiguration));
 
-            using (var configurationResource = new FileAssemblyResource(filePath))
-            {
-                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
-                {
-                    var configuration = new Configuration();
+            using var configurationResource = new FileAssemblyResource(filePath);
+            using var reader = XmlReader.Create(configurationResource.GetStreamReader());
 
-                    configuration.Configure(reader);
+            var configuration = new Configuration();
 
-                    return configuration;
-                }
-            }
+            configuration.Configure(reader);
+
+            return configuration;
         }
     }
 }

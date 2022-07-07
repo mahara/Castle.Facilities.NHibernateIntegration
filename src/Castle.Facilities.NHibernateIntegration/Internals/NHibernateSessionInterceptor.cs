@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 using Castle.Core;
@@ -64,7 +62,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
                 method = invocation.Method;
             }
 
-            if (_methods == null || !_methods.Contains(method))
+            if (_methods is null || !_methods.Contains(method))
             {
                 invocation.Proceed();
 
