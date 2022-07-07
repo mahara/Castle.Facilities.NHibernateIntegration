@@ -50,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null &&
+                if (ex.InnerException is not null &&
                     ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
                 {
                     Assert.Ignore("MTS is not available.");
@@ -119,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null &&
+                if (ex.InnerException is not null &&
                     ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
                 {
                     Assert.Ignore("MTS is not available.");

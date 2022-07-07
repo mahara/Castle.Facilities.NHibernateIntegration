@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Runtime.Serialization;
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
