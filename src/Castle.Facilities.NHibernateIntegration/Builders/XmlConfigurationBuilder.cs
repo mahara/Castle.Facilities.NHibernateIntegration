@@ -44,17 +44,14 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                        filePath :
                        throw new System.Configuration.ConfigurationErrorsException($"'{FilePathAttributeName}' cannot be null or empty.");
 
-            using (var configurationResource = new FileAssemblyResource(filePath))
-            {
-                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
-                {
-                    var configuration = new Configuration();
+            using var configurationResource = new FileAssemblyResource(filePath);
+            using var reader = XmlReader.Create(configurationResource.GetStreamReader());
 
-                    configuration.Configure(reader);
+            var configuration = new Configuration();
 
-                    return configuration;
-                }
-            }
+            configuration.Configure(reader);
+
+            return configuration;
         }
     }
 }
