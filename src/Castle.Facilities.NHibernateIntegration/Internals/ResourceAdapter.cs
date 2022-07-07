@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Services.Transaction;
 
 using ITransaction = NHibernate.ITransaction;

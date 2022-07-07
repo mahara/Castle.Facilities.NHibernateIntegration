@@ -14,9 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Configuration;
-using System.IO;
 using System.Reflection;
 
 using NHibernate.Event;
@@ -54,7 +52,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
         protected static void ApplyConfigurationSettings(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -75,7 +73,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
         protected static void RegisterAssemblies(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -142,7 +140,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
         protected static void RegisterResources(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -170,7 +168,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="CastleConfiguration" />.</param>
         protected static void RegisterListeners(NHibernateConfiguration configuration, CastleConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }

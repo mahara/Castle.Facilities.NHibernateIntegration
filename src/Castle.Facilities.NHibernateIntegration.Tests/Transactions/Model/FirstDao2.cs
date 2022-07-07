@@ -37,12 +37,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog Create(string name)
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                var blog = new Blog { Name = name };
-                session.Save(blog);
-                return blog;
-            }
+            using var session = _sessionManager.OpenSession();
+
+            var blog = new Blog { Name = name };
+            session.Save(blog);
+            return blog;
         }
 
         [Transaction]
@@ -54,12 +53,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog CreateStateless(string name)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                var blog = new Blog { Name = name };
-                session.Insert(blog);
-                return blog;
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+
+            var blog = new Blog { Name = name };
+            session.Insert(blog);
+            return blog;
         }
     }
 }

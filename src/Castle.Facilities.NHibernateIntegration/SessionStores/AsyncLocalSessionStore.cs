@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.Threading;
-
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     /// <summary>
