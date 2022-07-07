@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.IO;
-
 using NHibernate.Cfg;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
