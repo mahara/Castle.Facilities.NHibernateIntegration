@@ -29,6 +29,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
     [TestFixture]
     public class FacilityFluentConfigurationTestCase
     {
+        [SetUp]
+        public void SetUp()
+        {
+            TestHelper.AssertApplicationConfigurationFileExists();
+        }
+
         [Test]
         public void ShouldOverride_DefaultConfigurationBuilder()
         {
