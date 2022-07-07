@@ -93,7 +93,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internal
             //var session = new SessionDelegate(true, MockRepository.DynamicMock<ISession>(), _localSession);
             //var session = new SessionDelegate(true, new Mock<ISession>().Object, _localSession);
             //_localSession.Store("default", session);
-            if (_localSession.Value != null)
+            if (_localSession.Value is not null)
             {
                 throw new Exception("What?");
             }

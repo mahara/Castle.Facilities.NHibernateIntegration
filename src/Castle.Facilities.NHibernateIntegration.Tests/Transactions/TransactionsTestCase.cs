@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.MicroKernel.Registration;
 
 using NHibernate;
@@ -126,43 +124,42 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             ITransaction currentTransaction;
 
-            using (var session = manager.OpenSession())
+            using var session = manager.OpenSession();
+
+            currentTransaction = session.GetCurrentTransaction();
+
+            Assert.That(currentTransaction, Is.Null);
+
+            var firstDaoService = Container.Resolve<FirstDao>("myfirstdao");
+            var secondDaoService = Container.Resolve<SecondDao>("myseconddao");
+
+            // This call is transactional.
+            var blog = firstDaoService.Create();
+
+            // TODO: Assert transaction was committed.
+            // Assert.That(currentTransaction.WasCommitted);
+
+            try
             {
-                currentTransaction = session.GetCurrentTransaction();
-
-                Assert.That(currentTransaction, Is.Null);
-
-                var firstDaoService = Container.Resolve<FirstDao>("myfirstdao");
-                var secondDaoService = Container.Resolve<SecondDao>("myseconddao");
-
-                // This call is transactional.
-                var blog = firstDaoService.Create();
-
-                // TODO: Assert transaction was committed.
-                // Assert.That(currentTransaction.WasCommitted);
-
-                try
-                {
-                    secondDaoService.CreateWithException2(blog);
-                }
-                catch (Exception)
-                {
-                    // Expected.
-                }
-
-                // TODO: Assert transaction was rolled back.
-                // Assert.That(currentTransaction.WasRolledBack);
-
-                var service = Container.Resolve<RootService>();
-
-                var blogs = service.FindAll<Blog>();
-
-                Assert.That(blogs, Has.Count.EqualTo(1));
-
-                var blogItems = service.FindAll<BlogItem>();
-
-                Assert.That(blogItems, Is.Empty);
+                secondDaoService.CreateWithException2(blog);
             }
+            catch (Exception)
+            {
+                // Expected.
+            }
+
+            // TODO: Assert transaction was rolled back.
+            // Assert.That(currentTransaction.WasRolledBack);
+
+            var service = Container.Resolve<RootService>();
+
+            var blogs = service.FindAll<Blog>();
+
+            Assert.That(blogs, Has.Count.EqualTo(1));
+
+            var blogItems = service.FindAll<BlogItem>();
+
+            Assert.That(blogItems, Is.Empty);
         }
 
         [Test]
@@ -333,43 +330,42 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             ITransaction currentTransaction;
 
-            using (var session = manager.OpenStatelessSession())
+            using var session = manager.OpenStatelessSession();
+
+            currentTransaction = session.GetCurrentTransaction();
+
+            Assert.That(currentTransaction, Is.Null);
+
+            var firstDaoService = Container.Resolve<FirstDao>("myfirstdao");
+            var secondDaoService = Container.Resolve<SecondDao>("myseconddao");
+
+            // This call is transactional.
+            var blog = firstDaoService.CreateStateless();
+
+            // TODO: Assert transaction was committed.
+            // Assert.That(currentTransaction.WasCommitted);
+
+            try
             {
-                currentTransaction = session.GetCurrentTransaction();
-
-                Assert.That(currentTransaction, Is.Null);
-
-                var firstDaoService = Container.Resolve<FirstDao>("myfirstdao");
-                var secondDaoService = Container.Resolve<SecondDao>("myseconddao");
-
-                // This call is transactional.
-                var blog = firstDaoService.CreateStateless();
-
-                // TODO: Assert transaction was committed.
-                // Assert.That(currentTransaction.WasCommitted);
-
-                try
-                {
-                    secondDaoService.CreateWithExceptionStateless2(blog);
-                }
-                catch (Exception)
-                {
-                    // Expected.
-                }
-
-                // TODO: Assert transaction was rolled back.
-                // Assert.That(currentTransaction.WasRolledBack);
-
-                var service = Container.Resolve<RootService>();
-
-                var blogs = service.FindAllStateless<Blog>();
-
-                Assert.That(blogs, Has.Count.EqualTo(1));
-
-                var blogItems = service.FindAllStateless<BlogItem>();
-
-                Assert.That(blogItems, Is.Empty);
+                secondDaoService.CreateWithExceptionStateless2(blog);
             }
+            catch (Exception)
+            {
+                // Expected.
+            }
+
+            // TODO: Assert transaction was rolled back.
+            // Assert.That(currentTransaction.WasRolledBack);
+
+            var service = Container.Resolve<RootService>();
+
+            var blogs = service.FindAllStateless<Blog>();
+
+            Assert.That(blogs, Has.Count.EqualTo(1));
+
+            var blogItems = service.FindAllStateless<BlogItem>();
+
+            Assert.That(blogItems, Is.Empty);
         }
 
         [Test]
