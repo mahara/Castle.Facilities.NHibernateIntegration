@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-
 using NHibernate.Cfg;
 
 namespace Castle.Facilities.NHibernateIntegration

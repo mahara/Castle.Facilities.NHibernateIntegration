@@ -14,11 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
@@ -93,7 +88,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             //var session = new SessionDelegate(true, MockRepository.DynamicMock<ISession>(), _localSession);
             //var session = new SessionDelegate(true, new Mock<ISession>().Object, _localSession);
             //_localSession.Store("default", session);
-            if (_localSession.Value != null)
+            if (_localSession.Value is not null)
             {
                 throw new Exception("What?");
             }
