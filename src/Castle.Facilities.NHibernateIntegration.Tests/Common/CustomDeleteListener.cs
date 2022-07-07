@@ -14,10 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using NHibernate.Event;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common

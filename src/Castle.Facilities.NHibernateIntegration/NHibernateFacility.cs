@@ -14,10 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 
 using Castle.Core.Configuration;
 using Castle.Core.Logging;
@@ -366,7 +363,7 @@ namespace Castle.Facilities.NHibernateIntegration
             }
 
             var facilityConfiguration = FacilityConfig.Children[Constants.SessionFactory_ConfigurationElementName];
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 var message = $"You need to configure at least one '{nameof(ISessionFactory)}' to use the '{nameof(NHibernateFacility)}'.";
                 throw new ConfigurationErrorsException(message);
@@ -522,14 +519,14 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private bool ConfigurationIsValid()
         {
-            return _configuration != null &&
+            return _configuration is not null &&
                    _configuration.Children.Count > 0;
         }
 
         public bool IsValid()
         {
-            return _configuration != null ||
-                   _configurationBuilder != null || _configurationBuilderType != null;
+            return _configuration is not null ||
+                   _configurationBuilder is not null || _configurationBuilderType is not null;
         }
 
         public bool HasValidSessionFactoryConfiguration()
@@ -539,12 +536,12 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public bool HasConcreteConfigurationBuilder()
         {
-            return _configurationBuilder != null && !HasConfigurationBuilderType();
+            return _configurationBuilder is not null && !HasConfigurationBuilderType();
         }
 
         public bool HasConfigurationBuilderType()
         {
-            return _configurationBuilderType != null;
+            return _configurationBuilderType is not null;
         }
 
         public Type GetConfigurationBuilderType()
@@ -554,7 +551,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public bool GetUseReflectionOptimizerValue()
         {
-            if (_configuration != null)
+            if (_configuration is not null)
             {
                 if (bool.TryParse(_configuration.Attributes[Constants.UseReflectionOptimizer_ConfigurationElementAttributeName], out var value))
                 {
@@ -581,7 +578,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 sessionStoreType = DefaultWebSessionStoreType;
             }
 
-            if (_sessionStoreType != null)
+            if (_sessionStoreType is not null)
             {
                 sessionStoreType = _sessionStoreType;
             }
