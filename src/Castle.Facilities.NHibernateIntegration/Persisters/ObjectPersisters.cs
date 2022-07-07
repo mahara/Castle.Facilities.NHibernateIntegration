@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.IO;
-
 using NHibernate.Util;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
@@ -86,15 +84,12 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
             FileAccess fileAccess = FileAccess.Read,
             FileShare fileShare = FileShare.Read)
         {
-            using (var fileStream = new FileStream(filePath, fileMode, fileAccess, fileShare))
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    fileStream.CopyTo(memoryStream);
+            using var fileStream = new FileStream(filePath, fileMode, fileAccess, fileShare);
+            using var memoryStream = new MemoryStream();
 
-                    return (T) SerializationHelper.Deserialize(memoryStream.ToArray());
-                }
-            }
+            fileStream.CopyTo(memoryStream);
+
+            return (T) SerializationHelper.Deserialize(memoryStream.ToArray());
         }
 
         /// <inheritdoc />
@@ -107,10 +102,9 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         {
             var buffer = SerializationHelper.Serialize(@object);
 
-            using (var fileStream = new FileStream(filePath, fileMode, fileAccess, fileShare))
-            {
-                fileStream.Write(buffer, 0, buffer.Length);
-            }
+            using var fileStream = new FileStream(filePath, fileMode, fileAccess, fileShare);
+
+            fileStream.Write(buffer, 0, buffer.Length);
         }
     }
 }

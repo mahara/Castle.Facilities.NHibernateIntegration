@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 
 using Castle.Services.Transaction;
