@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
@@ -41,14 +38,14 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             lock (_sessionLock)
             {
-                if (alias == null)
+                if (alias is null)
                 {
                     throw new ArgumentNullException(nameof(alias));
                 }
 
                 var dictionary = GetSessionDictionary();
 
-                if (dictionary == null)
+                if (dictionary is null)
                 {
                     dictionary = new Dictionary<string, Stack<SessionDelegate>>(StringComparer.OrdinalIgnoreCase);
 
@@ -58,7 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                 Stack<SessionDelegate> stack;
 
                 var stackIsFound = dictionary.TryGetValue(alias, out stack);
-                if (!stackIsFound || (stackIsFound && stack == null))
+                if (!stackIsFound || (stackIsFound && stack is null))
                 {
                     stack = new Stack<SessionDelegate>();
 
@@ -85,14 +82,14 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             lock (_statelessSessionLock)
             {
-                if (alias == null)
+                if (alias is null)
                 {
                     throw new ArgumentNullException(nameof(alias));
                 }
 
                 var dictionary = GetStatelessSessionDictionary();
 
-                if (dictionary == null)
+                if (dictionary is null)
                 {
                     dictionary = new Dictionary<string, Stack<StatelessSessionDelegate>>();
 
@@ -102,7 +99,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                 Stack<StatelessSessionDelegate> stack;
 
                 var stackIsFound = dictionary.TryGetValue(alias, out stack);
-                if (!stackIsFound || (stackIsFound && stack == null))
+                if (!stackIsFound || (stackIsFound && stack is null))
                 {
                     stack = new Stack<StatelessSessionDelegate>();
 
