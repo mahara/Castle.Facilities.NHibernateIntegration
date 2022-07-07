@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 using Castle.Facilities.NHibernateIntegration.Utilities;
 
 using NHibernate;
@@ -76,29 +73,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var sessionCriteria = session.CreateCriteria<T>();
+
+                if (firstRow != int.MinValue)
                 {
-                    var sessionCriteria = session.CreateCriteria<T>();
-
-                    if (firstRow != int.MinValue)
-                    {
-                        sessionCriteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        sessionCriteria.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) sessionCriteria.List<T>();
+                    sessionCriteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    sessionCriteria.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) sessionCriteria.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -106,85 +102,80 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    return session.Load<T>(id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Load<T>(id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public virtual object Create(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    return session.Save(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(Create)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Save(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(Create)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public virtual void Save(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    session.SaveOrUpdate(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(Save)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.SaveOrUpdate(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(Save)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public virtual void Update(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(Update)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Update(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(Update)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public virtual void Delete(object instance)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(Delete)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(Delete)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -192,17 +183,16 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    session.Delete($"from {type.Name}");
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete($"from {type.Name}");
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -215,29 +205,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var criteria = session.CreateCriteria<T>();
+
+                if (firstRow != int.MinValue)
                 {
-                    var criteria = session.CreateCriteria<T>();
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) criteria.List<T>();
+                    criteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    criteria.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) criteria.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -245,69 +234,65 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    return session.Get<T>(id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Get<T>(id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public object CreateStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    return session.Insert(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(CreateStateless)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Insert(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(CreateStateless)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public void UpdateStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    session.Update(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(UpdateStateless)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Update(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(UpdateStateless)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public void DeleteStateless(object instance)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    session.Delete(instance);
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(DeleteStateless)}' for '{instance.GetType().Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete(instance);
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(DeleteStateless)}' for '{instance.GetType().Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -315,17 +300,16 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    session.Delete($"from {type.Name}");
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete($"from {type.Name}");
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -340,72 +324,69 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAll(Type type, int firstRow, int maxRows)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (firstRow != int.MinValue)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    criteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    criteria.SetMaxResults(maxRows);
                 }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         [Obsolete("Use generic method overloads instead.")]
         public virtual object FindById(Type type, object id)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    return session.Load(type, id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Load(type, id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindById)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         [Obsolete("Use generic method overloads instead.")]
         public virtual void DeleteAll(Type type)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
-                {
-                    session.Delete($"from {type.Name}");
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete($"from {type.Name}");
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(DeleteAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -418,72 +399,69 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllStateless(Type type, int firstRow, int maxRows)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var criteria = session.CreateCriteria(type);
+
+                if (firstRow != int.MinValue)
                 {
-                    var criteria = session.CreateCriteria(type);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        criteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        criteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = criteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    criteria.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    criteria.SetMaxResults(maxRows);
                 }
+
+                var result = criteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         [Obsolete("Use generic method overloads instead.")]
         public object FindByIdStateless(Type type, object id)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    return session.Get(type.FullName, id);
-                }
-                catch (ObjectNotFoundException)
-                {
-                    throw;
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                return session.Get(type.FullName, id);
+            }
+            catch (ObjectNotFoundException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindByIdStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
         [Obsolete("Use generic method overloads instead.")]
         public void DeleteAllStateless(Type type)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
-                {
-                    session.Delete($"from {type.Name}");
-                }
-                catch (Exception ex)
-                {
-                    var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
-                }
+                session.Delete($"from {type.Name}");
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(DeleteAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -510,45 +488,44 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var sessionCriteria = session.CreateCriteria<T>();
+
+                if (criteria is not null)
                 {
-                    var sessionCriteria = session.CreateCriteria<T>();
-
-                    if (criteria != null)
+                    foreach (var criterion in criteria)
                     {
-                        foreach (var criterion in criteria)
-                        {
-                            sessionCriteria.Add(criterion);
-                        }
+                        sessionCriteria.Add(criterion);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            sessionCriteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        sessionCriteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        sessionCriteria.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) sessionCriteria.List<T>();
                 }
-                catch (Exception ex)
+
+                if (sortItems is not null)
                 {
-                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    foreach (var order in sortItems)
+                    {
+                        sessionCriteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    sessionCriteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    sessionCriteria.SetMaxResults(maxRows);
+                }
+
+                return (List<T>) sessionCriteria.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -564,29 +541,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) query.List<T>();
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) query.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -602,30 +578,29 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery) ??
+                            throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.GetNamedQuery(namedQuery) ??
-                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) query.List<T>();
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) query.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -648,45 +623,44 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
             var type = typeof(T);
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var sessionCriteria = session.CreateCriteria<T>();
+
+                if (criteria is not null)
                 {
-                    var sessionCriteria = session.CreateCriteria<T>();
-
-                    if (criteria != null)
+                    foreach (var criterion in criteria)
                     {
-                        foreach (var criterion in criteria)
-                        {
-                            sessionCriteria.Add(criterion);
-                        }
+                        sessionCriteria.Add(criterion);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            sessionCriteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        sessionCriteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        sessionCriteria.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) sessionCriteria.List<T>();
                 }
-                catch (Exception ex)
+
+                if (sortItems is not null)
                 {
-                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    foreach (var order in sortItems)
+                    {
+                        sessionCriteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    sessionCriteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    sessionCriteria.SetMaxResults(maxRows);
+                }
+
+                return (List<T>) sessionCriteria.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -702,29 +676,28 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) query.List<T>();
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) query.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -740,51 +713,49 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery) ??
+                            throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.GetNamedQuery(namedQuery) ??
-                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    return (List<T>) query.List<T>();
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                return (List<T>) query.List<T>();
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
+                throw new DataException(message, ex);
             }
         }
 
         public void InitializeLazyProperties(object instance)
         {
-            if (instance == null)
+            if (instance is null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            foreach (var value in ReflectionUtility.GetPropertiesDictionary(instance).Values)
             {
-                foreach (var value in ReflectionUtility.GetPropertiesDictionary(instance).Values)
+                if (value is INHibernateProxy || value is IPersistentCollection)
                 {
-                    if (value is INHibernateProxy || value is IPersistentCollection)
+                    if (!NHibernateUtil.IsInitialized(value))
                     {
-                        if (!NHibernateUtil.IsInitialized(value))
-                        {
-                            session.Lock(instance, LockMode.None);
-                            NHibernateUtil.Initialize(value);
-                        }
+                        session.Lock(instance, LockMode.None);
+                        NHibernateUtil.Initialize(value);
                     }
                 }
             }
@@ -792,7 +763,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
         public void InitializeLazyProperty(object instance, string propertyName)
         {
-            if (instance == null)
+            if (instance is null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
@@ -809,15 +780,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                     $"Property '{propertyName}' doest not exist for type '{instance.GetType()}'.");
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            if (propertyValue is INHibernateProxy || propertyValue is IPersistentCollection)
             {
-                if (propertyValue is INHibernateProxy || propertyValue is IPersistentCollection)
+                if (!NHibernateUtil.IsInitialized(propertyValue))
                 {
-                    if (!NHibernateUtil.IsInitialized(propertyValue))
-                    {
-                        session.Lock(instance, LockMode.None);
-                        NHibernateUtil.Initialize(propertyValue);
-                    }
+                    session.Lock(instance, LockMode.None);
+                    NHibernateUtil.Initialize(propertyValue);
                 }
             }
         }
@@ -845,50 +815,49 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAll(Type type, ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows)
         {
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var sessionCriteria = session.CreateCriteria(type);
+
+                if (criteria is not null)
                 {
-                    var sessionCriteria = session.CreateCriteria(type);
-
-                    if (criteria != null)
+                    foreach (var criterion in criteria)
                     {
-                        foreach (var criterion in criteria)
-                        {
-                            sessionCriteria.Add(criterion);
-                        }
+                        sessionCriteria.Add(criterion);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            sessionCriteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        sessionCriteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        sessionCriteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = sessionCriteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
                 }
-                catch (Exception ex)
+
+                if (sortItems is not null)
                 {
-                    var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    foreach (var order in sortItems)
+                    {
+                        sessionCriteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    sessionCriteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    sessionCriteria.SetMaxResults(maxRows);
+                }
+
+                var result = sessionCriteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAll)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -906,38 +875,37 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result is null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithCustomQuery)}' for custom query: '{queryString}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -955,39 +923,38 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
 
-            using (var session = GetSession())
+            using var session = GetSession();
+
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery) ??
+                            throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.GetNamedQuery(namedQuery) ??
-                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result is null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithNamedQuery)}' for named query: '{namedQuery}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -1012,50 +979,49 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         [Obsolete("Use generic method overloads instead.")]
         public virtual Array FindAllStateless(Type type, ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows)
         {
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var sessionCriteria = session.CreateCriteria(type);
+
+                if (criteria is not null)
                 {
-                    var sessionCriteria = session.CreateCriteria(type);
-
-                    if (criteria != null)
+                    foreach (var criterion in criteria)
                     {
-                        foreach (var criterion in criteria)
-                        {
-                            sessionCriteria.Add(criterion);
-                        }
+                        sessionCriteria.Add(criterion);
                     }
-
-                    if (sortItems != null)
-                    {
-                        foreach (var order in sortItems)
-                        {
-                            sessionCriteria.AddOrder(order);
-                        }
-                    }
-
-                    if (firstRow != int.MinValue)
-                    {
-                        sessionCriteria.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        sessionCriteria.SetMaxResults(maxRows);
-                    }
-
-                    var result = sessionCriteria.List();
-
-                    var array = Array.CreateInstance(type, result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
                 }
-                catch (Exception ex)
+
+                if (sortItems is not null)
                 {
-                    var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
-                    throw new DataException(message, ex);
+                    foreach (var order in sortItems)
+                    {
+                        sessionCriteria.AddOrder(order);
+                    }
                 }
+
+                if (firstRow != int.MinValue)
+                {
+                    sessionCriteria.SetFirstResult(firstRow);
+                }
+
+                if (maxRows != int.MinValue)
+                {
+                    sessionCriteria.SetMaxResults(maxRows);
+                }
+
+                var result = sessionCriteria.List();
+
+                var array = Array.CreateInstance(type, result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllStateless)}' for '{type.Name}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -1073,38 +1039,37 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var query = session.CreateQuery(queryString);
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.CreateQuery(queryString);
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result is null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithCustomQueryStateless)}': '{queryString}'.";
+                throw new DataException(message, ex);
             }
         }
 
@@ -1122,39 +1087,38 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
 
-            using (var session = GetStatelessSession())
+            using var session = GetStatelessSession();
+
+            try
             {
-                try
+                var query = session.GetNamedQuery(namedQuery) ??
+                            throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
+
+                if (firstRow != int.MinValue)
                 {
-                    var query = session.GetNamedQuery(namedQuery) ??
-                                throw new ArgumentException("Cannot find named query.", nameof(namedQuery));
-
-                    if (firstRow != int.MinValue)
-                    {
-                        query.SetFirstResult(firstRow);
-                    }
-
-                    if (maxRows != int.MinValue)
-                    {
-                        query.SetMaxResults(maxRows);
-                    }
-
-                    var result = query.List();
-                    if (result == null || result.Count == 0)
-                    {
-                        return null;
-                    }
-
-                    var array = Array.CreateInstance(result[0].GetType(), result.Count);
-                    result.CopyTo(array, 0);
-
-                    return array;
+                    query.SetFirstResult(firstRow);
                 }
-                catch (Exception ex)
+
+                if (maxRows != int.MinValue)
                 {
-                    var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
-                    throw new DataException(message, ex);
+                    query.SetMaxResults(maxRows);
                 }
+
+                var result = query.List();
+                if (result is null || result.Count == 0)
+                {
+                    return null;
+                }
+
+                var array = Array.CreateInstance(result[0].GetType(), result.Count);
+                result.CopyTo(array, 0);
+
+                return array;
+            }
+            catch (Exception ex)
+            {
+                var message = $"Could not perform '{nameof(FindAllWithNamedQueryStateless)}': '{namedQuery}'.";
+                throw new DataException(message, ex);
             }
         }
 
