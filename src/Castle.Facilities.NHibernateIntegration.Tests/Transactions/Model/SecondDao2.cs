@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     public class SecondDao2
@@ -29,38 +27,36 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
         public BlogItem Create(Blog blog)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+
+            var blogItem = new BlogItem
             {
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                session.Save(blogItem);
+            session.Save(blogItem);
 
-                return blogItem;
-            }
+            return blogItem;
         }
 
         public BlogItem CreateStateless(Blog blog)
         {
-            using (var session = _sessionManager.OpenStatelessSession())
+            using var session = _sessionManager.OpenStatelessSession();
+
+            var blogItem = new BlogItem
             {
-                var blogItem = new BlogItem
-                {
-                    ParentBlog = blog,
-                    Title = "splinter cell is cool!",
-                    Text = "x",
-                    DateTime = DateTimeOffset.Now,
-                };
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTimeOffset.Now,
+            };
 
-                session.Insert(blogItem);
+            session.Insert(blogItem);
 
-                return blogItem;
-            }
+            return blogItem;
         }
     }
 }

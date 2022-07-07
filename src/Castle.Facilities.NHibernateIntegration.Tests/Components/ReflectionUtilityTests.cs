@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 using Castle.Facilities.NHibernateIntegration.Utilities;
 
 using NUnit.Framework;
@@ -59,6 +56,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             Assert.That(ReflectionUtility.IsSimpleType(typeof(double)));
             Assert.That(ReflectionUtility.IsSimpleType(typeof(DateTimeOffset)));
             Assert.That(ReflectionUtility.IsSimpleType(typeof(DateTime)));
+#if NET6_0_OR_GREATER
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(DateOnly)));
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(TimeOnly)));
+#endif
             Assert.That(ReflectionUtility.IsSimpleType(typeof(MyEnum)));
         }
     }

@@ -14,14 +14,10 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 using NHibernate;
 using NHibernate.Engine;

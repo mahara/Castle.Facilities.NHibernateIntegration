@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-
 using Castle.MicroKernel;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
@@ -33,42 +31,38 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
         public List<Blog> FindAllBlogs()
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
-            }
+            using var session = _sessionManager.OpenSession();
+
+            return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
         }
 
         public List<Blog> FindAllBlogsStateless()
         {
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+
+            return (List<Blog>) session.CreateQuery($"from {nameof(Blog)}").List<Blog>();
         }
 
         public Blog CreateBlog(string name)
         {
-            using (var session = _sessionManager.OpenSession())
+            using var session = _sessionManager.OpenSession();
+
+            var blog = new Blog
             {
-                var blog = new Blog
-                {
-                    Name = name,
-                    Items = new List<BlogItem>(),
-                };
+                Name = name,
+                Items = new List<BlogItem>(),
+            };
 
-                session.Save(blog);
+            session.Save(blog);
 
-                return blog;
-            }
+            return blog;
         }
 
         public void DeleteAllBlogs()
         {
-            using (var session = _sessionManager.OpenSession())
-            {
-                session.Delete($"from {nameof(Blog)}");
-            }
+            using var session = _sessionManager.OpenSession();
+
+            session.Delete($"from {nameof(Blog)}");
         }
     }
 }

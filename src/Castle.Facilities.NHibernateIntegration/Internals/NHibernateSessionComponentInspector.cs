@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Linq;
 using System.Reflection;
 
 using Castle.Core;

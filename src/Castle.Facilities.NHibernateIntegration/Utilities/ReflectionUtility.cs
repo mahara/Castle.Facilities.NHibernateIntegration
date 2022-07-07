@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 
 namespace Castle.Facilities.NHibernateIntegration.Utilities
@@ -60,6 +58,9 @@ namespace Castle.Facilities.NHibernateIntegration.Utilities
             return type == typeof(string) ||
                    type.IsPrimitive ||
                    type == typeof(DateTimeOffset) || type == typeof(DateTime) ||
+#if NET6_0_OR_GREATER
+                   type == typeof(DateOnly) || type == typeof(TimeOnly) ||
+#endif
                    type.IsEnum;
         }
     }

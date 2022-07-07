@@ -14,31 +14,24 @@
 // limitations under the License.
 #endregion
 
-using System.Runtime.Serialization;
+#if NET
+using NUnit.Framework;
+#endif
 
-namespace Castle.Facilities.NHibernateIntegration.Components.Dao
+namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    /// <summary>
-    /// </summary>
-    /// <remarks>
-    /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
-    /// </remarks>
-    [Serializable]
-    public class DataException : Exception
+    internal class TestHelper
     {
-        public DataException(string message) :
-            base(message)
+        public static void AssertApplicationConfigurationFileExists()
         {
-        }
+#if NET
+            var configurationFilePath = System.Configuration.ConfigurationManager.OpenExeConfiguration(System.Configuration.ConfigurationUserLevel.None).FilePath;
+            var configurationFileName = Path.GetFileName(configurationFilePath);
 
-        public DataException(string message, Exception innerException) :
-            base(message, innerException)
-        {
-        }
-
-        protected DataException(SerializationInfo info, StreamingContext context) :
-            base(info, context)
-        {
+            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
+                                                        "testhost.x86.dll.config")
+                                                 .IgnoreCase);
+#endif
         }
     }
 }
