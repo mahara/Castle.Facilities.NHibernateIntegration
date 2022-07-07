@@ -14,10 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 
 using Castle.Core.Configuration;
 using Castle.Core.Logging;
@@ -108,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="nHibernateFacilityConfiguration"></param>
         internal NHibernateFacility(INHibernateFacilityConfiguration nHibernateFacilityConfiguration)
         {
-            if (nHibernateFacilityConfiguration == null)
+            if (nHibernateFacilityConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(nHibernateFacilityConfiguration));
             }
@@ -518,7 +515,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public NHibernateFacilityConfiguration(IConfigurationBuilder configurationBuilder)
         {
-            if (configurationBuilder == null)
+            if (configurationBuilder is null)
             {
                 throw new ArgumentNullException(nameof(configurationBuilder));
             }
@@ -601,19 +598,19 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private bool HasFacilityConfiguration()
         {
-            return _facilityConfiguration != null &&
+            return _facilityConfiguration is not null &&
                    _facilityConfiguration.Children.Count > 0;
         }
 
         public bool HasConfigurationBuilderOrConfigurationBuilderType()
         {
             return HasFacilityConfiguration() ||
-                   _configurationBuilder != null || _configurationBuilderType != null;
+                   _configurationBuilder is not null || _configurationBuilderType is not null;
         }
 
         public bool HasConfigurationBuilderOnly()
         {
-            return _configurationBuilder != null && !HasConfigurationBuilderType();
+            return _configurationBuilder is not null && !HasConfigurationBuilderType();
         }
 
         public IConfigurationBuilder GetConfigurationBuilder()
@@ -628,7 +625,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public bool HasConfigurationBuilderType()
         {
-            return _configurationBuilderType != null;
+            return _configurationBuilderType is not null;
         }
 
         public Type GetConfigurationBuilderType()
@@ -657,7 +654,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 sessionStoreType = NHibernateFacility.DefaultWebSessionStoreType;
             }
 
-            if (_sessionStoreType != null)
+            if (_sessionStoreType is not null)
             {
                 sessionStoreType = _sessionStoreType;
             }
@@ -701,11 +698,11 @@ namespace Castle.Facilities.NHibernateIntegration
             //
             var sessionFactoriesNode = _facilityConfiguration.Children[Constants.SessionFactories_ConfigurationElementName];
 
-            if (sessionFactoriesNode != null)
+            if (sessionFactoriesNode is not null)
             {
                 sessionFactoryNode = sessionFactoriesNode.Children[Constants.SessionFactory_ConfigurationElementName];
 
-                return sessionFactoryNode != null;
+                return sessionFactoryNode is not null;
             }
 
             //
@@ -713,7 +710,7 @@ namespace Castle.Facilities.NHibernateIntegration
             //
             sessionFactoryNode = _facilityConfiguration.Children[Constants.SessionFactory_ConfigurationElementName];
 
-            return sessionFactoryNode != null;
+            return sessionFactoryNode is not null;
         }
 
         public bool HasSessionFactoryConfigurations()
@@ -725,7 +722,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             var sessionFactoriesNode = _facilityConfiguration.Children[Constants.SessionFactories_ConfigurationElementName];
 
-            var sessionFactoryNodes = sessionFactoriesNode != null ?
+            var sessionFactoryNodes = sessionFactoriesNode is not null ?
                                       sessionFactoriesNode.Children :       // <sessionFactories><sessionFactory>...</sessionFactory></sessionFactories>
                                       _facilityConfiguration.Children;      // <sessionFactory>...</sessionFactory>
 
@@ -763,7 +760,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public NHibernateFacilitySessionFactoryConfiguration(CastleConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(facilityConfiguration));
             }
