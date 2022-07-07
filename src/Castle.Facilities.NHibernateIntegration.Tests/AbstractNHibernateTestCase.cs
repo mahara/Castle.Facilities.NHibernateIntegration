@@ -62,6 +62,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         [SetUp]
         public virtual void SetUp()
         {
+            TestHelper.AssertApplicationConfigurationFileExists();
+
             Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFilePath())));
 
             Container.AddFacility<AutoTxFacility>();

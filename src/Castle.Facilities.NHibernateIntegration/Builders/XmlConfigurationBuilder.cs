@@ -46,17 +46,14 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 throw new ConfigurationErrorsException(Message);
             }
 
-            using (var configurationResource = new FileAssemblyResource(filePath))
-            {
-                using (var reader = XmlReader.Create(configurationResource.GetStreamReader()))
-                {
-                    var configuration = new NHibernateConfiguration();
+            using var configurationResource = new FileAssemblyResource(filePath);
+            using var reader = XmlReader.Create(configurationResource.GetStreamReader());
 
-                    configuration.Configure(reader);
+            var configuration = new NHibernateConfiguration();
 
-                    return configuration;
-                }
-            }
+            configuration.Configure(reader);
+
+            return configuration;
         }
     }
 }

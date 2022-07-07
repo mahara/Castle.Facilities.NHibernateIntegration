@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
-
 namespace Castle.Facilities.NHibernateIntegration.Utilities
 {
     public static class DictionaryExtensions

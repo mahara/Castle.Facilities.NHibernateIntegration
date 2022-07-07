@@ -33,44 +33,40 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
         {
             Assert.That(previousSession, Is.Not.Null);
 
-            using (var session = _sessionManager.OpenSession())
-            {
-                Assert.That(session, Is.Not.Null);
-                Assert.That(SessionDelegate.AreEqual(session, previousSession));
-            }
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session, Is.Not.Null);
+            Assert.That(SessionDelegate.AreEqual(session, previousSession));
         }
 
         public void PerformSimpleOperation2(ISession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
-            using (var session = _sessionManager.OpenSession())
-            {
-                Assert.That(session, Is.Not.Null);
-                Assert.That(ReferenceEquals(session, previousSession), Is.False);
-            }
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session, Is.Not.Null);
+            Assert.That(ReferenceEquals(session, previousSession), Is.False);
         }
 
         public void PerformSimpleOperationStateless1(IStatelessSession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                Assert.That(session, Is.Not.Null);
-                Assert.That(StatelessSessionDelegate.AreEqual(session, previousSession));
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session, Is.Not.Null);
+            Assert.That(StatelessSessionDelegate.AreEqual(session, previousSession));
         }
 
         public void PerformSimpleOperationStateless2(IStatelessSession previousSession)
         {
             Assert.That(previousSession, Is.Not.Null);
 
-            using (var session = _sessionManager.OpenStatelessSession())
-            {
-                Assert.That(session, Is.Not.Null);
-                Assert.That(ReferenceEquals(session, previousSession), Is.False);
-            }
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session, Is.Not.Null);
+            Assert.That(ReferenceEquals(session, previousSession), Is.False);
         }
     }
 }
