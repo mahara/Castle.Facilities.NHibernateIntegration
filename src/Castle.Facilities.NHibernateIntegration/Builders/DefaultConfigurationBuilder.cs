@@ -14,9 +14,7 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Configuration;
-using System.IO;
 using System.Reflection;
 
 using Castle.Core.Configuration;
@@ -53,7 +51,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
         protected static void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -74,7 +72,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
         protected static void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -84,7 +82,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 var name = item.Attributes["name"];
                 var assemblyName = item.Attributes["assembly"];
 
-                if (assemblyName != null)
+                if (assemblyName is not null)
                 {
                     configuration.AddResource(name, LoadAssembly(assemblyName));
                 }
@@ -102,7 +100,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
         protected static void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }
@@ -133,7 +131,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
         protected static void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
         {
-            if (facilityConfiguration == null)
+            if (facilityConfiguration is null)
             {
                 return;
             }

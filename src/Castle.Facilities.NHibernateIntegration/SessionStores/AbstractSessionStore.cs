@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-
 using NHibernate;
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
@@ -60,7 +57,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             var stack = (Stack<SessionDelegate>) session.SessionStoreCookie;
 
-            if (stack == null)
+            if (stack is null)
             {
                 var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' called with no cookie - no pun intended.";
                 throw new InvalidProgramException(message);
@@ -113,7 +110,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         {
             var stack = (Stack<StatelessSessionDelegate>) session.SessionStoreCookie;
 
-            if (stack == null)
+            if (stack is null)
             {
                 var message = $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' called with no cookie - no pun intended.";
                 throw new InvalidProgramException(message);
