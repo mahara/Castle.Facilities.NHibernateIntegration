@@ -93,7 +93,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
 
         private static IWindsorContainer GetContainer()
         {
-            if (!(HttpContext.Current.ApplicationInstance is IContainerAccessor containerAccessor))
+            if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
             {
                 var message = $"You must derive from '{nameof(HttpApplication)}' in your web project " +
                               $"and implement '{nameof(IContainerAccessor)}' to properly expose your container instance.";
@@ -102,7 +102,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
 
             var container = containerAccessor.Container;
 
-            if (container == null)
+            if (container is null)
             {
                 var message = $"The container is unavailable in your '{nameof(HttpApplication)}' subclass.";
                 throw new FacilityException(message);

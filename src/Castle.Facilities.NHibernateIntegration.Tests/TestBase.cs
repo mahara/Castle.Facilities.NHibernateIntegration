@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.IO;
-
 using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
