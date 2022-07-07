@@ -14,7 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using Castle.Core.Configuration;
@@ -101,7 +100,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             List<string> list = new();
 
             var assemblies = facilityConfiguration.Children[Constants.SessionFactory_Assemblies_ConfigurationElementName];
-            if (assemblies != null)
+            if (assemblies is not null)
             {
                 foreach (var assembly in assemblies.Children)
                 {
@@ -110,7 +109,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             }
 
             var dependsOn = facilityConfiguration.Children[Constants.SessionFactory_DependsOn_ConfigurationElementName];
-            if (dependsOn != null)
+            if (dependsOn is not null)
             {
                 foreach (var fileName in dependsOn.Children)
                 {
