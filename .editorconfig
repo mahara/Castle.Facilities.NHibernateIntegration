@@ -10,13 +10,12 @@ root = true
 indent_style = space
 end_of_line = crlf
 trim_trailing_whitespace = true
-charset = utf-8
+charset = utf-8-bom
 
 # XML project files
 [*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
 indent_size = 2
 tab_width = 2
-charset = utf-8-bom
 
 # XML config files
 [*.{props,targets,ruleset,config,nuspec,resx,vsixmanifest,vsct}]
@@ -31,7 +30,6 @@ tab_width = 2
 [*.{cs,csx,vb,vbx}]
 indent_size = 4
 tab_width = 4
-charset = utf-8-bom
 
 dotnet_sort_system_directives_first = true
 
