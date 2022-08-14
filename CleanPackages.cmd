@@ -15,16 +15,33 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-SET PACKAGES_FOLDER=build
-SET NEV_BIN_FOLDER=".\tools\Explicit.NuGet.Versions\bin"
-SET NEV_OBJ_FOLDER=".\tools\Explicit.NuGet.Versions\obj"
+ECHO.
 
-dotnet clean --configuration Debug
-dotnet clean --configuration Release
-IF EXIST %PACKAGES_FOLDER% RMDIR %PACKAGES_FOLDER% /S /Q
+SET "PACKAGES_FOLDER_PATH=.\build"
+SET "NEV_BIN_FOLDER_PATH=.\tools\Explicit.NuGet.Versions\bin"
+SET "NEV_OBJ_FOLDER_PATH=.\tools\Explicit.NuGet.Versions\obj"
 
-IF EXIST %NEV_BIN_FOLDER% RMDIR %NEV_BIN_FOLDER% /S /Q
-IF EXIST %NEV_OBJ_FOLDER% RMDIR %NEV_OBJ_FOLDER% /S /Q
+dotnet clean %1 --configuration Debug
+dotnet clean %1 --configuration Release
+
+IF EXIST %PACKAGES_FOLDER_PATH% (
+    ECHO Deleting "%PACKAGES_FOLDER_PATH%" folder...
+
+    RMDIR %PACKAGES_FOLDER_PATH% /S /Q
+)
+
+IF EXIST %NEV_BIN_FOLDER_PATH% (
+    ECHO Deleting "%NEV_BIN_FOLDER_PATH%" folder...
+
+    RMDIR %NEV_BIN_FOLDER_PATH% /S /Q
+)
+IF EXIST %NEV_OBJ_FOLDER_PATH% (
+    ECHO Deleting "%NEV_OBJ_FOLDER_PATH%" folder...
+
+    RMDIR %NEV_OBJ_FOLDER_PATH% /S /Q
+)
+
+ECHO.
 
 
 

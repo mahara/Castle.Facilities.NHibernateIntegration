@@ -8,8 +8,8 @@
 # Files that will always have CRLF line endings on checkout.
 *.sln       text eol=crlf
 *.csproj    text eol=crlf
-*.targets   text eol=crlf
 *.props     text eol=crlf
+*.targets   text eol=crlf
 *.proj      text eol=crlf
 *.config    text eol=crlf
 *.json      text eol=crlf

@@ -1,4 +1,4 @@
-﻿namespace Castle.Facilities.NHibernateIntegration.Persisters
+namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
     using System;
     using System.IO;
@@ -8,6 +8,9 @@
 
     using Newtonsoft.Json;
 
+    //
+    // TODO: Make IObjectPersister<Configuration> working in .NET 6.0 and beyond.
+    //
     public class ObjectPersisterFactory
     {
         public static IObjectPersister<T> Create<T>()
