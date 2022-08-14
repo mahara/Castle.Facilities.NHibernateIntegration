@@ -40,21 +40,21 @@ jobs:
       # -----
 
       - name: Restore NuGet Packages
-        run: dotnet restore
+        run: dotnet restore ".\Castle.Facilities.NHibernateIntegration.sln"
 
       - name: Build All Targets
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release --no-restore
 
       # ----
       # Test
       # ----
 
       - name: Test on .NET 6.0
-        run: dotnet test --configuration Release --framework net6.0 --no-build --logger "console;verbosity=detailed"
+        run: dotnet test ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net6.0 --no-build --logger "console;verbosity=detailed"
 
       - name: Test on .NET Framework 4.8 (Windows only)
         if: matrix.os == 'windows-latest'
-        run: dotnet test --configuration Release --framework net48 --no-build --logger "console;verbosity=detailed"
+        run: dotnet test ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net48 --no-build --logger "console;verbosity=detailed"
 
       - name: Test on .NET Framework 4.8 using Mono (Linux only)
         if: matrix.os == 'ubuntu-latest'

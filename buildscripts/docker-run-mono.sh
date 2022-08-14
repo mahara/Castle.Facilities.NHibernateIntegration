@@ -1,3 +1,4 @@
+#!/bin/bash
 # ****************************************************************************
 # Copyright 2004-2022 Castle Project - https://www.castleproject.org/
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,9 +15,8 @@
 # ****************************************************************************
 
 
-#!/bin/bash
-
 set -e
+
 MONO_TAG=${MONO_TAG:-6.0.0.334}
 docker run --rm -v "$PWD":'/project' -w='/project' mono:$MONO_TAG mono "$@"
 
