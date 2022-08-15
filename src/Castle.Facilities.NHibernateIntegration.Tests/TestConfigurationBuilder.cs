@@ -17,10 +17,13 @@
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
     using System.Configuration;
+    using System.IO;
 
     using Builders;
 
     using Core.Configuration;
+
+    using NUnit.Framework;
 
     using Configuration = NHibernate.Cfg.Configuration;
 
@@ -37,11 +40,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         {
             var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
 
-            //#if NET
-            //            var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
-            //            var configurationFileName = Path.GetFileName(configurationFilePath);
-            //            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config", "testhost.x86.dll.config"));
-            //#endif
+#if NET
+            var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
+            var configurationFileName = Path.GetFileName(configurationFilePath);
+            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config", "testhost.x86.dll.config"));
+#endif
 
             configuration.Properties["dialect"] =
                 ConfigurationManager.AppSettings["nhf.dialect"];
