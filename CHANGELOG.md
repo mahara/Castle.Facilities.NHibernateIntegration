@@ -1,7 +1,10 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.3.0 (2022-07-xx)
+## 5.3.0 (2022-08-xx)
+
+Improvements:
+- Added support for **`appsettings.json`** (`Microsoft.Extensions.Configuration`).
 
 Breaking Changes:
 - Upgraded to **`.NET 6.0`** and **`.NET Framework 4.8`**.
