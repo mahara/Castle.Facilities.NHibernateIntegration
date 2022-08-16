@@ -14,4 +14,4 @@ But due to NHibernate's features, you can change the database server to any of y
 1. Create two databases on the database server, e.g.: **`test`** and **`test2`**.
 
 2. Modify the database connection properties in **`Castle.Facilities.NHibernateIntegration.Tests`** project to use the databases created.
-   See **`App.config`** and all **`**\facility.xml`** files for full details.
+   See **`App.config`**, all **`**\appsettings.json`**, and all **`**\facility.xml`** files for full details.
