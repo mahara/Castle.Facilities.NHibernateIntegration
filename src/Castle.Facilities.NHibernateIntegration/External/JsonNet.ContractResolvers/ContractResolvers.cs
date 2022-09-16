@@ -9,7 +9,7 @@ namespace JsonNet.ContractResolvers
     using Newtonsoft.Json.Serialization;
 
     /// <summary>
-    /// Extends <see cref="DefaultContractResolver"/> with support for private setters.
+    /// Extends <see cref="DefaultContractResolver" /> with support for private setters.
     /// </summary>
     internal class PrivateSetterContractResolver : DefaultContractResolver
     {
@@ -20,7 +20,7 @@ namespace JsonNet.ContractResolvers
     }
 
     /// <summary>
-    /// Extends <see cref="CamelCasePropertyNamesContractResolver"/> with support for private setters.
+    /// Extends <see cref="CamelCasePropertyNamesContractResolver" /> with support for private setters.
     /// </summary>
     internal class PrivateSetterCamelCasePropertyNamesContractResolver : CamelCasePropertyNamesContractResolver
     {
@@ -31,7 +31,7 @@ namespace JsonNet.ContractResolvers
     }
 
     /// <summary>
-    /// Extends <see cref="DefaultContractResolver"/> with support for private setters and private constructors.
+    /// Extends <see cref="DefaultContractResolver" /> with support for private setters and private constructors.
     /// </summary>
     internal class PrivateSetterAndCtorContractResolver : DefaultContractResolver
     {
@@ -47,7 +47,7 @@ namespace JsonNet.ContractResolvers
     }
 
     /// <summary>
-    /// Extends <see cref="CamelCasePropertyNamesContractResolver"/> with support for private setters and private constructors.
+    /// Extends <see cref="CamelCasePropertyNamesContractResolver" /> with support for private setters and private constructors.
     /// </summary>
     internal class PrivateSetterAndCtorCamelCasePropertyNamesContractResolver : CamelCasePropertyNamesContractResolver
     {

@@ -65,7 +65,7 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <summary>
-        /// The default <see cref="ISession"/> flush mode.
+        /// The default <see cref="ISession" /> flush mode.
         /// </summary>
         public FlushMode DefaultFlushMode { get; set; } =
             FlushMode.Auto;
