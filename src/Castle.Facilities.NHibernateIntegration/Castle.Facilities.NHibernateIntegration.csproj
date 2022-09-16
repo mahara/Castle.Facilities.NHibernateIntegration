@@ -7,26 +7,30 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>Castle.Facilities.NHibernateIntegration</PackageId>
-    <Title>Castle.Facilities.NHibernateIntegration</Title>
-    <Description>Castle.Facilities.NHibernateIntegration</Description>
-    <PackageTags>castle, nhibernate, nhibernateintegration</PackageTags>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- remove once tools are truly ready for NuGet's new 'license' element -->
     <NoWarn>$(NoWarn);NU5125</NoWarn>
+
     <AssemblyName>Castle.Facilities.NHibernateIntegration</AssemblyName>
     <RootNamespace>Castle.Facilities.NHibernateIntegration</RootNamespace>
+
+    <Title>Castle.Facilities.NHibernateIntegration</Title>
+    <Description>Castle.Facilities.NHibernateIntegration</Description>
+
+    <PackageId>Castle.Facilities.NHibernateIntegration</PackageId>
+    <PackageTags>castle, nhibernate, nhibernateintegration</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Castle.Services.Transaction" Version="5.3.0" />
     <PackageReference Include="Castle.Windsor" Version="5.1.2" />
-    <PackageReference Include="Iesi.Collections" Version="4.0.4" />
+    <PackageReference Include="JsonNet.ContractResolvers" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NHibernate" Version="5.3.12" />
-    <PackageReference Include="System.Text.Json" Version="6.0.5" />
+    <PackageReference Include="NHibernate" Version="5.3.13" />
+    <PackageReference Include="StrongNamer" Version="0.2.5" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />

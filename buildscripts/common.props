@@ -55,7 +55,7 @@
     <!--
       https://andrewlock.net/using-reference-assemblies-to-build-net-framework-libararies-on-linux-without-mono/
     -->
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
