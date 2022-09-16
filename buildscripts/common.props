@@ -1,7 +1,7 @@
 <Project>
 
   <PropertyGroup>
-    <EnableNETAnalyzers>True</EnableNETAnalyzers>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <RepositoryType>git</RepositoryType>
@@ -11,9 +11,8 @@
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>../../buildscripts/CastleKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,10 +24,9 @@
     <Authors>Castle Project Contributors</Authors>
     <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
-    <!-- <PackageIconUrl>https://www.castleproject.org/img/facilities_nhibernateintegration-logo.png</PackageIconUrl> -->
     <PackageIcon>facilities_nhibernateintegration-logo.png</PackageIcon>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageOutputPath>../../build/</PackageOutputPath>
+    <PackageOutputPath>..\..\build\</PackageOutputPath>
     <PackageVersion>$(BuildVersion)</PackageVersion>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
@@ -69,18 +67,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" />
+    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\CHANGELOG.md" />
-    <Content Include="..\..\LICENSE" Pack="True" PackagePath="" />
-    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" />
-    <Content Include="..\..\buildscripts\readme.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="$(SolutionDir)docs\images\facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="" />
+    <Content Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
+    <Content Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
+    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
+    <Content Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
+    <Content Include="..\..\docs\images\facilities_nhibernateintegration-logo.png" Link="Properties\facilities_nhibernateintegration-logo.png" Pack="true" />
   </ItemGroup>
 
 </Project>
