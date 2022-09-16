@@ -26,10 +26,8 @@
     <PackageReference Include="Castle.Core" Version="4.4.1" />
     <PackageReference Include="Castle.Services.Transaction" Version="5.3.0" />
     <PackageReference Include="Castle.Windsor" Version="5.1.2" />
-    <PackageReference Include="JsonNet.ContractResolvers" Version="2.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NHibernate" Version="5.3.13" />
-    <PackageReference Include="StrongNamer" Version="0.2.5" />
     <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">

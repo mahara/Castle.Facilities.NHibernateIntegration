@@ -28,7 +28,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     public class SessionManagerTestCase : AbstractNHibernateTestCase
     {
         protected override string ConfigurationFile =>
-            "Internals/TwoDatabaseConfiguration.xml";
+            "Internal/TwoDatabaseConfiguration.xml";
 
         [Test]
         public void InterceptedSessionByConfiguration()
@@ -64,7 +64,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         /// (not disposing it at the end of the transaction).
         /// </summary>
         [Test]
-        // [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
         public void NewTransactionAfterUsingSession()
         {
             var manager = Container.Resolve<ISessionManager>();
@@ -174,7 +173,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         /// and disposes it at the end of the transaction.
         /// </summary>
         [Test]
-        // [Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
         public void NewTransactionBeforeUsingSession()
         {
             var manager = Container.Resolve<ISessionManager>();
@@ -204,7 +202,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         /// This test ensures that the transaction enlists the sessions of both database connections.
         /// </summary>
         [Test]
-        //[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
         public void NewTransactionBeforeUsingSessionWithTwoDatabases()
         {
             var manager = Container.Resolve<ISessionManager>();
@@ -349,7 +346,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         /// in actual transaction for second database session.
         /// </summary>
         [Test]
-        //[Ignore("This doesn't work with the NH 1.2 transaction property, needs to be fixed.")]
         public void SecondDatabaseSessionEnlistedOnlyOnceInActualTransaction()
         {
             var manager = Container.Resolve<ISessionManager>();

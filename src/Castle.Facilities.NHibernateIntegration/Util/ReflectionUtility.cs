@@ -58,10 +58,11 @@ namespace Castle.Facilities.NHibernateIntegration.Util
         /// </summary>
         public static bool IsSimpleType(Type type)
         {
-            if (type == typeof(string)
-                || type.IsPrimitive
-                || type == typeof(DateTime) || type == typeof(DateTimeOffset)
-                || type.IsEnum)
+            if (type == typeof(string) ||
+                type.IsPrimitive ||
+                type == typeof(DateTime) ||
+                type == typeof(DateTimeOffset) ||
+                type.IsEnum)
             {
                 return true;
             }

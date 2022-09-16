@@ -39,8 +39,8 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         public SessionFactoryActivator(ComponentModel model,
                                        IKernelInternal kernel,
                                        ComponentInstanceDelegate onCreation,
-                                       ComponentInstanceDelegate onDestruction)
-            : base(model, kernel, onCreation, onDestruction)
+                                       ComponentInstanceDelegate onDestruction) :
+            base(model, kernel, onCreation, onDestruction)
         {
         }
 

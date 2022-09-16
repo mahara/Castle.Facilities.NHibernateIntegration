@@ -51,8 +51,8 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// Initializes the persistent <see cref="Configuration" /> builder
         /// using the default <see cref="IConfigurationPersister" />
         /// </summary>
-        public PersistentConfigurationBuilder()
-            : this(new DefaultConfigurationPersister())
+        public PersistentConfigurationBuilder() :
+            this(new DefaultConfigurationPersister())
         {
         }
 

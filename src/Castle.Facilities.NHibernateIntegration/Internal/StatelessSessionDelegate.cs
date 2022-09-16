@@ -132,8 +132,8 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <returns></returns>
         public static bool AreEqual(IStatelessSession left, IStatelessSession right)
         {
-            if (left is StatelessSessionDelegate ssdLeft
-                && right is StatelessSessionDelegate ssdRight)
+            if (left is StatelessSessionDelegate ssdLeft &&
+                right is StatelessSessionDelegate ssdRight)
             {
                 return ReferenceEquals(ssdLeft.InnerSession, ssdRight.InnerSession);
             }

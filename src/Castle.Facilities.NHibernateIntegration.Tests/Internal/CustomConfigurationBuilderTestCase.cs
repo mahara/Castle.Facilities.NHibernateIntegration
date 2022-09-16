@@ -58,8 +58,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
     public class CustomNHibernateFacility : NHibernateFacility
     {
-        public CustomNHibernateFacility()
-            : base(new CustomConfigurationBuilder())
+        public CustomNHibernateFacility() :
+            base(new CustomConfigurationBuilder())
         {
         }
     }

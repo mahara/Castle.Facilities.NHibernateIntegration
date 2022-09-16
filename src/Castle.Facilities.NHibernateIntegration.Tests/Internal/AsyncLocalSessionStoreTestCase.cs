@@ -31,7 +31,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         private readonly AutoResetEvent _event = new(false);
 
         protected override string ConfigurationFile =>
-            "Internals/AsyncLocalSessionStoreConfiguration.xml";
+            "Internal/AsyncLocalSessionStoreConfiguration.xml";
 
         [Test]
         public void ShouldUseAsyncLocalSessionStore()

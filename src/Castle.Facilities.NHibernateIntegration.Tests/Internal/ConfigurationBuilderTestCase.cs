@@ -26,7 +26,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
     public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
     {
         protected override string ConfigurationFile =>
-            "Internals/TwoDatabaseConfiguration.xml";
+            "Internal/TwoDatabaseConfiguration.xml";
 
         [Test]
         public void SaveUpdateListenerAdded()

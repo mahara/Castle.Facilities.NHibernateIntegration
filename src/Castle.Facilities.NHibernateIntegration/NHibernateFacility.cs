@@ -580,9 +580,9 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public bool IsValid()
         {
-            return _facilityConfiguration != null
-                || _configurationBuilder != null
-                || _configurationBuilderType != null;
+            return _facilityConfiguration != null ||
+                   _configurationBuilder != null ||
+                   _configurationBuilderType != null;
         }
 
         public bool HasValidFactory()

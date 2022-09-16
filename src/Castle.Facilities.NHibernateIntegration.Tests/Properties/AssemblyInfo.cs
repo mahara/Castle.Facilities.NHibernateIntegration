@@ -14,15 +14,5 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common
-{
-    using NHibernateIntegration.Components.Dao;
 
-    public class BlogItemDao : NHibernateGenericDao
-    {
-        public BlogItemDao(ISessionManager sessionManager) :
-            base(sessionManager)
-        {
-        }
-    }
-}
+

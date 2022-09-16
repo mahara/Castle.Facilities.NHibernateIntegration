@@ -140,8 +140,8 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <returns></returns>
         public static bool AreEqual(ISession left, ISession right)
         {
-            if (left is SessionDelegate sdLeft
-                && right is SessionDelegate sdRight)
+            if (left is SessionDelegate sdLeft &&
+                right is SessionDelegate sdRight)
             {
                 return ReferenceEquals(sdLeft.InnerSession, sdRight.InnerSession);
             }
