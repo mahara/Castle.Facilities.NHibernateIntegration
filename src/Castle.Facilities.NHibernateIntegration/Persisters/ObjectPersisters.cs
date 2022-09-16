@@ -6,6 +6,8 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     using System.Runtime.Serialization.Formatters.Binary;
 #endif
 
+    using JsonNet.ContractResolvers;
+
     using Newtonsoft.Json;
 
     //
@@ -64,6 +66,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         {
             _serializer = new JsonSerializer
             {
+                ContractResolver = new PrivateSetterContractResolver(),
                 PreserveReferencesHandling = PreserveReferencesHandling.All,
                 TypeNameHandling = TypeNameHandling.All,
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,

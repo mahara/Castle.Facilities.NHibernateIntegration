@@ -170,7 +170,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly.
             if (Array.Exists(referencedAssemblies,
-                             (AssemblyName x) => x.Name.Equals(NHibernateMappingAttributesAssemblyName)))
+                             (AssemblyName x) => string.Equals(x.Name, NHibernateMappingAttributesAssemblyName, StringComparison.Ordinal)))
             {
                 // Obtains, by reflection, the necessary tools to generate NHibernate mapping from attributes.
                 var hbmSerializerType =

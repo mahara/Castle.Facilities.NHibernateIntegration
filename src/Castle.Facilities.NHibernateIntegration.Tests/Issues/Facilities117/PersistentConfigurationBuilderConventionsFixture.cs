@@ -16,6 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
 {
+    using System;
     using System.Collections.Generic;
 
     using Builders;
@@ -54,7 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
                 .Setup(x =>
-                       x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat")), It.IsAny<IList<string>>()))
+                       x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)), It.IsAny<IList<string>>()))
                 .Returns(false)
                 .Verifiable();
 
