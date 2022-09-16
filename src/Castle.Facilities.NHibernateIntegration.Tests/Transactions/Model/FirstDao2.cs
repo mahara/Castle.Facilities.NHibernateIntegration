@@ -49,7 +49,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         [Transaction]
         public virtual Blog CreateStateless()
         {
-            return Create("Xbox Blog");
+            return CreateStateless("Xbox Blog");
         }
 
         [Transaction]

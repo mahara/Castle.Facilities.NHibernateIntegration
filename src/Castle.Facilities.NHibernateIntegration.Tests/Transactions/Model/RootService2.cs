@@ -28,8 +28,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         private readonly FirstDao2 _firstDao;
         private readonly SecondDao2 _secondDao;
 
-        public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessionManager)
-            : base(sessionManager)
+        public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessionManager) :
+            base(sessionManager)
         {
             _firstDao = firstDao;
             _secondDao = secondDao;

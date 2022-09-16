@@ -16,7 +16,9 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
+#if NETFRAMEWORK
     using System;
+    using System.Transactions;
 
     using MicroKernel.Registration;
 
@@ -51,10 +53,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null
-                    && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
+                if (ex.InnerException != null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
                 {
-                    Assert.Ignore("MTS is not available");
+                    Assert.Ignore("MTS is not available.");
                 }
 
                 throw;
@@ -122,10 +124,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             }
             catch (Exception ex)
             {
-                if (ex.InnerException != null
-                    && ex.InnerException.GetType().Name == "TransactionManagerCommunicationException")
+                if (ex.InnerException != null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
                 {
-                    Assert.Ignore("MTS is not available");
+                    Assert.Ignore("MTS is not available.");
                 }
 
                 throw;
@@ -145,8 +147,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
         [Test]
         [Explicit("Requires MSDTC to be running.")]
-        [Ignore("TODO: Fix failed test.")]
-        // System.Data.SqlClient.SqlException : Distributed transaction completed. Either enlist this session in a new transaction or the NULL transaction.
         public void ExceptionOnEndWithTwoDatabasesStateless()
         {
             var service = Container.Resolve<RootService2>();
@@ -154,7 +154,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 
             try
             {
-                //service.TwoDbOperationCreate(true);
                 service.TwoDbOperationCreateStateless(true);
             }
             catch (InvalidOperationException)
@@ -183,4 +182,5 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(orders.Length, Is.EqualTo(0));
         }
     }
+#endif
 }
