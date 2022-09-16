@@ -1,7 +1,7 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.3.0 (2022-07-xx)
+## 5.3.0 (2022-09-17)
 
 Breaking Changes:
 - Upgraded to **`.NET 6.0`** and **`.NET Framework 4.8`**.
