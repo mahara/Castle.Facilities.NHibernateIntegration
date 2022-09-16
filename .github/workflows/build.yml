@@ -36,7 +36,7 @@ jobs:
 
       - name: Build All Target Frameworks
         run: |
-          dotnet build ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release
+          dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration Release
 
       # --------
       # Test
@@ -44,12 +44,12 @@ jobs:
 
       - name: Run .NET (net6.0) Unit Tests
         run: |
-          dotnet test ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net6.0 --no-build --logger "console;verbosity=detailed"
+          dotnet test "Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net6.0 --no-build --logger "console;verbosity=detailed"
 
       - name: Run .NET Framework (net48) Unit Tests (Windows only)
         if: matrix.os == 'windows-latest'
         run: |
-          dotnet test ".\Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net48 --no-build --logger "console;verbosity=detailed"
+          dotnet test "Castle.Facilities.NHibernateIntegration.sln" --configuration Release --framework net48 --no-build --logger "console;verbosity=detailed"
 
       - name: Run .NET Framework (net48) Unit Tests on Mono (Linux only)
         if: matrix.os == 'ubuntu-latest'

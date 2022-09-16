@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- remove once tools are truly ready for NuGet's new 'license' element -->
-    <NoWarn>$(NoWarn);NU5125</NoWarn>
-
     <AssemblyName>Castle.Facilities.NHibernateIntegration</AssemblyName>
     <RootNamespace>Castle.Facilities.NHibernateIntegration</RootNamespace>
 

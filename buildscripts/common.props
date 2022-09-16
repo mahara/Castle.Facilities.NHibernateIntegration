@@ -1,7 +1,6 @@
 <Project>
 
   <PropertyGroup>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <RepositoryType>git</RepositoryType>
@@ -10,6 +9,7 @@
     <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)' != ''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -17,23 +17,30 @@
 
   <PropertyGroup>
     <Product>Castle.Facilities.NHibernateIntegration</Product>
-    <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
-    <VersionPrefix>$(BuildVersion)</VersionPrefix>
-    <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
-    <AssemblyTitle>Castle.Facilities.NHibernateIntegration</AssemblyTitle>
     <Authors>Castle Project Contributors</Authors>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
-    <PackageIcon>facilities_nhibernateintegration-logo.png</PackageIcon>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageOutputPath>..\..\build\</PackageOutputPath>
-    <PackageVersion>$(BuildVersion)</PackageVersion>
-    <IncludeSymbols>true</IncludeSymbols>
-    <IncludeSource>false</IncludeSource>
     <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
     <Copyright>Copyright 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+    <VersionPrefix>$(BuildVersion)</VersionPrefix>
+    <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
+    <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
+    <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+    <PackageVersion>$(BuildVersion)</PackageVersion>
+    <PackageOutputPath>..\..\build\</PackageOutputPath>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
     <ContentTargetFolders>.</ContentTargetFolders>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
+    <Content Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
+    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
+    <Content Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
+    <Content Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" />
+  </ItemGroup>
 
   <PropertyGroup>
     <DiagnosticsConstants>DEBUG</DiagnosticsConstants>
@@ -63,19 +70,12 @@
       https://github.com/dotnet/sdk/issues/19521
     -->
     <Reference Include="System.Net.Http" />
+
     <PackageReference Include="IndexRange" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
-    <Content Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
-    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
-    <Content Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
-    <Content Include="..\..\docs\images\facilities_nhibernateintegration-logo.png" Link="Properties\facilities_nhibernateintegration-logo.png" Pack="true" />
   </ItemGroup>
 
 </Project>

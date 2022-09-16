@@ -27,14 +27,16 @@ SET BUILD_CONFIGURATION=Release
 GOTO build
 
 :build
-dotnet build ".\Castle.Facilities.NHibernateIntegration.sln" --configuration %BUILD_CONFIGURATION% || EXIT /B 1
+dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration %BUILD_CONFIGURATION% || EXIT /B 1
 
-dotnet build ".\tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release || EXIT /B 1
-".\tools\Explicit.NuGet.Versions\bin\nev.exe" ".\build" "Castle." || EXIT /B 1
+dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release || EXIT /B 1
+"tools\Explicit.NuGet.Versions\bin\nev.exe" "build" "Castle." || EXIT /B 1
 GOTO test
 
 :test
 
+REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test
+REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-vstest
 REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
 REM https://github.com/spekt/nunit.testlogger/issues/56
 
@@ -42,13 +44,13 @@ ECHO ------------------------------------
 ECHO Running .NET (net6.0) Unit Tests
 ECHO ------------------------------------
 
-dotnet test ".\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory ".\build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests-Net-TestResults.xml;format=nunit3" || EXIT /B 1
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || EXIT /B 1
 
 ECHO --------------------------------------------
 ECHO Running .NET Framework (net48) Unit Tests
 ECHO --------------------------------------------
 
-dotnet test ".\src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory ".\build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests-NetFramework-TestResults.xml;format=nunit3" || EXIT /B 1
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || EXIT /B 1
 
 
 

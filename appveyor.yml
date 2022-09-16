@@ -56,15 +56,15 @@ for:
   after_build:
   - ps: |
       $wc = New-Object System.Net.WebClient
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path ".\build\Release\Castle.Facilities.NHibernateIntegration.Tests-Net-TestResults.xml"))
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path ".\build\Release\Castle.Facilities.NHibernateIntegration.Tests-NetFramework-TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml"))
 
   # push packages to NuGet on tag builds
   on_success:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq "true")
       {
-          nuget push ".\build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+          nuget push "build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
       }
 
   # upload packages to AppVeyor

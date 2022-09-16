@@ -4,13 +4,12 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net48</TargetFrameworks>
+
+    <OutputType>Exe</OutputType>
+    <StartupObject>Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <StartupObject>Program</StartupObject>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-
     <AssemblyName>Castle.Facilities.NHibernateIntegration.Tests</AssemblyName>
     <RootNamespace>Castle.Facilities.NHibernateIntegration.Tests</RootNamespace>
 
@@ -50,13 +49,17 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
-    <None Include="config\net\App.config" Link="App.config" />
+    <None Include="config\net\App.config" Link="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Remove="config\netfx\App.config" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <None Remove="config\net\App.config" />
-    <None Include="config\netfx\App.config" Link="App.config" />
+    <None Include="config\netfx\App.config" Link="App.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
