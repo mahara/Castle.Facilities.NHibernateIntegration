@@ -46,8 +46,8 @@ ECHO ----------------------------------------------------
 
 dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration %BUILD_CONFIGURATION% -property:APPVEYOR_BUILD_VERSION=%BUILD_VERSION% || EXIT /B 1
 
-dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release || EXIT /B 1
-"tools\Explicit.NuGet.Versions\bin\nev.exe" "build" "Castle." || EXIT /B 1
+dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release
+"tools\Explicit.NuGet.Versions\bin\nev.exe" "build" "Castle."
 
 GOTO TEST
 
@@ -60,16 +60,22 @@ REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
 REM https://github.com/spekt/nunit.testlogger/issues/56
 
 ECHO ------------------------------------
+ECHO Running .NET (net7.0) Unit Tests
+ECHO ------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net7.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml;format=nunit3"
+
+ECHO ------------------------------------
 ECHO Running .NET (net6.0) Unit Tests
 ECHO ------------------------------------
 
-dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || EXIT /B 1
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3"
 
 ECHO --------------------------------------------
 ECHO Running .NET Framework (net48) Unit Tests
 ECHO --------------------------------------------
 
-dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || EXIT /B 1
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3"
 
 
 
