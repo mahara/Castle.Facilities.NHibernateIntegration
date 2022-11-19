@@ -10,7 +10,7 @@ log/
 obj/
 temp/
 .vs/
-
+.idea/
 
 *.suo
 *.user
@@ -19,10 +19,6 @@ temp/
 *.log
 *.cache
 Thumbs.db
-
-
-_ReSharper*/
-*.csproj.ReSharper
 
 
 
