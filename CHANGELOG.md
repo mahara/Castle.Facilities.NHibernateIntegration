@@ -1,5 +1,11 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
+## 5.3.1 (2022-11-20)
+
+Improvements:
+- Updated [System.Data.SqlClient] version to 4.8.5
+
+
 ## 5.3.0 (2022-09-17)
 
 Breaking Changes:
