@@ -1,5 +1,9 @@
 <Project>
 
+  <!--
+    PROPERTIES
+  -->
+
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
@@ -62,7 +66,7 @@
     -->
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="All" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <!--
@@ -77,5 +81,26 @@
   <ItemGroup>
     <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
   </ItemGroup>
+
+
+
+  <!--
+    TARGETS
+  -->
+
+  <Target Name="DeepCleanProjectAfterClean" AfterTargets="Clean">
+    <Message Text="Deep cleaning project '$(MSBuildProjectName)'..." />
+
+    <!--
+      https://stackoverflow.com/questions/1088593/how-to-clean-visual-studio-bin-and-obj-folders
+      https://stackoverflow.com/questions/755382/i-want-to-delete-all-bin-and-obj-folders-to-force-all-projects-to-rebuild-everyt
+    -->
+    <!-- bin -->
+    <RemoveDir Directories="$(ProjectDir)$(BaseOutputPath)" ContinueOnError="true" />
+
+    <!-- obj -->
+    <RemoveDir Directories="$(ProjectDir)$(BaseIntermediateOutputPath)" ContinueOnError="true" />
+
+  </Target>
 
 </Project>

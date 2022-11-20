@@ -3,7 +3,7 @@
   <Import Project="..\..\buildscripts\common.props"></Import>
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net48</TargetFrameworks>
+    <TargetFrameworks>net7.0;net6.0;net48</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <StartupObject>Program</StartupObject>
@@ -17,27 +17,30 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.4.1" />
-    <PackageReference Include="Castle.Facilities.AutoTx" Version="5.3.0" />
-    <PackageReference Include="Castle.LoggingFacility" Version="5.1.2" />
-    <PackageReference Include="Castle.Services.Transaction" Version="5.3.0" />
-    <PackageReference Include="Castle.Windsor" Version="5.1.2" />
-    <PackageReference Include="FluentAssertions" Version="6.7.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.3.1" />
+    <PackageReference Include="Castle.Core" Version="[4.4.1,5)" />
+    <PackageReference Include="Castle.Facilities.AutoTx" Version="[5.4.0,5.5)" />
+    <PackageReference Include="Castle.LoggingFacility" Version="[5.1.2,6)" />
+    <PackageReference Include="Castle.Services.Transaction" Version="[5.4.0,5.5)" />
+    <PackageReference Include="Castle.Windsor" Version="[5.1.2,6)" />
+    <PackageReference Include="FluentAssertions" Version="6.8.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
+    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" Version="17.4.0" />
     <PackageReference Include="Moq" Version="4.17.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="NHibernate" Version="5.3.13" />
+    <PackageReference Include="NHibernate" Version="5.3.14" />
     <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.5.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
     <PackageReference Include="NUnitLite" Version="3.13.3" />
     <PackageReference Include="NunitXml.TestLogger" Version="3.0.127" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.1" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-    <PackageReference Include="System.Text.Json" Version="6.0.6" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="System.Text.Json" Version="7.0.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
@@ -48,16 +51,8 @@
     <ProjectReference Include="..\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'">
-    <None Include="config\net\App.config" Link="App.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Remove="config\netfx\App.config" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <None Remove="config\net\App.config" />
-    <None Include="config\netfx\App.config" Link="App.config">
+  <ItemGroup>
+    <None Include="App.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
@@ -74,12 +69,13 @@
     https://stackoverflow.com/questions/55541912/using-an-app-config-file-with-nunit3-in-a-net-core-console-app
   -->
   <Target Name="CopyConfigurationFiles" AfterTargets="AfterBuild">
+
     <!-- Command Line (dotnet test) -->
-    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
-    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
+    <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\testhost.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
+
     <!-- Visual Studio Test Explorer -->
-    <Copy SourceFiles="config\net\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
-    <Copy SourceFiles="config\netfx\App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'" />
+    <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\testhost.x86.dll.config" Condition="'$(TargetFrameworkIdentifier)' == '.NETCoreApp'" />
+
   </Target>
 
 </Project>
