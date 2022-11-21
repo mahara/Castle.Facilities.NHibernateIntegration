@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>$(ExeTargetFrameworks)</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
 
-    <OutputPath>build\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(ArtifactsFolderPath)tools\nev\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
 
     <AssemblyName>nev</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DotNetZip" Version="1.16.0" />
+    <PackageReference Include="DotNetZip" />
   </ItemGroup>
 
 </Project>

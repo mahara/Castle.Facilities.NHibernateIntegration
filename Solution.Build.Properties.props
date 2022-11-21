@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <BuildConfigurationFolderName>buildscripts</BuildConfigurationFolderName>
+    <SourceCodeFolderName>src</SourceCodeFolderName>
+    <ArtifactsFolderName>artifacts</ArtifactsFolderName>
+    <IntermediateOutputFolderName>obj</IntermediateOutputFolderName>
+    <OutputFolderName>bin</OutputFolderName>
+    <PackageOutputFolderName>packages</PackageOutputFolderName>
+  </PropertyGroup>
+
+</Project>
