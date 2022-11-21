@@ -1,0 +1,10 @@
+# Global AnalyzerConfig
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files
+# https://github.com/dotnet/roslyn/issues/47707
+is_global = true
+
+
+# Microsoft.CodeAnalysis.CSharp.Analyzers
+
+# https://github.com/dotnet/roslyn-analyzers/issues/6676
+#dotnet_diagnostic.RS1022.severity = none
