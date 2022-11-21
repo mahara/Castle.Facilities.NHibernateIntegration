@@ -1,27 +1,54 @@
 <Solution>
-  <Folder Name="/Castle Build/">
+  <Folder Name="/build/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
     <File Path=".gitignore" />
+    <File Path=".globalconfig" />
+    <File Path="Build.Properties.cmd" />
     <File Path="BuildPackages.cmd" />
     <File Path="Castle.Facilities.NHibernateIntegration.sln.licenseheader" />
-    <File Path="CHANGELOG.md" />
     <File Path="CleanPackages.cmd" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="nuget.config" />
+    <File Path="Project.Build.Properties.props" />
+    <File Path="Solution.Build.Properties.props" />
+  </Folder>
+  <Folder Name="/build/.github/" />
+  <Folder Name="/build/.github/workflows/">
+    <File Path=".github/workflows/build.yml" />
+  </Folder>
+  <Folder Name="/build/buildscripts/">
+    <File Path="buildscripts/ASL - Apache Software Foundation License.txt" />
+    <File Path="buildscripts/AssemblyInfo.Global.cs" />
+    <File Path="buildscripts/BuildPackages.cmd" />
+    <File Path="buildscripts/Project.Build.props" />
+    <File Path="buildscripts/Project.Build.References.props" />
+    <File Path="buildscripts/Project.Build.targets" />
+    <File Path="buildscripts/readme.txt" />
+    <File Path="buildscripts/Solution.Build.props" />
+    <File Path="buildscripts/Solution.Build.targets" />
+  </Folder>
+  <Folder Name="/build/src/">
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <File Path="src/Project.Build.References.props" />
+  </Folder>
+  <Folder Name="/doc/" />
+  <Folder Name="/doc/images/">
+    <File Path="docs/images/castle_facilities_nhibernateintegration-logo.png" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Castle.Facilities.NHibernateIntegration/Castle.Facilities.NHibernateIntegration.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="src/Castle.Facilities.NHibernateIntegration.Tests/Castle.Facilities.NHibernateIntegration.Tests.csproj" />
+  </Folder>
+  <Folder Name="/_/">
+    <File Path="CHANGELOG.md" />
     <File Path="CONTRIBUTING.md" />
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
-  <Folder Name="/Castle Build/.github/" />
-  <Folder Name="/Castle Build/.github/workflows/">
-    <File Path=".github/workflows/build.yml" />
-  </Folder>
-  <Folder Name="/Castle Build/buildscripts/">
-    <File Path="buildscripts/AssemblyInfo.Global.cs" />
-    <File Path="buildscripts/Build.props" />
-    <File Path="buildscripts/Build.References.props" />
-    <File Path="buildscripts/BuildPackages.cmd" />
-    <File Path="buildscripts/CastleKey.snk" />
-  </Folder>
-  <Project Path="src/Castle.Facilities.NHibernateIntegration.Tests/Castle.Facilities.NHibernateIntegration.Tests.csproj" />
-  <Project Path="src/Castle.Facilities.NHibernateIntegration/Castle.Facilities.NHibernateIntegration.csproj" />
 </Solution>
