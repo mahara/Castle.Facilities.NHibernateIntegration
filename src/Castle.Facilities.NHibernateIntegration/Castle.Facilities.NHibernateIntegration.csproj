@@ -1,8 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\buildscripts\Build.props"></Import>
-  <Import Project="..\..\buildscripts\Build.References.props"></Import>
-
   <PropertyGroup>
     <TargetFrameworks>$(LibTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
@@ -17,7 +14,7 @@
     <PackageId>Castle.Facilities.NHibernateIntegration</PackageId>
     <PackageDescription>Castle.Facilities.NHibernateIntegration</PackageDescription>
     <PackageTags>Castle; Facility; NHibernate; NHibernateIntegration</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +23,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net48'))">
+    <PackageReference Include="Nullable" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>
