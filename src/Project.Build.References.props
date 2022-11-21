@@ -1,0 +1,16 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" />
+    <PackageReference Include="Castle.Facilities.AutoTx" />
+    <PackageReference Include="Castle.Services.Transaction" />
+    <PackageReference Include="Castle.Windsor" />
+    <PackageReference Include="Iesi.Collections" />
+    <PackageReference Include="NHibernate" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net48'))">
+  </ItemGroup>
+
+</Project>
