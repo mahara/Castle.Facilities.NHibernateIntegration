@@ -1,8 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <Import Project="..\..\buildscripts\Build.props"></Import>
-  <Import Project="..\..\buildscripts\Build.References.props"></Import>
-
   <PropertyGroup>
     <TargetFrameworks>$(ExeTestTargetFrameworks)</TargetFrameworks>
 
@@ -18,25 +15,25 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.LoggingFacility" Version="5.1.2" />
-    <PackageReference Include="coverlet.collector" Version="3.1.2">
+    <PackageReference Include="Castle.LoggingFacility" />
+    <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="LiquidTestReports.Markdown" Version="1.0.9" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.3" />
-    <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="NUnit" Version="3.13.3" />
-    <PackageReference Include="NUnit.Analyzers" Version="3.3.0">
+    <PackageReference Include="LiquidTestReports.Markdown" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
-    <PackageReference Include="NUnitLite" Version="3.13.3" />
-    <PackageReference Include="NunitXml.TestLogger" Version="3.0.127" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NUnitLite" />
+    <PackageReference Include="NunitXml.TestLogger" />
+    <PackageReference Include="System.Data.SqlClient" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net6.0'">
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
   </ItemGroup>
@@ -56,7 +53,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="**\*.xml" Exclude="bin\**\*.xml;obj\**\*.xml">
+    <EmbeddedResource Include="**\*.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>

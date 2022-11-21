@@ -1,0 +1,28 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    TARGETS
+  -->
+
+  <Target Name="ProjectDisplayBuildPropertiesBeforeBuild" BeforeTargets="BeforeBuild">
+    <Message Text='$(MSBuildProjectName) ($(Configuration)\$(TargetFramework)):%0D%0A  WorkspaceFolderPath = "$(WorkspaceFolderPath)"%0D%0A  ArtifactsFolderPath = "$(ArtifactsFolderPath)"%0D%0A  IntermediateOutputBaseFolderPath = "$(IntermediateOutputBaseFolderPath)"%0D%0A  BaseIntermediateOutputPath = "$(BaseIntermediateOutputPath)"%0D%0A  MSBuildProjectExtensionsPath = "$(MSBuildProjectExtensionsPath)"%0D%0A  IntermediateOutputPath = "$(IntermediateOutputPath)"%0D%0A  OutputBaseFolderPath = "$(OutputBaseFolderPath)"%0D%0A  BaseOutputPath = "$(BaseOutputPath)"%0D%0A  OutputPath = "$(OutputPath)"%0D%0A  OutDir = "$(OutDir)"' Importance="high" />
+  </Target>
+
+  <Target Name="ProjectDeepCleanAfterClean" AfterTargets="AfterClean">
+    <Message Text="$(MSBuildProjectName): Starting project deep cleaning..." Importance="high" />
+
+    <!--
+      https://stackoverflow.com/questions/1088593/how-to-clean-visual-studio-bin-and-obj-folders
+      https://stackoverflow.com/questions/755382/i-want-to-delete-all-bin-and-obj-folders-to-force-all-projects-to-rebuild-everyt
+    -->
+
+    <!-- bin -->
+    <RemoveDir Directories="$(OutputBaseFolderPath)" ContinueOnError="true" />
+
+    <!-- obj -->
+    <RemoveDir Directories="$(IntermediateOutputBaseFolderPath)" ContinueOnError="true" />
+
+    <Message Text="$(MSBuildProjectName): Finished project deep cleaning." Importance="high" />
+  </Target>
+
+</Project>

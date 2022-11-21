@@ -1,0 +1,53 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <WinExeTargetFrameworks>net7.0-windows</WinExeTargetFrameworks>
+    <WinExeTestTargetFrameworks>net7.0-windows</WinExeTestTargetFrameworks>
+    <WinLibTargetFrameworks>net7.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net7.0</ExeTargetFrameworks>
+    <ExeTestTargetFrameworks>net7.0;net6.0;net48</ExeTestTargetFrameworks>
+    <LibTargetFrameworks>net7.0;net6.0;net48</LibTargetFrameworks>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+
+    <!--
+      CA2252: Opt in to preview features before using them
+      https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2252
+    -->
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ReportAnalyzer>true</ReportAnalyzer>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Castle.Facilities.NHibernateIntegration</Product>
+    <Authors>Castle Project Contributors</Authors>
+    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright>Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
+    <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(WorkspaceFolderPath)docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_services_transactions-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

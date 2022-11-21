@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
+      https://github.com/dotnet/msbuild/issues/2456
+      https://stackoverflow.com/questions/45974279/multi-level-merging-of-msbuild-directory-build-props-files
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)..\'))" />
+
+  <Import Project="$(BuildConfigurationFolderPath)Project.Build.targets" />
+
+</Project>

@@ -1,28 +1,53 @@
 @ECHO OFF
 
+REM https://stackoverflow.com/questions/15420004/write-batch-file-with-hyphenated-parameters
+REM https://superuser.com/questions/1505178/parsing-command-line-argument-in-batch-file
+REM https://ss64.com/nt/for.html
+REM https://ss64.com/nt/for_f.html
+REM https://stackoverflow.com/questions/2591758/batch-script-loop
+REM https://stackoverflow.com/questions/46576996/how-to-use-for-loop-to-get-set-variable-by-batch-file
+REM https://stackoverflow.com/questions/3294599/do-batch-files-support-multiline-variables
+
+
+IF NOT DEFINED ARTIFACTS_FOLDER_PATH EXIT /B 1
+
+
+SETLOCAL EnableDelayedExpansion
 
 SET BUILD_CONFIGURATION=Release
 SET BUILD_VERSION=1.0.0
+SET NO_TEST=
 
 
-:INITIALIZE_ARGUMENTS
+:PARSE_ARGS
 
-SET %1
-REM ECHO arg1 = %1
-SET %2
-REM ECHO arg2 = %2
+IF {%1} == {} GOTO SET_FOLDERS
+
+IF /I "%1" == "--configuration" (
+    SET "BUILD_CONFIGURATION=%2" & SHIFT
+)
+IF /I "%1" == "--version" (
+    SET "BUILD_VERSION=%2" & SHIFT
+)
+IF /I "%1" == "--no-test" (
+    SET NO_TEST=true
+)
+
+SHIFT
+
+GOTO PARSE_ARGS
 
 
-:SET_BUILD_CONFIGURATION
+:SET_FOLDERS
 
-IF "%configuration%"=="" GOTO SET_BUILD_VERSION
-SET BUILD_CONFIGURATION=%configuration%
+SET ARTIFACTS_OUTPUT_FOLDER_PATH=%ARTIFACTS_FOLDER_PATH%\%ARTIFACTS_OUTPUT_FOLDER_NAME%
+SET ARTIFACTS_OUTPUT_BUILD_CONFIGURATION_FOLDER_PATH=%ARTIFACTS_OUTPUT_FOLDER_PATH%\%BUILD_CONFIGURATION%
 
+SET ARTIFACTS_PACKAGES_FOLDER_PATH=%ARTIFACTS_FOLDER_PATH%\%ARTIFACTS_PACKAGES_FOLDER_NAME%\%BUILD_CONFIGURATION%
 
-:SET_BUILD_VERSION
+SET ARTIFACTS_TEST_RESULTS_FOLDER_PATH=%ARTIFACTS_FOLDER_PATH%\%ARTIFACTS_TEST_RESULTS_FOLDER_NAME%\%BUILD_CONFIGURATION%
 
-IF "%version%"=="" GOTO BUILD
-SET BUILD_VERSION=%version%
+GOTO BUILD
 
 
 :BUILD
@@ -33,8 +58,12 @@ ECHO ----------------------------------------------------
 
 dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration %BUILD_CONFIGURATION% -property:PACKAGE_BUILD_VERSION=%BUILD_VERSION% || EXIT /B 4
 
-dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release || EXIT /B 4
-"tools\Explicit.NuGet.Versions\build\nev.exe" "build" "Castle." || EXIT /B 4
+dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release
+SET NEV_COMMAND="%ARTIFACTS_FOLDER_PATH%\tools\nev\nev.exe" "%ARTIFACTS_PACKAGES_FOLDER_PATH%\" "Castle."
+ECHO %NEV_COMMAND%
+%NEV_COMMAND%
+
+IF DEFINED NO_TEST EXIT /B
 
 
 :TEST
@@ -44,14 +73,21 @@ REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-vstest
 REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
 REM https://github.com/spekt/nunit.testlogger/issues/56
 
-ECHO ------------------------------------
-ECHO Running .NET (net6.0) Unit Tests
-ECHO ------------------------------------
+SET PROJECT_NAMES=^
+    Castle.Facilities.NHibernateIntegration.Tests
 
-dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net6.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || EXIT /B 8
+SET TARGET_FRAMEWORKS=net7.0;net6.0;net48
 
-ECHO --------------------------------------------
-ECHO Running .NET Framework (net48) Unit Tests
-ECHO --------------------------------------------
+FOR %%G IN (%TARGET_FRAMEWORKS%) DO (
+    SET TARGET_FRAMEWORK=%%G
 
-dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || EXIT /B 8
+    ECHO ------------------------------------
+    ECHO Running .NET ^(!TARGET_FRAMEWORK!^) Unit Tests
+    ECHO ------------------------------------
+
+    FOR %%H IN (%PROJECT_NAMES%) DO (
+        SET PROJECT_NAME=%%H
+
+        dotnet test "src\!PROJECT_NAME!\!PROJECT_NAME!.csproj" --configuration %BUILD_CONFIGURATION% --framework !TARGET_FRAMEWORK! --no-build --no-restore --results-directory "%ARTIFACTS_TEST_RESULTS_FOLDER_PATH%" --logger "nunit;LogFileName=!PROJECT_NAME!_!TARGET_FRAMEWORK!_%BUILD_CONFIGURATION%_TestResults.xml;format=nunit3"
+    )
+)

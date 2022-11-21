@@ -1,0 +1,16 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <PackageReference Include="Castle.Core" />
+    <PackageReference Include="Castle.Facilities.AutoTx" />
+    <PackageReference Include="Castle.Services.Transaction" />
+    <PackageReference Include="Castle.Windsor" />
+    <PackageReference Include="Iesi.Collections" />
+    <PackageReference Include="NHibernate" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net6.0'">
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+  </ItemGroup>
+
+</Project>
