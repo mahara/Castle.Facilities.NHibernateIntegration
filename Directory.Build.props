@@ -1,0 +1,86 @@
+<Project>
+
+  <!--
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
+      https://github.com/dotnet/msbuild/issues/2456
+      https://stackoverflow.com/questions/45974279/multi-level-merging-of-msbuild-directory-build-props-files
+  -->
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <!--
+      BUILD ACCELERATION PROPERTIES
+    -->
+    <!--
+      https://github.com/dotnet/project-system/blob/main/docs/build-acceleration.md
+        https://devblogs.microsoft.com/visualstudio/vs-toolbox-accelerate-your-builds-of-sdk-style-net-projects/
+        https://github.com/dotnet/project-system/issues/9106
+    -->
+
+    <!-- Enable Build Acceleration in Visual Studio. -->
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+
+    <!--
+      If you target a framework earlier than .NET 5 (including .NET Framework and .NET Standard),
+      you should set ProduceReferenceAssembly to true in order to speed incremental builds.
+      If you multi-target and any target is before .NET 5, you need this.
+      Even if you target .NET 5 or later, having this property is fine.
+    -->
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+
+
+  <!--
+    WORKSPACE PROPERTIES
+  -->
+  <PropertyGroup>
+    <!--
+      WORKSPACE (OVERRIDABLE) PROPERTIES
+
+
+      NOTE:   SolutionDir and WorkspaceFolderPath must always be defined
+              in the Directory.Build.props file located alongside the solution files.
+
+              WorkspaceFolderPath represents the shared workspace context
+              for the current workspace build composition.
+              SolutionDir represents the current solution context within the workspace.
+
+              A workspace can act as either the host workspace that initiates
+              the current build composition or a participating workspace.
+
+    -->
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    <WorkspaceFolderPath Condition="'$(WorkspaceFolderPath)' == ''">$(SolutionDir)</WorkspaceFolderPath>
+
+    <!--
+      WORKSPACE (NON-OVERRIDABLE) PROPERTIES
+    -->
+    <SolutionBuildPropertiesFileName>Solution.Build.Properties.props</SolutionBuildPropertiesFileName>
+
+    <SolutionBuildPropertiesFilePath>$(WorkspaceFolderPath)$(SolutionBuildPropertiesFileName)</SolutionBuildPropertiesFilePath>
+  </PropertyGroup>
+
+
+
+  <!--
+    SOLUTION BUILD (USER-OVERRIDABLE) PROPERTIES
+  -->
+  <Import Project="$(SolutionBuildPropertiesFilePath)" Condition="Exists('$(SolutionBuildPropertiesFilePath)')" />
+
+  <!--
+    SOLUTION BUILD (DEFAULT) PROPERTIES
+  -->
+  <PropertyGroup>
+    <BuildConfigurationFolderName Condition="'$(BuildConfigurationFolderName)' == ''">build</BuildConfigurationFolderName>
+
+    <BuildConfigurationFolderPath Condition="'$(BuildConfigurationFolderPath)' == ''">$(WorkspaceFolderPath)$(BuildConfigurationFolderName)\</BuildConfigurationFolderPath>
+  </PropertyGroup>
+
+  <Import Project="$(BuildConfigurationFolderPath)Solution.Build.props" />
+
+</Project>
