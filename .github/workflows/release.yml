@@ -3,9 +3,10 @@
 # https://github.com/actions/upload-artifact
 
 
-name: Build
+name: Release
 
-on: [ push, pull_request ]
+on:
+  workflow_dispatch:
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -18,21 +19,15 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest]
         configuration: [Release]
-        framework: [net7.0, net6.0, net48]
-        exclude:
-          - os: ubuntu-latest
-            framework: net48
-          - os: macos-latest
-            framework: net48
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
 
     env:
-      TestResults_ArtifactName: TestResults_${{ matrix.os }}_${{ matrix.configuration }}_${{ matrix.framework }}
-      Packages_ArtifactName: Packages_${{ matrix.os }}_${{ matrix.configuration }}_${{ matrix.framework }}
+      TestResults_ArtifactName: TestResults_${{ matrix.os }}_${{ matrix.configuration }}
+      Packages_ArtifactName: Packages_${{ matrix.os }}_${{ matrix.configuration }}
 
     steps:
 
@@ -60,13 +55,13 @@ jobs:
 
       - name: Build, Test, and Package (PowerShell)
         run: |
-          & "$env:GITHUB_WORKSPACE/BuildPackages.ps1" --configuration "${{ matrix.configuration }}" --framework "${{ matrix.framework }}"
+          & "$env:GITHUB_WORKSPACE/BuildPackages.ps1" --configuration "${{ matrix.configuration }}"
           exit $LASTEXITCODE
         shell: pwsh
 
       # - name: Build, Test, and Package (Command Prompt)
       #   run: |
-      #     call "%GITHUB_WORKSPACE%/BuildPackages.cmd" --configuration "${{ matrix.configuration }}" --framework "${{ matrix.framework }}"
+      #     call "%GITHUB_WORKSPACE%/BuildPackages.cmd" --configuration "${{ matrix.configuration }}"
       #     if errorlevel 1 exit /b %errorlevel%
       #   shell: cmd
 

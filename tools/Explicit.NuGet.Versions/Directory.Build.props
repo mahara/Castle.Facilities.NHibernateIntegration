@@ -1,0 +1,54 @@
+<Project>
+
+  <!--
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
+      https://github.com/dotnet/msbuild/issues/2456
+      https://stackoverflow.com/questions/45974279/multi-level-merging-of-msbuild-directory-build-props-files
+  -->
+
+  <!--
+    PROPERTIES
+  -->
+
+  <!--
+    WORKSPACE PROPERTIES
+  -->
+  <PropertyGroup>
+    <!--
+      WORKSPACE (OVERRIDABLE) PROPERTIES
+
+
+      NOTE:   SolutionDir and WorkspaceFolderPath must always be defined
+              in the Directory.Build.props file located alongside the solution files.
+
+              WorkspaceFolderPath represents the shared workspace context
+              for the current workspace build composition.
+              SolutionDir represents the current solution context within the workspace.
+
+              A workspace can act as either the host workspace that initiates
+              the current build composition or a participating workspace.
+
+    -->
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
+    <WorkspaceFolderPath Condition="'$(WorkspaceFolderPath)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(SolutionDir)..\..\', 'Directory.Build.props'))</WorkspaceFolderPath>
+  </PropertyGroup>
+
+
+
+  <!--
+    WORKSPACE AND SOLUTION BUILD PROPERTIES
+  -->
+  <Import Project="$(WorkspaceFolderPath)Directory.Build.props" />
+
+
+
+  <!--
+    PROJECT BUILD PROPERTIES
+  -->
+  <Import Project="$(WorkspaceFolderPath)Project.Build.Properties.props" />
+  <Import Project="$(BuildConfigurationFolderPath)Project.Build.props" />
+  <Import Project="$(BuildConfigurationFolderPath)Project.Build.References.props" />
+  <Import Project="Project.Build.References.props" />
+
+</Project>
