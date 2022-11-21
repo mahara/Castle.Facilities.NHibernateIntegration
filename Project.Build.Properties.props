@@ -1,0 +1,48 @@
+<Project>
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <WinExeTargetFrameworks>net7.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks>net7.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks>net7.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net7.0</ExeTargetFrameworks>
+    <TestTargetFrameworks>net7.0;net6.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks>net7.0;net6.0;net48</LibTargetFrameworks>
+
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+
+    <!--
+      CA2252: Opt in to preview features before using them
+      https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2252
+    -->
+    <EnablePreviewFeatures>false</EnablePreviewFeatures>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
+
+    <ReportAnalyzer>true</ReportAnalyzer>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Castle.Facilities.NHibernateIntegration</Product>
+    <Authors>Castle Project Contributors</Authors>
+    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright>Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
+    <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(WorkspaceFolderPath)docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
