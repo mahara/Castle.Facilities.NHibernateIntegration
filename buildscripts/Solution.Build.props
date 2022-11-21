@@ -1,0 +1,230 @@
+<Project>
+
+  <!--
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/common-msbuild-project-properties
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-reserved-and-well-known-properties
+    https://learn.microsoft.com/en-us/cpp/build/reference/common-macros-for-build-commands-and-properties
+    https://learn.microsoft.com/en-us/dotnet/core/project-sdk/msbuild-props
+    https://learn.microsoft.com/en-us/dotnet/standard/frameworks
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-conditions
+    https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
+    https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
+    https://learn.microsoft.com/en-us/nuget/create-packages/package-authoring-best-practices
+    https://github.com/castleproject/Core/pull/616
+  -->
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <!--
+
+      NOTE:   How to move project artifacts out of project folder.
+              https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
+                https://github.com/dotnet/sdk/issues/867
+                https://github.com/dotnet/msbuild/issues/3497
+                https://github.com/dotnet/msbuild/issues/4881
+              https://github.com/dotnet/msbuild/issues/87
+                https://github.com/MicrosoftDocs/visualstudio-docs/pull/4608
+              https://github.com/OmniSharp/omnisharp-vscode/issues/4787
+              https://github.com/dotnet/project-system/issues/4737
+                https://github.com/dotnet/project-system/pull/5773
+              https://github.com/dotnet/msbuild/issues/1603
+                https://github.com/NuGet/NuGet.Client/pull/2131
+                https://github.com/dotnet/msbuild/pull/3059
+              https://github.com/dotnet/msbuild/issues/3244
+              https://github.com/MicrosoftDocs/visualstudio-docs/issues/853
+                https://github.com/MicrosoftDocs/visualstudio-docs/pull/854
+              https://github.com/NuGet/Home/issues/4463
+              https://github.com/NuGet/Home/issues/6734
+              https://github.com/dotnet/wpf/issues/5679
+
+      - ArtifactsPath
+        https://learn.microsoft.com/en-us/dotnet/core/sdk/artifacts-output
+          https://github.com/dotnet/sdk/issues/867
+
+      - OutputPath vs. OutDir
+        https://github.com/dotnet/msbuild/issues/87
+          https://github.com/MicrosoftDocs/visualstudio-docs/pull/4608
+
+      - BaseIntermediateOutputPath is not scoped by default
+        as it's located within the project (MSBuildProjectName) folder.
+
+        BaseIntermediateOutputPath is predefined as follows:
+
+          <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+
+        BaseIntermediateOutputPath is re-scoped per project (MSBuildProjectName)
+        and re-defined as follows:
+
+          <BaseIntermediateOutputBaseFolderPath>$(ArtifactsFolderPath)$(IntermediateOutputFolderName)\</BaseIntermediateOutputBaseFolderPath>
+
+          <BaseIntermediateOutputFolderPath>$(BaseIntermediateOutputBaseFolderPath)$(MSBuildProjectName)\</BaseIntermediateOutputFolderPath>
+          <BaseIntermediateOutputPath>$(BaseIntermediateOutputFolderPath)</BaseIntermediateOutputPath>
+
+      - MSBuildProjectExtensionsPath is not scoped by default
+        as it's located within the project (MSBuildProjectName) folder.
+        It refers to BaseIntermediateOutputPath by default.
+
+        NuGet uses MSBuildProjectExtensionsPath as RestoreOutputPath.
+        https://github.com/MicrosoftDocs/visualstudio-docs/issues/853
+          https://github.com/MicrosoftDocs/visualstudio-docs/pull/854
+        https://github.com/NuGet/Home/issues/4463
+        https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Build.Tasks/NuGet.targets
+          https://github.com/NuGet/NuGet.Client/blob/dev/src/NuGet.Core/NuGet.Build.Tasks/NuGet.targets#L795
+
+        Thus, it contains, at least, the following files:
+        - project.assets.json
+        - project.nuget.cache
+        - [ProjectName].csproj.nuget.dgspec.json
+        - [ProjectName].csproj.nuget.g.props
+        - [ProjectName].csproj.nuget.g.targets
+
+        NuGet also further uses MSBuildProjectExtensionsPath as temporary (intermediate) output folder path
+        for NuGet specification files (.nuspec) of the project NuGet package,
+        by automatically appending Configuration at the end of the path.
+        That new path contains, at least, the following files:
+        - [ProjectPackageId].[ProjectPackageVersion].nuspec
+        - [ProjectPackageId].[ProjectPackageVersion].symbols.nuspec
+
+        MSBuildProjectExtensionsPath is predefined as follows:
+
+          <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+
+        MSBuildProjectExtensionsPath is re-scoped per project (MSBuildProjectName)
+        and re-defined as follows:
+
+          <BaseIntermediateOutputBaseFolderPath>$(ArtifactsFolderPath)$(IntermediateOutputFolderName)\</BaseIntermediateOutputBaseFolderPath>
+
+          <BaseIntermediateOutputFolderPath>$(BaseIntermediateOutputBaseFolderPath)$(MSBuildProjectName)\</BaseIntermediateOutputFolderPath>
+          <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputFolderPath)</MSBuildProjectExtensionsPath>
+
+      NOTE:   There seems to be an known issue with .NET Framework 4.8 WPF project
+              when overriding MSBuildProjectExtensionsPath.
+              https://github.com/dotnet/wpf/issues/5679
+
+      - IntermediateOutputPath is always scoped per target framework (TargetFramework), eg: net8.0, net48, etc.
+
+        MSBuild uses IntermediateOutputPath as temporary (intermediate) output folder path ('obj' folder).
+        When overridden, Configuration must be EXPLICITLY specified within the path,
+        along with MSBuildProjectName.
+
+        IntermediateOutputPath has a certain, predefined folder structure,
+        where it MUST contain MSBuildProjectName, Configuration, and TargetFramework in exact order.
+        TargetFramework will automatically be appended at the end of the IntermediateOutputPath,
+        thus it should NOT be manually specified anywhere within the path.
+        It's unlike OutputPath, where folder structure can be freely specified,
+        including TargetFramework that can be specified anywhere within the path.
+
+        IntermediateOutputPath is predefined as follows:
+
+          <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\[$(TargetFramework)\]</IntermediateOutputPath>
+
+        IntermediateOutputPath is re-defined as follows:
+
+          <BaseIntermediateOutputBaseFolderPath>$(ArtifactsFolderPath)$(IntermediateOutputFolderName)\</BaseIntermediateOutputBaseFolderPath>
+          <BaseIntermediateOutputFolderPath>$(BaseIntermediateOutputBaseFolderPath)$(MSBuildProjectName)\</BaseIntermediateOutputFolderPath>
+
+          <IntermediateOutputFolderPath>$(BaseIntermediateOutputFolderPath)$(Configuration)\[$(TargetFramework)\]</IntermediateOutputFolderPath>
+          <IntermediateOutputPath>$(IntermediateOutputFolderPath)</IntermediateOutputPath>
+
+      - BaseOutputPath is not scoped by default
+        as it's located within the project (MSBuildProjectName) folder.
+
+        MSBuild uses BaseOutputPath as base folder path ('bin' folder) for OutputPath and OutDir.
+
+        BaseOutputPath is predefined as follows:
+
+          <BaseOutputPath>bin\</BaseOutputPath>
+
+        BaseOutputPath is re-defined as follows:
+
+          <BaseOutputBaseFolderPath>$(ArtifactsFolderPath)$(OutputFolderName)\</BaseOutputBaseFolderPath>
+
+          <BaseOutputFolderPath>$(BaseOutputBaseFolderPath)</BaseOutputFolderPath>
+          <BaseOutputPath>$(BaseOutputFolderPath)</BaseOutputPath>
+
+      - OutputPath is, by default, scoped per target framework (TargetFramework), eg: net8.0, net48, etc.,
+        because AppendTargetFrameworkToOutputPath is set to 'true' by default.
+        That way, even though OutputPath has been specified with TargetFramework already,
+        TargetFramework will always be appended at the end of the path,
+        as long as AppendTargetFrameworkToOutputPath is NOT set to 'false'.
+
+        OutputPath is predefined as follows:
+
+          <OutputPath>$(BaseOutputPath)$(Configuration)\[$(TargetFramework)\]</OutputPath>
+
+        OutDir is, by default, scoped per target framework (TargetFramework), eg: net8.0, net48, etc.
+        AppendTargetFrameworkToOutputPath doesn't affect OutDir.
+
+        OutDir is predefined as follows:
+
+          <OutDir>$(BaseOutputPath)$(Configuration)\[$(TargetFramework)\]</OutDir>
+
+        OutputPath and OutDir are re-scoped per project (MSBuildProjectName)
+        and re-defined as follows:
+
+          <OutputBaseFolderPath>$(BaseOutputBaseFolderPath)$(Configuration)\$(TargetFramework)\</OutputBaseFolderPath>
+
+          <OutputFolderPath>$(OutputBaseFolderPath)$(MSBuildProjectName)\</OutputFolderPath>
+          <OutputPath>$(OutputFolderPath)[$(TargetFramework)\]</OutputPath>
+          <OutDir>$(OutputFolderPath)</OutDir>
+
+
+      ============
+      TERMINOLOGY
+      ============
+      - MSBuildProjectName = project name
+      - TargetFramework = project target framework moniker, eg: net8.0, net48, etc.
+      - Configuration = project build configuration, eg: Debug or Release
+
+    -->
+
+    <UseCommonOutputDirectory>false</UseCommonOutputDirectory>
+
+    <BuildConfigurationFolderName Condition="'$(BuildConfigurationFolderName)' == ''">build</BuildConfigurationFolderName>
+    <SourceCodeFolderName Condition="'$(SourceCodeFolderName)' == ''">src</SourceCodeFolderName>
+    <ArtifactsFolderName Condition="'$(ArtifactsFolderName)' == ''">artifacts</ArtifactsFolderName>
+    <IntermediateOutputFolderName Condition="'$(IntermediateOutputFolderName)' == ''">obj</IntermediateOutputFolderName>
+    <OutputFolderName Condition="'$(OutputFolderName)' == ''">bin</OutputFolderName>
+    <PackageOutputFolderName Condition="'$(PackageOutputFolderName)' == ''">packages</PackageOutputFolderName>
+
+    <BuildConfigurationFolderPath Condition="'$(BuildConfigurationFolderPath)' == ''">$(WorkspaceFolderPath)$(BuildConfigurationFolderName)\</BuildConfigurationFolderPath>
+    <SourceCodeFolderPath Condition="'$(SourceCodeFolderPath)' == ''">$(WorkspaceFolderPath)$(SourceCodeFolderName)\</SourceCodeFolderPath>
+    <ArtifactsFolderPath Condition="'$(ArtifactsFolderPath)' == ''">$(WorkspaceFolderPath)$(ArtifactsFolderName)\</ArtifactsFolderPath>
+
+    <BaseIntermediateOutputBaseFolderPath>$(ArtifactsFolderPath)$(IntermediateOutputFolderName)\</BaseIntermediateOutputBaseFolderPath>
+    <BaseIntermediateOutputFolderPath>$(BaseIntermediateOutputBaseFolderPath)$(MSBuildProjectName)\</BaseIntermediateOutputFolderPath>
+    <BaseIntermediateOutputPath>$(BaseIntermediateOutputFolderPath)</BaseIntermediateOutputPath>
+    <!--
+      https://github.com/dotnet/msbuild/issues/1603
+        https://github.com/NuGet/NuGet.Client/pull/2131
+        https://github.com/dotnet/msbuild/pull/3059
+    -->
+    <!--<MSBuildProjectExtensionsPath>$(BaseIntermediateOutputFolderPath)</MSBuildProjectExtensionsPath>-->
+
+    <IntermediateOutputFolderPath>$(BaseIntermediateOutputFolderPath)$(Configuration)\</IntermediateOutputFolderPath>
+    <IntermediateOutputPath>$(IntermediateOutputFolderPath)</IntermediateOutputPath>
+
+    <BaseOutputBaseFolderPath>$(ArtifactsFolderPath)$(OutputFolderName)\</BaseOutputBaseFolderPath>
+    <BaseOutputFolderPath>$(BaseOutputBaseFolderPath)</BaseOutputFolderPath>
+    <BaseOutputPath>$(BaseOutputFolderPath)</BaseOutputPath>
+
+    <!--
+      https://github.com/dotnet/msbuild/issues/87
+        https://github.com/MicrosoftDocs/visualstudio-docs/pull/4608
+    -->
+    <OutputBaseFolderPath>$(BaseOutputBaseFolderPath)$(Configuration)\$(TargetFramework)\</OutputBaseFolderPath>
+    <OutputFolderPath>$(OutputBaseFolderPath)$(MSBuildProjectName)\</OutputFolderPath>
+    <OutputPath>$(OutputFolderPath)</OutputPath>
+    <OutDir>$(OutputFolderPath)</OutDir>
+
+    <PackageOutputBaseFolderPath>$(ArtifactsFolderPath)$(PackageOutputFolderName)\</PackageOutputBaseFolderPath>
+    <PackageOutputFolderPath>$(PackageOutputBaseFolderPath)$(Configuration)\</PackageOutputFolderPath>
+    <PackageOutputPath>$(PackageOutputFolderPath)</PackageOutputPath>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,55 @@
+<Project>
+
+  <!--
+    TARGETS
+  -->
+
+  <Target Name="Project_DisplayBuildProperties_BeforeBuild" BeforeTargets="BeforeBuild">
+    <Message Text="$(MSBuildProjectName) ($(Configuration)\$(TargetFramework)):%0D%0A  WorkspaceFolderPath = '$(WorkspaceFolderPath)'%0D%0A  ArtifactsFolderPath = '$(ArtifactsFolderPath)'%0D%0A  BaseIntermediateOutputBaseFolderPath = '$(BaseIntermediateOutputBaseFolderPath)'%0D%0A  BaseIntermediateOutputPath = '$(BaseIntermediateOutputPath)'%0D%0A  MSBuildProjectExtensionsPath = '$(MSBuildProjectExtensionsPath)'%0D%0A  IntermediateOutputPath = '$(IntermediateOutputPath)'%0D%0A  BaseOutputBaseFolderPath = '$(BaseOutputBaseFolderPath)'%0D%0A  BaseOutputPath = '$(BaseOutputPath)'%0D%0A  OutputBaseFolderPath = '$(OutputBaseFolderPath)'%0D%0A  OutputPath = '$(OutputPath)'%0D%0A  OutDir = '$(OutDir)'" Importance="high" />
+  </Target>
+
+  <!--
+    Clean temporary WPF project ("MSBuildProjectName_*_wpftmp") in the "bin\**" and "obj\**" up after build.
+    https://github.com/dotnet/wpf/issues/2930
+  -->
+  <Target Name="Project_WpfTmpProjectsCleanup_AfterBuild" AfterTargets="AfterBuild"
+          Condition="'$(UseWPF)' == 'true'">
+    <Message Text="$(MSBuildProjectName): Starting WPF '*_wpftmp' projects cleanup..." Importance="high" />
+
+    <!-- bin -->
+    <ItemGroup>
+      <_ArtifactsBinDirectories Include="$([System.IO.Directory]::GetDirectories('$(OutputBaseFolderPath)'))" />
+      <_WpfTmpBinDirectories Include="@(_ArtifactsBinDirectories)"
+                             Condition="$([System.IO.Path]::GetFilename([System.String]::Copy('%(Identity)')).StartsWith('$(MSBuildProjectName)_')) AND $([System.String]::Copy('%(Identity)').EndsWith('_wpftmp'))" />
+    </ItemGroup>
+    <RemoveDir Directories="@(_WpfTmpBinDirectories)" ContinueOnError="true" />
+
+    <!-- obj -->
+    <ItemGroup>
+      <_ArtifactsObjDirectories Include="$([System.IO.Directory]::GetDirectories('$(BaseIntermediateOutputBaseFolderPath)'))" />
+      <_WpfTmpObjDirectories Include="@(_ArtifactsObjDirectories)"
+                             Condition="$([System.IO.Path]::GetFilename([System.String]::Copy('%(Identity)')).StartsWith('$(MSBuildProjectName)_')) AND $([System.String]::Copy('%(Identity)').EndsWith('_wpftmp'))" />
+    </ItemGroup>
+    <RemoveDir Directories="@(_WpfTmpObjDirectories)" ContinueOnError="true" />
+
+    <Message Text="$(MSBuildProjectName): Finished WPF '*_wpftmp' projects cleanup." Importance="high" />
+  </Target>
+
+  <Target Name="Project_ProjectDeepCleanup_AfterClean" AfterTargets="AfterClean">
+    <Message Text="$(MSBuildProjectName): Starting project deep cleanup..." Importance="high" />
+
+    <!--
+      https://stackoverflow.com/questions/1088593/how-to-clean-visual-studio-bin-and-obj-folders
+      https://stackoverflow.com/questions/755382/i-want-to-delete-all-bin-and-obj-folders-to-force-all-projects-to-rebuild-everyt
+    -->
+
+    <!-- bin -->
+    <RemoveDir Directories="$(BaseOutputBaseFolderPath)" ContinueOnError="true" />
+
+    <!-- obj -->
+    <RemoveDir Directories="$(BaseIntermediateOutputBaseFolderPath)" ContinueOnError="true" />
+
+    <Message Text="$(MSBuildProjectName): Finished project deep cleanup." Importance="high" />
+  </Target>
+
+</Project>
