@@ -2,39 +2,91 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36203.30
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle Build", "Castle Build", "{620C7DEE-97B6-43DB-92CA-6847F3BDD3A0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{FF3D1617-D4B5-49CD-A249-9F8444702F5F}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
-		BuildPackages.cmd = BuildPackages.cmd
-		Castle.Facilities.NHibernateIntegration.slnx.licenseheader = Castle.Facilities.NHibernateIntegration.slnx.licenseheader
 		CHANGELOG.md = CHANGELOG.md
-		CleanPackages.cmd = CleanPackages.cmd
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{9B1A5B3C-8599-4818-9D31-AC32A93F9917}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{A69952F3-1973-4B75-A783-0C597D5E1A92}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7B47ACC3-0CC6-4128-946C-1AB6F4C525B9}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "media", "media", "{E178FFA3-3C33-4CED-9D32-E82A769D8FE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{25E72AFD-F046-4CA0-82B2-DDC7F0C29D24}"
+	ProjectSection(SolutionItems) = preProject
+		assets\media\images\Castle.Facilities.NHibernateIntegration-logo.png = assets\media\images\Castle.Facilities.NHibernateIntegration-logo.png
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{D9AE75CD-B0D8-4CFB-9388-4054F92850FA}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.globalconfig = .globalconfig
+		Build.Environment.cmd = Build.Environment.cmd
+		Build.Properties.cmd = Build.Properties.cmd
+		Build.Properties.ps1 = Build.Properties.ps1
+		BuildPackages.cmd = BuildPackages.cmd
+		BuildPackages.ps1 = BuildPackages.ps1
+		Castle.Facilities.NHibernateIntegration.slnx.licenseheader = Castle.Facilities.NHibernateIntegration.slnx.licenseheader
+		CleanPackages.cmd = CleanPackages.cmd
+		CleanPackages.ps1 = CleanPackages.ps1
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
+		Directory.Packages.props = Directory.Packages.props
+		nuget.config = nuget.config
+		Project.Build.Properties.props = Project.Build.Properties.props
+		Solution.Build.Properties.props = Solution.Build.Properties.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{782638FB-E4DA-42BF-A4D1-758A77BB911E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{3FA334C0-9A78-4B9D-8DC3-89A609031441}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\release.yml = .github\workflows\release.yml
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{98E0675A-511A-40A9-A675-A35FE9A4D5CC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{53A2B61C-C93B-4676-AA24-9174E03956C6}"
 	ProjectSection(SolutionItems) = preProject
+		buildscripts\ASL - Apache Software Foundation License.txt = buildscripts\ASL - Apache Software Foundation License.txt
 		buildscripts\AssemblyInfo.Global.cs = buildscripts\AssemblyInfo.Global.cs
-		buildscripts\Build.props = buildscripts\Build.props
-		buildscripts\Build.References.props = buildscripts\Build.References.props
 		buildscripts\BuildPackages.cmd = buildscripts\BuildPackages.cmd
-		buildscripts\CastleKey.snk = buildscripts\CastleKey.snk
+		buildscripts\BuildPackages.ps1 = buildscripts\BuildPackages.ps1
+		buildscripts\PrepareNuGetLocalPackageSources.ps1 = buildscripts\PrepareNuGetLocalPackageSources.ps1
+		buildscripts\Project.Build.props = buildscripts\Project.Build.props
+		buildscripts\Project.Build.References.props = buildscripts\Project.Build.References.props
+		buildscripts\Project.Build.targets = buildscripts\Project.Build.targets
+		buildscripts\readme.txt = buildscripts\readme.txt
+		buildscripts\Solution.Build.props = buildscripts\Solution.Build.props
+		buildscripts\Solution.Build.targets = buildscripts\Solution.Build.targets
+		buildscripts\ValidateBuildInfrastructure.ps1 = buildscripts\ValidateBuildInfrastructure.ps1
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{C46EA806-304A-4DB3-BE57-4ED7D383FD08}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{922DA1F7-4FFA-4855-8B48-7F238A8D5E15}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\Directory.Build.targets = src\Directory.Build.targets
+		src\Project.Build.References.props = src\Project.Build.References.props
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{CE434D92-AE6C-42C2-B78E-6EB64BADA1BD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{4B42C48E-A82D-420A-B02D-B2ABBCE87782}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{40811F26-A329-45FE-969E-2C62D04C0C60}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "media", "media", "{7DBE8DB4-389F-4FD5-BEDE-521E9019DDF5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{14900468-5A15-4EDB-876D-0EBD2A6AE4D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{05EDA423-8FEB-4B0F-814A-7E0FA44B1C3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{B789DAC6-D06E-4596-8B63-734066168C34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{D876C728-2385-454E-A1F9-54DD2EC3271E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{69BC711A-6006-4866-BE0F-AC16AD049B87}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,22 +94,30 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C46EA806-304A-4DB3-BE57-4ED7D383FD08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C46EA806-304A-4DB3-BE57-4ED7D383FD08}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C46EA806-304A-4DB3-BE57-4ED7D383FD08}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C46EA806-304A-4DB3-BE57-4ED7D383FD08}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE434D92-AE6C-42C2-B78E-6EB64BADA1BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE434D92-AE6C-42C2-B78E-6EB64BADA1BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE434D92-AE6C-42C2-B78E-6EB64BADA1BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE434D92-AE6C-42C2-B78E-6EB64BADA1BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D876C728-2385-454E-A1F9-54DD2EC3271E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D876C728-2385-454E-A1F9-54DD2EC3271E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D876C728-2385-454E-A1F9-54DD2EC3271E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D876C728-2385-454E-A1F9-54DD2EC3271E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69BC711A-6006-4866-BE0F-AC16AD049B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69BC711A-6006-4866-BE0F-AC16AD049B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69BC711A-6006-4866-BE0F-AC16AD049B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69BC711A-6006-4866-BE0F-AC16AD049B87}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9B1A5B3C-8599-4818-9D31-AC32A93F9917} = {620C7DEE-97B6-43DB-92CA-6847F3BDD3A0}
-		{7B47ACC3-0CC6-4128-946C-1AB6F4C525B9} = {9B1A5B3C-8599-4818-9D31-AC32A93F9917}
-		{98E0675A-511A-40A9-A675-A35FE9A4D5CC} = {620C7DEE-97B6-43DB-92CA-6847F3BDD3A0}
+		{E178FFA3-3C33-4CED-9D32-E82A769D8FE9} = {A69952F3-1973-4B75-A783-0C597D5E1A92}
+		{25E72AFD-F046-4CA0-82B2-DDC7F0C29D24} = {E178FFA3-3C33-4CED-9D32-E82A769D8FE9}
+		{782638FB-E4DA-42BF-A4D1-758A77BB911E} = {D9AE75CD-B0D8-4CFB-9388-4054F92850FA}
+		{3FA334C0-9A78-4B9D-8DC3-89A609031441} = {782638FB-E4DA-42BF-A4D1-758A77BB911E}
+		{53A2B61C-C93B-4676-AA24-9174E03956C6} = {D9AE75CD-B0D8-4CFB-9388-4054F92850FA}
+		{922DA1F7-4FFA-4855-8B48-7F238A8D5E15} = {D9AE75CD-B0D8-4CFB-9388-4054F92850FA}
+		{40811F26-A329-45FE-969E-2C62D04C0C60} = {4B42C48E-A82D-420A-B02D-B2ABBCE87782}
+		{7DBE8DB4-389F-4FD5-BEDE-521E9019DDF5} = {40811F26-A329-45FE-969E-2C62D04C0C60}
+		{14900468-5A15-4EDB-876D-0EBD2A6AE4D6} = {7DBE8DB4-389F-4FD5-BEDE-521E9019DDF5}
+		{D876C728-2385-454E-A1F9-54DD2EC3271E} = {05EDA423-8FEB-4B0F-814A-7E0FA44B1C3B}
+		{69BC711A-6006-4866-BE0F-AC16AD049B87} = {B789DAC6-D06E-4596-8B63-734066168C34}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C483C7EE-7CE5-4970-A4FA-069E14A1A299}
