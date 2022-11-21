@@ -1,0 +1,16 @@
+<Project>
+
+  <!--
+    TARGETS
+  -->
+
+  <Target Name="Project_Project_TargetFrameworksValidation_BeforeProjectPrepareForBuild"
+          BeforeTargets="PrepareForBuild"
+          Condition="'$(IsCrossTargetingBuild)' != 'true'">
+    <Error Text="'$(MSBuildProjectName)' must define 'TargetFrameworks'. Use 'TargetFrameworks', not 'TargetFramework'."
+           Condition="'$(TargetFrameworks)' == ''" />
+    <Error Text="'$(MSBuildProjectName)' active 'TargetFramework' is empty. This build layout requires a .NET SDK inner target-framework build."
+           Condition="'$(TargetFramework)' == ''" />
+  </Target>
+
+</Project>
