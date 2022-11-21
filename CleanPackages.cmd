@@ -1,9 +1,16 @@
 @ECHO OFF
 
 
-SET PACKAGES_DIRECTORY=build
+@CALL "Build.Properties.cmd"
 
-dotnet clean "Castle.Facilities.NHibernateIntegration.sln" --configuration Debug
-dotnet clean "Castle.Facilities.NHibernateIntegration.sln" --configuration Release
+IF NOT DEFINED ARTIFACTS_FOLDER_PATH EXIT /B 1
 
-IF EXIST "%PACKAGES_DIRECTORY%" RMDIR "%PACKAGES_DIRECTORY%" /S /Q
+
+REM dotnet clean "Castle.Facilities.NHibernateIntegration.sln" --configuration Debug
+REM dotnet clean "Castle.Facilities.NHibernateIntegration.sln" --configuration Release
+
+IF EXIST "%ARTIFACTS_FOLDER_PATH%" (
+    ECHO Deleting "%ARTIFACTS_FOLDER_PATH%" folder...
+
+    RMDIR "%ARTIFACTS_FOLDER_PATH%\" /S /Q
+)
