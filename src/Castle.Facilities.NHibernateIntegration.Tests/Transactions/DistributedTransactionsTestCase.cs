@@ -14,7 +14,7 @@
 // limitations under the License.
 #endregion
 
-#if NETFRAMEWORK
+#if NET7_0_OR_GREATER || NETFRAMEWORK
 using System.Transactions;
 
 using Castle.MicroKernel.Registration;
@@ -24,7 +24,17 @@ using NUnit.Framework;
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
+    //
+    //  NOTE:   .NET starts to support Windows-only distributed transactions since .NET 7.0.
+    //          Otherwise, it will throw System.PlatformNotSupportedException: This platform does not support distributed transactions.
+    //          -   https://github.com/dotnet/runtime/issues/715
+    //              -   https://github.com/dotnet/runtime/pull/72051
+    //          -   https://github.com/dotnet/runtime/issues/71769
+    //          -   https://github.com/dotnet/runtime/issues/80777
+    //
+
     [TestFixture]
+    [Platform("Win")]
     [Explicit("Requires MSDTC to be running.")]
     public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
     {
