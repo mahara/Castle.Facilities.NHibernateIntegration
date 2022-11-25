@@ -21,7 +21,7 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
             return new BinaryObjectPersister<T>();
 #else
             return new NewtonsoftJsonObjectPersister<T>();
-            //return new JsonObjectPersister<Configuration>();
+            //return new SystemTextJsonObjectPersister<T>();
 #endif
         }
     }
@@ -90,11 +90,11 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         }
     }
 
-    public class JsonObjectPersister<T> : IObjectPersister<T>
+    public class SystemTextJsonObjectPersister<T> : IObjectPersister<T>
     {
         private readonly System.Text.Json.JsonSerializerOptions _options;
 
-        public JsonObjectPersister()
+        public SystemTextJsonObjectPersister()
         {
             _options = new System.Text.Json.JsonSerializerOptions()
             {
