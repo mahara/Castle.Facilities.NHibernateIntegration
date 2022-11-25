@@ -1,28 +1,18 @@
 namespace Castle.Facilities.NHibernateIntegration.Persisters
 {
     using System;
+    using System.Buffers;
     using System.IO;
-#if NETFRAMEWORK
-    using System.Runtime.Serialization.Formatters.Binary;
-#endif
 
-    using JsonNet.ContractResolvers;
+    using Castle.Facilities.NHibernateIntegration.Util;
 
-    using Newtonsoft.Json;
+    using NHibernate.Util;
 
-    //
-    // TODO: Make IObjectPersister<Configuration> working in .NET 6.0 and beyond.
-    //
     public class ObjectPersisterFactory
     {
         public static IObjectPersister<T> Create<T>()
         {
-#if NETFRAMEWORK
-            return new BinaryObjectPersister<T>();
-#else
-            return new NewtonsoftJsonObjectPersister<T>();
-            //return new SystemTextJsonObjectPersister<T>();
-#endif
+            return new ObjectPersister<T>();
         }
     }
 
@@ -33,85 +23,34 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate);
     }
 
-    public class BinaryObjectPersister<T> : IObjectPersister<T>
+    public class ObjectPersister<T> : IObjectPersister<T>
     {
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
+            using var stream = new FileStream(filePath, mode);
+            using var allocation = ArrayPool<byte>.Shared.Allocate((int) stream.Length);
+            var bytes = allocation.Values;
 #if NETFRAMEWORK
-            var formatter = new BinaryFormatter();
-            using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
-            return (T) formatter.Deserialize(fileStream);
+            stream.Read(bytes, 0, bytes.Length);
+            var @object = (T) SerializationHelper.Deserialize(bytes);
 #else
-            throw new PlatformNotSupportedException();
+            var bytesAsSpan = bytes.AsSpan();
+            stream.Read(bytesAsSpan);
+            var @object = (T) SerializationHelper.Deserialize(bytesAsSpan.ToArray());
 #endif
+            return @object;
         }
 
         public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
+            using var stream = new FileStream(filePath, mode);
+            var bytes = SerializationHelper.Serialize(@object);
 #if NETFRAMEWORK
-            var formatter = new BinaryFormatter();
-            using var fileStream = new FileStream(filePath, FileMode.OpenOrCreate);
-            formatter.Serialize(fileStream, @object);
+            stream.Write(bytes, 0, bytes.Length);
 #else
-            throw new PlatformNotSupportedException();
+            var bytesAsSpan = bytes.AsSpan();
+            stream.Write(bytesAsSpan);
 #endif
-        }
-    }
-
-    public class NewtonsoftJsonObjectPersister<T> : IObjectPersister<T>
-    {
-        private readonly JsonSerializer _serializer;
-
-        public NewtonsoftJsonObjectPersister()
-        {
-            _serializer = new JsonSerializer
-            {
-                ContractResolver = new PrivateSetterContractResolver(),
-                PreserveReferencesHandling = PreserveReferencesHandling.All,
-                TypeNameHandling = TypeNameHandling.All,
-                ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
-            };
-        }
-
-        public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var stream = new FileStream(filePath, mode);
-            using var reader = new StreamReader(stream);
-            using var jsonReader = new JsonTextReader(reader);
-            return _serializer.Deserialize<T>(jsonReader);
-        }
-
-        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var stream = new FileStream(filePath, mode);
-            using var writer = new StreamWriter(stream);
-            using var jsonWriter = new JsonTextWriter(writer);
-            _serializer.Serialize(jsonWriter, @object);
-        }
-    }
-
-    public class SystemTextJsonObjectPersister<T> : IObjectPersister<T>
-    {
-        private readonly System.Text.Json.JsonSerializerOptions _options;
-
-        public SystemTextJsonObjectPersister()
-        {
-            _options = new System.Text.Json.JsonSerializerOptions()
-            {
-                WriteIndented = false,
-            };
-        }
-
-        public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var stream = new FileStream(filePath, mode);
-            return System.Text.Json.JsonSerializer.Deserialize<T>(stream, _options);
-        }
-
-        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var stream = new FileStream(filePath, mode);
-            System.Text.Json.JsonSerializer.Serialize(stream, @object, _options);
         }
     }
 }

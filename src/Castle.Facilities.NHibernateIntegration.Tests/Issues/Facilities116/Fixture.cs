@@ -16,10 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 {
-    //
-    // TODO: Make IObjectPersister<Configuration> working in .NET 6.0 and beyond.
-    //
-#if NETFRAMEWORK
     using System;
     using System.Configuration;
     using System.IO;
@@ -44,9 +40,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
     [TestFixture]
     public class Fixture : IssueTestCase
     {
-        protected override string ConfigurationFile =>
-            "EmptyConfiguration.xml";
-
         private const string FilePath = "myconfig.dat";
 
         private readonly Func<IObjectPersister<Configuration>> _objectPersisterMethod =
@@ -55,20 +48,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         private IConfiguration _facilityConfiguration;
         private IConfigurationBuilder _configurationBuilder;
 
-        protected override void OnSetUp()
-        {
-            var configurationStore = new DefaultConfigurationStore();
-            var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
-            var xmlInterpreter = new XmlInterpreter(resource);
-            xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
-            _configurationBuilder = new PersistentConfigurationBuilder();
-        }
-
-        protected override void OnTearDown()
-        {
-            File.Delete(FilePath);
-        }
+        protected override string ConfigurationFile =>
+            "EmptyConfiguration.xml";
 
         [Test]
         public void CanCreateSerializedFileInTheDisk()
@@ -97,11 +78,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
             Assert.That(File.Exists(FilePath), Is.False);
 
-            _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
+            _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(File.Exists(FilePath), Is.True);
 
             var dateTime = File.GetLastWriteTime(FilePath);
-            Thread.Sleep(1000);
+
+            Thread.Sleep(100);
 
             var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(dateTime, Is.EqualTo(File.GetLastWriteTime(FilePath)));
@@ -119,10 +101,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
             Assert.That(File.Exists(FilePath), Is.False);
 
-            _ = _configurationBuilder.GetConfiguration(_facilityConfiguration);
+            _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(File.Exists(FilePath), Is.True);
 
-            var dateTime = File.GetLastWriteTime(FilePath);
+            var dateTime1 = File.GetLastWriteTime(FilePath);
+
             Thread.Sleep(100);
 
             var dateTime2 = DateTime.Now;
@@ -132,12 +115,27 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             File.SetLastWriteTime(filePath, dateTime2);
 
             var configuration = _configurationBuilder.GetConfiguration(_facilityConfiguration);
-            Assert.That(File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime));
+            Assert.That(File.GetLastWriteTime(filePath), Is.GreaterThan(dateTime1));
             Assert.That(_facilityConfiguration, Is.Not.Null);
 
             ConfigureConnectionSettings(configuration);
 
             configuration.BuildSessionFactory();
+        }
+
+        protected override void OnSetUp()
+        {
+            var configurationStore = new DefaultConfigurationStore();
+            var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities116/facility.xml");
+            var xmlInterpreter = new XmlInterpreter(resource);
+            xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+            _configurationBuilder = new PersistentConfigurationBuilder();
+        }
+
+        protected override void OnTearDown()
+        {
+            CleanUpFiles();
         }
 
         private static void ConfigureConnectionSettings(Configuration configuration)
@@ -160,5 +158,4 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             }
         }
     }
-#endif
 }
