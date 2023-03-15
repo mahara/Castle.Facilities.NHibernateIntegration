@@ -28,28 +28,24 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
             using var stream = new FileStream(filePath, mode);
-            using var allocation = ArrayPool<byte>.Shared.Allocate((int) stream.Length);
-            var bytes = allocation.Values;
-#if NETFRAMEWORK
-            stream.Read(bytes, 0, bytes.Length);
-            var @object = (T) SerializationHelper.Deserialize(bytes);
+            using var allocation = ArrayPool<byte>.Shared.AllocateByte((int) stream.Length, true);
+            var buffer = allocation.Buffer;
+#if NET
+            stream.Read(buffer.AsSpan());
 #else
-            var bytesAsSpan = bytes.AsSpan();
-            stream.Read(bytesAsSpan);
-            var @object = (T) SerializationHelper.Deserialize(bytesAsSpan.ToArray());
+            stream.Read(buffer, 0, buffer.Length);
 #endif
-            return @object;
+            return (T) SerializationHelper.Deserialize(buffer);
         }
 
         public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
             using var stream = new FileStream(filePath, mode);
-            var bytes = SerializationHelper.Serialize(@object);
-#if NETFRAMEWORK
-            stream.Write(bytes, 0, bytes.Length);
+            var buffer = SerializationHelper.Serialize(@object);
+#if NET
+            stream.Write(buffer.AsSpan());
 #else
-            var bytesAsSpan = bytes.AsSpan();
-            stream.Write(bytesAsSpan);
+            stream.Write(buffer, 0, buffer.Length);
 #endif
         }
     }

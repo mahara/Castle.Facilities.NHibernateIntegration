@@ -23,8 +23,8 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 #endif
 
     using MicroKernel.Facilities;
-
 #if NET
+
     using Microsoft.AspNetCore.Http;
 #endif
 

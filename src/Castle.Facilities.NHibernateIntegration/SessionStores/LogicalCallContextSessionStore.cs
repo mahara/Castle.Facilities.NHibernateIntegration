@@ -16,19 +16,19 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+#if NET
     using System;
+#endif
     using System.Collections.Generic;
-
-
 #if NETFRAMEWORK
     using System.Runtime.Remoting.Messaging;
-#endif
-#if NETFRAMEWORK
+
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on logical <see cref="CallContext" />.
     /// </summary>
 #else
+
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on .NET Framework logical CallContext.
@@ -37,7 +37,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// This is not supported anymore in .NET.
     /// </exception>
 #endif
-
     public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
     {
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()

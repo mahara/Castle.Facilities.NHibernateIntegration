@@ -87,10 +87,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
         {
             var session = (ISession) HttpContext.Current.Items[SessionKey];
 
-            if (session != null)
-            {
-                session.Dispose();
-            }
+            session?.Dispose();
         }
 
         private static IWindsorContainer ObtainContainer()

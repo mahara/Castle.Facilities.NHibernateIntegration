@@ -16,9 +16,10 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
+#if NET
     using System;
+#endif
     using System.Collections.Generic;
-
 #if NETFRAMEWORK
     using System.Runtime.Remoting.Messaging;
 
@@ -27,6 +28,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     /// which relies on <see cref="CallContext" />.
     /// </summary>
 #else
+
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on .NET Framework CallContext.
