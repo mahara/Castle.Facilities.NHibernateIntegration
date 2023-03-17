@@ -75,6 +75,3 @@ then
     echo ".NET Framework (net48) Unit Tests have failed, failing the build."
     exit 1
 fi
-
-
-

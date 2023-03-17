@@ -5,10 +5,15 @@
   -->
 
   <PropertyGroup>
-    <LangVersion>10.0</LangVersion>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
     <BuildVersion>0.0.0</BuildVersion>
     <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)' != ''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
@@ -17,6 +22,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,23 +34,24 @@
     <VersionPrefix>$(BuildVersion)</VersionPrefix>
     <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
     <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
+    <PackageOutputPath>..\..\build\</PackageOutputPath>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
     <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
     <PackageVersion>$(BuildVersion)</PackageVersion>
-    <PackageOutputPath>..\..\build\</PackageOutputPath>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
     <ContentTargetFolders>.</ContentTargetFolders>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
-    <Content Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
-    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
-    <Content Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
-    <Content Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" />
+    <None Include="..\..\README.md" Link="Properties\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" PackagePath="\" />
+    <Content Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>

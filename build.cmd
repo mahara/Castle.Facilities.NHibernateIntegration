@@ -15,7 +15,4 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-@call buildscripts\build.cmd %*
-
-
-
+@call "buildscripts\build.cmd" %*
