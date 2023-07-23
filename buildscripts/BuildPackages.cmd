@@ -76,6 +76,3 @@ ECHO Running .NET Framework (net48) Unit Tests
 ECHO --------------------------------------------
 
 dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net48\Castle.Facilities.NHibernateIntegration.Tests.exe" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3"
-
-
-

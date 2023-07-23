@@ -32,6 +32,7 @@ namespace Explicit.NuGet.Versions
             var packageDiscoveryDirectory = Path.Combine(Environment.CurrentDirectory, args[0]);
             var packageDiscoverDirectoryInfo = new DirectoryInfo(packageDiscoveryDirectory);
             var packageMetaData = ReadNuspecFromPackages(packageDiscoverDirectoryInfo);
+
             UpdateNuspecManifestContent(packageMetaData, args[1]);
             WriteNuspecToPackages(packageMetaData);
         }
@@ -39,6 +40,7 @@ namespace Explicit.NuGet.Versions
         private static Dictionary<string, NuspecContentEntry> ReadNuspecFromPackages(DirectoryInfo packageDiscoverDirectoryInfo)
         {
             var packageNuspecDictionary = new Dictionary<string, NuspecContentEntry>();
+
             foreach (var packageFilePath in packageDiscoverDirectoryInfo.GetFiles("*.nupkg", SearchOption.AllDirectories))
             {
                 using var zipFile = ZipFile.Read(packageFilePath.FullName);
@@ -87,12 +89,13 @@ namespace Explicit.NuGet.Versions
         {
             WalkDocumentNodes(nuspecXmlDocument.ChildNodes, node =>
             {
-                if (node.Name.ToLowerInvariant() == "dependency"
-                    && !string.IsNullOrEmpty(node.Attributes["id"].Value)
-                    && node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
+                if (node.Name.ToLowerInvariant() == "dependency" &&
+                    !string.IsNullOrEmpty(node.Attributes["id"].Value) &&
+                    node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
                 {
                     var currentVersion = node.Attributes["version"].Value;
-                    if (!node.Attributes["version"].Value.StartsWith("[") && !node.Attributes["version"].Value.EndsWith("]"))
+                    if (!node.Attributes["version"].Value.StartsWith("[") &&
+                        node.Attributes["version"].Value.EndsWith("]"))
                     {
                         node.Attributes["version"].Value = $"[{currentVersion}]";
                     }

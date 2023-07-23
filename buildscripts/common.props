@@ -35,17 +35,19 @@
     <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
     <PackageVersion>$(BuildVersion)</PackageVersion>
     <PackageOutputPath>..\..\build\</PackageOutputPath>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
     <ContentTargetFolders>.</ContentTargetFolders>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
-    <Content Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
-    <Content Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
-    <Content Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
-    <Content Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" />
+    <None Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" />
+    <None Include="..\..\buildscripts\ASL - Apache Software Foundation License.txt" Link="Properties\ASL - Apache Software Foundation License.txt" Pack="true" />
+    <None Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" />
+    <None Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" />
   </ItemGroup>
 
   <PropertyGroup>
