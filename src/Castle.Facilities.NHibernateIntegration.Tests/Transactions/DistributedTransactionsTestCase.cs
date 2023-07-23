@@ -93,21 +93,21 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 foreach (var resource in e.FailedResources)
                 {
-                    Console.WriteLine(resource.Second);
+                    Console.WriteLine(resource.Item2);
                 }
 
                 throw;
             }
 
             var blogs = service.FindAll(typeof(Blog));
-            var blogitems = service.FindAll(typeof(BlogItem));
+            var blogItems = service.FindAll(typeof(BlogItem));
             var orders = orderDao.FindAll(typeof(Order));
 
             Assert.That(blogs, Is.Not.Null);
-            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
             Assert.That(orders, Is.Not.Null);
             Assert.That(blogs.Length, Is.EqualTo(0));
-            Assert.That(blogitems.Length, Is.EqualTo(0));
+            Assert.That(blogItems.Length, Is.EqualTo(0));
             Assert.That(orders.Length, Is.EqualTo(0));
         }
 
@@ -164,21 +164,21 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 foreach (var resource in e.FailedResources)
                 {
-                    Console.WriteLine(resource.Second);
+                    Console.WriteLine(resource.Item2);
                 }
 
                 throw;
             }
 
             var blogs = service.FindAllStateless(typeof(Blog));
-            var blogitems = service.FindAllStateless(typeof(BlogItem));
+            var blogItems = service.FindAllStateless(typeof(BlogItem));
             var orders = orderDao.FindAllStateless(typeof(Order));
 
             Assert.That(blogs, Is.Not.Null);
-            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
             Assert.That(orders, Is.Not.Null);
             Assert.That(blogs.Length, Is.EqualTo(0));
-            Assert.That(blogitems.Length, Is.EqualTo(0));
+            Assert.That(blogItems.Length, Is.EqualTo(0));
             Assert.That(orders.Length, Is.EqualTo(0));
         }
     }

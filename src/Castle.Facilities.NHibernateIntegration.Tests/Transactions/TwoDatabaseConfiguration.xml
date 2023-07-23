@@ -8,8 +8,6 @@
   </components>
 
   <facilities>
-    <facility type="Castle.Facilities.Logging.LoggingFacility, Castle.Facilities.Logging" />
-
     <facility type="Castle.Facilities.NHibernateIntegration.NHibernateFacility, Castle.Facilities.NHibernateIntegration"
               configurationBuilder="Castle.Facilities.NHibernateIntegration.Tests.TestConfigurationBuilder, Castle.Facilities.NHibernateIntegration.Tests">
 

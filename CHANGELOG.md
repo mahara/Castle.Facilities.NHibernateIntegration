@@ -5,11 +5,11 @@
 Improvements:
 - Added .NET 7.0 support
 - Updated [System.Data.SqlClient] version to 4.8.5
-- Updated [NHibernate] version to 5.4.0
+- Updated [NHibernate] version to 5.4.3
 
 Breaking Changes:
-- Upgraded [Castle.Core] version to 5.1.0 (TBD)
-- Upgraded [Castle.Windsor] version to 6.0.0 (TBD)
+- Upgraded [Castle.Core] version to 5.1.1
+- Upgraded [Castle.Windsor] version to 6.0.0
 - Upgraded [Castle.Services.Transaction] version to 5.4.0
 - Upgraded [Castle.Facilities.AutoTx] version to 5.4.0
 
