@@ -1,5 +1,5 @@
 #region License
-// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+// Copyright 2004-2024 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
     {
         private const string FilePath = "myconfig.dat";
 
-        private readonly Func<IObjectPersister<Configuration>> _objectPersisterMethod =
-            () => ObjectPersisterFactory.Create<Configuration>();
+        private readonly Func<IObjectPersister<Configuration>> _objectPersister =
+            ObjectPersisterFactory.Create<Configuration>;
 
         private IConfiguration _facilityConfiguration;
         private IConfigurationBuilder _configurationBuilder;
@@ -61,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
             _configurationBuilder.GetConfiguration(_facilityConfiguration);
             Assert.That(File.Exists(FilePath), Is.True);
 
-            var persister = _objectPersisterMethod();
+            var persister = _objectPersister();
             var configuration = persister.Read(FilePath);
 
             Assert.That(configuration, Is.Not.Null);

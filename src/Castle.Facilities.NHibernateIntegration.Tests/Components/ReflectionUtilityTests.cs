@@ -1,5 +1,5 @@
 #region License
-// Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+// Copyright 2004-2024 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
                 Name = "osman",
                 Items = new List<BlogItem>()
                 {
-                    new BlogItem { }
+                    new() { }
                 }
             };
             var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);
@@ -51,10 +51,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         [Test]
         public void SimpleTypeReturnsTrueForEnumStringDatetimeAndPrimitiveTypes()
         {
-            Assert.True(ReflectionUtility.IsSimpleType(typeof(string)));
-            Assert.True(ReflectionUtility.IsSimpleType(typeof(DateTime)));
-            Assert.True(ReflectionUtility.IsSimpleType(typeof(MyEnum)));
-            Assert.True(ReflectionUtility.IsSimpleType(typeof(char)));
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(string)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(DateTime)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(MyEnum)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(char)), Is.True);
         }
     }
 }

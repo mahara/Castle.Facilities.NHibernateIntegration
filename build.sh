@@ -43,6 +43,18 @@ echo "OSNAME: $OSNAME"
 dotnet build "Castle.Facilities.NHibernateIntegration.sln" --configuration Release || exit 1
 
 echo ------------------------------------
+echo Running .NET (net8.0) Unit Tests
+echo ------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\Release\net8.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml;format=nunit3" || exit 1
+
+echo ------------------------------------
+echo Running .NET (net7.0) Unit Tests
+echo ------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\Release\net7.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml;format=nunit3" || exit 1
+
+echo ------------------------------------
 echo Running .NET (net6.0) Unit Tests
 echo ------------------------------------
 
@@ -62,6 +74,20 @@ if [[ !( -f "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_
 fi
 
 # Unit Test Failures
+NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml" | wc -l)
+if [ $NET_FAILCOUNT -ne 0 ]
+then
+    echo ".NET (net8.0) Unit Tests have failed, failing the build."
+    exit 1
+fi
+
+NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml" | wc -l)
+if [ $NET_FAILCOUNT -ne 0 ]
+then
+    echo ".NET (net7.0) Unit Tests have failed, failing the build."
+    exit 1
+fi
+
 NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml" | wc -l)
 if [ $NET_FAILCOUNT -ne 0 ]
 then

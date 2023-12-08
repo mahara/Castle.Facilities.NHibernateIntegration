@@ -4,7 +4,7 @@ Castle.Facilities.NHibernateIntegration
 
 ## License
 
-Castle.Facilities.NHibernateIntegration is &copy; 2004-2022 Castle Project. It is free software, and may be redistributed under the terms of the [Apache 2.0](http://opensource.org/licenses/Apache-2.0) license.
+Castle.Facilities.NHibernateIntegration is &copy; 2004-2024 Castle Project. It is free software, and may be redistributed under the terms of the [Apache 2.0](http://opensource.org/licenses/Apache-2.0) license.
 
 ## NuGet Preview Feed
 
@@ -16,14 +16,13 @@ https://ci.appveyor.com/nuget/windsor-qkry8n2r6yak
 
 ## Tests
 
-The test cases run against a MSSQL Server 2008 database by default.
-But due to NHibernate's features, you can change the database to whathever you like.
+The tests run against a MSSQL Server 2008 by default.
+But due to NHibernate's features, you can change the database server to any of your choice.
 
-1. Modify the connection properties information.
+1. Create two databases on a database server, e.g.: "test" and "test2" on a MSSQL Server.
 
-   See file "facilityconfig.xml" for full details.
-
-2. Create two databases (test and test2 on a MSSQL Server will do).
+2. Modify the connection information properties in "Castle.Facilities.NHibernateIntegration.Tests" project to use the databases created.
+   See "App.config" and all "\*Configuration\*.xml" files for full details.
 
 
 

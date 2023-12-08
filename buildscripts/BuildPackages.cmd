@@ -1,6 +1,6 @@
 @ECHO OFF
 REM ****************************************************************************
-REM Copyright 2004-2022 Castle Project - https://www.castleproject.org/
+REM Copyright 2004-2024 Castle Project - https://www.castleproject.org/
 REM Licensed under the Apache License, Version 2.0 (the "License");
 REM you may not use this file except in compliance with the License.
 REM You may obtain a copy of the License at
@@ -58,6 +58,12 @@ REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-test
 REM https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-vstest
 REM https://github.com/Microsoft/vstest-docs/blob/main/docs/report.md
 REM https://github.com/spekt/nunit.testlogger/issues/56
+
+ECHO ------------------------------------
+ECHO Running .NET (net8.0) Unit Tests
+ECHO ------------------------------------
+
+dotnet test "src\Castle.Facilities.NHibernateIntegration.Tests\bin\%BUILD_CONFIGURATION%\net8.0\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "build\%BUILD_CONFIGURATION%" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml;format=nunit3"
 
 ECHO ------------------------------------
 ECHO Running .NET (net7.0) Unit Tests

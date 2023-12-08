@@ -91,7 +91,7 @@ namespace Explicit.NuGet.Versions
             {
                 if (node.Name.ToLowerInvariant() == "dependency" &&
                     !string.IsNullOrEmpty(node.Attributes["id"].Value) &&
-                    node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.InvariantCultureIgnoreCase))
+                    node.Attributes["id"].Value.StartsWith(nugetIdFilter, StringComparison.OrdinalIgnoreCase))
                 {
                     var currentVersion = node.Attributes["version"].Value;
                     if (!node.Attributes["version"].Value.StartsWith("[") &&

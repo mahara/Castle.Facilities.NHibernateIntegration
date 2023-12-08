@@ -67,6 +67,3 @@ MAKEFILE    text eol=crlf
 *.PDF       diff=astextplain
 *.rtf       diff=astextplain
 *.RTF       diff=astextplain
-
-
-
