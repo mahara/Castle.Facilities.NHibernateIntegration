@@ -76,7 +76,7 @@ REM https://github.com/spekt/nunit.testlogger/issues/56
 SET PROJECT_NAMES=^
     Castle.Facilities.NHibernateIntegration.Tests
 
-SET TARGET_FRAMEWORKS=net7.0;net6.0;net48
+SET TARGET_FRAMEWORKS=net8.0;net7.0;net6.0;net48
 
 FOR %%G IN (%TARGET_FRAMEWORKS%) DO (
     SET TARGET_FRAMEWORK=%%G
