@@ -1,14 +1,15 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.4.0 (2022-11-xx)
+## 5.4.0 (2023-12-xx)
 
 Improvements:
-- Added **`.NET 7.0`** support.
+- Added **`.NET 8.0`** and **`.NET 7.0`** supports.
 
 Breaking Changes:
 - Updated **`Castle.Services.Transaction`** version to 5.4.0.
 - Updated **`Castle.Facilities.AutoTx`** version to 5.4.0.
+- Updated **`NHibernate`** version to 5.4.7.
 
 
 ## 5.3.0 (2022-09-17)
