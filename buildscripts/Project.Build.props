@@ -22,12 +22,12 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net7.0-windows</WinExeTargetFrameworks>
-    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net7.0-windows</WinTestTargetFrameworks>
-    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net7.0-windows;net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net7.0</ExeTargetFrameworks>
-    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net7.0;net6.0;net48</TestTargetFrameworks>
-    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net7.0;net6.0;net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net8.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net8.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net8.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net8.0</ExeTargetFrameworks>
+    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net8.0;net7.0;net6.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net8.0;net7.0;net6.0;net48</LibTargetFrameworks>
 
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
     <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
