@@ -2,8 +2,6 @@
 
   <ItemGroup>
     <PackageReference Include="CSharpIsNullAnalyzer" PrivateAssets="All" />
-    <PackageReference Include="NETStandard.Library" />
-    <PackageReference Include="System.Text.RegularExpressions" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
   </ItemGroup>
