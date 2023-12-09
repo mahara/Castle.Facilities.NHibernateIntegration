@@ -14,10 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -51,7 +47,7 @@ namespace Explicit.NuGet.Versions
 
                 foreach (var zipEntry in zipFile.Entries)
                 {
-                    if (zipEntry.FileName.ToLowerInvariant().EndsWith(".nuspec"))
+                    if (zipEntry.FileName.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase))
                     {
                         using var zipEntryReader = new StreamReader(zipEntry.OpenReader());
 
@@ -81,7 +77,12 @@ namespace Explicit.NuGet.Versions
 
                 string updatedNuspecXmlDocument;
 
-                using (var writer = new StringWriterWithEncoding(Encoding.UTF8))
+                // UTF8 Encoding without BOM
+                var encoding = new UTF8Encoding();
+                // UTF8 Encoding with BOM
+                //var encoding = Encoding.UTF8;
+
+                using (var writer = new StringWriterWithEncoding(encoding))
                 using (var xmlWriter = new XmlTextWriter(writer) { Formatting = Formatting.Indented })
                 {
                     nuspecXmlDocument.Save(xmlWriter);
@@ -96,15 +97,15 @@ namespace Explicit.NuGet.Versions
         {
             WalkDocumentNodes(nuspecXmlDocument.ChildNodes, node =>
             {
-                if (node.Name.ToLowerInvariant() == "dependency" &&
-                    !string.IsNullOrEmpty(node.Attributes["id"].Value) &&
-                    node.Attributes["id"].Value.StartsWith(packageIdPrefixFilter, StringComparison.InvariantCultureIgnoreCase))
+                if (string.Equals(node.Name, "dependency", StringComparison.OrdinalIgnoreCase) &&
+                    !string.IsNullOrEmpty(node.Attributes!["id"]!.Value) &&
+                    node.Attributes!["id"]!.Value.StartsWith(packageIdPrefixFilter, StringComparison.OrdinalIgnoreCase))
                 {
-                    var dependencyVersion = node.Attributes["version"].Value;
-                    if (!node.Attributes["version"].Value.StartsWith("[") &&
-                        !node.Attributes["version"].Value.EndsWith("]"))
+                    var dependencyVersion = node.Attributes!["version"]!.Value;
+                    if (!(dependencyVersion.StartsWith('[') ||
+                          dependencyVersion.EndsWith(']')))
                     {
-                        node.Attributes["version"].Value = $"[{dependencyVersion}]";
+                        node.Attributes!["version"]!.Value = $"[{dependencyVersion}]";
                     }
                 }
             });
@@ -131,23 +132,21 @@ namespace Explicit.NuGet.Versions
             }
         }
 
-        class NuspecContentEntry
+        record NuspecContentEntry
         {
-            public string EntryName { get; set; }
+            public string EntryName { get; set; } = string.Empty;
 
-            public string Contents { get; set; }
+            public string Contents { get; set; } = string.Empty;
         }
 
         sealed class StringWriterWithEncoding : StringWriter
         {
-            private readonly Encoding _encoding;
-
             public StringWriterWithEncoding(Encoding encoding)
             {
-                _encoding = encoding;
+                Encoding = encoding;
             }
 
-            public override Encoding Encoding => _encoding;
+            public override Encoding Encoding { get; }
         }
     }
 }
