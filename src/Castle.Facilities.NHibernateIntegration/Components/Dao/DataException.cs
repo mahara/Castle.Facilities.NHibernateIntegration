@@ -23,7 +23,9 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
     /// <remarks>
     /// Contributed by Steve Degosserie &lt;steve.degosserie@vn.netika.com&gt;.
     /// </remarks>
+#if !NET8_0_OR_GREATER
     [Serializable]
+#endif
     public class DataException : Exception
     {
         public DataException(string message) :
@@ -36,6 +38,10 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         {
         }
 
+#if NET8_0_OR_GREATER
+        //[Obsolete(Obsoletions.LegacyFormatterImplMessage, DiagnosticId = Obsoletions.LegacyFormatterImplDiagId, UrlFormat = Obsoletions.SharedUrlFormat)]
+        [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.", DiagnosticId = "SYSLIB0051", UrlFormat = "https://aka.ms/dotnet-warnings/{0}")]
+#endif
         protected DataException(SerializationInfo info, StreamingContext context) :
             base(info, context)
         {
