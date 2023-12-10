@@ -17,7 +17,6 @@
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 {
     using System;
-    using System.Collections;
     using System.Data;
 
     using Castle.Facilities.NHibernateIntegration.SessionStores;
@@ -30,7 +29,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 
     using NUnit.Framework;
 
-    using ITransaction = Services.Transaction.ITransaction;
+    using ITransaction = Castle.Services.Transaction.ITransaction;
 
     [TestFixture]
     public class DefaultSessionManagerTestCase : IssueTestCase
@@ -40,47 +39,46 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
 
         private const string Alias = "myAlias";
         private const string InterceptorKey = DefaultSessionManager.InterceptorKey;
-        private const string InterceptorKeyFormatString = DefaultSessionManager.InterceptorKeyFormatString;
+        private const string InterceptorKeyFormat = DefaultSessionManager.InterceptorKeyFormat;
         private const System.Transactions.IsolationLevel DefaultTransactionIsolationLevel = System.Transactions.IsolationLevel.ReadUncommitted;
         private const IsolationLevel DefaultDataIsolationLevel = IsolationLevel.ReadUncommitted;
 
-        private IKernel _kernel;
-        private ITransactionManager _transactionManager;
-        private ITransaction _transaction;
-        private ISessionStore _sessionStore;
-        private ISessionFactoryResolver _factoryResolver;
-        private ISessionFactory _sessionFactory;
-        private ISessionManager _sessionManager;
-        private ISession _session;
-        private IStatelessSession _statelessSession;
-        private IDictionary _contextDictionary;
+        private IKernel _kernel = null!;
+        private ITransactionManager _transactionManager = null!;
+        private ITransaction _transaction = null!;
+        private IDictionary<string, object> _transactionContext = null!;
+        private ISessionStore _sessionStore = null!;
+        private ISessionFactoryResolver _sessionFactoryResolver = null!;
+        private ISessionFactory _sessionFactory = null!;
+        private ISessionManager _sessionManager = null!;
+        private ISession _session = null!;
+        private IStatelessSession _statelessSession = null!;
 
         protected override void OnSetUp()
         {
             _sessionStore = new AsyncLocalSessionStore();
             _kernel = new Mock<IKernel>().Object;
-            _factoryResolver = new Mock<ISessionFactoryResolver>().Object;
+            _sessionFactoryResolver = new Mock<ISessionFactoryResolver>().Object;
             _transactionManager = new Mock<ITransactionManager>().Object;
             _transaction = new Mock<ITransaction>().Object;
+            _transactionContext = new Dictionary<string, object>();
             _sessionFactory = new Mock<ISessionFactory>().Object;
             _session = new Mock<ISession>().Object;
             _statelessSession = new Mock<IStatelessSession>().Object;
-            _contextDictionary = new Hashtable();
-            _sessionManager = new DefaultSessionManager(_kernel, _sessionStore, _factoryResolver);
+            _sessionManager = new DefaultSessionManager(_kernel, _sessionStore, _sessionFactoryResolver);
         }
 
         [Test]
         public void WhenBeginTransactionFailsSessionIsRemovedFromSessionStore()
         {
             Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
+            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultTransactionIsolationLevel);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
             Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
-            Mock.Get(_factoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
-            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(InterceptorKeyFormatString, Alias))).Returns(false);
+            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(InterceptorKeyFormat, Alias))).Returns(false);
             Mock.Get(_kernel).Setup(x => x.HasComponent(InterceptorKey)).Returns(false);
             Mock.Get(_sessionFactory).Setup(x => x.OpenSession()).Returns(_session);
-            _session.FlushMode = _sessionManager.DefaultFlushMode;
-            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultTransactionIsolationLevel);
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
             Mock.Get(_session).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try
@@ -103,11 +101,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         public void WhenBeginTransactionFailsStatelessSessionIsRemovedFromSessionStore()
         {
             Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
-            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
-            Mock.Get(_factoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
-            Mock.Get(_sessionFactory).Setup(x => x.OpenStatelessSession()).Returns(_statelessSession);
             Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultTransactionIsolationLevel);
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_contextDictionary);
+            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
+            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
+            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_sessionFactory).Setup(x => x.OpenStatelessSession()).Returns(_statelessSession);
             Mock.Get(_statelessSession).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try

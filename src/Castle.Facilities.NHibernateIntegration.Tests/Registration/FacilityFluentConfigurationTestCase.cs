@@ -27,7 +27,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
     using NUnit.Framework;
 
     [TestFixture]
-    public class FacilityFluentConfigTestCase
+    public class FacilityFluentConfigurationTestCase
     {
         [Test]
         public void ShouldUseDefaultSessionStore()
@@ -138,17 +138,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
     internal class DummySessionStore : ISessionStore
     {
-        public SessionDelegate FindCompatibleSession(string alias)
+        public bool IsCurrentActivityEmptyFor(string? alias)
         {
             throw new System.NotImplementedException();
         }
 
-        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public bool IsCurrentActivityEmptyFor(string alias)
+        public SessionDelegate? FindCompatibleSession(string? alias)
         {
             throw new System.NotImplementedException();
         }
@@ -159,6 +154,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
         }
 
         public void Remove(SessionDelegate session)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias)
         {
             throw new System.NotImplementedException();
         }

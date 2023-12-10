@@ -19,9 +19,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     using System.Configuration;
     using System.IO;
 
-    using Builders;
-
-    using Core.Configuration;
+    using Castle.Core.Configuration;
+    using Castle.Facilities.NHibernateIntegration.Builders;
 
     using NUnit.Framework;
 
@@ -43,7 +42,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 #if NET
             var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
             var configurationFileName = Path.GetFileName(configurationFilePath);
-            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config", "testhost.x86.dll.config"));
+            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
+                                                        "testhost.x86.dll.config"));
 #endif
 
             configuration.Properties["dialect"] =

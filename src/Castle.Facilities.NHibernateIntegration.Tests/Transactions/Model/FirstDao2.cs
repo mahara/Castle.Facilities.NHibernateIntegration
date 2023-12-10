@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    using Services.Transaction;
+    using Castle.Services.Transaction;
 
     [Transactional]
     public class FirstDao2
@@ -38,11 +38,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog Create(string name)
         {
             using var session = _sessionManager.OpenSession();
+
             var blog = new Blog
             {
                 Name = name
             };
+
             session.Save(blog);
+
             return blog;
         }
 
@@ -56,11 +59,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog CreateStateless(string name)
         {
             using var session = _sessionManager.OpenStatelessSession();
+
             var blog = new Blog
             {
                 Name = name
             };
+
             session.Insert(blog);
+
             return blog;
         }
     }

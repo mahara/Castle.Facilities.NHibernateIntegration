@@ -21,13 +21,14 @@ namespace Castle.Facilities.NHibernateIntegration
     using System.Data;
 
     using Castle.Facilities.NHibernateIntegration.Internal;
+    using Castle.Facilities.NHibernateIntegration.Util;
     using Castle.MicroKernel;
     using Castle.MicroKernel.Facilities;
     using Castle.Services.Transaction;
 
     using NHibernate;
 
-    using ITransaction = Services.Transaction.ITransaction;
+    using ITransaction = Castle.Services.Transaction.ITransaction;
 
     /// <summary>
     /// Default session manager implementation.
@@ -42,7 +43,10 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <summary>
         /// Format string for <see cref="IInterceptor" /> component key.
         /// </summary>
-        public const string InterceptorKeyFormatString = "nhibernate.session.interceptor.{0}";
+        public const string InterceptorKeyFormat = "nhibernate.session.interceptor.{0}";
+
+        internal const string SessionEnlistedContextKey = "nh.session.enlisted";
+        internal const string StatelessSessionEnlistedContextKey = "nh.statelessSession.enlisted";
 
         private readonly IKernel _kernel;
         private readonly ISessionStore _sessionStore;
@@ -54,10 +58,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="kernel">The <see cref="IKernel" />.</param>
         /// <param name="sessionStore">The <see cref="ISessionStore" />.</param>
         /// <param name="sessionFactoryResolver">The <see cref="ISessionFactoryResolver" />.</param>
-        public DefaultSessionManager(
-            IKernel kernel,
-            ISessionStore sessionStore,
-            ISessionFactoryResolver sessionFactoryResolver)
+        public DefaultSessionManager(IKernel kernel,
+                                     ISessionStore sessionStore,
+                                     ISessionFactoryResolver sessionFactoryResolver)
         {
             _kernel = kernel;
             _sessionStore = sessionStore;
@@ -84,7 +87,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public ISession OpenSession(string alias)
+        public ISession OpenSession(string? alias)
         {
             if (alias == null)
             {
@@ -93,23 +96,22 @@ namespace Castle.Facilities.NHibernateIntegration
 
             var transaction = GetCurrentTransaction();
 
-            var wrapped = _sessionStore.FindCompatibleSession(alias);
-
-            if (wrapped == null)
+            var wrappedSession = _sessionStore.FindCompatibleSession(alias);
+            if (wrappedSession == null)
             {
                 var session = CreateSession(alias);
 
-                wrapped = WrapSession(transaction != null, session);
-                EnlistIfNecessary(true, transaction, wrapped);
-                _sessionStore.Store(alias, wrapped);
+                wrappedSession = WrapSession(transaction != null, session);
+                EnlistIfNecessary(true, transaction, wrappedSession);
+                _sessionStore.Store(alias, wrappedSession);
             }
             else
             {
-                EnlistIfNecessary(false, transaction, wrapped);
-                wrapped = WrapSession(true, wrapped.InnerSession);
+                EnlistIfNecessary(false, transaction, wrappedSession);
+                wrappedSession = WrapSession(true, wrappedSession.InnerSession);
             }
 
-            return wrapped;
+            return wrappedSession;
         }
 
         /// <summary>
@@ -126,7 +128,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public IStatelessSession OpenStatelessSession(string alias)
+        public IStatelessSession OpenStatelessSession(string? alias)
         {
             if (alias == null)
             {
@@ -135,23 +137,22 @@ namespace Castle.Facilities.NHibernateIntegration
 
             var transaction = GetCurrentTransaction();
 
-            var wrapped = _sessionStore.FindCompatibleStatelessSession(alias);
-
-            if (wrapped == null)
+            var wrappedSession = _sessionStore.FindCompatibleStatelessSession(alias);
+            if (wrappedSession == null)
             {
                 var session = CreateStatelessSession(alias);
 
-                wrapped = WrapStatelessSession(transaction != null, session);
-                EnlistIfNecessary(true, transaction, wrapped);
-                _sessionStore.Store(alias, wrapped);
+                wrappedSession = WrapStatelessSession(transaction != null, session);
+                EnlistIfNecessary(true, transaction, wrappedSession);
+                _sessionStore.Store(alias, wrappedSession);
             }
             else
             {
-                EnlistIfNecessary(false, transaction, wrapped);
-                wrapped = WrapStatelessSession(true, wrapped.InnerSession);
+                EnlistIfNecessary(false, transaction, wrappedSession);
+                wrappedSession = WrapStatelessSession(true, wrappedSession.InnerSession);
             }
 
-            return wrapped;
+            return wrappedSession;
         }
 
         /// <summary>
@@ -161,20 +162,19 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="transaction">The transaction.</param>
         /// <param name="session">The session.</param>
         /// <returns></returns>
-        protected static bool EnlistIfNecessary(
-            bool weAreSessionOwner,
-            ITransaction transaction,
-            SessionDelegate session)
+        protected static bool EnlistIfNecessary(bool weAreSessionOwner,
+                                                ITransaction? transaction,
+                                                SessionDelegate session)
         {
             if (transaction == null)
             {
                 return false;
             }
 
-            var list = (IList<ISession>) transaction.Context["nh.session.enlisted"];
-
             bool shouldEnlist;
 
+            transaction.Context.TryGetValueAs(SessionEnlistedContextKey,
+                                              out IList<ISession>? list);
             if (list == null)
             {
                 list = new List<ISession>();
@@ -198,9 +198,15 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (shouldEnlist)
             {
-                if (session.Transaction == null || !session.Transaction.IsActive)
+                //
+                // NOTE:    SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
+                //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
+                //
+                var sessionTransaction = session.Transaction;
+                //var sessionTransaction = session.GetCurrentTransaction();
+                if (sessionTransaction == null || !sessionTransaction.IsActive)
                 {
-                    transaction.Context["nh.session.enlisted"] = list;
+                    transaction.Context[SessionEnlistedContextKey] = list;
 
                     var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(session.BeginTransaction(level), transaction.IsAmbient));
@@ -224,20 +230,19 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="transaction">The transaction.</param>
         /// <param name="statelessSession">The stateless session.</param>
         /// <returns></returns>
-        protected static bool EnlistIfNecessary(
-            bool weAreSessionOwner,
-            ITransaction transaction,
-            StatelessSessionDelegate statelessSession)
+        protected static bool EnlistIfNecessary(bool weAreSessionOwner,
+                                                ITransaction? transaction,
+                                                StatelessSessionDelegate statelessSession)
         {
             if (transaction == null)
             {
                 return false;
             }
 
-            var list = (IList<IStatelessSession>) transaction.Context["nh.statelessSession.enlisted"];
-
             bool shouldEnlist;
 
+            transaction.Context.TryGetValueAs(StatelessSessionEnlistedContextKey,
+                                              out IList<IStatelessSession>? list);
             if (list == null)
             {
                 list = new List<IStatelessSession>();
@@ -261,9 +266,15 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (shouldEnlist)
             {
-                if (statelessSession.Transaction == null || !statelessSession.Transaction.IsActive)
+                //
+                // NOTE:    StatelessSessionDelegate.Transaction, with slightly-modified implementation of IStatelessSession.GetCurrentTransaction(),
+                //          is used here to workaround a mocking issue (in Facilities103 issue) of IStatelessSession.GetSessionImplementation().
+                //
+                var sessionTransaction = statelessSession.Transaction;
+                //var sessionTransaction = statelessSession.GetCurrentTransaction();
+                if (sessionTransaction == null || !sessionTransaction.IsActive)
                 {
-                    transaction.Context["nh.statelessSession.enlisted"] = list;
+                    transaction.Context[StatelessSessionEnlistedContextKey] = list;
 
                     var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
                     transaction.Enlist(new ResourceAdapter(statelessSession.BeginTransaction(level), transaction.IsAmbient));
@@ -295,7 +306,7 @@ namespace Castle.Facilities.NHibernateIntegration
             };
         }
 
-        private ITransaction GetCurrentTransaction()
+        private ITransaction? GetCurrentTransaction()
         {
             var transactionManager = _kernel.Resolve<ITransactionManager>();
             return transactionManager.CurrentTransaction;
@@ -317,13 +328,14 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (sessionFactory == null)
             {
-                throw new FacilityException($"No {nameof(ISessionFactory)} implementation " +
-                                            $"associated with the given {nameof(ISession)} alias: {alias}.");
+                throw new FacilityException(
+                    $"No '{nameof(ISessionFactory)}' implementation " +
+                    $"associated with the given '{nameof(ISession)}' alias: '{alias}'.");
             }
 
             ISession session;
 
-            var aliasedInterceptorId = string.Format(InterceptorKeyFormatString, alias);
+            var aliasedInterceptorId = string.Format(InterceptorKeyFormat, alias);
 
             if (_kernel.HasComponent(aliasedInterceptorId))
             {
@@ -357,8 +369,9 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (sessionFactory == null)
             {
-                throw new FacilityException($"No {nameof(ISessionFactory)} implementation " +
-                                            $"associated with the given {nameof(IStatelessSession)} alias: {alias}.");
+                throw new FacilityException(
+                    $"No '{nameof(ISessionFactory)}' implementation " +
+                    $"associated with the given '{nameof(IStatelessSession)}' alias: '{alias}'.");
             }
 
             var session = sessionFactory.OpenStatelessSession();

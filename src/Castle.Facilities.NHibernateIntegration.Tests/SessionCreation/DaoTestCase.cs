@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-    using MicroKernel.Registration;
+    using Castle.MicroKernel.Registration;
 
     using NUnit.Framework;
 

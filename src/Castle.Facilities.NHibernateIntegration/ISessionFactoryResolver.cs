@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-    using MicroKernel.Facilities;
+    using Castle.MicroKernel.Facilities;
 
     using NHibernate;
 

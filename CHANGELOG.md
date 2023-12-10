@@ -28,19 +28,19 @@ Breaking Changes:
 - Upgraded [Castle.Facilities.AutoTx] version to 5.3.0
 - Replaced ```Castle.Services.Transaction.TransactionMode``` with ```System.Transactions.TransactionScopeOption```
 - Replaced ```Castle.Services.Transaction.IsolationMode``` with ```System.Transactions.IsolationLevel```
-- Refactored ```AbstractDictionaryStackSessionStore```
+- Refactored ```Castle.Facilities.NHibernateIntegration.SessionStores.AbstractDictionaryStackSessionStore```
 
 
 ## 5.2.0 (2022-06-25)
 
 Improvements:
-- Added ```AsyncLocalSessionStore```
+- Added ```Castle.Facilities.NHibernateIntegration.SessionStores.AsyncLocalSessionStore```
 - Updated [Castle.Windsor] version to 5.1.2
 - Updated [Castle.Services.Transaction] version to 5.2.0
 - Updated [Castle.Facilities.AutoTx] version to 5.2.0
 
 Breaking Changes:
-- Set ```AsyncLocalSessionStore``` as the default ```SessionStore```
+- Set ```Castle.Facilities.NHibernateIntegration.SessionStores.AsyncLocalSessionStore``` as the default ```SessionStore``` in ```Castle.Facilities.NHibernateIntegration.NHibernateFacility.DefaultSessionStoreType```
 
 
 ## 5.1.0 (2022-02-20)

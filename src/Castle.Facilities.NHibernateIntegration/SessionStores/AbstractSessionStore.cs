@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public bool IsCurrentActivityEmptyFor(string alias)
+        public bool IsCurrentActivityEmptyFor(string? alias)
         {
             var sessionStack = GetSessionStackFor(alias);
             var statelessSessionStack = GetStatelessSessionStackFor(alias);
@@ -47,7 +47,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public SessionDelegate FindCompatibleSession(string alias)
+        public SessionDelegate? FindCompatibleSession(string? alias)
         {
             var stack = GetSessionStackFor(alias);
 
@@ -79,23 +79,26 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// <param name="session"></param>
         public void Remove(SessionDelegate session)
         {
-            var stack = (Stack<SessionDelegate>) session.SessionStoreCookie;
+            var stack = (Stack<SessionDelegate>?) session.SessionStoreCookie;
 
             if (stack == null)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} called with no cookie.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' called with no cookie.");
             }
 
             if (stack.Count == 0)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} called for an empty stack.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' called for an empty stack.");
             }
 
             var current = stack.Peek() as ISession;
             if (session != current)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} tried to " +
-                                                  $"remove an {nameof(ISession)} which is not on the top or not in the stack at all.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' tried to " +
+                    $"remove an '{nameof(ISession)}' which is not on the top or not in the stack at all.");
             }
 
             stack.Pop();
@@ -108,7 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias">The alias.</param>
         /// <returns></returns>
-        protected abstract Stack<SessionDelegate> GetSessionStackFor(string alias);
+        protected abstract Stack<SessionDelegate> GetSessionStackFor(string? alias);
 
         /// <summary>
         /// Find a previously stored <see cref="StatelessSessionDelegate" /> for the given alias if available.
@@ -116,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        public StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias)
         {
             var stack = GetStatelessSessionStackFor(alias);
 
@@ -148,23 +151,26 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// <param name="statelessSession"></param>
         public void Remove(StatelessSessionDelegate statelessSession)
         {
-            var stack = (Stack<StatelessSessionDelegate>) statelessSession.SessionStoreCookie;
+            var stack = (Stack<StatelessSessionDelegate>?) statelessSession.SessionStoreCookie;
 
             if (stack == null)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} called with no cookie.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' called with no cookie.");
             }
 
             if (stack.Count == 0)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} called for an empty stack.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' called for an empty stack.");
             }
 
             var current = stack.Peek() as IStatelessSession;
             if (statelessSession != current)
             {
-                throw new InvalidProgramException($"{nameof(AbstractSessionStore)}.{nameof(Remove)} tried to " +
-                                                  $"remove an {nameof(IStatelessSession)} which is not on the top or not in the stack at all.");
+                throw new InvalidProgramException(
+                    $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' tried to " +
+                    $"remove an '{nameof(IStatelessSession)}' which is not on the top or not in the stack at all.");
             }
 
             stack.Pop();
@@ -177,6 +183,6 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias">The alias.</param>
         /// <returns></returns>
-        protected abstract Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string alias);
+        protected abstract Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias);
     }
 }

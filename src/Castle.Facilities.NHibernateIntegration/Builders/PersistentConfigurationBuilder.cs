@@ -19,13 +19,11 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
 
+    using Castle.Core.Configuration;
     using Castle.Core.Logging;
-
-    using Core.Configuration;
+    using Castle.Facilities.NHibernateIntegration.Persisters;
 
     using NHibernate.Cfg;
-
-    using Persisters;
 
     /// <summary>
     /// Serializes the <see cref="Configuration" /> for subsequent initializations.
@@ -103,7 +101,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
         }
 
-        private static IList<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
+        private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
         {
             var list = new List<string>();
 

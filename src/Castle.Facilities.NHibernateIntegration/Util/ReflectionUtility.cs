@@ -28,18 +28,18 @@ namespace Castle.Facilities.NHibernateIntegration.Util
     {
         private static readonly BindingFlags BindingFlags =
             BindingFlags.Instance |
-            BindingFlags.GetProperty |
             BindingFlags.Public |
-            BindingFlags.NonPublic;
+            BindingFlags.NonPublic |
+            BindingFlags.GetProperty;
 
         /// <summary>
         /// Gets the readable (non indexed) properties names and values.
         /// The keys holds the names of the properties.
         /// The values are the values of the properties.
         /// </summary>
-        public static IDictionary<string, object> GetPropertiesDictionary(object obj)
+        public static IDictionary<string, object?> GetPropertiesDictionary(object obj)
         {
-            var dictionary = new Dictionary<string, object>();
+            var dictionary = new Dictionary<string, object?>();
 
             foreach (var property in obj.GetType().GetProperties(BindingFlags))
             {

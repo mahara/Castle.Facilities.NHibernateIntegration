@@ -21,7 +21,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
     using System.IO;
     using System.Reflection;
 
-    using Core.Configuration;
+    using Castle.Core.Configuration;
 
     using NHibernate.Event;
 
@@ -82,7 +82,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             foreach (var item in facilityConfiguration.Children)
             {
-                var name = item.Attributes["name"];
+                var name = item.Attributes["name"]!;
                 var assemblyName = item.Attributes["assembly"];
                 if (assemblyName != null)
                 {
@@ -109,15 +109,15 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             foreach (var item in facilityConfiguration.Children)
             {
-                var eventName = item.Attributes["event"];
-                var typeName = item.Attributes["type"];
+                var eventName = item.Attributes["event"]!;
+                var typeName = item.Attributes["type"]!;
 
                 if (!Enum.IsDefined(typeof(ListenerType), eventName))
                 {
                     throw new ConfigurationErrorsException("An invalid listener type was specified.");
                 }
 
-                var classType = Type.GetType(typeName);
+                var classType = Type.GetType(typeName)!;
 
                 //if (classType == null)
                 //    throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
@@ -170,16 +170,19 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             // If assembly "NHibernate.Mapping.Attributes" is referenced in targetAssembly.
             if (Array.Exists(referencedAssemblies,
-                             (AssemblyName x) => string.Equals(x.Name, NHibernateMappingAttributesAssemblyName, StringComparison.Ordinal)))
+                             (AssemblyName assemblyName) =>
+                             string.Equals(assemblyName.Name,
+                                           NHibernateMappingAttributesAssemblyName,
+                                           StringComparison.Ordinal)))
             {
                 // Obtains, by reflection, the necessary tools to generate NHibernate mapping from attributes.
                 var hbmSerializerType =
                     Type.GetType(string.Concat(NHibernateMappingAttributesAssemblyName,
                                                ".HbmSerializer, ",
-                                               NHibernateMappingAttributesAssemblyName));
+                                               NHibernateMappingAttributesAssemblyName))!;
                 var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
-                var validateProperty = hbmSerializerType.GetProperty("Validate");
-                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
+                var validateProperty = hbmSerializerType.GetProperty("Validate")!;
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", [typeof(Assembly)])!;
 
                 // Enable validation of mapping documents generated from the mapping attributes.
                 validateProperty.SetValue(hbmSerializer, true, null);
@@ -187,8 +190,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 // Generates a stream of mapping documents from all decorated classes in targetAssembly
                 // and add it to NHibernate configuration.
                 configuration.AddInputStream(
-                    (MemoryStream) serializeMethod.Invoke(hbmSerializer,
-                                                          new object[] { Assembly.Load(targetAssemblyName) }));
+                    (MemoryStream) serializeMethod.Invoke(
+                        hbmSerializer,
+                        new object[] { Assembly.Load(targetAssemblyName) })!);
             }
         }
 
@@ -200,7 +204,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
             }
             catch (Exception ex)
             {
-                var message = string.Format("The assembly '{0}' could not be loaded.", assemblyName);
+                var message = $"The assembly '{assemblyName}' could not be loaded.";
 
                 throw new ConfigurationErrorsException(message, ex);
             }

@@ -17,7 +17,9 @@
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
     using System;
+#if NETFRAMEWORK
     using System.Runtime.Serialization;
+#endif
 
     /// <summary>
     /// Summary description for DataException.

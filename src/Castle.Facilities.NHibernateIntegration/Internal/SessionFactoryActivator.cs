@@ -68,12 +68,13 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         /// </summary>
         protected virtual void RaiseCreatingSessionFactory()
         {
-            var configuration = Model.ExtendedProperties[Constants.SessionFactoryConfiguration] as Configuration;
-
-            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
-            foreach (var contributor in contributors)
+            if (Model.ExtendedProperties[Constants.SessionFactoryConfiguration] is Configuration configuration)
             {
-                contributor.Process(Model.Name, configuration);
+                var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+                foreach (var contributor in contributors)
+                {
+                    contributor.Process(Model.Name, configuration);
+                }
             }
         }
     }

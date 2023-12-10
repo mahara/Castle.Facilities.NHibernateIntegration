@@ -36,7 +36,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Test]
-        public void TestTransaction()
+        public void FailedTestTransaction()
         {
             var service = Container.Resolve<RootService>();
             var dao = Container.Resolve<FirstDao>("myfirstdao");
@@ -57,7 +57,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         }
 
         [Test]
-        public void TestTransactionStateless()
+        public void FailedTestTransactionStateless()
         {
             var service = Container.Resolve<RootService>();
             var dao = Container.Resolve<FirstDao>("myfirstdao");

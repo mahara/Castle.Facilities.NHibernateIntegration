@@ -16,13 +16,12 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
+    using Castle.Facilities.NHibernateIntegration.Components.Dao;
+    using Castle.Services.Transaction;
+
     using NHibernate;
 
-    using NHibernateIntegration.Components.Dao;
-
     using NUnit.Framework;
-
-    using Services.Transaction;
 
     [Transactional]
     public class OrderDao2 : NHibernateGenericDao
@@ -38,6 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Order Create(float val)
         {
             using var session = _sessionManager.OpenSession("db2");
+
             var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
@@ -45,6 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 Value = val
             };
+
             session.Save(order);
 
             return order;
@@ -54,6 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Order CreateStateless(float val)
         {
             using var session = _sessionManager.OpenStatelessSession("db2");
+
             var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
@@ -61,6 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 Value = val
             };
+
             session.Insert(order);
 
             return order;

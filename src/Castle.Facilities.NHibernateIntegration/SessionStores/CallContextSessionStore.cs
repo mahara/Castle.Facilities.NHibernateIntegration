@@ -42,7 +42,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
 #if NETFRAMEWORK
-            return CallContext.GetData(SessionSlotKey) as IDictionary<string, Stack<SessionDelegate>>;
+            return (IDictionary<string, Stack<SessionDelegate>>) CallContext.GetData(SessionSlotKey);
 #else
             throw new PlatformNotSupportedException();
 #endif
@@ -60,7 +60,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
 #if NETFRAMEWORK
-            return CallContext.GetData(StatelessSessionSlotKey) as IDictionary<string, Stack<StatelessSessionDelegate>>;
+            return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.GetData(StatelessSessionSlotKey);
 #else
             throw new PlatformNotSupportedException();
 #endif

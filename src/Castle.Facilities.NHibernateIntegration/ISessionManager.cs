@@ -41,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        ISession OpenSession(string alias);
+        ISession OpenSession(string? alias);
 
         /// <summary>
         /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance.
@@ -54,6 +54,6 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        IStatelessSession OpenStatelessSession(string alias);
+        IStatelessSession OpenStatelessSession(string? alias);
     }
 }

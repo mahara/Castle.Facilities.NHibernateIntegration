@@ -36,9 +36,9 @@ namespace Castle.Facilities.NHibernateIntegration
     [Serializable]
     public class StatelessSessionDelegate : MarshalByRefObject, IStatelessSession
     {
-        private readonly bool _canClose;
         private readonly ISessionStore _sessionStore;
-        private object _cookie;
+        private readonly bool _canClose;
+        private object? _cookie;
         private bool _disposed;
 
         /// <summary>
@@ -47,34 +47,11 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="innerSession">The inner session.</param>
         /// <param name="sessionStore">The session store.</param>
         /// <param name="canClose">Set to <c>true</c> if can close the session.</param>
-        /// <remarks>
-        /// https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/compiler-messages/cs0618
-        /// <code>
-        /// #pragma warning disable 0618, 0612
-        /// #pragma warning restore 0618, 0612
-        /// </code>
-        /// </remarks>
         public StatelessSessionDelegate(IStatelessSession innerSession, ISessionStore sessionStore, bool canClose)
         {
             InnerSession = innerSession;
             _sessionStore = sessionStore;
             _canClose = canClose;
-        }
-
-        /// <summary>
-        /// Gets the inner session.
-        /// </summary>
-        /// <value>The inner session.</value>
-        public IStatelessSession InnerSession { get; }
-
-        /// <summary>
-        /// Gets or sets the session store cookie.
-        /// </summary>
-        /// <value>The session store cookie.</value>
-        public object SessionStoreCookie
-        {
-            get => _cookie;
-            set => _cookie = value;
         }
 
         /// <summary>
@@ -90,7 +67,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="closing">if set to <c>true</c> [closing].</param>
         /// <returns></returns>
-        protected IDbConnection DoClose(bool closing)
+        protected IDbConnection? DoClose(bool closing)
         {
             if (_disposed)
             {
@@ -105,9 +82,9 @@ namespace Castle.Facilities.NHibernateIntegration
             return null;
         }
 
-        internal IDbConnection InternalClose(bool closing)
+        internal IDbConnection? InternalClose(bool closing)
         {
-            IDbConnection connection = null;
+            IDbConnection? connection = null;
 
             _sessionStore.Remove(this);
 
@@ -125,6 +102,22 @@ namespace Castle.Facilities.NHibernateIntegration
         }
 
         /// <summary>
+        /// Gets the inner session.
+        /// </summary>
+        /// <value>The inner session.</value>
+        public IStatelessSession InnerSession { get; }
+
+        /// <summary>
+        /// Gets or sets the session store cookie.
+        /// </summary>
+        /// <value>The session store cookie.</value>
+        public object? SessionStoreCookie
+        {
+            get => _cookie;
+            set => _cookie = value;
+        }
+
+        /// <summary>
         /// Returns <see langword="true" /> if the supplied stateless sessions are equal, <see langword="false" /> otherwise.
         /// </summary>
         /// <param name="left">The left.</param>
@@ -138,7 +131,8 @@ namespace Castle.Facilities.NHibernateIntegration
                 return ReferenceEquals(ssdLeft.InnerSession, ssdRight.InnerSession);
             }
 
-            throw new NotSupportedException($"{nameof(AreEqual)}: left is {left.GetType().Name} and right is {right.GetType().Name}.");
+            throw new NotSupportedException(
+                $"{nameof(AreEqual)}: left is '{left.GetType().Name}' and right is '{right.GetType().Name}'.");
         }
 
         #region IStatelessSession Members
@@ -168,10 +162,10 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <see cref="StatelessSessionExtensions.GetCurrentTransaction(IStatelessSession)" />,
         /// because <see cref="IStatelessSession.GetSessionImplementation()" /> can return <see langword="null" />.
         /// </remarks>
-        public ITransaction Transaction =>
-            InnerSession?.GetSessionImplementation()?
-                         .ConnectionManager?
-                         .CurrentTransaction;
+        public ITransaction? Transaction =>
+            InnerSession.GetSessionImplementation()?
+                        .ConnectionManager?
+                        .CurrentTransaction;
 
         /// <inheritdoc />
         public ISessionImplementor GetSessionImplementation()

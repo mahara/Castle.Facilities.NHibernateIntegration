@@ -46,15 +46,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
         {
             var handler = Container.Kernel.GetHandler("sessionFactory1");
 
+            const BindingFlags BindingFlags = BindingFlags.NonPublic |
+                                              BindingFlags.Instance |
+                                              BindingFlags.GetField;
+
             var lifestyleManagerField =
-                typeof(DefaultHandler).GetField("lifestyleManager",
-                                                BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+                typeof(DefaultHandler).GetField("lifestyleManager", BindingFlags)!;
             var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
             Assert.That(lifeStyleManager, Is.Not.Null);
 
             var instanceField =
-                typeof(SingletonLifestyleManager).GetField("instance",
-                                                           BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField);
+                typeof(SingletonLifestyleManager).GetField("instance", BindingFlags)!;
             var instance = instanceField.GetValue(lifeStyleManager);
             Assert.That(instance, Is.Null);
 

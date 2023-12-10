@@ -14,17 +14,16 @@
 // limitations under the License.
 #endregion
 
+#if NETFRAMEWORK
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-#if NETFRAMEWORK
     using System;
     using System.Transactions;
 
-    using MicroKernel.Registration;
+    using Castle.MicroKernel.Registration;
+    using Castle.Services.Transaction;
 
     using NUnit.Framework;
-
-    using Services.Transaction;
 
     [TestFixture]
     public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
@@ -182,5 +181,5 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(orders.Length, Is.EqualTo(0));
         }
     }
-#endif
 }
+#endif

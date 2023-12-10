@@ -16,9 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
 {
-    using Builders;
-
-    using Core.Configuration;
+    using Castle.Core.Configuration;
+    using Castle.Facilities.NHibernateIntegration.Builders;
 
     using NUnit.Framework;
 
@@ -34,8 +33,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
             IConfiguration facilityConfiguration = new MutableConfiguration("myConfig");
             facilityConfiguration.Attributes["nhibernateConfigFile"] =
                 "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
-            var b = new XmlConfigurationBuilder();
-            var configuration = b.GetConfiguration(facilityConfiguration);
+            var builder = new XmlConfigurationBuilder();
+            var configuration = builder.GetConfiguration(facilityConfiguration);
             Assert.That(configuration, Is.Not.Null);
             var value = configuration.Properties["connection.provider"];
             Assert.That(value, Is.EqualTo("DummyProvider"));

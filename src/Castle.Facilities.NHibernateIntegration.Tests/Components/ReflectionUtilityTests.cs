@@ -19,9 +19,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
     using System;
     using System.Collections.Generic;
 
-    using NUnit.Framework;
+    using Castle.Facilities.NHibernateIntegration.Util;
 
-    using Util;
+    using NUnit.Framework;
 
     [TestFixture]
     public class ReflectionUtilityTests
@@ -41,6 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
                     new() { }
                 }
             };
+
             var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);
             Assert.That(dictionary.ContainsKey("Name"));
             Assert.That(dictionary.ContainsKey("Id"));

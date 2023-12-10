@@ -21,19 +21,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
     using System.IO;
     using System.Threading;
 
-    using Builders;
-
+    using Castle.Core.Configuration;
+    using Castle.Core.Resource;
+    using Castle.Facilities.NHibernateIntegration.Builders;
     using Castle.Facilities.NHibernateIntegration.Persisters;
     using Castle.MicroKernel;
-
-    using Core.Configuration;
-    using Core.Resource;
-
-    using MicroKernel.SubSystems.Configuration;
+    using Castle.MicroKernel.SubSystems.Configuration;
+    using Castle.Windsor.Configuration.Interpreters;
 
     using NUnit.Framework;
-
-    using Windsor.Configuration.Interpreters;
 
     using Configuration = NHibernate.Cfg.Configuration;
 
@@ -45,8 +41,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         private readonly Func<IObjectPersister<Configuration>> _objectPersister =
             ObjectPersisterFactory.Create<Configuration>;
 
-        private IConfiguration _facilityConfiguration;
-        private IConfigurationBuilder _configurationBuilder;
+        private IConfiguration _facilityConfiguration = null!;
+        private IConfigurationBuilder _configurationBuilder = null!;
 
         protected override string ConfigurationFile =>
             "EmptyConfiguration.xml";

@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration
 {
-    using Core.Configuration;
+    using Castle.Core.Configuration;
 
     using NHibernate.Cfg;
 

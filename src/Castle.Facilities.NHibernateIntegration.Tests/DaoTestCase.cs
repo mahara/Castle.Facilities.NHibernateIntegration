@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-    using MicroKernel.Registration;
+    using Castle.MicroKernel.Registration;
 
     using NUnit.Framework;
 
@@ -38,7 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
         }
 
         [Test]
-        public void CommonStatelessUsage()
+        public void CommonUsageStateless()
         {
             Container.Register(Component.For<BlogDao>().Named("blogdao"));
 

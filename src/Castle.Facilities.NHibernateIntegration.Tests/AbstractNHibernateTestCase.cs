@@ -16,17 +16,15 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
+    using Castle.Core.Resource;
     using Castle.Facilities.AutoTx;
-
-    using Core.Resource;
+    using Castle.Windsor;
+    using Castle.Windsor.Configuration.Interpreters;
 
     using NHibernate.Cfg;
     using NHibernate.Tool.hbm2ddl;
 
     using NUnit.Framework;
-
-    using Windsor;
-    using Windsor.Configuration.Interpreters;
 
     public abstract class AbstractNHibernateTestCase
     {
@@ -43,7 +41,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         public virtual void SetUp()
         {
             Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
+
             Container.AddFacility<AutoTxFacility>();
+
             ConfigureContainer();
             CreateDatabaseSchemas();
             OnSetUp();
@@ -78,7 +78,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             OnTearDown();
             DropDatabaseSchemas();
             Container.Dispose();
-            Container = null;
+            Container = null!;
         }
 
         protected virtual void OnTearDown()

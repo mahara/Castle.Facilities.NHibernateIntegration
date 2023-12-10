@@ -22,30 +22,30 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     using System.Web;
 #endif
 
-    using MicroKernel.Facilities;
+    using Castle.MicroKernel.Facilities;
 #if NET
 
     using Microsoft.AspNetCore.Http;
 #endif
 
-#if NETFRAMEWORK
+#if NET
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="HttpContext" />.
-    /// This is intended for legacy ASP.NET projects.
+    /// This is intended for ASP.NET (Core) projects.
     /// </summary>
 #else
     /// <summary>
     /// An implementation of <see cref="ISessionStore" />
     /// which relies on <see cref="HttpContext" />.
-    /// This is intended for ASP.NET (Core) projects.
+    /// This is intended for legacy ASP.NET projects.
     /// </summary>
 #endif
     public class WebSessionStore : AbstractDictionaryStackSessionStore
     {
 #if NET
         [CLSCompliant(false)]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
+        public IHttpContextAccessor? HttpContextAccessor { get; set; }
 #endif
 
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
@@ -70,34 +70,30 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         private T GetSessionDictionaryFromWebContext<T>(string key)
         {
-#if NETFRAMEWORK
-            var value = GetWebContext().Items[key];
-#else
+#if NET
             if (!GetWebContext().Items.TryGetValue(key, out var value))
             {
-                return default;
+                return default!;
             }
+#else
+            var value = GetWebContext().Items[key];
 #endif
 
-            return (T) value;
+            return (T) value!;
         }
 
         private void StoreSessionDictionaryInWebContext<T>(string key, T value)
         {
-#if NETFRAMEWORK
             GetWebContext().Items[key] = value;
-#else
-            GetWebContext().Items[key] = value;
-#endif
         }
 
-#if NETFRAMEWORK
+#if NET
         private HttpContext GetWebContext()
         {
-            var context = HttpContext.Current;
+            var context = HttpContextAccessor?.HttpContext;
             if (context == null)
             {
-                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(HttpContext)}.");
+                throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
             }
 
             return context;
@@ -105,10 +101,10 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 #else
         private HttpContext GetWebContext()
         {
-            var context = HttpContextAccessor.HttpContext;
+            var context = HttpContext.Current;
             if (context == null)
             {
-                throw new FacilityException($"{nameof(WebSessionStore)}: Could not obtain reference to {nameof(HttpContext)}.");
+                throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
             }
 
             return context;

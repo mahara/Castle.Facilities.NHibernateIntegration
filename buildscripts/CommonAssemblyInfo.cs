@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 [assembly: CLSCompliant(true)]
 
 

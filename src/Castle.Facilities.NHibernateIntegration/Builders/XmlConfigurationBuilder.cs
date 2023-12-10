@@ -18,9 +18,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     using System.Xml;
 
-    using Core.Configuration;
+    using Castle.Core.Configuration;
 
-    using Internal;
+    using Castle.Facilities.NHibernateIntegration.Internal;
 
     using NHibernate.Cfg;
 
@@ -38,7 +38,9 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         {
             Configuration configuration;
 
-            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"];
+            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"] ??
+                                    throw new ArgumentNullException(nameof(facilityConfiguration));
+
             using (var configurationResource = new FileAssemblyResource(configurationFile))
             {
                 using var reader = XmlReader.Create(configurationResource.GetStreamReader());

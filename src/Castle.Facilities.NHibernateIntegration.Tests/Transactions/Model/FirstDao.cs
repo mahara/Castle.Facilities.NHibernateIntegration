@@ -42,8 +42,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog Create(string name)
         {
             using var session = _sessionManager.OpenSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
             Assert.That(transaction.IsActive, Is.True);
 
@@ -51,6 +51,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 Name = name
             };
+
             session.Save(blog);
 
             return blog;
@@ -60,8 +61,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void Delete(string name)
         {
             using var session = _sessionManager.OpenSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             session.Delete($"from Blog b where b.Name ='{name}'");
@@ -71,6 +72,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void AddBlogRef(BlogRef blogRef)
         {
             using var session = _sessionManager.OpenSession();
+
             session.Save(blogRef);
         }
 
@@ -84,8 +86,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog CreateStateless(string name)
         {
             using var session = _sessionManager.OpenStatelessSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
             Assert.That(transaction.IsActive, Is.True);
 
@@ -93,7 +95,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             {
                 Name = name
             };
+
             session.Insert(blog);
+
             return blog;
         }
 
@@ -101,8 +105,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void DeleteStateless(string name)
         {
             using var session = _sessionManager.OpenStatelessSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             session.Delete($"from Blog b where b.Name ='{name}'");
@@ -111,6 +115,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void AddBlogRefStateless(BlogRef blogRef)
         {
             using var session = _sessionManager.OpenStatelessSession();
+
             session.Insert(blogRef);
         }
     }

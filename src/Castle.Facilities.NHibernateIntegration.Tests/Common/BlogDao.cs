@@ -19,7 +19,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     using System.Collections;
     using System.Collections.Generic;
 
-    using MicroKernel;
+    using Castle.MicroKernel;
 
     public class BlogDao
     {
@@ -35,6 +35,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         public Blog CreateBlog(string name)
         {
             using var session = SessionManager.OpenSession();
+
             var blog = new Blog
             {
                 Name = name,
@@ -46,22 +47,25 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             return blog;
         }
 
-        public IList ObtainBlogs()
+        public IList<Blog> ObtainBlogs()
         {
             using var session = SessionManager.OpenSession();
-            return session.CreateQuery("from Blog").List();
+
+            return session.CreateQuery("from Blog").List<Blog>();
         }
 
         public void DeleteAll()
         {
             using var session = SessionManager.OpenSession();
+
             session.Delete("from Blog");
         }
 
-        public IList ObtainBlogsStateless()
+        public IList<Blog> ObtainBlogsStateless()
         {
             using var session = SessionManager.OpenStatelessSession();
-            return session.CreateQuery("from Blog").List();
+
+            return session.CreateQuery("from Blog").List<Blog>();
         }
     }
 }

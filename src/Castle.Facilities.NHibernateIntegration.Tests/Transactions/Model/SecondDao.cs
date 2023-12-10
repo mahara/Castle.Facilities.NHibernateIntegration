@@ -38,6 +38,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem Create(Blog blog)
         {
             using var session = _sessionManager.OpenSession();
+
             var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
@@ -48,6 +49,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Text = "x",
                 DateTime = DateTime.Now,
             };
+
             session.Save(item);
 
             return item;
@@ -57,6 +59,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem CreateWithException(Blog blog)
         {
             using var session = _sessionManager.OpenSession();
+
             var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
@@ -75,8 +78,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem CreateWithException2(Blog blog)
         {
             using var session = _sessionManager.OpenSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             var item = new BlogItem
@@ -95,8 +98,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem CreateStateless(Blog blog)
         {
             using var session = _sessionManager.OpenStatelessSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             var item = new BlogItem
@@ -106,6 +109,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Text = "x",
                 DateTime = DateTime.Now,
             };
+
             session.Insert(item);
 
             return item;
@@ -115,8 +119,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem CreateWithExceptionStateless(Blog blog)
         {
             using var session = _sessionManager.OpenStatelessSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             var item = new BlogItem
@@ -134,8 +138,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem CreateWithExceptionStateless2(Blog blog)
         {
             using var session = _sessionManager.OpenStatelessSession();
-            var transaction = session.GetCurrentTransaction();
 
+            var transaction = session.GetCurrentTransaction();
             Assert.That(transaction, Is.Not.Null);
 
             var item = new BlogItem
@@ -145,6 +149,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 Text = "x",
                 DateTime = DateTime.Now,
             };
+
             session.Insert(item);
 
             throw new NotSupportedException("I don't feel like supporting this");

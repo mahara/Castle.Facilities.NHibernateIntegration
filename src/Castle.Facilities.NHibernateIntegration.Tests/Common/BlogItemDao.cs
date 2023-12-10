@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-    using NHibernateIntegration.Components.Dao;
+    using Castle.Facilities.NHibernateIntegration.Components.Dao;
 
     public class BlogItemDao : NHibernateGenericDao
     {

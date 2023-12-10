@@ -84,7 +84,8 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             if (!_dictionary.TryGetValue(alias, out var componentKey))
             {
-                throw new FacilityException($"An {nameof(ISessionFactory)} component was not mapped for the specified alias: {alias}.");
+                throw new FacilityException(
+                    $"An '{nameof(ISessionFactory)}' component was not mapped for the specified alias: '{alias}'.");
             }
 
             return _kernel.Resolve<ISessionFactory>(componentKey);

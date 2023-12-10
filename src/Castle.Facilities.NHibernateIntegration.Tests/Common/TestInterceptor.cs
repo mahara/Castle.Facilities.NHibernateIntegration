@@ -47,17 +47,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 
         #region IInterceptor Members
 
-        public override int[] FindDirty(object entity,
-                                        object id,
-                                        object[] currentState,
-                                        object[] previousState,
-                                        string[] propertyNames,
-                                        IType[] types)
+        public override int[]? FindDirty(object entity,
+                                         object id,
+                                         object[] currentState,
+                                         object[] previousState,
+                                         string[] propertyNames,
+                                         IType[] types)
         {
             return null;
         }
 
-        public override object Instantiate(string clazz, object id)
+        public override object? Instantiate(string clazz, object id)
         {
             _instantiationCall = true;
 

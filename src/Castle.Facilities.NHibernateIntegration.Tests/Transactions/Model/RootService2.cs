@@ -18,9 +18,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     using System;
 
-    using NHibernateIntegration.Components.Dao;
+    using Castle.Facilities.NHibernateIntegration.Components.Dao;
 
-    using Services.Transaction;
+    using Castle.Services.Transaction;
 
     [Transactional]
     public class RootService2 : NHibernateGenericDao
@@ -28,20 +28,22 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         private readonly FirstDao2 _firstDao;
         private readonly SecondDao2 _secondDao;
 
-        public RootService2(FirstDao2 firstDao, SecondDao2 secondDao, ISessionManager sessionManager) :
+        public RootService2(ISessionManager sessionManager, FirstDao2 firstDao, SecondDao2 secondDao) :
             base(sessionManager)
         {
             _firstDao = firstDao;
             _secondDao = secondDao;
         }
 
-        public OrderDao2 OrderDao { get; set; }
+        public OrderDao2 OrderDao { get; set; } = null!;
 
         [Transaction(IsDistributed = true)]
         public virtual void TwoDbOperationCreate(bool throwException)
         {
             var blog = _firstDao.Create();
+
             _secondDao.Create(blog);
+
             OrderDao.Create(1.122f);
 
             if (throwException)
@@ -54,7 +56,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void TwoDbOperationCreateStateless(bool throwException)
         {
             var blog = _firstDao.CreateStateless();
+
             _secondDao.CreateStateless(blog);
+
             OrderDao.CreateStateless(1.122f);
 
             if (throwException)

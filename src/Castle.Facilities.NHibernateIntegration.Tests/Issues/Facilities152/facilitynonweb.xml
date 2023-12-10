@@ -11,7 +11,7 @@
           <item key="connection.connection_string">Data Source=.; Initial Catalog=test; Integrated Security=SSPI</item>
           <item key="connection.provider">NHibernate.Connection.DriverConnectionProvider</item>
           <item key="connection.driver_class">NHibernate.Driver.Sql2008ClientDriver</item>
-          <item key="dialect">NHibernate.Dialect.MsSql2008Dialect</item>
+          <item key="dialect">NHibernate.Dialect.MsSql2012Dialect</item>
         </settings>
 
         <assemblies>

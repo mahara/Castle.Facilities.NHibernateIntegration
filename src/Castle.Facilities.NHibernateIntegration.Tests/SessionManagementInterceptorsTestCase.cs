@@ -16,9 +16,9 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    using Common;
+    using Castle.MicroKernel.Registration;
 
-    using MicroKernel.Registration;
+    using Common;
 
     using NUnit.Framework;
 

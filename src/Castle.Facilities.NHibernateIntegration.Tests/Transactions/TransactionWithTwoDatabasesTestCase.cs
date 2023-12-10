@@ -55,6 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(blogItems, Has.Length.EqualTo(1));
             Assert.That(orders, Has.Length.EqualTo(1));
         }
+
         [Test]
         public void ExceptionOnEndWithTwoDatabases()
         {
@@ -81,7 +82,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             Assert.That(blogitems.Length, Is.EqualTo(0));
             Assert.That(orders.Length, Is.EqualTo(0));
         }
-
 
         [Test]
         public void SuccessfulSituationWithTwoDatabasesStateless()

@@ -19,20 +19,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
     using System;
     using System.Collections.Generic;
 
-    using Builders;
-
+    using Castle.Core.Configuration;
+    using Castle.Core.Resource;
+    using Castle.Facilities.NHibernateIntegration.Builders;
     using Castle.MicroKernel;
-
-    using Core.Configuration;
-    using Core.Resource;
-
-    using MicroKernel.SubSystems.Configuration;
+    using Castle.MicroKernel.SubSystems.Configuration;
+    using Castle.Windsor.Configuration.Interpreters;
 
     using Moq;
 
     using NUnit.Framework;
-
-    using Windsor.Configuration.Interpreters;
 
     [TestFixture]
     public class PersistentConfigurationBuilderConventionsFixture
@@ -55,7 +51,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
                 .Setup(x =>
-                       x.IsNewConfigurationRequired(It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)), It.IsAny<IList<string>>()))
+                       x.IsNewConfigurationRequired(
+                           It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
+                           It.IsAny<IList<string>>()))
                 .Returns(false)
                 .Verifiable();
 

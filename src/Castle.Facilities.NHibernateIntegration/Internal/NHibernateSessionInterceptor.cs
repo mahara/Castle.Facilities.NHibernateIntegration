@@ -32,7 +32,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
     public class NHibernateSessionInterceptor : IInterceptor, IOnBehalfAware
     {
         private readonly ISessionManager _sessionManager;
-        private IEnumerable<MethodInfo> _metaInfo;
+        private IEnumerable<MethodInfo>? _metaInfo;
 
         /// <summary>
         /// Constructor.
@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
         {
             MethodInfo methodInfo;
 
-            if (invocation.Method.DeclaringType.IsInterface)
+            if (invocation.Method.DeclaringType!.IsInterface)
             {
                 methodInfo = invocation.MethodInvocationTarget;
             }

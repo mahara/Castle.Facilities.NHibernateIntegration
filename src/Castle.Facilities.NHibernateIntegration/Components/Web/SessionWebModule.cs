@@ -14,17 +14,16 @@
 // limitations under the License.
 #endregion
 
+#if NETFRAMEWORK
 namespace Castle.Facilities.NHibernateIntegration.Components.Web
 {
-#if NETFRAMEWORK
     using System;
     using System.Web;
 
-    using MicroKernel.Facilities;
+    using Castle.MicroKernel.Facilities;
+    using Castle.Windsor;
 
     using NHibernate;
-
-    using Windsor;
 
     /// <summary>
     /// HttpModule to set up a session for the request lifetime.
@@ -94,8 +93,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
         {
             if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
             {
-                throw new FacilityException("You must extend the HttpApplication in your web project " +
-                                            "and implement the IContainerAccessor to properly expose your container instance.");
+                throw new FacilityException($"You must extend the '{nameof(HttpApplication)}' in your web project " +
+                                            $"and implement the '{nameof(IContainerAccessor)}' to properly expose your container instance.");
             }
 
             var container = containerAccessor.Container;
@@ -103,11 +102,11 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
             if (container == null)
             {
                 throw new FacilityException("The container seems to be unavailable (null) " +
-                                            "in your HttpApplication subclass.");
+                                            $"in your '{nameof(HttpApplication)}' subclass.");
             }
 
             return container;
         }
     }
-#endif
 }
+#endif

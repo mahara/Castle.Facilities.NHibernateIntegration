@@ -18,11 +18,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
     using System;
 
+    using Castle.Facilities.NHibernateIntegration.Components.Dao;
+    using Castle.Services.Transaction;
+
     using NHibernate.Criterion;
-
-    using NHibernateIntegration.Components.Dao;
-
-    using Services.Transaction;
 
     [Transactional]
     public class RootService : NHibernateGenericDao
@@ -30,14 +29,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         private readonly FirstDao _firstDao;
         private readonly SecondDao _secondDao;
 
-        public RootService(FirstDao firstDao, SecondDao secondDao, ISessionManager sessionManager) :
+        public RootService(ISessionManager sessionManager, FirstDao firstDao, SecondDao secondDao) :
             base(sessionManager)
         {
             _firstDao = firstDao;
             _secondDao = secondDao;
         }
 
-        public OrderDao OrderDao { get; set; }
+        public OrderDao OrderDao { get; set; } = null!;
 
         [Transaction]
         public virtual Blog CreateBlogUsingDetachedCriteria(string name)
@@ -49,7 +48,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog FindBlogUsingDetachedCriteria(string name)
         {
             var dc = DetachedCriteria.For<Blog>();
-            //dc.Add(Property.ForName("Name").Eq(name));
             dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
 
             var session = SessionManager.OpenSession();
@@ -60,6 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual BlogItem SuccessfulCall()
         {
             var blog = _firstDao.Create();
+
             return _secondDao.Create(blog);
         }
 
@@ -67,6 +66,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void CallWithException()
         {
             var blog = _firstDao.Create();
+
             _secondDao.CreateWithException(blog);
         }
 
@@ -74,6 +74,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void CallWithException2()
         {
             var blog = _firstDao.Create();
+
             _secondDao.CreateWithException2(blog);
         }
 
@@ -85,6 +86,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 ParentBlog = blog,
                 Title = "title"
             };
+
             _firstDao.AddBlogRef(blogRef);
 
             _firstDao.Delete("Blog1");
@@ -94,7 +96,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void TwoDbOperationCreate(bool throwException)
         {
             var blog = _firstDao.Create();
+
             _secondDao.Create(blog);
+
             OrderDao.Create(1.122f);
 
             if (throwException)
@@ -113,7 +117,6 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
         {
             var dc = DetachedCriteria.For<Blog>();
-            //dc.Add(Property.ForName("Name").Eq(name));
             dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
 
             var session = SessionManager.OpenStatelessSession();
@@ -149,6 +152,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
                 ParentBlog = blog,
                 Title = "title"
             };
+
             _firstDao.AddBlogRefStateless(blogRef);
 
             _firstDao.DeleteStateless("Blog1");
@@ -158,7 +162,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         public virtual void TwoDbOperationCreateStateless(bool throwException)
         {
             var blog = _firstDao.CreateStateless();
+
             _secondDao.CreateStateless(blog);
+
             OrderDao.CreateStateless(1.122f);
 
             if (throwException)

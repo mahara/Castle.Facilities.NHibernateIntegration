@@ -20,6 +20,8 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
     using NHibernate.Criterion;
 
+    using Array = System.Array;
+
     /// <summary>
     /// Summary description for INHibernateGenericDao.
     /// </summary>
@@ -29,12 +31,25 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
     public interface INHibernateGenericDao : IGenericDao
     {
         /// <summary>
+        /// Initializes the lazy properties.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        void InitializeLazyProperties(object? instance);
+
+        /// <summary>
+        /// Initializes the lazy property.
+        /// </summary>
+        /// <param name="instance">The instance.</param>
+        /// <param name="propertyName">Name of the property.</param>
+        void InitializeLazyProperty(object? instance, string? propertyName);
+
+        /// <summary>
         /// Returns all instances found for the specified type using criteria.
         /// </summary>
         /// <param name="type">The target type.</param>
         /// <param name="criterias">The criteria expression</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAll(Type type, ICriterion[] criterias);
+        Array? FindAll(Type type, ICriterion[]? criterias);
 
         /// <summary>
         /// Returns all instances found for the specified type using criteria.
@@ -44,7 +59,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAll(Type type, ICriterion[] criterias, int firstRow, int maxRows);
+        Array? FindAll(Type type, ICriterion[]? criterias, int firstRow, int maxRows);
 
         /// <summary>
         /// Returns all instances found for the specified type using criteria.
@@ -53,7 +68,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="criterias">The criteria expression</param>
         /// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems);
+        Array? FindAll(Type type, ICriterion[]? criterias, Order[]? sortItems);
 
         /// <summary>
         /// Returns all instances found for the specified type using criteria.
@@ -64,14 +79,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAll(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows);
+        Array? FindAll(Type type, ICriterion[]? criterias, Order[]? sortItems, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds all with custom query.
         /// </summary>
         /// <param name="queryString">The query string.</param>
         /// <returns></returns>
-        Array FindAllWithCustomQuery(string queryString);
+        Array? FindAllWithCustomQuery(string? queryString);
 
         /// <summary>
         /// Finds all with custom HQL query.
@@ -80,14 +95,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns></returns>
-        Array FindAllWithCustomQuery(string queryString, int firstRow, int maxRows);
+        Array? FindAllWithCustomQuery(string? queryString, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds all with named HQL query.
         /// </summary>
         /// <param name="namedQuery">The named query.</param>
         /// <returns></returns>
-        Array FindAllWithNamedQuery(string namedQuery);
+        Array? FindAllWithNamedQuery(string? namedQuery);
 
         /// <summary>
         /// Finds all with named HQL query.
@@ -96,20 +111,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns></returns>
-        Array FindAllWithNamedQuery(string namedQuery, int firstRow, int maxRows);
-
-        /// <summary>
-        /// Initializes the lazy properties.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        void InitializeLazyProperties(object instance);
-
-        /// <summary>
-        /// Initializes the lazy property.
-        /// </summary>
-        /// <param name="instance">The instance.</param>
-        /// <param name="propertyName">Name of the property.</param>
-        void InitializeLazyProperty(object instance, string propertyName);
+        Array? FindAllWithNamedQuery(string? namedQuery, int firstRow, int maxRows);
 
         /// <summary>
         /// Returns all instances found for the specified type
@@ -118,7 +120,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="type">The target type.</param>
         /// <param name="criterias">The criteria expression.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type, ICriterion[] criterias);
+        Array? FindAllStateless(Type type, ICriterion[]? criterias);
 
         /// <summary>
         /// Returns all instances found for the specified type
@@ -129,7 +131,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type, ICriterion[] criterias, int firstRow, int maxRows);
+        Array? FindAllStateless(Type type, ICriterion[]? criterias, int firstRow, int maxRows);
 
         /// <summary>
         /// Returns all instances found for the specified type
@@ -139,7 +141,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="criterias">The criteria expression.</param>
         /// <param name="sortItems">An <see cref="Array" /> of <see cref="Order" /> objects.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems);
+        Array? FindAllStateless(Type type, ICriterion[]? criterias, Order[]? sortItems);
 
         /// <summary>
         /// Returns all instances found for the specified type
@@ -151,14 +153,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type, ICriterion[] criterias, Order[] sortItems, int firstRow, int maxRows);
+        Array? FindAllStateless(Type type, ICriterion[]? criterias, Order[]? sortItems, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds all with custom query using IStatelessSession.
         /// </summary>
         /// <param name="queryString">The query string.</param>
         /// <returns></returns>
-        Array FindAllWithCustomQueryStateless(string queryString);
+        Array? FindAllWithCustomQueryStateless(string? queryString);
 
         /// <summary>
         /// Finds all with custom HQL query using IStatelessSession.
@@ -167,14 +169,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns></returns>
-        Array FindAllWithCustomQueryStateless(string queryString, int firstRow, int maxRows);
+        Array? FindAllWithCustomQueryStateless(string? queryString, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds all with named HQL query using IStatelessSession.
         /// </summary>
         /// <param name="namedQuery">The named query.</param>
         /// <returns></returns>
-        Array FindAllWithNamedQueryStateless(string namedQuery);
+        Array? FindAllWithNamedQueryStateless(string? namedQuery);
 
         /// <summary>
         /// Finds all with named HQL query using IStatelessSession.
@@ -183,6 +185,6 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns></returns>
-        Array FindAllWithNamedQueryStateless(string namedQuery, int firstRow, int maxRows);
+        Array? FindAllWithNamedQueryStateless(string? namedQuery, int firstRow, int maxRows);
     }
 }

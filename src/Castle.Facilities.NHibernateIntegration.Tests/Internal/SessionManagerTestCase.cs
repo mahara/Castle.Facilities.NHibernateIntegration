@@ -44,11 +44,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Value = 9.3f
             };
             session.SaveOrUpdate(order);
+
             session.Close();
 
             session = manager.OpenSession(sessionAlias);
 
             session.Get(typeof(Order), 1);
+
             session.Close();
 
             var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
@@ -70,12 +72,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             var session1 = manager.OpenSession();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             // Nested
             using (var session2 = manager.OpenSession())
@@ -83,30 +86,29 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2, Is.Not.Null);
                 Assert.That(session1, Is.Not.Null);
 
-                var transaction1 = session1.GetCurrentTransaction();
-                Assert.That(transaction1, Is.Not.Null,
-                                 "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.That(transaction1.IsActive, Is.True,
-                              "After requesting compatible session, first session is enlisted in transaction too.");
+                var tx1 = session1.GetCurrentTransaction();
+                Assert.That(tx1, Is.Not.Null,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(tx1.IsActive, Is.True,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
 
                 using (var session3 = manager.OpenSession())
                 {
                     Assert.That(session3, Is.Not.Null);
 
-                    var transaction3 = session3.GetCurrentTransaction();
-                    Assert.That(transaction3, Is.Not.Null);
-                    Assert.That(transaction3.IsActive, Is.True);
+                    var tx3 = session3.GetCurrentTransaction();
+                    Assert.That(tx3, Is.Not.Null);
+                    Assert.That(tx3.IsActive, Is.True);
                 }
 
                 var sessionDelegate1 = (SessionDelegate) session1;
                 var sessionDelegate2 = (SessionDelegate) session2;
-
                 Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
             Assert.That(session1.IsConnected, Is.True);
 
             session1.Dispose();
@@ -125,12 +127,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 
             var session1 = manager.OpenStatelessSession();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             // Nested
             using (var session2 = manager.OpenStatelessSession())
@@ -138,19 +141,19 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(session2, Is.Not.Null);
                 Assert.That(session1, Is.Not.Null);
 
-                var transaction1 = session1.GetCurrentTransaction();
-                Assert.That(transaction1, Is.Not.Null,
-                                 "After requesting compatible session, first session is enlisted in transaction too.");
-                Assert.That(transaction1.IsActive, Is.True,
-                              "After requesting compatible session, first session is enlisted in transaction too.");
+                var tx1 = session1.GetCurrentTransaction();
+                Assert.That(tx1, Is.Not.Null,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
+                Assert.That(tx1.IsActive, Is.True,
+                            "After requesting compatible session, first session is enlisted in transaction too.");
 
                 using (var session3 = manager.OpenSession())
                 {
                     Assert.That(session3, Is.Not.Null);
 
-                    var transaction3 = session3.GetCurrentTransaction();
-                    Assert.That(transaction3, Is.Not.Null);
-                    Assert.That(transaction3.IsActive, Is.True);
+                    var tx3 = session3.GetCurrentTransaction();
+                    Assert.That(tx3, Is.Not.Null);
+                    Assert.That(tx3.IsActive, Is.True);
                 }
 
                 var sessionDelegate1 = (StatelessSessionDelegate) session1;
@@ -158,9 +161,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
                 Assert.That(sessionDelegate2.InnerSession, Is.SameAs(sessionDelegate1.InnerSession));
             }
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
             Assert.That(session1.IsConnected, Is.True);
 
             session1.Dispose();
@@ -177,21 +180,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             var session = manager.OpenSession();
+
             Assert.That(session, Is.Not.Null);
             Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session.Dispose();
 
@@ -206,26 +211,29 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
 
-            transaction.Begin();
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             var session1 = manager.OpenSession();
+
             Assert.That(session1, Is.Not.Null);
             Assert.That(session1.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session1.IsConnected, Is.True);
 
             var session2 = manager.OpenSession("db2");
+
             Assert.That(session2, Is.Not.Null);
             Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session2.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session2.Dispose();
             session1.Dispose();
@@ -242,21 +250,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
 
-            transaction.Begin();
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             var session = manager.OpenStatelessSession();
+
             Assert.That(session, Is.Not.Null);
             Assert.That(session.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session.Dispose();
 
@@ -271,26 +281,29 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             var session1 = manager.OpenStatelessSession();
+
             Assert.That(session1, Is.Not.Null);
             Assert.That(session1.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session1.IsConnected, Is.True);
 
             var session2 = manager.OpenStatelessSession("db2");
+
             Assert.That(session2, Is.Not.Null);
             Assert.That(session2.GetCurrentTransaction(), Is.Not.Null);
             Assert.That(session2.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session2.Dispose();
             session1.Dispose();
@@ -303,7 +316,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            Assert.Throws<FacilityException>(() => manager.OpenSession("something in the way she moves"));
+            Assert.Throws<FacilityException>(
+                () => manager.OpenSession("something in the way she moves"));
         }
 
         [Test]
@@ -311,7 +325,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            Assert.Throws<FacilityException>(() => manager.OpenStatelessSession("something in the way she moves"));
+            Assert.Throws<FacilityException>(
+                () => manager.OpenStatelessSession("something in the way she moves"));
         }
 
         [Test]
@@ -322,18 +337,23 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             var sessionAlias = "db2";
 
             var session = manager.OpenSession(sessionAlias);
+
             var o = new Order
             {
                 Value = 9.3f
             };
             session.SaveOrUpdate(o);
+
             session.Close();
 
             session = manager.OpenSession(sessionAlias);
+
             session.Get(typeof(Order), 1);
+
             session.Close();
 
             var interceptor = Container.Resolve<TestInterceptor>("nhibernate.session.interceptor.intercepted");
+
             Assert.That(interceptor, Is.Not.Null);
             Assert.That(interceptor.ConfirmOnSaveCall(), Is.False);
             Assert.That(interceptor.ConfirmInstantiationCall(), Is.False);
@@ -350,12 +370,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             // Open connection to first database and enlist session in running transaction.
             var session1 = manager.OpenSession();
@@ -373,16 +394,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             {
                 Assert.That(session3, Is.Not.Null);
 
-                var transaction3 = session3.GetCurrentTransaction();
-                Assert.That(transaction3, Is.Not.Null);
-                Assert.That(transaction3.IsActive, Is.True);
+                var tx3 = session3.GetCurrentTransaction();
+                Assert.That(tx3, Is.Not.Null);
+                Assert.That(tx3.IsActive, Is.True);
             }
 
             Assert.That(session1.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session1.Dispose();
 
@@ -398,12 +419,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            var transactionManager = Container.Resolve<ITransactionManager>();
-            var transaction =
-                transactionManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
-                                                     System.Transactions.IsolationLevel.Serializable);
+            var txManager = Container.Resolve<ITransactionManager>();
 
-            transaction.Begin();
+            var tx = txManager.CreateTransaction(System.Transactions.TransactionScopeOption.Required,
+                                                 System.Transactions.IsolationLevel.Serializable);
+            Assert.That(tx, Is.Not.Null);
+
+            tx.Begin();
 
             // Open connection to first database and enlist session in running transaction.
             var session1 = manager.OpenStatelessSession();
@@ -421,16 +443,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             {
                 Assert.That(session3, Is.Not.Null);
 
-                var transaction3 = session3.GetCurrentTransaction();
-                Assert.That(transaction3, Is.Not.Null);
-                Assert.That(transaction3.IsActive, Is.True);
+                var tx3 = session3.GetCurrentTransaction();
+                Assert.That(tx3, Is.Not.Null);
+                Assert.That(tx3.IsActive, Is.True);
             }
 
             Assert.That(session1.IsConnected, Is.True);
 
-            transaction.Commit();
+            tx.Commit();
 
-            Assert.That(transaction.Status == TransactionStatus.Committed, Is.True);
+            Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
 
             session1.Dispose();
 

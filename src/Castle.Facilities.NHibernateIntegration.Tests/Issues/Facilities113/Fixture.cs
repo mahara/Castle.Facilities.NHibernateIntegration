@@ -16,7 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
 {
-    using MicroKernel.Registration;
+    using Castle.MicroKernel.Registration;
 
     using Moq;
 

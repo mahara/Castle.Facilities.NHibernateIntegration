@@ -29,11 +29,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected AbstractDictionaryStackSessionStore()
         {
             SessionSlotKey =
-                string.Format("nh.facility.stacks.session.{0}",
-                              Guid.NewGuid());
+                $"nh.facility.stacks.session.{Guid.NewGuid()}";
             StatelessSessionSlotKey =
-                string.Format("nh.facility.stacks.statelessSession.{0}",
-                              Guid.NewGuid());
+                $"nh.facility.stacks.statelessSession.{Guid.NewGuid()}";
         }
 
         /// <summary>
@@ -47,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected string StatelessSessionSlotKey { get; }
 
         /// <inheritdoc />
-        protected override Stack<SessionDelegate> GetSessionStackFor(string alias)
+        protected override Stack<SessionDelegate> GetSessionStackFor(string? alias)
         {
             lock (_lock)
             {
@@ -72,7 +70,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                     dictionary[alias] = stack;
                 }
 
-                return stack;
+                return stack!;
             }
         }
 
@@ -89,7 +87,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected abstract void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary);
 
         /// <inheritdoc />
-        protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string alias)
+        protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias)
         {
             lock (_lock)
             {
@@ -114,7 +112,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                     dictionary[alias] = stack;
                 }
 
-                return stack;
+                return stack!;
             }
         }
 

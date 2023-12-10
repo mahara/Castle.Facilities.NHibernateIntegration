@@ -31,7 +31,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// </summary>
         /// <param name="type">The target type.</param>
         /// <returns>The <see cref="Array" /> of results</returns>
-        Array FindAll(Type type);
+        Array? FindAll(Type type);
 
         /// <summary>
         /// Returns a portion of the query results (sliced).
@@ -40,7 +40,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results</returns>
-        Array FindAll(Type type, int firstRow, int maxRows);
+        Array? FindAll(Type type, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds an object instance by an unique ID.
@@ -48,7 +48,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="type">The AR subclass type</param>
         /// <param name="id">ID value</param>
         /// <returns>The object instance.</returns>
-        object FindById(Type type, object id);
+        object? FindById(Type type, object id);
 
         /// <summary>
         /// Creates (Saves) a new instance to the database.
@@ -92,7 +92,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// </summary>
         /// <param name="type">The target type.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type);
+        Array? FindAllStateless(Type type);
 
         /// <summary>
         /// Returns a portion of the query results (sliced) using IStatelessSession.
@@ -101,7 +101,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="firstRow">The number of the first row to retrieve.</param>
         /// <param name="maxRows">The maximum number of results retrieved.</param>
         /// <returns>The <see cref="Array" /> of results.</returns>
-        Array FindAllStateless(Type type, int firstRow, int maxRows);
+        Array? FindAllStateless(Type type, int firstRow, int maxRows);
 
         /// <summary>
         /// Finds an object instance by an unique ID using IStatelessSession.
@@ -109,14 +109,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// <param name="type">The AR subclass type.</param>
         /// <param name="id">ID value.</param>
         /// <returns>The object instance.</returns>
-        object FindByIdStateless(Type type, object id);
+        object? FindByIdStateless(Type type, object id);
 
         /// <summary>
         /// Creates (saves or inserts) a new instance to the database using IStatelessSession.
         /// </summary>
         /// <param name="instance">The instance to be created on the database.</param>
         /// <returns>The instance.</returns>
-        object CreateStateless(object instance);
+        object? CreateStateless(object instance);
 
         /// <summary>
         /// Persists the modification on the instance state to the database using IStatelessSession.
