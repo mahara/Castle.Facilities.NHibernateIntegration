@@ -29,10 +29,14 @@ namespace Castle.Facilities.NHibernateIntegration
         public static IWindsorContainer RegisterMicrosoftConfigurationMapper(
             this IWindsorContainer container)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(container);
+#else
             if (container is null)
             {
                 throw new ArgumentNullException(nameof(container));
             }
+#endif
 
             return container.RegisterMicrosoftConfigurationMapper<DefaultMicrosoftConfigurationMapper>();
         }
@@ -41,10 +45,14 @@ namespace Castle.Facilities.NHibernateIntegration
             this IWindsorContainer container)
             where T : IMicrosoftConfigurationMapper
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(container);
+#else
             if (container is null)
             {
                 throw new ArgumentNullException(nameof(container));
             }
+#endif
 
             if (!container.Kernel.HasComponent(typeof(IMicrosoftConfigurationMapper)))
             {
@@ -63,6 +71,10 @@ namespace Castle.Facilities.NHibernateIntegration
             Action<T> onCreate)
             where T : NHibernateFacility, new()
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(container);
+            ArgumentNullException.ThrowIfNull(configuration);
+#else
             if (container is null)
             {
                 throw new ArgumentNullException(nameof(container));
@@ -72,6 +84,7 @@ namespace Castle.Facilities.NHibernateIntegration
             {
                 throw new ArgumentNullException(nameof(configuration));
             }
+#endif
 
             container.AddNHibernateFacilityConfiguration<T>(configuration);
 

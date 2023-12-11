@@ -42,7 +42,7 @@ namespace Castle.Facilities.NHibernateIntegration.Utilities
             {
                 if (property.CanRead && property.GetIndexParameters().Length == 0)
                 {
-                    dictionary[property.Name] = property.GetValue(obj, null);
+                    dictionary[property.Name] = property.GetValue(obj, null)!;
                 }
             }
 
