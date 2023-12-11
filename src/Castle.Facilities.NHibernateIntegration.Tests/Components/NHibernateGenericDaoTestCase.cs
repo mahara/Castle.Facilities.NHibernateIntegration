@@ -31,9 +31,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         {
         }
 
-        private ISessionManager _sessionManager;
-        private NHibernateGenericDao _nhGenericDao;
-        private NHibernateGenericDao _nhGenericDao2;
+        private ISessionManager _sessionManager = null!;
+        private NHibernateGenericDao _nhGenericDao = null!;
+        private NHibernateGenericDao _nhGenericDao2 = null!;
 
         protected override void OnSetUp()
         {
@@ -120,7 +120,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
 
             _nhGenericDao.InitializeLazyProperty(blog, nameof(Blog.Items));
 
-            Assert.That(NHibernateUtil.IsInitialized(blog.Items), Is.True);
+            Assert.That(NHibernateUtil.IsInitialized(blog.Items));
         }
 
         [Test]
@@ -180,7 +180,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
 
             _nhGenericDao.InitializeLazyProperties(blog);
 
-            Assert.That(NHibernateUtil.IsInitialized(blog.Items), Is.True);
+            Assert.That(NHibernateUtil.IsInitialized(blog.Items));
         }
 
         [Test]
