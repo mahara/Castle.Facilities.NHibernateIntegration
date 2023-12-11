@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             _secondDao = secondDao;
         }
 
-        public OrderDao OrderDao { get; set; }
+        public OrderDao OrderDao { get; set; } = null!;
 
         [Transaction]
         public virtual Blog CreateBlogStatelessUsingDetachedCriteria(string name)
