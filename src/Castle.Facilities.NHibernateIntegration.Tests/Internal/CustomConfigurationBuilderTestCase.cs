@@ -108,9 +108,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internal
                 _ = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFilePath())));
             }
 
-            Assert.Throws<FacilityException>(
+            Assert.That(
                 Method,
-                "ConfigurationBuilder type 'InvalidType' was invalid or not found.");
+                Throws.InstanceOf<FacilityException>()
+                      .With.Message.EqualTo("ConfigurationBuilder 'InvalidType' is invalid or can not be found."));
         }
     }
 }

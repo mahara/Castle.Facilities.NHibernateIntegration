@@ -75,7 +75,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             OnTearDown();
             DropDatabaseSchema();
             Container.Dispose();
-            Container = null;
+            Container = null!;
         }
 
         protected virtual void OnTearDown()
