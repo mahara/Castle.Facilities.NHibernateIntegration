@@ -18,6 +18,7 @@ using System.Configuration;
 using System.Reflection;
 
 using Castle.Core.Configuration;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate.Event;
 
@@ -116,10 +117,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                     Type.GetType(
                         string.Concat(NHibernateMappingAttributesAssemblyName,
                                       ".HbmSerializer, ",
-                                      NHibernateMappingAttributesAssemblyName));
+                                      NHibernateMappingAttributesAssemblyName))!;
                 var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
-                var validateProperty = hbmSerializerType.GetProperty("Validate");
-                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
+                var validateProperty = hbmSerializerType.GetProperty("Validate")!;
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) })!;
 
                 // Enable validation of mapping documents generated from the mapping attributes.
                 validateProperty.SetValue(hbmSerializer, true, null);
@@ -128,7 +129,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 configuration.AddInputStream(
                     (MemoryStream) serializeMethod.Invoke(
                         hbmSerializer,
-                        new object[] { Assembly.Load(targetAssemblyName) }));
+                        new object[] { Assembly.Load(targetAssemblyName) })!);
             }
         }
 
@@ -149,13 +150,13 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 var name = item.Attributes[Constants.SessionFactory_Resources_Name_ConfigurationElementAttributeName];
                 var assemblyName = item.Attributes[Constants.SessionFactory_Resources_Assembly_ConfigurationElementAttributeName];
 
-                if (!string.IsNullOrEmpty(assemblyName))
+                if (!assemblyName.IsNullOrEmpty())
                 {
                     configuration.AddResource(name, LoadAssembly(assemblyName));
                 }
                 else
                 {
-                    configuration.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name));
+                    configuration.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name!));
                 }
             }
         }
@@ -183,7 +184,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                     throw new ConfigurationErrorsException(message);
                 }
 
-                if (string.IsNullOrEmpty(listenerTypeFullName))
+                if (listenerTypeFullName.IsNullOrEmpty())
                 {
                     throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
                 }
