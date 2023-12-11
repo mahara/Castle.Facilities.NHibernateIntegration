@@ -42,7 +42,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 
         public void PerformComplexOperation2()
         {
-            ISession previousSession = null;
+            ISession? previousSession = null;
 
             using (var session = _sessionManager.OpenSession())
             {
@@ -76,7 +76,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 
         public void PerformComplexOperationStateless2()
         {
-            IStatelessSession previousSession = null;
+            IStatelessSession? previousSession = null;
 
             using (var session = _sessionManager.OpenStatelessSession())
             {

@@ -19,6 +19,7 @@ using System.Xml;
 using Castle.Core.Configuration;
 
 using Castle.Facilities.NHibernateIntegration.Internals;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate.Cfg;
 
@@ -36,8 +37,16 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         /// <returns>An NHibernate <see cref="Configuration" />.</returns>
         public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            var filePath = facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName] ??
-                           throw new ArgumentNullException(nameof(facilityConfiguration));
+            var filePath = facilityConfiguration.Attributes[Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName];
+
+#if NET8_0_OR_GREATER
+            ArgumentException.ThrowIfNullOrEmpty(filePath, Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName);
+#else
+            if (filePath.IsNullOrEmpty())
+            {
+                throw new ArgumentException($"'{Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName}' cannot be null or empty.", Constants.SessionFactory_NHibernateConfigurationFilePath_ConfigurationElementAttributeName);
+            }
+#endif
 
             using var configurationResource = new FileAssemblyResource(filePath);
             using var reader = XmlReader.Create(configurationResource.GetStreamReader());

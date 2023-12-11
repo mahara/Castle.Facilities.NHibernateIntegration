@@ -26,6 +26,7 @@ using Castle.MicroKernel.Facilities;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Conversion;
 using Castle.Services.Transaction;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate;
 
@@ -77,7 +78,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private readonly NHibernateFacilityConfiguration _facilityConfiguration;
         private readonly IConfigurationBuilder _configurationBuilder;
-        private Type _configurationBuilderType = null;
+        private Type? _configurationBuilderType = null;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="NHibernateFacility" /> class.
@@ -93,8 +94,16 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="configurationBuilder"></param>
         public NHibernateFacility(IConfigurationBuilder configurationBuilder)
         {
-            _configurationBuilder = configurationBuilder ??
-                                    throw new ArgumentNullException(nameof(configurationBuilder));
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(configurationBuilder);
+#else
+            if (configurationBuilder is null)
+            {
+                throw new ArgumentNullException(nameof(configurationBuilder));
+            }
+#endif
+
+            _configurationBuilder = configurationBuilder;
             _facilityConfiguration = new NHibernateFacilityConfiguration(configurationBuilder);
         }
 
@@ -173,7 +182,7 @@ namespace Castle.Facilities.NHibernateIntegration
                 {
                     if (!typeof(IConfigurationBuilder).IsAssignableFrom(_configurationBuilderType))
                     {
-                        var message = $"'{_configurationBuilderType.FullName}' must implement the '{nameof(IConfigurationBuilder)}'.";
+                        var message = $"'{_configurationBuilderType!.FullName}' must implement the '{nameof(IConfigurationBuilder)}'.";
                         throw new FacilityException(message);
                     }
                 }
@@ -221,7 +230,7 @@ namespace Castle.Facilities.NHibernateIntegration
         protected void RegisterSessionManager()
         {
             var defaultFlushMode = _facilityConfiguration.DefaultFlushMode;
-            if (!string.IsNullOrEmpty(defaultFlushMode))
+            if (!defaultFlushMode.IsNullOrEmpty())
             {
                 var configurationNode = new MutableConfiguration(Constants.SessionManager_ComponentName);
 
@@ -281,7 +290,7 @@ namespace Castle.Facilities.NHibernateIntegration
         protected void ConfigureSessionFactory(NHibernateSessionFactoryFacilityConfiguration facilityConfiguration, ISessionFactoryResolver sessionFactoryResolver, bool firstSessionFactory)
         {
             var id = facilityConfiguration.Id;
-            if (string.IsNullOrEmpty(id))
+            if (id.IsNullOrEmpty())
             {
                 var message = "You must provide a valid 'id' attribute for the 'sessionFactory' node. " +
                               $"This id is used as key for the '{nameof(ISessionFactory)}' component registered on the container.";
@@ -289,13 +298,13 @@ namespace Castle.Facilities.NHibernateIntegration
             }
 
             var alias = facilityConfiguration.Alias;
-            if (!firstSessionFactory && string.IsNullOrEmpty(alias))
+            if (!firstSessionFactory && alias.IsNullOrEmpty())
             {
                 var message = "You must provide a valid 'alias' attribute for the 'sessionFactory' node. " +
                               $"This alias is used to obtain the '{nameof(ISession)}' implementation from the '{nameof(ISessionManager)}'.";
                 throw new ConfigurationErrorsException(message);
             }
-            if (string.IsNullOrEmpty(alias))
+            if (alias.IsNullOrEmpty())
             {
                 alias = Constants.DefaultAlias;
             }
@@ -303,7 +312,7 @@ namespace Castle.Facilities.NHibernateIntegration
             var configurationBuilderTypeFullName = facilityConfiguration.ConfigurationBuilderType;
             var configurationBuilderType_ComponentName = string.Format(Constants.ConfigurationBuilderType_ComponentNameFormat, id);
             IConfigurationBuilder configurationBuilder;
-            if (string.IsNullOrEmpty(configurationBuilderTypeFullName))
+            if (configurationBuilderTypeFullName.IsNullOrEmpty())
             {
                 configurationBuilder = Kernel.Resolve<IConfigurationBuilder>();
             }
@@ -427,11 +436,11 @@ namespace Castle.Facilities.NHibernateIntegration
         public static readonly Type DefaultWebSessionStoreType = typeof(WebSessionStore);
         public static readonly bool DefaultUseReflectionOptimizerValue = false;
 
-        private IKernel _kernel;
-        private IConfigurationBuilder _configurationBuilder;
-        private Type _configurationBuilderType;
-        private IConfiguration _configuration;
-        private Type _sessionStoreType;
+        private IKernel? _kernel;
+        private IConfigurationBuilder? _configurationBuilder;
+        private Type? _configurationBuilderType;
+        private IConfiguration? _configuration;
+        private Type? _sessionStoreType;
         private bool _isWeb;
 
         public IEnumerable<NHibernateSessionFactoryFacilityConfiguration> SessionFactoryFacilityConfigurations { get; set; }
@@ -443,7 +452,7 @@ namespace Castle.Facilities.NHibernateIntegration
             SessionFactoryFacilityConfigurations = Enumerable.Empty<NHibernateSessionFactoryFacilityConfiguration>();
         }
 
-        public string DefaultFlushMode { get; set; } = null;
+        public string? DefaultFlushMode { get; set; } = null;
 
         public void Init(IKernel kernel, IConfiguration configuration)
         {
@@ -468,12 +477,12 @@ namespace Castle.Facilities.NHibernateIntegration
 
         private void ConfigureWithExternalConfiguration()
         {
-            var configurationBuilderTypeFullName = _configuration.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName];
-            if (!string.IsNullOrEmpty(configurationBuilderTypeFullName))
+            var configurationBuilderTypeFullName = _configuration!.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName];
+            if (!configurationBuilderTypeFullName.IsNullOrEmpty())
             {
                 try
                 {
-                    var converter = (IConversionManager) _kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
+                    var converter = (IConversionManager) _kernel!.GetSubSystem(SubSystemConstants.ConversionManagerKey);
                     SetConfigurationBuilderType(converter.PerformConversion<Type>(configurationBuilderTypeFullName));
                 }
                 catch (ConverterException)
@@ -486,11 +495,11 @@ namespace Castle.Facilities.NHibernateIntegration
             BuildSessionFactoryConfigurations();
 
             var sessionStoreTypeFullName = _configuration.Attributes[Constants.SessionStoreType_ConfigurationElementAttributeName];
-            if (!string.IsNullOrEmpty(sessionStoreTypeFullName))
+            if (!sessionStoreTypeFullName.IsNullOrEmpty())
             {
                 try
                 {
-                    var converter = (IConversionManager) _kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
+                    var converter = (IConversionManager) _kernel!.GetSubSystem(SubSystemConstants.ConversionManagerKey);
                     SetSessionStoreType(converter.PerformConversion<Type>(sessionStoreTypeFullName));
                 }
                 catch (ConverterException)
@@ -543,7 +552,7 @@ namespace Castle.Facilities.NHibernateIntegration
             return _configurationBuilderType is not null;
         }
 
-        public Type GetConfigurationBuilderType()
+        public Type? GetConfigurationBuilderType()
         {
             return _configurationBuilderType;
         }
@@ -564,8 +573,8 @@ namespace Castle.Facilities.NHibernateIntegration
         private void BuildSessionFactoryConfigurations()
         {
             SessionFactoryFacilityConfigurations =
-                _configuration.Children
-                              .Select(configuration => new NHibernateSessionFactoryFacilityConfiguration(configuration));
+                _configuration!.Children
+                               .Select(configuration => new NHibernateSessionFactoryFacilityConfiguration(configuration));
         }
 
         public Type GetSessionStoreType()
@@ -608,12 +617,20 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public NHibernateSessionFactoryFacilityConfiguration(IConfiguration configuration)
         {
-            _configuration = configuration ??
-                             throw new ArgumentNullException(nameof(configuration));
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(configuration);
+#else
+            if (configuration is null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+#endif
 
-            Id = configuration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName];
-            Alias = configuration.Attributes[Constants.SessionFactory_Alias_ConfigurationElementAttributeName];
-            ConfigurationBuilderType = configuration.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName];
+            _configuration = configuration;
+
+            Id = configuration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName]!;
+            Alias = configuration.Attributes[Constants.SessionFactory_Alias_ConfigurationElementAttributeName]!;
+            ConfigurationBuilderType = configuration.Attributes[Constants.ConfigurationBuilderType_ConfigurationElementAttributeName]!;
         }
 
         /// <summary>
