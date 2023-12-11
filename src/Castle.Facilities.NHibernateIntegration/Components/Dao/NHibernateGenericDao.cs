@@ -15,6 +15,7 @@
 #endregion
 
 using Castle.Facilities.NHibernateIntegration.Utilities;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate;
 using NHibernate.Collection;
@@ -60,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
         /// Gets or sets the <see cref="ISessionFactory" /> alias.
         /// </summary>
         /// <value>The <see cref="ISessionFactory" /> alias.</value>
-        public string SessionFactoryAlias { get; set; } = null;
+        public string? SessionFactoryAlias { get; set; }
 
         #region IGenericDao Members
 
@@ -317,22 +318,22 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
         #region INHibernateGenericDao Members
 
-        public List<T> FindAll<T>(ICriterion[] criteria) where T : class
+        public List<T> FindAll<T>(ICriterion[]? criteria) where T : class
         {
             return FindAll<T>(criteria, null, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAll<T>(ICriterion[] criteria, int firstRow, int maxRows) where T : class
+        public List<T> FindAll<T>(ICriterion[]? criteria, int firstRow, int maxRows) where T : class
         {
             return FindAll<T>(criteria, null, firstRow, maxRows);
         }
 
-        public List<T> FindAll<T>(ICriterion[] criteria, Order[] sortItems) where T : class
+        public List<T> FindAll<T>(ICriterion[]? criteria, Order[]? sortItems) where T : class
         {
             return FindAll<T>(criteria, sortItems, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAll<T>(ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows) where T : class
+        public List<T> FindAll<T>(ICriterion[]? criteria, Order[]? sortItems, int firstRow, int maxRows) where T : class
         {
             var type = typeof(T);
 
@@ -377,14 +378,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public List<T> FindAllWithCustomQuery<T>(string queryString)
+        public List<T> FindAllWithCustomQuery<T>(string? queryString)
         {
             return FindAllWithCustomQuery<T>(queryString, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllWithCustomQuery<T>(string queryString, int firstRow, int maxRows)
+        public List<T> FindAllWithCustomQuery<T>(string? queryString, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(queryString))
+            if (queryString.IsNullOrEmpty())
             {
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
@@ -414,14 +415,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public List<T> FindAllWithNamedQuery<T>(string namedQuery)
+        public List<T> FindAllWithNamedQuery<T>(string? namedQuery)
         {
             return FindAllWithNamedQuery<T>(namedQuery, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllWithNamedQuery<T>(string namedQuery, int firstRow, int maxRows)
+        public List<T> FindAllWithNamedQuery<T>(string? namedQuery, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(namedQuery))
+            if (namedQuery.IsNullOrEmpty())
             {
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
@@ -452,22 +453,22 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public List<T> FindAllStateless<T>(ICriterion[] criteria) where T : class
+        public List<T> FindAllStateless<T>(ICriterion[]? criteria) where T : class
         {
             return FindAllStateless<T>(criteria, null, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllStateless<T>(ICriterion[] criteria, int firstRow, int maxRows) where T : class
+        public List<T> FindAllStateless<T>(ICriterion[]? criteria, int firstRow, int maxRows) where T : class
         {
             return FindAllStateless<T>(criteria, null, firstRow, maxRows);
         }
 
-        public List<T> FindAllStateless<T>(ICriterion[] criteria, Order[] sortItems) where T : class
+        public List<T> FindAllStateless<T>(ICriterion[]? criteria, Order[]? sortItems) where T : class
         {
             return FindAllStateless<T>(criteria, sortItems, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllStateless<T>(ICriterion[] criteria, Order[] sortItems, int firstRow, int maxRows) where T : class
+        public List<T> FindAllStateless<T>(ICriterion[]? criteria, Order[]? sortItems, int firstRow, int maxRows) where T : class
         {
             var type = typeof(T);
 
@@ -512,14 +513,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public List<T> FindAllWithCustomQueryStateless<T>(string queryString)
+        public List<T> FindAllWithCustomQueryStateless<T>(string? queryString)
         {
             return FindAllWithCustomQueryStateless<T>(queryString, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllWithCustomQueryStateless<T>(string queryString, int firstRow, int maxRows)
+        public List<T> FindAllWithCustomQueryStateless<T>(string? queryString, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(queryString))
+            if (queryString.IsNullOrEmpty())
             {
                 throw new ArgumentException($"'{nameof(queryString)}' cannot be null or empty.", nameof(queryString));
             }
@@ -549,14 +550,14 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public List<T> FindAllWithNamedQueryStateless<T>(string namedQuery)
+        public List<T> FindAllWithNamedQueryStateless<T>(string? namedQuery)
         {
             return FindAllWithNamedQueryStateless<T>(namedQuery, int.MinValue, int.MinValue);
         }
 
-        public List<T> FindAllWithNamedQueryStateless<T>(string namedQuery, int firstRow, int maxRows)
+        public List<T> FindAllWithNamedQueryStateless<T>(string? namedQuery, int firstRow, int maxRows)
         {
-            if (string.IsNullOrEmpty(namedQuery))
+            if (namedQuery.IsNullOrEmpty())
             {
                 throw new ArgumentException($"'{nameof(namedQuery)}' cannot be null or empty.", nameof(namedQuery));
             }
@@ -587,12 +588,16 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public void InitializeLazyProperties(object instance)
+        public void InitializeLazyProperties(object? instance)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(instance);
+#else
             if (instance is null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
+#endif
 
             using var session = GetSession();
 
@@ -609,13 +614,17 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
             }
         }
 
-        public void InitializeLazyProperty(object instance, string propertyName)
+        public void InitializeLazyProperty(object? instance, string? propertyName)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(instance);
+#else
             if (instance is null)
             {
                 throw new ArgumentNullException(nameof(instance));
             }
-            if (string.IsNullOrEmpty(propertyName))
+#endif
+            if (propertyName.IsNullOrEmpty())
             {
                 throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or empty.", nameof(propertyName));
             }
@@ -646,16 +655,16 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 
         private ISession GetSession()
         {
-            return string.IsNullOrEmpty(SessionFactoryAlias) ?
+            return SessionFactoryAlias.IsNullOrEmpty() ?
                    SessionManager.OpenSession() :
-                   SessionManager.OpenSession(SessionFactoryAlias);
+                   SessionManager.OpenSession(SessionFactoryAlias!);
         }
 
         private IStatelessSession GetStatelessSession()
         {
-            return string.IsNullOrEmpty(SessionFactoryAlias) ?
+            return SessionFactoryAlias.IsNullOrEmpty() ?
                    SessionManager.OpenStatelessSession() :
-                   SessionManager.OpenStatelessSession(SessionFactoryAlias);
+                   SessionManager.OpenStatelessSession(SessionFactoryAlias!);
         }
 
         #endregion

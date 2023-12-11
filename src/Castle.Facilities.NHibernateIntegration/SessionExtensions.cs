@@ -29,7 +29,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// This is needed, as opposed to simply calling <see cref="NHibernate.SessionExtensions.GetCurrentTransaction(ISession)" />,
         /// because <see cref="ISession.GetSessionImplementation()" /> can be <see langword="null" />.
         /// </remarks>
-        public static ITransaction GetCurrentTransaction(this ISession session) =>
+        public static ITransaction? GetCurrentTransaction(this ISession session) =>
             session.GetSessionImplementation()?
                    .ConnectionManager?
                    .CurrentTransaction;
@@ -46,7 +46,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// This is needed, as opposed to simply calling <see cref="NHibernate.StatelessSessionExtensions.GetCurrentTransaction(IStatelessSession)" />,
         /// because <see cref="IStatelessSession.GetSessionImplementation()" /> can be <see langword="null" />.
         /// </remarks>
-        public static ITransaction GetCurrentTransaction(this IStatelessSession session) =>
+        public static ITransaction? GetCurrentTransaction(this IStatelessSession session) =>
             session.GetSessionImplementation()?
                    .ConnectionManager?
                    .CurrentTransaction;
