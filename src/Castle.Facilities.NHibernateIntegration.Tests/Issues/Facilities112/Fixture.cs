@@ -52,11 +52,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities112
                     BindingFlags.Instance |
                     BindingFlags.GetField);
 
-            var lifeStyleManager = lifestyleManagerField.GetValue(handler) as SingletonLifestyleManager;
+            var lifeStyleManager = lifestyleManagerField!.GetValue(handler) as SingletonLifestyleManager;
 
             Assert.That(lifeStyleManager, Is.Not.Null);
 
-            var instance = instanceField.GetValue(lifeStyleManager);
+            var instance = instanceField!.GetValue(lifeStyleManager);
 
             Assert.That(instance, Is.Null);
 

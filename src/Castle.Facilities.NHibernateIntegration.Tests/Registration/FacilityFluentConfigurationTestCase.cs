@@ -140,17 +140,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
     internal class DummySessionStore : ISessionStore
     {
-        public bool IsCurrentActivityEmptyFor(string alias)
+        public bool IsCurrentActivityEmptyFor(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public SessionDelegate FindCompatibleSession(string alias)
+        public SessionDelegate FindCompatibleSession(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public void Store(string alias, SessionDelegate session)
+        public void Store(string? alias, SessionDelegate session)
         {
             throw new NotImplementedException();
         }
@@ -160,12 +160,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             throw new NotImplementedException();
         }
 
-        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        public StatelessSessionDelegate FindCompatibleStatelessSession(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public void Store(string alias, StatelessSessionDelegate session)
+        public void Store(string? alias, StatelessSessionDelegate session)
         {
             throw new NotImplementedException();
         }
