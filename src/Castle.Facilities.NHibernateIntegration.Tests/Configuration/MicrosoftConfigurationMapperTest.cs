@@ -33,10 +33,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
     public class MicrosoftConfigurationMapperTest : TestBase
     {
 #pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
-        private IWindsorContainer _container = null;
+        private IWindsorContainer _container = null!;
 #pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
-        private DefaultMicrosoftConfigurationMapper _configurationMapper = null;
+        private DefaultMicrosoftConfigurationMapper _configurationMapper = null!;
 
         protected override void OnSetUp()
         {
@@ -47,10 +47,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
 
         protected override void OnTearDown()
         {
-            _configurationMapper = null;
+            _configurationMapper = null!;
 
             _container.Dispose();
-            _container = null;
+            _container = null!;
         }
 
 
@@ -103,7 +103,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
         {
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(
-                    new Dictionary<string, string>
+                    new Dictionary<string, string?>
                     {
                         [$"{Constants.NHibernateFacility_ConfigurationSectionName}:{Constants.FacilityType_ConfigurationSectionName}"] =
                             GetTypeFullNameWithAssemblyName(typeof(NHibernateFacility)),
@@ -120,7 +120,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
         {
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(
-                    new Dictionary<string, string>
+                    new Dictionary<string, string?>
                     {
                         [Constants.NHibernateFacility_ConfigurationSectionName] =
                             string.Empty,
@@ -138,7 +138,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
         {
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(
-                    new Dictionary<string, string>
+                    new Dictionary<string, string?>
                     {
                         [$"{Constants.NHibernateFacility_ConfigurationSectionName}:{Constants.FacilityType_ConfigurationSectionName}"] =
                             "Does.Not.Exist.SomeFacility, Does.Not.Exist",

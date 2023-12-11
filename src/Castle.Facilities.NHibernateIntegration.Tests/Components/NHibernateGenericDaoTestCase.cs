@@ -31,9 +31,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
         {
         }
 
-        private ISessionManager _sessionManager;
-        private NHibernateGenericDao _nhGenericDao1;
-        private NHibernateGenericDao _nhGenericDao2;
+        private ISessionManager _sessionManager = null!;
+        private NHibernateGenericDao _nhGenericDao1 = null!;
+        private NHibernateGenericDao _nhGenericDao2 = null!;
 
         protected override void OnSetUp()
         {
