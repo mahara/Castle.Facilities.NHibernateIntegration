@@ -54,7 +54,7 @@ namespace Castle.Facilities.NHibernateIntegration
             GC.SuppressFinalize(this);
         }
 
-        protected DbConnection CloseConnection(bool closing)
+        protected DbConnection? CloseConnection(bool closing)
         {
             if (_isDisposed)
             {
@@ -69,9 +69,9 @@ namespace Castle.Facilities.NHibernateIntegration
             return null;
         }
 
-        internal DbConnection CloseConnectionCore(bool closing)
+        internal DbConnection? CloseConnectionCore(bool closing)
         {
-            DbConnection connection = null;
+            DbConnection? connection = null;
 
             _sessionStore.Remove(this);
 
@@ -98,7 +98,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Gets or sets the session store cookie.
         /// </summary>
         /// <value>The session store cookie.</value>
-        public object SessionStoreCookie { get; set; }
+        public object? SessionStoreCookie { get; set; }
 
         #region IStatelessSession Members
 
@@ -119,9 +119,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// as opposed to simply calling <see cref="NHibernate.StatelessSessionExtensions.GetCurrentTransaction(IStatelessSession)" />
         /// because <see cref="IStatelessSession.GetSessionImplementation()" /> can be <see langword="null" />.
         /// </remarks>
-        public ITransaction Transaction => _innerSession.GetCurrentTransaction();
+        public ITransaction? Transaction => _innerSession.GetCurrentTransaction();
 
-        public DbConnection Connection => _innerSession.Connection;
+        public DbConnection? Connection => _innerSession.Connection;
 
         public bool IsConnected => _innerSession.IsConnected;
 
