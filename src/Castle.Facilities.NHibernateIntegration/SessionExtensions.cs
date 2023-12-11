@@ -25,7 +25,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="session">The <see cref="ISession" />.</param>
         /// <returns>The current transaction or <see langword="null" />.</returns>
-        public static ITransaction GetCurrentTransaction(this ISession session) =>
+        public static ITransaction? GetCurrentTransaction(this ISession session) =>
             session.GetSessionImplementation()?
                    .ConnectionManager?
                    .CurrentTransaction;
@@ -35,7 +35,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="session">The <see cref="IStatelessSession" />.</param>
         /// <returns>The current transaction or <see langword="null" />.</returns>
-        public static ITransaction GetCurrentTransaction(this IStatelessSession session) =>
+        public static ITransaction? GetCurrentTransaction(this IStatelessSession session) =>
             session.GetSessionImplementation()?
                    .ConnectionManager?
                    .CurrentTransaction;
