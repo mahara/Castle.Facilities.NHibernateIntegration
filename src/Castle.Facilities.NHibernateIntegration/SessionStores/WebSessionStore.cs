@@ -43,7 +43,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     {
 #if NET
         [CLSCompliant(false)]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
+        public IHttpContextAccessor? HttpContextAccessor { get; set; }
 #endif
 
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
@@ -71,13 +71,13 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 #if NET
             if (!GetWebContext().Items.TryGetValue(key, out var value))
             {
-                return default;
+                return default!;
             }
 #else
             var value = GetWebContext().Items[key];
 #endif
 
-            return (T) value;
+            return (T) value!;
         }
 
         private void StoreSessionDictionaryInWebContext<T>(string key, T value)
