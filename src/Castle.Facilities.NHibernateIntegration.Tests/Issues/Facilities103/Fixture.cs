@@ -37,16 +37,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadCommitted;
         private const System.Data.IsolationLevel DefaultDataIsolationLevel = System.Data.IsolationLevel.ReadCommitted;
 
-        private IKernel _kernel;
-        private IDictionary<string, object> _transactionContext;
-        private ITransaction _transaction;
-        private ITransactionManager _transactionManager;
-        private ISessionFactoryResolver _sessionFactoryResolver;
-        private ISessionFactory _sessionFactory;
-        private ISessionStore _sessionStore;
-        private ISessionManager _sessionManager;
-        private ISession _session;
-        private IStatelessSession _statelessSession;
+        private IKernel _kernel = null!;
+        private IDictionary<string, object> _transactionContext = null!;
+        private ITransaction _transaction = null!;
+        private ITransactionManager _transactionManager = null!;
+        private ISessionFactoryResolver _sessionFactoryResolver = null!;
+        private ISessionFactory _sessionFactory = null!;
+        private ISessionStore _sessionStore = null!;
+        private ISessionManager _sessionManager = null!;
+        private ISession _session = null!;
+        private IStatelessSession _statelessSession = null!;
 
         protected override string ConfigurationFilePath =>
             "EmptyConfiguration.xml";

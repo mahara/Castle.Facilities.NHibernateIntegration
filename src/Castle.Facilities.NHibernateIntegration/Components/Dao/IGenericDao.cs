@@ -16,8 +16,6 @@
 
 using NHibernate;
 
-using Array = System.Array;
-
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao
 {
     /// <summary>

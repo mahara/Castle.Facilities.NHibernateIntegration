@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using Castle.Core.Configuration;
 using Castle.Core.Logging;
 using Castle.Facilities.NHibernateIntegration.Persisters;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate.Cfg;
 
@@ -85,7 +86,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
         {
             var fileName = facilityConfiguration.Attributes[Constants.SessionFactory_FileName_ConfigurationElementAttributeName];
 
-            fileName = !string.IsNullOrEmpty(fileName) ?
+            fileName = !fileName.IsNullOrEmpty() ?
                        fileName :
                        $"{facilityConfiguration.Attributes[Constants.SessionFactory_Id_ConfigurationElementAttributeName]}{DefaultFileExtension}";
 

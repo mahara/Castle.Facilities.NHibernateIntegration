@@ -19,6 +19,7 @@ using System.Xml;
 using Castle.Core.Configuration;
 
 using Castle.Facilities.NHibernateIntegration.Internals;
+using Castle.Services.Transaction.Utilities;
 
 using NHibernate.Cfg;
 
@@ -40,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             var filePath = facilityConfiguration.Attributes[FilePathAttributeName];
 
-            filePath = !string.IsNullOrEmpty(filePath) ?
+            filePath = !filePath.IsNullOrEmpty() ?
                        filePath :
                        throw new System.Configuration.ConfigurationErrorsException($"'{FilePathAttributeName}' cannot be null or empty.");
 
