@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="componentId">
         /// The component ID associated with the <see cref="ISessionFactory" /> on the kernel.
         /// </param>
-        void RegisterAliasComponentIdMapping(string alias, string componentId);
+        void RegisterAliasComponentIdMapping(string? alias, string? componentId);
 
         /// <summary>
         /// Implementors should return a <see cref="ISessionFactory" /> instance
@@ -52,6 +52,6 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <exception cref="FacilityException">
         /// If the alias is not associated with a <see cref="ISessionFactory" />.
         /// </exception>
-        ISessionFactory GetSessionFactory(string alias);
+        ISessionFactory GetSessionFactory(string? alias);
     }
 }

@@ -20,12 +20,16 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
     {
-        public bool IsCurrentActivityEmptyFor(string alias)
+        public bool IsCurrentActivityEmptyFor(string? alias)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
             if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             var sessionStack = GetSessionStackFor(alias);
             var statelessSessionStack = GetStatelessSessionStackFor(alias);
@@ -39,9 +43,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias">The alias.</param>
         /// <returns></returns>
-        protected abstract Stack<SessionDelegate> GetSessionStackFor(string alias);
+        protected abstract Stack<SessionDelegate> GetSessionStackFor(string? alias);
 
-        public SessionDelegate FindCompatibleSession(string alias)
+        public SessionDelegate? FindCompatibleSession(string? alias)
         {
             var stack = GetSessionStackFor(alias);
 
@@ -50,7 +54,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                    null;
         }
 
-        public void Store(string alias, SessionDelegate session)
+        public void Store(string? alias, SessionDelegate session)
         {
             var stack = GetSessionStackFor(alias);
 
@@ -61,7 +65,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         public void Remove(SessionDelegate session)
         {
-            var stack = (Stack<SessionDelegate>) session.SessionStoreCookie;
+            var stack = (Stack<SessionDelegate>?) session.SessionStoreCookie;
 
             if (stack is null)
             {
@@ -94,9 +98,9 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// </summary>
         /// <param name="alias">The alias.</param>
         /// <returns></returns>
-        protected abstract Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string alias);
+        protected abstract Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias);
 
-        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        public StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias)
         {
             var stack = GetStatelessSessionStackFor(alias);
 
@@ -105,7 +109,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
                    null;
         }
 
-        public void Store(string alias, StatelessSessionDelegate session)
+        public void Store(string? alias, StatelessSessionDelegate session)
         {
             var stack = GetStatelessSessionStackFor(alias);
 
@@ -116,7 +120,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         public void Remove(StatelessSessionDelegate session)
         {
-            var stack = (Stack<StatelessSessionDelegate>) session.SessionStoreCookie;
+            var stack = (Stack<StatelessSessionDelegate>?) session.SessionStoreCookie;
 
             if (stack is null)
             {
