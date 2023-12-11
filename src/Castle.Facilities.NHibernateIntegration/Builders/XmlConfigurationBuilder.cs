@@ -17,6 +17,7 @@
 using System.Xml;
 
 using Castle.Facilities.NHibernateIntegration.Internals;
+using Castle.Services.Transaction.Utilities;
 
 using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
 using ConfigurationErrorsException = System.Configuration.ConfigurationErrorsException;
@@ -40,7 +41,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             var filePath = facilityConfiguration.Attributes[FilePathAttributeName];
 
-            if (string.IsNullOrEmpty(filePath))
+            if (filePath.IsNullOrEmpty())
             {
                 const string Message = $"'{FilePathAttributeName}' cannot be null or empty.";
                 throw new ConfigurationErrorsException(Message);
