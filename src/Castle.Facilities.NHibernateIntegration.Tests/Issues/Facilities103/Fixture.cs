@@ -37,16 +37,16 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         private const IsolationLevel DefaultIsolationLevel = IsolationLevel.ReadUncommitted;
         private const System.Data.IsolationLevel DefaultDataIsolationLevel = System.Data.IsolationLevel.ReadUncommitted;
 
-        private IKernel _kernel;
-        private IDictionary<string, object> _transactionContext;
-        private ITransaction _transaction;
-        private ITransactionManager _transactionManager;
-        private ISessionFactoryResolver _sessionFactoryResolver;
-        private ISessionFactory _sessionFactory;
-        private ISessionStore _sessionStore;
-        private ISessionManager _sessionManager;
-        private ISession _session;
-        private IStatelessSession _statelessSession;
+        private IKernel _kernel = null!;
+        private IDictionary<string, object> _transactionContext = null!;
+        private ITransaction _transaction = null!;
+        private ITransactionManager _transactionManager = null!;
+        private ISessionFactoryResolver _sessionFactoryResolver = null!;
+        private ISessionFactory _sessionFactory = null!;
+        private ISessionStore _sessionStore = null!;
+        private ISessionManager _sessionManager = null!;
+        private ISession _session = null!;
+        private IStatelessSession _statelessSession = null!;
 
         protected override string ConfigurationFilePath => "EmptyConfiguration.xml";
 
@@ -67,15 +67,15 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         [Test]
         public void WhenBeginTransactionFails_SessionIsRemovedFromSessionStore()
         {
-            Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
-            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultIsolationLevel);
-            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
-            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
-            Mock.Get(_kernel).Setup(x => x.HasComponent(string.Format(Constants.SessionInterceptor_ComponentNameFormat, Alias))).Returns(false);
-            Mock.Get(_kernel).Setup(x => x.HasComponent(Constants.SessionInterceptor_ComponentName)).Returns(false);
-            Mock.Get(_sessionFactory).Setup(x => x.OpenSession()).Returns(_session);
-            Mock.Get(_session).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
+            Mock.Get(_kernel).Setup(static x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
+            Mock.Get(_transaction).Setup(static x => x.Context).Returns(_transactionContext);
+            Mock.Get(_transaction).Setup(static x => x.IsolationLevel).Returns(DefaultIsolationLevel);
+            Mock.Get(_transactionManager).Setup(static x => x.CurrentTransaction).Returns(_transaction);
+            Mock.Get(_sessionFactoryResolver).Setup(static x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_kernel).Setup(static x => x.HasComponent(string.Format(Constants.SessionInterceptor_ComponentNameFormat, Alias))).Returns(false);
+            Mock.Get(_kernel).Setup(static x => x.HasComponent(Constants.SessionInterceptor_ComponentName)).Returns(false);
+            Mock.Get(_sessionFactory).Setup(static x => x.OpenSession()).Returns(_session);
+            Mock.Get(_session).Setup(static x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try
             {
@@ -96,13 +96,13 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103
         [Test]
         public void WhenBeginTransactionFails_StatelessSessionIsRemovedFromSessionStore()
         {
-            Mock.Get(_kernel).Setup(x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
-            Mock.Get(_transaction).Setup(x => x.Context).Returns(_transactionContext);
-            Mock.Get(_transaction).Setup(x => x.IsolationLevel).Returns(DefaultIsolationLevel);
-            Mock.Get(_transactionManager).Setup(x => x.CurrentTransaction).Returns(_transaction);
-            Mock.Get(_sessionFactoryResolver).Setup(x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
-            Mock.Get(_sessionFactory).Setup(x => x.OpenStatelessSession()).Returns(_statelessSession);
-            Mock.Get(_statelessSession).Setup(x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
+            Mock.Get(_kernel).Setup(static x => x.Resolve<ITransactionManager>()).Returns(_transactionManager);
+            Mock.Get(_transaction).Setup(static x => x.Context).Returns(_transactionContext);
+            Mock.Get(_transaction).Setup(static x => x.IsolationLevel).Returns(DefaultIsolationLevel);
+            Mock.Get(_transactionManager).Setup(static x => x.CurrentTransaction).Returns(_transaction);
+            Mock.Get(_sessionFactoryResolver).Setup(static x => x.GetSessionFactory(Alias)).Returns(_sessionFactory);
+            Mock.Get(_sessionFactory).Setup(static x => x.OpenStatelessSession()).Returns(_statelessSession);
+            Mock.Get(_statelessSession).Setup(static x => x.BeginTransaction(DefaultDataIsolationLevel)).Throws(new Exception());
 
             try
             {

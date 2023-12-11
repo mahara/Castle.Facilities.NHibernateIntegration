@@ -20,7 +20,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     {
         public virtual int Id { get; set; }
 
-        public virtual Blog ParentBlog { get; set; }
+        public virtual Blog? ParentBlog { get; set; }
 
         public virtual string Title { get; set; } = string.Empty;
     }
