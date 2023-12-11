@@ -13,7 +13,6 @@
     <LibTargetFrameworks>net8.0;net7.0;net6.0;net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
-    <Nullable>disable</Nullable>
 
     <!--
       CA2252: Opt in to preview features before using them

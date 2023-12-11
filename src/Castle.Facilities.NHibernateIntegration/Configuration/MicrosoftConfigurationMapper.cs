@@ -20,6 +20,7 @@ using Castle.Core.Configuration;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
 using Castle.MicroKernel.SubSystems.Conversion;
+using Castle.Services.Transaction.Utilities;
 
 using Microsoft.Extensions.Configuration;
 
@@ -60,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration.Configuration
             var facilityTypeFullName =
                 configuration.Attributes[Constants.FacilityType_ConfigurationElementAttributeName];
 
-            if (string.IsNullOrEmpty(facilityTypeFullName))
+            if (facilityTypeFullName.IsNullOrEmpty())
             {
                 const string Message = $"The '{Constants.FacilityType_ConfigurationElementAttributeName}' attribute is required.";
                 throw new ConfigurationErrorsException(Message);
@@ -104,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.Configuration
             var facilityTypeFullName =
                 configurationSection[Constants.FacilityType_ConfigurationSectionName];
 
-            if (string.IsNullOrEmpty(facilityTypeFullName))
+            if (facilityTypeFullName.IsNullOrEmpty())
             {
                 const string Message = $"The '{Constants.NHibernateFacility_ConfigurationSectionName}:{Constants.FacilityType_ConfigurationSectionName}' section is required.";
                 throw new ConfigurationErrorsException(Message);
@@ -151,7 +152,7 @@ namespace Castle.Facilities.NHibernateIntegration.Configuration
             var facilityTypeFullName =
                 configurationSection[Constants.FacilityType_ConfigurationSectionName];
 
-            if (string.IsNullOrEmpty(facilityTypeFullName))
+            if (facilityTypeFullName.IsNullOrEmpty())
             {
                 const string Message = $"The '{Constants.NHibernateFacility_ConfigurationSectionName}:{Constants.FacilityType_ConfigurationSectionName}' section is required.";
                 throw new ConfigurationErrorsException(Message);
@@ -197,7 +198,7 @@ namespace Castle.Facilities.NHibernateIntegration.Configuration
                 var sessionFactoryNode =
                     new MutableConfiguration(Constants.SessionFactory_ConfigurationElementName);
 
-                if (string.IsNullOrEmpty(sessionFactoryConfigurationSection.Key))
+                if (sessionFactoryConfigurationSection.Key.IsNullOrEmpty())
                 {
                     const string Message = $"Each section within the '{Constants.SessionFactories_ConfigurationSectionName}' section requires a key.";
                     throw new ConfigurationErrorsException(Message);
@@ -239,7 +240,7 @@ namespace Castle.Facilities.NHibernateIntegration.Configuration
                 if (settings.TryGetValue(
                         NHibernate.Cfg.Environment.ConnectionStringName,
                         out var connectionStringName) &&
-                    !string.IsNullOrEmpty(connectionStringName))
+                    !connectionStringName.IsNullOrEmpty())
                 {
                     settings[NHibernate.Cfg.Environment.ConnectionString] =
                         configuration.GetConnectionString(connectionStringName);
