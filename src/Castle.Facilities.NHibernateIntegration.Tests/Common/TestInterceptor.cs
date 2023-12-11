@@ -54,14 +54,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Common
                                         string[] propertyNames,
                                         IType[] types)
         {
-            return null;
+            return null!;
         }
 
         public override object Instantiate(string clazz, object id)
         {
             _instantiationCall = true;
 
-            return null;
+            return null!;
         }
 
         public override bool OnLoad(object entity,

@@ -14,14 +14,10 @@
 // limitations under the License.
 #endregion
 
-using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 using NHibernate;
 using NHibernate.Stat;
@@ -67,7 +63,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="closing">If set to <see langword="true" /> [closing].</param>
         /// <returns></returns>
-        protected DbConnection DoClose(bool closing)
+        protected DbConnection? DoClose(bool closing)
         {
             if (_isDisposed)
             {
@@ -82,9 +78,9 @@ namespace Castle.Facilities.NHibernateIntegration
             return null;
         }
 
-        internal DbConnection InternalClose(bool closing)
+        internal DbConnection? InternalClose(bool closing)
         {
-            DbConnection connection = null;
+            DbConnection? connection = null;
 
             _sessionStore.Remove(this);
 
@@ -112,7 +108,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Gets or sets the session store cookie.
         /// </summary>
         /// <value>The session store cookie.</value>
-        public object SessionStoreCookie { get; set; }
+        public object? SessionStoreCookie { get; set; }
 
         #region ISession Members
 
@@ -141,9 +137,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// as opposed to simply calling <see cref="NHibernate.SessionExtensions.GetCurrentTransaction(ISession)" />
         /// because <see cref="ISession.GetSessionImplementation()" /> can be <see langword="null" />.
         /// </remarks>
-        public ITransaction Transaction => _innerSession.GetCurrentTransaction();
+        public ITransaction? Transaction => _innerSession.GetCurrentTransaction();
 
-        public DbConnection Connection => _innerSession.Connection;
+        public DbConnection? Connection => _innerSession.Connection;
 
         public bool IsConnected => _innerSession.IsConnected;
 
@@ -178,12 +174,12 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public ISessionStatistics Statistics => _innerSession.Statistics;
 
-        public DbConnection Close()
+        public DbConnection? Close()
         {
             return DoClose(true);
         }
 
-        public DbConnection Disconnect()
+        public DbConnection? Disconnect()
         {
             return _innerSession.Disconnect();
         }

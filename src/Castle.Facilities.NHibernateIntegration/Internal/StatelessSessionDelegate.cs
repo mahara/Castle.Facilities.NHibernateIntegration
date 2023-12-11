@@ -61,7 +61,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="closing">If set to <see langword="true" /> [closing].</param>
         /// <returns></returns>
-        protected DbConnection DoClose(bool closing)
+        protected DbConnection? DoClose(bool closing)
         {
             if (_isDisposed)
             {
@@ -76,9 +76,9 @@ namespace Castle.Facilities.NHibernateIntegration
             return null;
         }
 
-        internal DbConnection InternalClose(bool closing)
+        internal DbConnection? InternalClose(bool closing)
         {
-            DbConnection connection = null;
+            DbConnection? connection = null;
 
             _sessionStore.Remove(this);
 
@@ -107,7 +107,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Gets or sets the session store cookie.
         /// </summary>
         /// <value>The session store cookie.</value>
-        public object SessionStoreCookie { get; set; }
+        public object? SessionStoreCookie { get; set; }
 
         #region IStatelessSession Members
 
@@ -126,9 +126,9 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <remarks>
         /// This property getter is implemented explicitly in <see cref="SessionExtensions.GetCurrentTransaction(IStatelessSession)" />.
         /// </remarks>
-        public ITransaction Transaction => _innerSession.GetCurrentTransaction();
+        public ITransaction? Transaction => _innerSession.GetCurrentTransaction();
 
-        public DbConnection Connection => _innerSession.Connection;
+        public DbConnection? Connection => _innerSession.Connection;
 
         public bool IsConnected => _innerSession.IsConnected;
 
