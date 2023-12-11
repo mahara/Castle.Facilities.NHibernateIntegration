@@ -47,9 +47,9 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         {
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
-                .Setup(x =>
+                .Setup(static x =>
                        x.IsNewConfigurationRequired(
-                           It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
+                           It.Is<string>(static x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
                            It.IsAny<IList<string>>()))
                 .Returns(false)
                 .Verifiable();
@@ -63,7 +63,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         [Test]
         public void IncludesMappingAssembliesInDependentFiles()
         {
-            var dependencies = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
+            List<string> dependencies = new()
+            {
+                "Castle.Facilities.NHibernateIntegration.Tests.dll",
+            };
 
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)

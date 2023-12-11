@@ -52,10 +52,14 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public ISession OpenSession(string alias)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
             if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             var transaction = GetCurrentTransaction();
 
@@ -86,10 +90,14 @@ namespace Castle.Facilities.NHibernateIntegration
 
         public IStatelessSession OpenStatelessSession(string alias)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
             if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             var transaction = GetCurrentTransaction();
 
@@ -120,7 +128,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="weAreSessionOwner">If set to <see langword="true" />, then we are the session owner.</param>
         /// <returns></returns>
         protected static bool EnlistIfNecessary(
-            ITransaction transaction,
+            ITransaction? transaction,
             SessionDelegate session,
             bool weAreSessionOwner)
         {
@@ -132,7 +140,7 @@ namespace Castle.Facilities.NHibernateIntegration
             bool shouldEnlist;
 
             transaction.Context.TryGetValueAs(Constants.Session_TransactionEnlistment_TransactionContextKey,
-                                              out List<ISession> list);
+                                              out List<ISession>? list);
 
             if (list is null)
             {
@@ -190,7 +198,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// <param name="weAreSessionOwner">If set to <see langword="true" />, then we are the session owner.</param>
         /// <returns></returns>
         protected static bool EnlistIfNecessary(
-            ITransaction transaction,
+            ITransaction? transaction,
             StatelessSessionDelegate session,
             bool weAreSessionOwner)
         {
@@ -202,7 +210,7 @@ namespace Castle.Facilities.NHibernateIntegration
             bool shouldEnlist;
 
             transaction.Context.TryGetValueAs(Constants.StatelessSession_TransactionEnlistment_TransactionContextKey,
-                                              out List<IStatelessSession> list);
+                                              out List<IStatelessSession>? list);
 
             if (list is null)
             {
@@ -282,7 +290,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             var transactionManager = _kernel.Resolve<ITransactionManager>();
 
-            return transactionManager.CurrentTransaction;
+            return transactionManager.CurrentTransaction!;
         }
 
         private SessionDelegate WrapSession(ISession session, bool hasTransaction)

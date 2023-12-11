@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-using System;
-
 using Castle.Core.Configuration;
 using Castle.Facilities.AutoTx;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
@@ -38,7 +36,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
             Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(DummyConfigurationBuilder)));
         }
@@ -64,7 +62,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
@@ -84,13 +82,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             // and then finally change it to DummySessionStore.
             // The latest session store set should be DummySessionStore.
             container.AddFacility<NHibernateFacility>(
-                f => f.IsWeb()
+                static f =>
+                f.IsWeb()
 #if NETFRAMEWORK
-                      .SessionStore<LogicalCallContextSessionStore>()
-                      .SessionStore<CallContextSessionStore>()
+                 .SessionStore<LogicalCallContextSessionStore>()
+                 .SessionStore<CallContextSessionStore>()
 #endif
-                      .SessionStore<DummySessionStore>()
-                      .ConfigurationBuilder<DummyConfigurationBuilder>());
+                 .SessionStore<DummySessionStore>()
+                 .ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
@@ -104,7 +103,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.IsWeb().ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.IsWeb().ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
@@ -117,7 +116,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             var container = new WindsorContainer();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<TestConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<TestConfigurationBuilder>());
 
             var sessionManager = container.Resolve<ISessionManager>();
 
@@ -137,17 +136,17 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
 
     internal class DummySessionStore : ISessionStore
     {
-        public bool IsCurrentActivityEmptyFor(string alias)
+        public bool IsCurrentActivityEmptyFor(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public SessionDelegate FindCompatibleSession(string alias)
+        public SessionDelegate FindCompatibleSession(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public void Store(string alias, SessionDelegate session)
+        public void Store(string? alias, SessionDelegate session)
         {
             throw new NotImplementedException();
         }
@@ -157,12 +156,12 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             throw new NotImplementedException();
         }
 
-        public StatelessSessionDelegate FindCompatibleStatelessSession(string alias)
+        public StatelessSessionDelegate FindCompatibleStatelessSession(string? alias)
         {
             throw new NotImplementedException();
         }
 
-        public void Store(string alias, StatelessSessionDelegate session)
+        public void Store(string? alias, StatelessSessionDelegate session)
         {
             throw new NotImplementedException();
         }

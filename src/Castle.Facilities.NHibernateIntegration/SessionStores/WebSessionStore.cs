@@ -45,7 +45,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
     {
 #if NET
         [CLSCompliant(false)]
-        public IHttpContextAccessor HttpContextAccessor { get; set; }
+        public IHttpContextAccessor? HttpContextAccessor { get; set; }
 #endif
 
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()

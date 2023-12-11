@@ -88,7 +88,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 }
                 else
                 {
-                    configuration.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name));
+                    configuration.AddXmlFile(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, name!));
                 }
             }
         }
@@ -116,7 +116,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                     throw new ConfigurationErrorsException(message);
                 }
 
-                var listenerType = Type.GetType(listenerTypeName) ??
+                var listenerType = Type.GetType(listenerTypeName!) ??
                                    throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
                 var listener = Activator.CreateInstance(listenerType);
 
@@ -174,10 +174,10 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 var hbmSerializerType =
                     Type.GetType(string.Concat(NHibernateMappingAttributesAssemblyName,
                                                ".HbmSerializer, ",
-                                               NHibernateMappingAttributesAssemblyName));
+                                               NHibernateMappingAttributesAssemblyName))!;
                 var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
-                var validateProperty = hbmSerializerType.GetProperty("Validate");
-                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) });
+                var validateProperty = hbmSerializerType.GetProperty("Validate")!;
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) })!;
 
                 // Enable validation of mapping documents generated from the mapping attributes.
                 validateProperty.SetValue(hbmSerializer, true, null);
@@ -186,7 +186,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 configuration.AddInputStream(
                     (MemoryStream) serializeMethod.Invoke(
                         hbmSerializer,
-                        new object[] { Assembly.Load(targetAssemblyName) }));
+                        new object[] { Assembly.Load(targetAssemblyName) })!);
             }
         }
 
