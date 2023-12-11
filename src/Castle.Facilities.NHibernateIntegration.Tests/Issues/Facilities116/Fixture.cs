@@ -38,8 +38,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
         private readonly Func<IObjectPersister<NHibernateConfiguration>> _objectPersister =
             ObjectPersisterFactory.Create<NHibernateConfiguration>;
 
-        private CastleConfiguration _facilityConfiguration;
-        private IConfigurationBuilder _configurationBuilder;
+        private CastleConfiguration _facilityConfiguration = null!;
+        private IConfigurationBuilder _configurationBuilder = null!;
 
         protected override string ConfigurationFilePath =>
             "EmptyConfiguration.xml";

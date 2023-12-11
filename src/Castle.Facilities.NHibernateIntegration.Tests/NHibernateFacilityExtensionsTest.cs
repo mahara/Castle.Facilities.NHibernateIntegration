@@ -31,7 +31,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     public class NHibernateFacilityExtensionsTest : TestBase
     {
 #pragma warning disable NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
-        private IWindsorContainer _container = null;
+        private IWindsorContainer _container = null!;
 #pragma warning restore NUnit1032 // An IDisposable field/property should be Disposed in a TearDown method
 
         protected override void OnSetUp()
@@ -53,7 +53,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
         protected override void OnTearDown()
         {
             _container.Dispose();
-            _container = null;
+            _container = null!;
         }
 
 

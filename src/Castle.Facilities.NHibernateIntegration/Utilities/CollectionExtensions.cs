@@ -14,6 +14,8 @@
 // limitations under the License.
 #endregion
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Castle.Facilities.NHibernateIntegration.Utilities
 {
     public static class DictionaryExtensions
@@ -21,7 +23,7 @@ namespace Castle.Facilities.NHibernateIntegration.Utilities
         public static bool TryGetValueAs<TKey, TValue, TValueAs>(
             this IDictionary<TKey, TValue> dictionary,
             TKey key,
-            out TValueAs valueAs)
+            [MaybeNullWhen(false)] out TValueAs? valueAs)
             where TValueAs : TValue
         {
             if (dictionary.TryGetValue(key, out var value))

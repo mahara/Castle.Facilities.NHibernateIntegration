@@ -22,7 +22,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues
         {
             get
             {
-                var @namespace = GetType().Namespace;
+                var @namespace = GetType().Namespace!;
                 //return @namespace.Substring(@namespace.LastIndexOf('.') + 1);
                 return @namespace[(@namespace.LastIndexOf('.') + 1)..];
             }
