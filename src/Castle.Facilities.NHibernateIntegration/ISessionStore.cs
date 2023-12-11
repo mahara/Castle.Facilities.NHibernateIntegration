@@ -26,7 +26,7 @@ namespace Castle.Facilities.NHibernateIntegration
         /// Returns <see langword="true" /> if the current activity
         /// (which is an execution activity context) has no sessions available.
         /// </summary>
-        bool IsCurrentActivityEmptyFor(string alias);
+        bool IsCurrentActivityEmptyFor(string? alias);
 
         /// <summary>
         /// Returns a previously stored session for the given alias if available;
@@ -34,14 +34,14 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        SessionDelegate FindCompatibleSession(string alias);
+        SessionDelegate? FindCompatibleSession(string? alias);
 
         /// <summary>
         /// Stores the specified session in the store.
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="session"></param>
-        void Store(string alias, SessionDelegate session);
+        void Store(string? alias, SessionDelegate session);
 
         /// <summary>
         /// Removes the session from the store.
@@ -55,14 +55,14 @@ namespace Castle.Facilities.NHibernateIntegration
         /// </summary>
         /// <param name="alias"></param>
         /// <returns></returns>
-        StatelessSessionDelegate FindCompatibleStatelessSession(string alias);
+        StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias);
 
         /// <summary>
         /// Stores the specified stateless session in the store.
         /// </summary>
         /// <param name="alias"></param>
         /// <param name="session"></param>
-        void Store(string alias, StatelessSessionDelegate session);
+        void Store(string? alias, StatelessSessionDelegate session);
 
         /// <summary>
         /// Removes the stateless session from the store.

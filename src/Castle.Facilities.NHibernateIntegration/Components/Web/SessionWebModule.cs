@@ -55,7 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
     {
         public const string SessionKey = "SessionWebModule.session";
 
-        private HttpApplication _httpApplication;
+        private HttpApplication _httpApplication = null!;
 
         /// <summary>
         /// Initializes a module and prepares it to handle requests.
@@ -74,7 +74,7 @@ namespace Castle.Facilities.NHibernateIntegration.Components.Web
             _httpApplication.BeginRequest -= OnBeginRequest;
             _httpApplication.EndRequest -= OnEndRequest;
 
-            _httpApplication = null;
+            _httpApplication = null!;
         }
 
         private void OnBeginRequest(object sender, EventArgs e)

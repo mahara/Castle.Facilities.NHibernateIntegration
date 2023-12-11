@@ -58,7 +58,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using (var session = manager.OpenSession())
             {
@@ -90,7 +90,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using (var session = manager.OpenSession())
             {
@@ -126,7 +126,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using var session = manager.OpenSession();
 
@@ -278,7 +278,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using (var session = manager.OpenStatelessSession())
             {
@@ -310,7 +310,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using (var session = manager.OpenStatelessSession())
             {
@@ -346,7 +346,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
         {
             var manager = Container.Resolve<ISessionManager>();
 
-            ITransaction sessionTransaction;
+            ITransaction? sessionTransaction;
 
             using var session = manager.OpenStatelessSession();
 

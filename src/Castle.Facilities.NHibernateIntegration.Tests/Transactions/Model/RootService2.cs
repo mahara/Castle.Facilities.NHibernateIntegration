@@ -33,7 +33,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
             _secondDao = secondDao;
         }
 
-        public OrderDao2 OrderDao { get; set; }
+        public OrderDao2 OrderDao { get; set; } = null!;
 
         [Transaction(IsDistributed = true)]
         public virtual void TwoDbOperation_Create(bool throwException)
