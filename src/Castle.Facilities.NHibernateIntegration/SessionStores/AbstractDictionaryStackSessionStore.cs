@@ -33,14 +33,18 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         protected string StatelessSessionStacks_SlotName { get; } =
             string.Format(Constants.SessionStore_StatelessSessionStacks_SlotNameFormat, Guid.NewGuid());
 
-        protected override Stack<SessionDelegate> GetSessionStackFor(string alias)
+        protected override Stack<SessionDelegate> GetSessionStackFor(string? alias)
         {
             lock (_sessionLock)
             {
+#if NET8_0_OR_GREATER
+                ArgumentNullException.ThrowIfNull(alias);
+#else
                 if (alias is null)
                 {
                     throw new ArgumentNullException(nameof(alias));
                 }
+#endif
 
                 var dictionary = GetSessionDictionary();
 
@@ -53,7 +57,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
                 Stack<SessionDelegate> stack;
 
-                var stackIsFound = dictionary.TryGetValue(alias, out stack);
+                var stackIsFound = dictionary.TryGetValue(alias, out stack!);
                 if (!stackIsFound || (stackIsFound && stack is null))
                 {
                     stack = new Stack<SessionDelegate>();
@@ -77,14 +81,18 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
         /// <param name="dictionary">The dictionary.</param>
         protected abstract void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary);
 
-        protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string alias)
+        protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias)
         {
             lock (_statelessSessionLock)
             {
+#if NET8_0_OR_GREATER
+                ArgumentNullException.ThrowIfNull(alias);
+#else
                 if (alias is null)
                 {
                     throw new ArgumentNullException(nameof(alias));
                 }
+#endif
 
                 var dictionary = GetStatelessSessionDictionary();
 
@@ -97,7 +105,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
                 Stack<StatelessSessionDelegate> stack;
 
-                var stackIsFound = dictionary.TryGetValue(alias, out stack);
+                var stackIsFound = dictionary.TryGetValue(alias, out stack!);
                 if (!stackIsFound || (stackIsFound && stack is null))
                 {
                     stack = new Stack<StatelessSessionDelegate>();
