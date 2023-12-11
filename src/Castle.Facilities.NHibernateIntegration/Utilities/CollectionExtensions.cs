@@ -21,7 +21,7 @@ namespace Castle.Facilities.NHibernateIntegration.Utilities
         public static bool TryGetValueAs<TKey, TValue, TValueAs>(
             this IDictionary<TKey, TValue> dictionary,
             TKey key,
-            out TValueAs valueAs)
+            out TValueAs? valueAs)
             where TValueAs : TValue
         {
             if (dictionary.TryGetValue(key, out var value))
