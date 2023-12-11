@@ -32,7 +32,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
         {
-            return _sessionAsyncLocal.Value;
+            return _sessionAsyncLocal.Value!;
         }
 
         protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
@@ -42,7 +42,7 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 
         protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
         {
-            return _statelessSessionAsyncLocal.Value;
+            return _statelessSessionAsyncLocal.Value!;
         }
 
         protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
