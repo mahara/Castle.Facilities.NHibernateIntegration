@@ -42,8 +42,12 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
             _kernel = kernel;
         }
 
-        public void RegisterAliasToIdMapping(string alias, string id)
+        public void RegisterAliasToIdMapping(string? alias, string? id)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+            ArgumentNullException.ThrowIfNull(id);
+#else
             if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
@@ -52,6 +56,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
             {
                 throw new ArgumentNullException(nameof(id));
             }
+#endif
 
 #if NET
             if (!_aliasToId.TryAdd(alias, id))
@@ -70,12 +75,16 @@ namespace Castle.Facilities.NHibernateIntegration.Internals
 #endif
         }
 
-        public ISessionFactory GetSessionFactory(string alias)
+        public ISessionFactory GetSessionFactory(string? alias)
         {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
             if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             if (!_aliasToId.TryGetValue(alias, out var id))
             {

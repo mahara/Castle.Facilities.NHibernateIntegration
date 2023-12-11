@@ -84,7 +84,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
             //Console.WriteLine($"result: {result}");
         }
 
-        private async Task EntryPoint(object index)
+        private async Task EntryPoint(object? index)
         {
             //var session = new SessionDelegate(true, MockRepository.DynamicMock<ISession>(), _localSession);
             //var session = new SessionDelegate(true, new Mock<ISession>().Object, _localSession);
@@ -111,14 +111,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         private Task Branch1()
         {
             //var session1 = _localSession.FindCompatibleSession("default");
-            var session1 = _localSession.Value.Counter++;
+            var session1 = _localSession.Value!.Counter++;
 
             return Task.CompletedTask;
         }
 
         private Task<bool> Branch2()
         {
-            var session2 = _localSession.Value.Counter++;
+            var session2 = _localSession.Value!.Counter++;
 
             var tcs = new TaskCompletionSource<bool>();
 
