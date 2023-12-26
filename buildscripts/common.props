@@ -1,10 +1,20 @@
 <Project>
 
   <!--
+    https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-your-build?view=vs-2022
+    https://github.com/castleproject/Core/pull/616
+  -->
+
+  <!--
     PROPERTIES
   -->
 
   <PropertyGroup>
+    <WinExeTargetFrameworks>net8.0-windows</WinExeTargetFrameworks>
+    <WinLibTargetFrameworks>net8.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net8.0;</ExeTargetFrameworks>
+    <LibTargetFrameworks>net8.0;net7.0;net6.0;net48</LibTargetFrameworks>
+    <ExeTestTargetFrameworks>net8.0;net7.0;net6.0;net48</ExeTestTargetFrameworks>
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
 
     <LangVersion>latest</LangVersion>
@@ -13,19 +23,121 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!--
+
+      NOTE:   How to Specify OutputPath and IntermediateOutputPath manually to move them out of source codes folder (src).
+              https://github.com/MicrosoftDocs/visualstudio-docs/issues/853
+              https://github.com/dotnet/msbuild/issues/1603
+
+    -->
+    <UseCommonOutputDirectory>false</UseCommonOutputDirectory>
+
+    <!--
+      https://learn.microsoft.com/en-us/cpp/build/reference/common-macros-for-build-commands-and-properties?view=msvc-170
+      https://github.com/dotnet/sdk/issues/867
+      https://github.com/dotnet/msbuild/issues/3244
+      https://github.com/dotnet/msbuild/issues/3497
+      https://github.com/dotnet/msbuild/issues/4881
+      https://github.com/OmniSharp/omnisharp-vscode/issues/4787
+    -->
+    <BuildConfigurationFolder>buildscripts</BuildConfigurationFolder>
+    <OutputFolder>bin</OutputFolder>
+    <TemporaryOutputFolder>obj</TemporaryOutputFolder>
+
+    <OutputBaseFolderPath>$(SolutionDir)$(OutputFolder)\</OutputBaseFolderPath>
+    <BaseOutputPath>$(OutputBaseFolderPath)</BaseOutputPath>
+    <OutputPath>$(OutputBaseFolderPath)$(Configuration)\$(TargetFramework)\$(MSBuildProjectName)\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+
+    <!--
+
+      NOTE:   IntermediateOutputPath has a certain, predefined folder structure,
+              where TargetFramework will be automatically added after itself.
+              That way, TargetFramework cannot be specified before MSBuildProjectName within the path.
+              In short, TargetFramework cannot be re-specified within IntermediateOutputPath.
+              That is unlike OutputPath, where TargetFramework can be specified anywhere within the path.
+
+              IntermediateOutputPath is predefined as follows:
+
+              $(MSBuildProjectName)\$(Configuration)\$(TargetFramework)
+
+      NOTE:   NuGet messed up with the need to set both MSBuildProjectExtensionsPath and BaseIntermediateOutputPath.
+
+      - IntermediateOutputPath is scoped per project configuration (Configuration), eg.: Debug or Release.
+        It is used by MSBuild as temporary output path.
+        When overridden, Configuration MUST BE EXPLICITLY specified within the path,
+        along with MSBuildProjectName.
+
+        IntermediateOutputPath is re-defined as follows:
+
+        <IntermediateOutputPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
+
+      - BaseIntermediateOutputPath is scoped per project configuration (Configuration), eg.: Debug or Release.
+        It is used by NuGet as temporary output path for NuGet specification files (.nuspec)
+        for the project NuGet package created.
+        BaseIntermediateOutputPath has a certain, predefined folder structure,
+        where Configuration will be automatically added after itself.
+        Thus, there is no need to re-specify Configuration within the path.
+        The MSBuildProjectName however MUST BE EXPLICITLY specified.
+        BaseIntermediateOutputPath consists of the following files:
+        - [ProjectName/PackageName].[PackageVersion].nuspec
+        - [ProjectName/PackageName].[PackageVersion].symbols.nuspec
+
+        BaseIntermediateOutputPath is re-defined as follows:
+
+        <BaseIntermediateOutputPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+
+      - MSBuildProjectExtensionsPath is scoped per project (MSBuildProjectName).
+        It is used by NuGet as RestoreOutputPath.
+        https://github.com/NuGet/NuGet.Client/blob/deab84db30cbd8cc738cd46ad694aebdbb43a1cf/src/NuGet.Core/NuGet.Build.Tasks/NuGet.targets#L592
+        - https://github.com/MicrosoftDocs/visualstudio-docs/issues/853
+        MSBuildProjectExtensionsPath consists of, at least, the following files:
+        - project.assets.json
+        - project.nuget.cache
+        - [ProjectName].csproj.nuget.dgspec.json
+        - [ProjectName].csproj.nuget.g.props
+        - [ProjectName].csproj.nuget.g.targets
+
+        MSBuildProjectExtensionsPath is re-defined as follows:
+
+        <MSBuildProjectExtensionsPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\</MSBuildProjectExtensionsPath>
+
+        NOTE:   There seems to be an known issue with .NET Framework 4.8 WPF project when overriding this property.
+                https://github.com/dotnet/wpf/issues/5679
+
+
+      ============
+      GLOSSARIES
+      ============
+      - MSBuildProjectName = project name
+      - TargetFramework = project target framework moniker, eg: net6.0, net48, etc.
+      - Configuration = project build configuration, eg: Debug or Release
+
+    -->
+    <IntermediateOutputBaseFolderPath>$(SolutionDir)$(TemporaryOutputFolder)\</IntermediateOutputBaseFolderPath>
+    <BaseIntermediateOutputPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <!--<MSBuildProjectExtensionsPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\</MSBuildProjectExtensionsPath>-->
+    <IntermediateOutputPath>$(IntermediateOutputBaseFolderPath)\$(MSBuildProjectName)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors)</WarningsAsErrors>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <BuildVersion>0.0.0</BuildVersion>
     <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)' != ''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>..\..\buildscripts\CastleKey.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(SolutionDir)$(BuildConfigurationFolder)\CastleKey.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
   </PropertyGroup>
 
+  <!--
+    https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
+  -->
   <PropertyGroup>
     <Product>Castle.Facilities.NHibernateIntegration</Product>
     <Authors>Castle Project Contributors</Authors>
@@ -34,11 +146,12 @@
     <VersionPrefix>$(BuildVersion)</VersionPrefix>
     <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
     <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
-    <PackageOutputPath>..\..\build\</PackageOutputPath>
+    <PackageOutputPath>$(OutputBaseFolderPath)$(Configuration)\</PackageOutputPath>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
     <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+    <PackageTags>$(Product)</PackageTags>
     <PackageVersion>$(BuildVersion)</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -47,11 +160,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\README.md" Link="Properties\README.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" PackagePath="\" />
-    <None Include="..\..\LICENSE" Link="Properties\LICENSE" Pack="true" PackagePath="\" />
-    <None Include="..\..\buildscripts\readme.txt" Link="Properties\readme.txt" Pack="true" PackagePath="\" />
-    <Content Include="..\..\docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
+    <None Include="$(SolutionDir)README.md" Link="Properties\README.md" Pack="true" PackagePath="\" />
+    <None Include="$(SolutionDir)CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" PackagePath="\" />
+    <None Include="$(SolutionDir)LICENSE" Link="Properties\LICENSE" Pack="true" PackagePath="\" />
+    <None Include="$(SolutionDir)$(BuildConfigurationFolder)\readme.txt" Link="Properties\readme.txt" Pack="true" PackagePath="\" />
+    <Content Include="$(SolutionDir)docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -82,12 +195,13 @@
       https://github.com/dotnet/sdk/issues/19521
     -->
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Transactions" />
 
     <PackageReference Include="IndexRange" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\buildscripts\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
+    <Compile Include="$(SolutionDir)$(BuildConfigurationFolder)\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
   </ItemGroup>
 
 
@@ -104,10 +218,10 @@
       https://stackoverflow.com/questions/755382/i-want-to-delete-all-bin-and-obj-folders-to-force-all-projects-to-rebuild-everyt
     -->
     <!-- bin -->
-    <RemoveDir Directories="$(ProjectDir)$(BaseOutputPath)" ContinueOnError="true" />
+    <RemoveDir Directories="$(OutputBaseFolderPath)" ContinueOnError="true" />
 
     <!-- obj -->
-    <RemoveDir Directories="$(ProjectDir)$(BaseIntermediateOutputPath)" ContinueOnError="true" />
+    <RemoveDir Directories="$(IntermediateOutputBaseFolderPath)" ContinueOnError="true" />
 
   </Target>
 

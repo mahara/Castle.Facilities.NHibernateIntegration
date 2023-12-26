@@ -25,7 +25,7 @@ for:
 
   # upload test results
   after_build:
-  - find "$APPVEYOR_BUILD_FOLDER/build/Release" -type f -name '*TestResults.xml' -print0 | xargs -0 -I '{}' curl -F 'file=@{}' "https://ci.appveyor.com/api/testresults/nunit3/$APPVEYOR_JOB_ID"
+  - find "$APPVEYOR_BUILD_FOLDER/bin/Release" -type f -name '*TestResults.xml' -print0 | xargs -0 -I '{}' curl -F 'file=@{}' "https://ci.appveyor.com/api/testresults/nunit3/$APPVEYOR_JOB_ID"
 
   # deployment is handled exclusively by the Windows build job (below)
   deploy: off
@@ -56,20 +56,20 @@ for:
   after_build:
   - ps: |
       $wc = New-Object System.Net.WebClient
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml"))
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml"))
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml"))
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "build\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml"))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml"))
 
   # push packages to NuGet on tag builds
   on_success:
   - ps: |
       if ($env:APPVEYOR_REPO_TAG -eq "true")
       {
-          nuget push "build\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+          nuget push "bin\Release\Castle.Facilities.NHibernateIntegration.${env:APPVEYOR_BUILD_VERSION}.nupkg" -ApiKey $env:NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
       }
 
   # upload packages to AppVeyor
   artifacts:
-  - path: build\*.nupkg
+  - path: bin\Release\*.nupkg
     name: net

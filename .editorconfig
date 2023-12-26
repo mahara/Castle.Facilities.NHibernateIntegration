@@ -1,58 +1,19 @@
 # EditorConfig is awesome: https://EditorConfig.org
 
-# top-most EditorConfig file
-root = true
 
+#### Core EditorConfig Options ####
 
 # Code-style rule options
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options?view=vs-2022
 # https://github.com/dotnet/roslyn/blob/main/src/VisualStudio/Core/Def/CodeCleanup/readme.md
 
 
+# top-most EditorConfig file
+root = true
+
+
 # All files
 [*]
-charset = utf-8
-end_of_line = crlf
-insert_final_newline = true
-trim_trailing_whitespace = true
-indent_style = space
-indent_size = 4
-tab_width = 4
-
-
-# Project files
-[*.{csproj,vbproj,vcxproj,vcxproj.filters,proj,projitems,shproj}]
-indent_size = 2
-tab_width = 2
-
-
-# Solution and project configuration files
-[*.{props,targets,manifest,yml,ruleset,nuspec,vsixmanifest,vsct}]
-indent_size = 2
-tab_width = 2
-
-
-# XML configuration files
-[*.{xml,xsd,json,config,resx}]
-indent_size = 2
-tab_width = 2
-
-
-# HTML, CSS, SCSS files
-[*.{html,css,scss}]
-indent_size = 2
-
-
-# Markdown files
-[*.md]
-trim_trailing_whitespace = false
-
-
-# Code files
-[*.{cs,csx,vb,vbx}]
-
-
-#### Core EditorConfig Options ####
 
 # File encoding preferences
 charset = utf-8
@@ -68,7 +29,42 @@ indent_size = 4
 tab_width = 4
 
 
+# Project files
+[*.{csproj,vbproj,vcxproj,vcxproj.filters,fsproj,sqlproj,dbproj,wixproj,shproj,proj}]
+indent_size = 2
+tab_width = 2
+
+
+# Solution and project configuration files
+[*.{manifest,props,targets,yml,yaml}]
+indent_size = 2
+tab_width = 2
+
+
+# JSON and XML configuration files
+[*.{json,config,ruleset,resx,xml,xsd}]
+indent_size = 2
+tab_width = 2
+
+
+# HTML, CSS, and related files
+[*.{html,css,scss,less}]
+indent_size = 2
+tab_width = 2
+
+
+# Markdown files
+[*.md]
+indent_size = 2
+tab_width = 2
+
+
 #### .NET Coding Conventions ####
+
+# C# and VB.NET files
+[*.{cs,csx,cshtml,vb,vbx,vbhtml,xaml}]
+indent_size = 4
+tab_width = 4
 
 # Organize usings
 dotnet_separate_import_directive_groups = true
@@ -191,6 +187,9 @@ dotnet_diagnostic.CA1311.severity = warning
 # CA1815: Override equals and operator equals on value types
 # https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1815
 dotnet_diagnostic.CA1815.severity = error
+
+# NUnit2045: Use Assert.Multiple
+dotnet_diagnostic.NUnit2045.severity = silent
 
 
 # C# files

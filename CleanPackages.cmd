@@ -15,19 +15,25 @@ REM limitations under the License.
 REM ****************************************************************************
 
 
-ECHO.
-
-SET ARTIFACTS_FOLDER_PATH=build
+SET OUTPUT_FOLDER_PATH=bin
+SET TEMPORARY_OUTPUT_FOLDER_PATH=obj
 SET NEV_BIN_FOLDER_PATH=tools\Explicit.NuGet.Versions\bin
 SET NEV_OBJ_FOLDER_PATH=tools\Explicit.NuGet.Versions\obj
 
-dotnet clean %1 --configuration Debug
-dotnet clean %1 --configuration Release
+ECHO.
 
-IF EXIST "%ARTIFACTS_FOLDER_PATH%" (
-    ECHO Deleting "%ARTIFACTS_FOLDER_PATH%" folder...
+REM dotnet clean %1 --configuration Debug
+REM dotnet clean %1 --configuration Release
 
-    RMDIR "%ARTIFACTS_FOLDER_PATH%" /S /Q
+IF EXIST "%OUTPUT_FOLDER_PATH%" (
+    ECHO Deleting "%OUTPUT_FOLDER_PATH%" folder...
+
+    RMDIR "%OUTPUT_FOLDER_PATH%" /S /Q
+)
+IF EXIST "%TEMPORARY_OUTPUT_FOLDER_PATH%" (
+    ECHO Deleting "%TEMPORARY_OUTPUT_FOLDER_PATH%" folder...
+
+    RMDIR "%TEMPORARY_OUTPUT_FOLDER_PATH%" /S /Q
 )
 
 IF EXIST "%NEV_BIN_FOLDER_PATH%" (

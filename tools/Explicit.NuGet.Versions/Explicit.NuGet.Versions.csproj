@@ -1,11 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+
+    <AssemblyName>nev</AssemblyName>
     <OutputPath>bin\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AssemblyName>nev</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
