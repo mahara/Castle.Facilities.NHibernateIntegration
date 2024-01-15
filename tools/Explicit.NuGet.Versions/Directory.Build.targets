@@ -7,9 +7,8 @@
       https://stackoverflow.com/questions/45974279/multi-level-merging-of-msbuild-directory-build-props-files
   -->
 
-  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)..\'))" />
+  <Import Project="$(WorkspaceFolderPath)Directory.Build.targets" />
 
-  <Import Project="$(BuildConfigurationFolderPath)Project.Build.props" />
-  <Import Project="Project.Build.References.props" />
+  <Import Project="$(BuildConfigurationFolderPath)Project.Build.targets" />
 
 </Project>

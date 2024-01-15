@@ -46,56 +46,56 @@ echo ------------------------------------
 echo Running .NET (net8.0) Unit Tests
 echo ------------------------------------
 
-dotnet test "bin\Release\net8.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "bin\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml;format=nunit3" || exit 1
+dotnet test "artifacts\bin\Release\net8.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "artifacts\testresults\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml;format=nunit3" || exit 1
 
 echo ------------------------------------
 echo Running .NET (net7.0) Unit Tests
 echo ------------------------------------
 
-dotnet test "bin\Release\net7.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "bin\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml;format=nunit3" || exit 1
+dotnet test "artifacts\bin\Release\net7.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "artifacts\testresults\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml;format=nunit3" || exit 1
 
 echo ------------------------------------
 echo Running .NET (net6.0) Unit Tests
 echo ------------------------------------
 
-dotnet test "bin\Release\net6.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "bin\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || exit 1
+dotnet test "artifacts\bin\Release\net6.0\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.dll" --results-directory "artifacts\testresults\Release" --logger "nunit;LogFileName=Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml;format=nunit3" || exit 1
 
 echo --------------------------------------------
 echo Running .NET Framework (net48) Unit Tests
 echo --------------------------------------------
 
-mono "bin\Release\net48\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.exe" --work "bin\Release" --result "Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || exit 1
+mono "artifacts\bin\Release\net48\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.exe" --work "artifacts\testresults\Release" --result "Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml;format=nunit3" || exit 1
 
 # Ensure that all unit test runs produced protocol files.
-if [[ !( -f "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml" &&
-         -f "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml" ) ]]; then
+if [[ !( -f "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml" &&
+         -f "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml" ) ]]; then
     echo "Incomplete test results. Some test runs might not have terminated properly. Failing the build."
     exit 1
 fi
 
 # Unit Test Failures
-NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml" | wc -l)
+NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net8.0_TestResults.xml" | wc -l)
 if [ $NET_FAILCOUNT -ne 0 ]
 then
     echo ".NET (net8.0) Unit Tests have failed, failing the build."
     exit 1
 fi
 
-NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml" | wc -l)
+NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net7.0_TestResults.xml" | wc -l)
 if [ $NET_FAILCOUNT -ne 0 ]
 then
     echo ".NET (net7.0) Unit Tests have failed, failing the build."
     exit 1
 fi
 
-NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml" | wc -l)
+NET_FAILCOUNT=$(grep -F "One or more child tests had errors." "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net6.0_TestResults.xml" | wc -l)
 if [ $NET_FAILCOUNT -ne 0 ]
 then
     echo ".NET (net6.0) Unit Tests have failed, failing the build."
     exit 1
 fi
 
-NETFRAMEWORK_FAILCOUNT=$(grep -F "One or more child tests had errors." "bin\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml" | wc -l)
+NETFRAMEWORK_FAILCOUNT=$(grep -F "One or more child tests had errors." "artifacts\testresults\Release\Castle.Facilities.NHibernateIntegration.Tests_net48_TestResults.xml" | wc -l)
 if [ $NETFRAMEWORK_FAILCOUNT -ne 0 ]
 then
     echo ".NET Framework (net48) Unit Tests have failed, failing the build."

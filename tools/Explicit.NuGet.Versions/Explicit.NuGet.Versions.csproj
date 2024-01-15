@@ -1,18 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <TargetFrameworks>$(ExeTargetFrameworks)</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
 
+    <OutputPath>$(ArtifactsFolderPath)tools\nev\</OutputPath>
+    <OutDir>$(OutputPath)</OutDir>
+
     <AssemblyName>nev</AssemblyName>
-    <OutputPath>bin\</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>

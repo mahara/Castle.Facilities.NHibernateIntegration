@@ -4,8 +4,8 @@
 
 Improvements:
 - Added .NET 8.0 and .NET 7.0 support
-- Updated [System.Data.SqlClient] version to 4.8.5
-- Updated [NHibernate] version to 5.4.7
+- Updated [System.Data.SqlClient] version to 4.8.6
+- Updated [NHibernate] version to 5.5.0
 
 Breaking Changes:
 - Upgraded [Castle.Core] version to 5.1.1 (TBD)

@@ -1,0 +1,17 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+
+    <BuildConfigurationFolderName Condition="'$(BuildConfigurationFolderName)' == ''">buildscripts</BuildConfigurationFolderName>
+    <ArtifactsFolderName Condition="'$(ArtifactsFolderName)' == ''">artifacts</ArtifactsFolderName>
+    <OutputFolderName Condition="'$(OutputFolderName)' == ''">bin</OutputFolderName>
+    <IntermediateOutputFolderName Condition="'$(IntermediateOutputFolderName)' == ''">obj</IntermediateOutputFolderName>
+    <PackageOutputFolderName Condition="'$(PackageOutputFolderName)' == ''">packages</PackageOutputFolderName>
+
+  </PropertyGroup>
+
+</Project>

@@ -25,14 +25,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{34CB1007
 		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		nuget.config = nuget.config
+		Solution.Build.Folders.props = Solution.Build.Folders.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{D7F0D6E6-A41E-4F41-B7FD-65B07D5BA6E0}"
 	ProjectSection(SolutionItems) = preProject
 		buildscripts\build.cmd = buildscripts\build.cmd
 		buildscripts\BuildPackages.cmd = buildscripts\BuildPackages.cmd
-		buildscripts\common.props = buildscripts\common.props
+		buildscripts\CastleKey.snk = buildscripts\CastleKey.snk
 		buildscripts\CommonAssemblyInfo.cs = buildscripts\CommonAssemblyInfo.cs
+		buildscripts\docker-run-mono.sh = buildscripts\docker-run-mono.sh
+		buildscripts\Project.Build.props = buildscripts\Project.Build.props
+		buildscripts\Project.Build.targets = buildscripts\Project.Build.targets
+		buildscripts\readme.txt = buildscripts\readme.txt
+		buildscripts\Solution.Build.props = buildscripts\Solution.Build.props
+		buildscripts\Solution.Build.targets = buildscripts\Solution.Build.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{47F2F74D-7773-450C-B6E7-2D3B7C8814A8}"
@@ -44,6 +51,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CD342E79-A42
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
 		src\Directory.Build.targets = src\Directory.Build.targets
+		src\Project.Build.References.props = src\Project.Build.References.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Explicit.NuGet.Versions", "Explicit.NuGet.Versions", "{BCD8397A-74D5-42B2-8DEC-21971F5B8D4D}"
+	ProjectSection(SolutionItems) = preProject
+		tools\Explicit.NuGet.Versions\Directory.Build.props = tools\Explicit.NuGet.Versions\Directory.Build.props
+		tools\Explicit.NuGet.Versions\Directory.Build.targets = tools\Explicit.NuGet.Versions\Directory.Build.targets
+		tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj = tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
+		tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln = tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln
+		tools\Explicit.NuGet.Versions\Program.cs = tools\Explicit.NuGet.Versions\Program.cs
+		tools\Explicit.NuGet.Versions\Project.Build.References.props = tools\Explicit.NuGet.Versions\Project.Build.References.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}"
@@ -69,10 +89,12 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{47F2F74D-7773-450C-B6E7-2D3B7C8814A8} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
 		{34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD} = {31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}
 		{D7F0D6E6-A41E-4F41-B7FD-65B07D5BA6E0} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
+		{47F2F74D-7773-450C-B6E7-2D3B7C8814A8} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
 		{CD342E79-A425-4922-8CFE-4B990EACF71E} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
+		{E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
+		{BCD8397A-74D5-42B2-8DEC-21971F5B8D4D} = {E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A4EC0140-6DD7-4D6D-8F91-38F891D8DC44}
