@@ -29,6 +29,11 @@ namespace Explicit.NuGet.Versions
     {
         private static void Main(string[] args)
         {
+            if (args.Length != 2)
+            {
+                return;
+            }
+
             var packageDiscoveryDirectory = Path.Combine(Environment.CurrentDirectory, args[0]);
             var packageDiscoverDirectoryInfo = new DirectoryInfo(packageDiscoveryDirectory);
             var packageMetaData = ReadNuspecFromPackages(packageDiscoverDirectoryInfo);

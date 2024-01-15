@@ -2,9 +2,11 @@
 
 .vs/
 .idea/
-build/
+artifacts/
 bin/
 obj/
+packages/
+testresults/
 log/
 
 *.suo

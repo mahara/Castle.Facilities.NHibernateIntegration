@@ -4,6 +4,4 @@
     TARGETS
   -->
 
-  <Import Project="$(BuildConfigurationFolderPath)Solution.Build.targets" />
-
 </Project>

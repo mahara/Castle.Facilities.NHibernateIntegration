@@ -1,4 +1,4 @@
-<Project>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
     https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management
     https://devblogs.microsoft.com/nuget/introducing-central-package-management/
@@ -12,6 +12,7 @@
     <PackageVersion Include="Castle.LoggingFacility" Version="[5.1.2,6)" />
     <PackageVersion Include="Castle.Services.Transaction" Version="[5.4,5.5)" />
     <PackageVersion Include="Castle.Windsor" Version="[5.1.2,6)" />
+    <PackageVersion Include="CSharpIsNullAnalyzer" Version="0.1.495" />
     <PackageVersion Include="DotNetZip" Version="1.16.0" />
     <PackageVersion Include="IndexRange" Version="1.0.3" />
     <PackageVersion Include="LiquidTestReports.Markdown" Version="1.0.9" />
@@ -28,7 +29,7 @@
     <PackageVersion Include="NUnit3TestAdapter" Version="4.5.0" />
     <PackageVersion Include="NUnitLite" Version="4.0.1" />
     <PackageVersion Include="NunitXml.TestLogger" Version="3.1.15" />
-    <PackageVersion Include="System.Data.SqlClient" Version="4.8.5" />
-    <PackageVersion Include="System.Text.Json" Version="8.0.0" />
+    <PackageVersion Include="System.Data.SqlClient" Version="4.8.6" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.1" />
   </ItemGroup>
 </Project>
