@@ -14,7 +14,6 @@
   -->
 
   <PropertyGroup>
-
     <!--
 
       NOTE:   How to specify OutputPath, OutDir, and IntermediateOutputPath manually,
@@ -65,11 +64,10 @@
         - [ProjectName].csproj.nuget.g.props
         - [ProjectName].csproj.nuget.g.targets
 
-        NuGet also uses MSBuildProjectExtensionsPath further as temporary output path
+        NuGet also further uses MSBuildProjectExtensionsPath as temporary output path
         for NuGet specification files (.nuspec) of the project NuGet package,
-        by automatically appending Configuration at the end of the path before,
-
-        The new path contains, at least, the following files:
+        by automatically appending Configuration at the end of the path.
+        That new path contains, at least, the following files:
         - [ProjectPackageId].[ProjectPackageVersion].nuspec
         - [ProjectPackageId].[ProjectPackageVersion].symbols.nuspec
 
@@ -138,13 +136,14 @@
     <UseCommonOutputDirectory Condition="'$(UseCommonOutputDirectory)' == ''">false</UseCommonOutputDirectory>
 
     <BuildConfigurationFolderName Condition="'$(BuildConfigurationFolderName)' == ''">build</BuildConfigurationFolderName>
+    <SourceCodeFolderName Condition="'$(SourceCodeFolderName)' == ''">src</SourceCodeFolderName>
     <ArtifactsFolderName Condition="'$(ArtifactsFolderName)' == ''">artifacts</ArtifactsFolderName>
     <IntermediateOutputFolderName Condition="'$(IntermediateOutputFolderName)' == ''">obj</IntermediateOutputFolderName>
     <OutputFolderName Condition="'$(OutputFolderName)' == ''">bin</OutputFolderName>
     <PackageOutputFolderName Condition="'$(PackageOutputFolderName)' == ''">packages</PackageOutputFolderName>
 
     <!--
-      https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions?view=vs-2022
+      https://learn.microsoft.com/en-us/visualstudio/msbuild/property-functions
       https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory
         https://github.com/dotnet/msbuild/issues/2456
         https://stackoverflow.com/questions/45974279/multi-level-merging-of-msbuild-directory-build-props-files
@@ -153,6 +152,8 @@
     <WorkspaceFolderPath Condition="'$(WorkspaceFolderPath)' == ''">$(SolutionDir)</WorkspaceFolderPath>
 
     <BuildConfigurationFolderPath Condition="'$(BuildConfigurationFolderPath)' == ''">$(WorkspaceFolderPath)$(BuildConfigurationFolderName)\</BuildConfigurationFolderPath>
+
+    <SourceCodeFolderPath Condition="'$(SourceCodeFolderPath)' == ''">$(WorkspaceFolderPath)$(SourceCodeFolderName)\</SourceCodeFolderPath>
 
     <ArtifactsFolderPath Condition="'$(ArtifactsFolderPath)' == ''">$(WorkspaceFolderPath)$(ArtifactsFolderName)\</ArtifactsFolderPath>
 
@@ -176,7 +177,6 @@
     <OutDir>$(OutputPath)</OutDir>
 
     <PackageOutputPath>$(ArtifactsFolderPath)$(PackageOutputFolderName)\$(Configuration)\</PackageOutputPath>
-
   </PropertyGroup>
 
 </Project>

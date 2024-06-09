@@ -5,7 +5,6 @@
   -->
 
   <PropertyGroup>
-
     <!--
       https://github.com/dotnet/project-system/blob/main/docs/build-acceleration.md
         https://devblogs.microsoft.com/visualstudio/vs-toolbox-accelerate-your-builds-of-sdk-style-net-projects/
@@ -22,20 +21,17 @@
       Even if you target .NET 5 or later, having this property is fine.
     -->
     <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
-
   </PropertyGroup>
 
-  <Import Project="Solution.Build.Folders.props" Condition="Exists('Solution.Build.Folders.props')" />
+  <Import Project="Solution.Build.Properties.props" Condition="Exists('Solution.Build.Properties.props')" />
 
   <PropertyGroup>
-
     <BuildConfigurationFolderName Condition="'$(BuildConfigurationFolderName)' == ''">build</BuildConfigurationFolderName>
 
     <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
     <WorkspaceFolderPath Condition="'$(WorkspaceFolderPath)' == ''">$(SolutionDir)</WorkspaceFolderPath>
 
     <BuildConfigurationFolderPath Condition="'$(BuildConfigurationFolderPath)' == ''">$(WorkspaceFolderPath)$(BuildConfigurationFolderName)\</BuildConfigurationFolderPath>
-
   </PropertyGroup>
 
   <Import Project="$(BuildConfigurationFolderPath)Solution.Build.props" />

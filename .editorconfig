@@ -4,7 +4,7 @@
 #### Core EditorConfig Options ####
 
 # Code-style rule options
-# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options?view=vs-2022
+# https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/code-style-rule-options
 # https://github.com/dotnet/roslyn/blob/main/src/VisualStudio/Core/Def/CodeCleanup/readme.md
 
 

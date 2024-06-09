@@ -25,7 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{34CB1007
 		Directory.Build.targets = Directory.Build.targets
 		Directory.Packages.props = Directory.Packages.props
 		nuget.config = nuget.config
-		Solution.Build.Folders.props = Solution.Build.Folders.props
+		Project.Build.Properties.props = Project.Build.Properties.props
+		Solution.Build.Properties.props = Solution.Build.Properties.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{D7F0D6E6-A41E-4F41-B7FD-65B07D5BA6E0}"

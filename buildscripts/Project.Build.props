@@ -30,33 +30,42 @@
     <WarningsAsErrors>$(WarningsAsErrors)</WarningsAsErrors>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <!--<NoWarn>$(NoWarn);CS0612;CS0618</NoWarn>-->
+
     <BuildVersion>0.0.0</BuildVersion>
     <BuildVersion Condition="'$(APPVEYOR_BUILD_VERSION)' != ''">$(APPVEYOR_BUILD_VERSION)</BuildVersion>
     <BuildVersionMajor>$(BuildVersion.Split('.')[0])</BuildVersionMajor>
     <BuildVersionNoSuffix>$(BuildVersion.Split('-')[0])</BuildVersionNoSuffix>
-    <AssemblyOriginatorKeyFile>$(BuildConfigurationFolderPath)CastleKey.snk</AssemblyOriginatorKeyFile>
-    <SignAssembly>true</SignAssembly>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
+
+    <AssemblyOriginatorKeyFileName Condition="'$(AssemblyOriginatorKeyFileName)' == ''">CastleKey.snk</AssemblyOriginatorKeyFileName>
+    <AssemblyOriginatorKeyFile Condition="'$(AssemblyOriginatorKeyFile)' == ''">$(BuildConfigurationFolderPath)$(AssemblyOriginatorKeyFileName)</AssemblyOriginatorKeyFile>
+    <SignAssembly Condition="'$(SignAssembly)' == ''">true</SignAssembly>
+
+    <GenerateDocumentationFile Condition="'$(GenerateDocumentationFile)' == ''">true</GenerateDocumentationFile>
+
+    <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
+    <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/castleproject</RepositoryUrl>
   </PropertyGroup>
 
   <!--
     https://learn.microsoft.com/en-us/dotnet/standard/library-guidance/nuget
   -->
   <PropertyGroup>
-    <Product>Castle.Facilities.NHibernateIntegration</Product>
-    <Authors>Castle Project Contributors</Authors>
-    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
-    <Copyright>Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+    <Product Condition="'$(Product)' == ''">Castle Project</Product>
+    <Title Condition="'$(Title)' == ''">$(Product)</Title>
+    <Description Condition="'$(Description)' == ''">$(Product)</Description>
+    <Authors Condition="'$(Authors)' == ''">Castle Project Contributors</Authors>
+    <CurrentYear Condition="'$(CurrentYear)' == ''">$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright Condition="'$(Copyright)' == ''">Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+
     <VersionPrefix>$(BuildVersion)</VersionPrefix>
     <AssemblyVersion>$(BuildVersionMajor).0.0</AssemblyVersion>
     <FileVersion>$(BuildVersionNoSuffix)</FileVersion>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
-    <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
-    <PackageTags>$(Product)</PackageTags>
+
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == ''">Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance Condition="'$(PackageRequireLicenseAcceptance)' == ''">false</PackageRequireLicenseAcceptance>
+    <PackageProjectUrl Condition="'$(PackageProjectUrl)' == ''">https://github.com/castleproject</PackageProjectUrl>
+    <PackageIcon Condition="'$(PackageIcon)' == ''">castle_project-logo.png</PackageIcon>
+    <PackageTags Condition="'$(PackageTags)' == ''">$(Product)</PackageTags>
     <PackageVersion>$(BuildVersion)</PackageVersion>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <ContentTargetFolders>.</ContentTargetFolders>
@@ -70,7 +79,6 @@
     <None Include="$(WorkspaceFolderPath)CHANGELOG.md" Link="Properties\CHANGELOG.md" Pack="true" PackagePath="\" />
     <None Include="$(WorkspaceFolderPath)LICENSE" Link="Properties\LICENSE" Pack="true" PackagePath="\" />
     <None Include="$(BuildConfigurationFolderPath)readme.txt" Link="Properties\readme.txt" Pack="true" PackagePath="\" />
-    <Content Include="$(WorkspaceFolderPath)docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup>

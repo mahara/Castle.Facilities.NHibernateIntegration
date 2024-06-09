@@ -1,0 +1,29 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!--
+    PROPERTIES
+  -->
+
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Product>Castle.Facilities.NHibernateIntegration</Product>
+    <Authors>Castle Project Contributors</Authors>
+    <CurrentYear>$([System.DateTime]::Now.ToString("yyyy"))</CurrentYear>
+    <Copyright>Copyright (c) 2004-$(CurrentYear) Castle Project - https://www.castleproject.org/</Copyright>
+
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/mahara/Castle.Facilities.NHibernateIntegration</PackageProjectUrl>
+    <PackageIcon>castle_facilities_nhibernateintegration-logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(WorkspaceFolderPath)docs\images\castle_facilities_nhibernateintegration-logo.png" Link="Properties\castle_facilities_nhibernateintegration-logo.png" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>
