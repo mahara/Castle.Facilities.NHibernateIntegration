@@ -43,25 +43,23 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     {
         public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
-            using var stream = new FileStream(filePath, mode);
-            using var allocation = ArrayPool<byte>.Shared.AllocateByte((int) stream.Length, true);
-            var buffer = allocation.Buffer;
-#if NET
-            stream.Read(buffer.AsSpan());
-#else
-            stream.Read(buffer, 0, buffer.Length);
-#endif
-            return (T) SerializationHelper.Deserialize(buffer);
+            using var fileStream = new FileStream(filePath, mode);
+            using var memoryStream = new MemoryStream();
+
+            fileStream.CopyTo(memoryStream);
+
+            return (T) SerializationHelper.Deserialize(memoryStream.ToArray());
         }
 
         public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
         {
-            using var stream = new FileStream(filePath, mode);
+            using var fileStream = new FileStream(filePath, mode);
+
             var buffer = SerializationHelper.Serialize(@object);
 #if NET
-            stream.Write(buffer.AsSpan());
+            fileStream.Write(buffer.AsSpan());
 #else
-            stream.Write(buffer, 0, buffer.Length);
+            fileStream.Write(buffer, 0, buffer.Length);
 #endif
         }
     }
