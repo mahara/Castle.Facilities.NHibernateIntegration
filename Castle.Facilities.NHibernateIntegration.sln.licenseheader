@@ -1,7 +1,7 @@
 extensions: designer.cs generated.cs
 extensions: .cs .cpp .h
 #region License
-// Copyright 2004-2023 Castle Project - https://www.castleproject.org/
+// Copyright 2004-2024 Castle Project - https://www.castleproject.org/
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ extensions: .cs .cpp .h
 
 extensions: .vb
 #Region License
-' Copyright 2004-2023 Castle Project - https://www.castleproject.org/
+' Copyright 2004-2024 Castle Project - https://www.castleproject.org/
 '
 ' Licensed under the Apache License, Version 2.0 (the "License");
 ' you may not use this file except in compliance with the License.
