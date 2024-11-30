@@ -119,7 +119,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                                       NHibernateMappingAttributesAssemblyName))!;
                 var hbmSerializer = Activator.CreateInstance(hbmSerializerType);
                 var validateProperty = hbmSerializerType.GetProperty("Validate")!;
-                var serializeMethod = hbmSerializerType.GetMethod("Serialize", new[] { typeof(Assembly) })!;
+                var serializeMethod = hbmSerializerType.GetMethod("Serialize", [typeof(Assembly)])!;
 
                 // Enable validation of mapping documents generated from the mapping attributes.
                 validateProperty.SetValue(hbmSerializer, true, null);
@@ -128,7 +128,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
                 configuration.AddInputStream(
                     (MemoryStream) serializeMethod.Invoke(
                         hbmSerializer,
-                        new object[] { Assembly.Load(targetAssemblyName) })!);
+                        [Assembly.Load(targetAssemblyName)])!);
             }
         }
 
