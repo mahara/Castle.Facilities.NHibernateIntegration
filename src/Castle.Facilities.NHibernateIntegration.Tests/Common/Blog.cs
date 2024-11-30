@@ -20,7 +20,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     {
         public Blog()
         {
-            Items = new List<BlogItem>();
+            Items = [];
         }
 
         public virtual int Id { get; set; }
