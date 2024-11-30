@@ -3,6 +3,7 @@
 ## https://github.com/gitattributes/gitattributes
 ## https://github.com/alexkaratarakis/gitattributes
 
+
 # Set default behavior to automatically normalize line endings.
 # Auto detect text files and perform LF normalization
 *                   text=auto
