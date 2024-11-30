@@ -16,7 +16,6 @@
       https://github.com/dotnet/runtime/issues/59163
       https://github.com/dotnet/sdk/issues/19521
     -->
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
 
