@@ -63,10 +63,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
         [Test]
         public void IncludesMappingAssembliesInDependentFiles()
         {
-            var dependentFileNames = new List<string>
-            {
+            List<string> dependentFileNames =
+            [
                 "Castle.Facilities.NHibernateIntegration.Tests.dll",
-            };
+            ];
 
             var configurationPersister = new Mock<IConfigurationPersister>().Object;
             Mock.Get(configurationPersister)
