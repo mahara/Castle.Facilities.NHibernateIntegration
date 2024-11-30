@@ -1,15 +1,13 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
-## 5.4.0 (2024-xx-xx)
+## 5.4.0 (2024-11-30)
 
 Improvements:
 - Added .NET 8.0 and .NET 7.0 support
-- Updated [System.Data.SqlClient] version to 4.8.6
-- Updated [NHibernate] version to 5.5.0
+- Updated [System.Data.SqlClient] version to 4.9.0
+- Updated [NHibernate] version to 5.5.2
 
 Breaking Changes:
-- Upgraded [Castle.Core] version to 5.1.1 (TBD)
-- Upgraded [Castle.Windsor] version to 6.0.0 (TBD)
 - Upgraded [Castle.Services.Transaction] version to 5.4.0
 - Upgraded [Castle.Facilities.AutoTx] version to 5.4.0
 
