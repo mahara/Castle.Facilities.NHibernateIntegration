@@ -50,7 +50,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
             var blog = new Blog
             {
                 Name = name,
-                Items = new List<BlogItem>(),
+                Items = [],
             };
 
             session.Save(blog);
