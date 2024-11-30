@@ -33,10 +33,10 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             var blog = new Blog
             {
                 Name = "osman",
-                Items = new List<BlogItem>()
-                {
+                Items =
+                [
                     new() { }
-                },
+                ],
             };
 
             var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);
