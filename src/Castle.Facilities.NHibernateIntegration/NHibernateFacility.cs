@@ -450,7 +450,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             _configurationBuilder = configurationBuilder;
 
-            SessionFactoryFacilityConfigurations = Enumerable.Empty<NHibernateSessionFactoryFacilityConfiguration>();
+            SessionFactoryFacilityConfigurations = [];
         }
 
         public string? DefaultFlushMode { get; set; } = null;
@@ -466,13 +466,13 @@ namespace Castle.Facilities.NHibernateIntegration
             }
             else
             {
-                SessionFactoryFacilityConfigurations = new[]
-                {
+                SessionFactoryFacilityConfigurations =
+                [
                     new NHibernateSessionFactoryFacilityConfiguration(new MutableConfiguration(Constants.SessionFactory_ConfigurationElementName))
                     {
                         Id = $"{Constants.SessionFactory_ConfigurationElementName}_1",
                     }
-                };
+                ];
             }
         }
 
