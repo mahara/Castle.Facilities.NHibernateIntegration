@@ -97,7 +97,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
         private static List<string> GetDependentFileNamesFrom(IConfiguration facilityConfiguration)
         {
-            List<string> list = new();
+            List<string> list = [];
 
             var assemblies = facilityConfiguration.Children[Constants.SessionFactory_Assemblies_ConfigurationElementName];
             if (assemblies is not null)
