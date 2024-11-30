@@ -82,7 +82,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internal
                 tasks.Add(task);
             }
 
-            Task.WaitAll(tasks.ToArray());
+            Task.WaitAll([.. tasks]);
 
             //var result = _localSession.Value;
             //Console.WriteLine($"result: {result}");

@@ -222,7 +222,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenSession();
 
             var blogs = _nhGenericDao.FindAll<Blog>(
-                new[] { Restrictions.Eq(nameof(Blog.Name), "myblog2") });
+                [Restrictions.Eq(nameof(Blog.Name), "myblog2")]);
 
             Assert.That(blogs, Has.Count.EqualTo(1));
             Assert.That(blogs[0].Name, Is.EqualTo("myblog2"));
@@ -234,8 +234,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenSession();
 
             var blogItems = _nhGenericDao.FindAll<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) });
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))]);
 
             Assert.That(blogItems, Has.Count.EqualTo(2));
             Assert.That(blogItems[0].Title, Is.EqualTo("mytitle2"));
@@ -248,8 +248,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenSession();
 
             var blogItems = _nhGenericDao.FindAll<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 1, 1);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))], 1, 1);
 
             Assert.That(blogItems, Has.Count.EqualTo(1));
             Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
@@ -261,8 +261,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenSession();
 
             var blogItems = _nhGenericDao.FindAll<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 2, 3);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))], 2, 3);
 
             Assert.That(blogItems, Has.Count.EqualTo(0));
         }
@@ -293,7 +293,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenSession();
 
             var blogItems = _nhGenericDao.FindAll<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") }, 0, 1);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")], 0, 1);
 
             Assert.That(blogItems, Has.Count.EqualTo(1));
             Assert.That((blogItems[0]).Title, Is.EqualTo("mytitle1"));
@@ -443,7 +443,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenStatelessSession();
 
             var blogs = _nhGenericDao.FindAllStateless<Blog>(
-                new[] { Restrictions.Eq(nameof(Blog.Name), "myblog2") });
+                [Restrictions.Eq(nameof(Blog.Name), "myblog2")]);
 
             Assert.That(blogs, Has.Count.EqualTo(1));
             Assert.That(blogs[0].Name, Is.EqualTo("myblog2"));
@@ -455,8 +455,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenStatelessSession();
 
             var blogItems = _nhGenericDao.FindAllStateless<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) });
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))]);
 
             Assert.That(blogItems, Has.Count.EqualTo(2));
             Assert.That(blogItems[0].Title, Is.EqualTo("mytitle2"));
@@ -469,8 +469,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenStatelessSession();
 
             var blogItems = _nhGenericDao.FindAll<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 1, 1);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))], 1, 1);
 
             Assert.That(blogItems, Has.Count.EqualTo(1));
             Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
@@ -482,8 +482,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenStatelessSession();
 
             var blogItems = _nhGenericDao.FindAllStateless<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") },
-                new[] { NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title)) }, 2, 3);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")],
+                [NHibernate.Criterion.Order.Desc(nameof(BlogItem.Title))], 2, 3);
 
             Assert.That(blogItems, Has.Count.EqualTo(0));
         }
@@ -514,7 +514,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Components
             using var session = _sessionManager.OpenStatelessSession();
 
             var blogItems = _nhGenericDao.FindAllStateless<BlogItem>(
-                new[] { Restrictions.Eq(nameof(BlogItem.Text), "Hello") }, 0, 1);
+                [Restrictions.Eq(nameof(BlogItem.Text), "Hello")], 0, 1);
 
             Assert.That(blogItems, Has.Count.EqualTo(1));
             Assert.That(blogItems[0].Title, Is.EqualTo("mytitle1"));
