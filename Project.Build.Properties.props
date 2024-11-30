@@ -5,6 +5,29 @@
   -->
 
   <PropertyGroup>
+    <WinExeTargetFrameworks>net9.0-windows</WinExeTargetFrameworks>
+    <WinExeTestTargetFrameworks>net9.0-windows</WinExeTestTargetFrameworks>
+    <WinLibTargetFrameworks>net9.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net9.0</ExeTargetFrameworks>
+    <ExeTestTargetFrameworks>net9.0;net8.0;net48</ExeTestTargetFrameworks>
+    <LibTargetFrameworks>net9.0;net8.0;net48</LibTargetFrameworks>
+
+    <LangVersion>latest</LangVersion>
+
+    <!--
+      CA2252: Opt in to preview features before using them
+      https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca2252
+    -->
+    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ReportAnalyzer>true</ReportAnalyzer>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <AssemblyOriginatorKeyFileName>CastleKey.snk</AssemblyOriginatorKeyFileName>
 
     <RepositoryType>git</RepositoryType>
