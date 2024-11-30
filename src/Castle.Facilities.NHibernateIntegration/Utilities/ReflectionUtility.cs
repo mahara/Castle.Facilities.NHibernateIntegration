@@ -36,7 +36,7 @@ namespace Castle.Facilities.NHibernateIntegration.Utilities
         /// </summary>
         public static IDictionary<string, object> GetPropertiesDictionary(object obj)
         {
-            Dictionary<string, object> dictionary = new();
+            Dictionary<string, object> dictionary = [];
             foreach (var property in obj.GetType().GetProperties(PropertyBindingFlags))
             {
                 if (property.CanRead && property.GetIndexParameters().Length == 0)
