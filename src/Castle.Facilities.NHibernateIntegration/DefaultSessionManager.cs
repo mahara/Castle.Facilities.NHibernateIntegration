@@ -144,7 +144,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (list is null)
             {
-                list = new List<ISession>();
+                list = [];
 
                 shouldEnlist = true;
             }
@@ -214,7 +214,7 @@ namespace Castle.Facilities.NHibernateIntegration
 
             if (list is null)
             {
-                list = new List<IStatelessSession>();
+                list = [];
 
                 shouldEnlist = true;
             }
