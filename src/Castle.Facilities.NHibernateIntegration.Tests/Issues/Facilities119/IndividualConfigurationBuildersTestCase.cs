@@ -14,33 +14,32 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119;
+
+using NHibernate.Cfg;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class Fixture : IssueTestCase
 {
-    using NHibernate.Cfg;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class Fixture : IssueTestCase
+    protected override void CreateDatabaseSchemas()
     {
-        protected override void CreateDatabaseSchemas()
-        {
-        }
+    }
 
-        protected override void DropDatabaseSchemas()
-        {
-        }
+    protected override void DropDatabaseSchemas()
+    {
+    }
 
-        [Test]
-        public void ConfigurationsCanBeObtainedViaDifferentConfigurationBuilders()
-        {
-            var configuration1 = Container.Resolve<Configuration>("sessionFactory1.cfg");
-            var configuration2 = Container.Resolve<Configuration>("sessionFactory2.cfg");
-            var configuration3 = Container.Resolve<Configuration>("sessionFactory3.cfg");
+    [Test]
+    public void ConfigurationsCanBeObtainedViaDifferentConfigurationBuilders()
+    {
+        var configuration1 = Container.Resolve<Configuration>("sessionFactory1.cfg");
+        var configuration2 = Container.Resolve<Configuration>("sessionFactory2.cfg");
+        var configuration3 = Container.Resolve<Configuration>("sessionFactory3.cfg");
 
-            Assert.That(configuration1.GetProperty("test"), Is.Null);
-            Assert.That(configuration2.GetProperty("test"), Is.EqualTo("test2"));
-            Assert.That(configuration3.GetProperty("test"), Is.EqualTo("test3"));
-        }
+        Assert.That(configuration1.GetProperty("test"), Is.Null);
+        Assert.That(configuration2.GetProperty("test"), Is.EqualTo("test2"));
+        Assert.That(configuration3.GetProperty("test"), Is.EqualTo("test3"));
     }
 }

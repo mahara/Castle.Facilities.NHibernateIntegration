@@ -14,28 +14,27 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common
+namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
+
+using NUnit.Framework;
+
+[NHSessionAware]
+public class BlogRepository
 {
-    using NUnit.Framework;
+    private readonly ISessionStore _sessionStore;
+    private readonly ISessionManager _sessionManager;
 
-    [NHSessionAware]
-    public class BlogRepository
+    public BlogRepository(ISessionStore sessionStore, ISessionManager sessionManager)
     {
-        private readonly ISessionStore _sessionStore;
-        private readonly ISessionManager _sessionManager;
+        _sessionStore = sessionStore;
+        _sessionManager = sessionManager;
+    }
 
-        public BlogRepository(ISessionStore sessionStore, ISessionManager sessionManager)
-        {
-            _sessionStore = sessionStore;
-            _sessionManager = sessionManager;
-        }
+    [NHSessionRequired]
+    public virtual void FetchAll()
+    {
+        Assert.That(_sessionStore.FindCompatibleSession(Constants.DefaultAlias), Is.Not.Null);
 
-        [NHSessionRequired]
-        public virtual void FetchAll()
-        {
-            Assert.That(_sessionStore.FindCompatibleSession(Constants.DefaultAlias), Is.Not.Null);
-
-            _sessionManager.OpenSession();
-        }
+        _sessionManager.OpenSession();
     }
 }

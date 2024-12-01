@@ -1,29 +1,28 @@
-namespace Castle.Facilities.NHibernateIntegration.Util
+namespace Castle.Facilities.NHibernateIntegration.Util;
+
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+public static class DictionaryExtensions
 {
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-
-    public static class DictionaryExtensions
+    public static bool TryGetValueAs<TKey, TValue, TValueAs>(
+        this IDictionary<TKey, TValue> dictionary,
+        TKey key,
+        [MaybeNullWhen(false)] out TValueAs? valueAs)
+        where TValueAs : TValue
     {
-        public static bool TryGetValueAs<TKey, TValue, TValueAs>(
-            this IDictionary<TKey, TValue> dictionary,
-            TKey key,
-            [MaybeNullWhen(false)] out TValueAs? valueAs)
-            where TValueAs : TValue
+        if (dictionary.TryGetValue(key, out var value))
         {
-            if (dictionary.TryGetValue(key, out var value))
+            if (value is TValueAs validValueAs)
             {
-                if (value is TValueAs validValueAs)
-                {
-                    valueAs = validValueAs;
+                valueAs = validValueAs;
 
-                    return true;
-                }
+                return true;
             }
-
-            valueAs = default;
-
-            return false;
         }
+
+        valueAs = default;
+
+        return false;
     }
 }

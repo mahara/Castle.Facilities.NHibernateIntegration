@@ -14,53 +14,52 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Persisters
+namespace Castle.Facilities.NHibernateIntegration.Persisters;
+
+using System;
+using System.Buffers;
+using System.IO;
+
+using Castle.Facilities.NHibernateIntegration.Util;
+
+using NHibernate.Util;
+
+public class ObjectPersisterFactory
 {
-    using System;
-    using System.Buffers;
-    using System.IO;
-
-    using Castle.Facilities.NHibernateIntegration.Util;
-
-    using NHibernate.Util;
-
-    public class ObjectPersisterFactory
+    public static IObjectPersister<T> Create<T>()
     {
-        public static IObjectPersister<T> Create<T>()
-        {
-            return new ObjectPersister<T>();
-        }
+        return new ObjectPersister<T>();
+    }
+}
+
+public interface IObjectPersister<T>
+{
+    public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate);
+
+    public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate);
+}
+
+public class ObjectPersister<T> : IObjectPersister<T>
+{
+    public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
+    {
+        using var fileStream = new FileStream(filePath, mode);
+        using var memoryStream = new MemoryStream();
+
+        fileStream.CopyTo(memoryStream);
+
+        return (T) SerializationHelper.Deserialize(memoryStream.ToArray());
     }
 
-    public interface IObjectPersister<T>
+    public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
     {
-        public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate);
+        using var fileStream = new FileStream(filePath, mode);
 
-        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate);
-    }
-
-    public class ObjectPersister<T> : IObjectPersister<T>
-    {
-        public T Read(string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var fileStream = new FileStream(filePath, mode);
-            using var memoryStream = new MemoryStream();
-
-            fileStream.CopyTo(memoryStream);
-
-            return (T) SerializationHelper.Deserialize(memoryStream.ToArray());
-        }
-
-        public void Write(T @object, string filePath, FileMode mode = FileMode.OpenOrCreate)
-        {
-            using var fileStream = new FileStream(filePath, mode);
-
-            var buffer = SerializationHelper.Serialize(@object);
+        var buffer = SerializationHelper.Serialize(@object);
 #if NET
-            fileStream.Write(buffer.AsSpan());
+        fileStream.Write(buffer.AsSpan());
 #else
-            fileStream.Write(buffer, 0, buffer.Length);
+        fileStream.Write(buffer, 0, buffer.Length);
 #endif
-        }
     }
 }
