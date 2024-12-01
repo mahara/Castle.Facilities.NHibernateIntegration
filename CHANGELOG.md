@@ -1,5 +1,18 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
+## 5.5.0 (2025-xx-xx)
+
+Improvements:
+- Added .NET 9.0 support
+
+Breaking Changes:
+- Removed .NET 7.0 and .NET 6.0 support
+- Upgraded [Castle.Core] version to 5.1.1 (TBD)
+- Upgraded [Castle.Windsor] version to 6.0.0 (TBD)
+- Upgraded [Castle.Services.Transaction] version to 5.5.0
+- Upgraded [Castle.Facilities.AutoTx] version to 5.5.0
+
+
 ## 5.4.0 (2024-11-30)
 
 Improvements:

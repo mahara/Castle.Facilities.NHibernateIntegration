@@ -16,7 +16,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
         project:
           - 'Castle.Facilities.NHibernateIntegration.sln'
-        framework: [net8.0, net7.0, net6.0, net48]
+        framework: [net9.0, net8.0, net48]
         configuration: [Release]
         exclude:
           - os: ubuntu-latest
@@ -34,25 +34,19 @@ jobs:
     steps:
 
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+        if: ${{ startswith(matrix.framework, 'net9.') }}
 
       - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
         if: ${{ startswith(matrix.framework, 'net8.') }}
-
-      - name: Setup .NET 7.0 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
-        if: ${{ startswith(matrix.framework, 'net7.') }}
-
-      - name: Setup .NET 6.0 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 6.0.x
-        if: ${{ startswith(matrix.framework, 'net6.') }}
 
       - name: Setup Environment Variables
         run: |
@@ -79,7 +73,7 @@ jobs:
           dotnet test ${{matrix.project}} --configuration ${{matrix.configuration}} --framework ${{matrix.framework}} --no-build --no-restore --blame-hang --blame-hang-dump-type mini --blame-hang-timeout 10minutes --logger:"console;verbosity=detailed" --logger:"trx;LogFileName=${{env.trx_file_name}}" --logger:"liquid.md;LogFileName=${{env.md_file_name}};Title=${{env.title}};" --results-directory:"${{github.workspace}}/${{env.test_results_artifact_name}}/${{env.project_name}}"
 
       - name: Upload Test Results Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{always()}}
         with:
           name: '${{env.test_results_artifact_name}}'

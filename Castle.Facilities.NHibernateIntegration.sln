@@ -1,24 +1,21 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.8.34330.188
+VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Castle", "Castle", "{31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_", "_", "{A6497507-A678-48C3-B5DD-FAF6BD5C71CA}"
 	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
 		CHANGELOG.md = CHANGELOG.md
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{854CB877-2A9E-4D7A-B5ED-C2225289004C}"
 	ProjectSection(SolutionItems) = preProject
-		appveyor.yml = appveyor.yml
-		build.cmd = build.cmd
-		build.sh = build.sh
+		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.globalconfig = .globalconfig
 		BuildPackages.cmd = BuildPackages.cmd
 		CleanPackages.cmd = CleanPackages.cmd
 		Directory.Build.props = Directory.Build.props
@@ -29,47 +26,41 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{34CB1007
 		Solution.Build.Properties.props = Solution.Build.Properties.props
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{D7F0D6E6-A41E-4F41-B7FD-65B07D5BA6E0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "db", "db", "{0C61877F-059B-4D0F-96F9-4DAAC7023365}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{2CD98D55-FDAD-4495-AA8E-144977E8048B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4DC9D87F-0C2A-436D-9E9D-095AE1DB0462}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{712661E7-D72D-45FE-ABC2-3BB18960B9DB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildscripts", "buildscripts", "{5F7B9F1B-217C-49AF-8298-74367EE0FFA3}"
 	ProjectSection(SolutionItems) = preProject
-		buildscripts\build.cmd = buildscripts\build.cmd
 		buildscripts\BuildPackages.cmd = buildscripts\BuildPackages.cmd
-		buildscripts\CastleKey.snk = buildscripts\CastleKey.snk
 		buildscripts\CommonAssemblyInfo.cs = buildscripts\CommonAssemblyInfo.cs
-		buildscripts\docker-run-mono.sh = buildscripts\docker-run-mono.sh
 		buildscripts\Project.Build.props = buildscripts\Project.Build.props
 		buildscripts\Project.Build.targets = buildscripts\Project.Build.targets
-		buildscripts\readme.txt = buildscripts\readme.txt
 		buildscripts\Solution.Build.props = buildscripts\Solution.Build.props
 		buildscripts\Solution.Build.targets = buildscripts\Solution.Build.targets
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHub Actions", "GitHub Actions", "{47F2F74D-7773-450C-B6E7-2D3B7C8814A8}"
-	ProjectSection(SolutionItems) = preProject
-		.github\workflows\build.yml = .github\workflows\build.yml
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CD342E79-A425-4922-8CFE-4B990EACF71E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5B28214B-C4BF-4151-92AB-BEABBD436DC9}"
 	ProjectSection(SolutionItems) = preProject
 		src\Directory.Build.props = src\Directory.Build.props
 		src\Directory.Build.targets = src\Directory.Build.targets
 		src\Project.Build.References.props = src\Project.Build.References.props
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{BBAFF222-AC65-4137-AC35-8B5E2536C435}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Explicit.NuGet.Versions", "Explicit.NuGet.Versions", "{BCD8397A-74D5-42B2-8DEC-21971F5B8D4D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{A5F5C950-E591-459D-8AB9-A957A4FABFC5}"
 	ProjectSection(SolutionItems) = preProject
-		tools\Explicit.NuGet.Versions\Directory.Build.props = tools\Explicit.NuGet.Versions\Directory.Build.props
-		tools\Explicit.NuGet.Versions\Directory.Build.targets = tools\Explicit.NuGet.Versions\Directory.Build.targets
-		tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj = tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.csproj
-		tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln = tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln
-		tools\Explicit.NuGet.Versions\Program.cs = tools\Explicit.NuGet.Versions\Program.cs
-		tools\Explicit.NuGet.Versions\Project.Build.References.props = tools\Explicit.NuGet.Versions\Project.Build.References.props
+		.github\workflows\build.yml = .github\workflows\build.yml
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration", "src\Castle.Facilities.NHibernateIntegration\Castle.Facilities.NHibernateIntegration.csproj", "{68DF7A7B-A54B-495C-943F-B134C06085DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{1D68E0C9-FFC1-4271-8194-1AD17C318433}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.NHibernateIntegration.Tests", "src\Castle.Facilities.NHibernateIntegration.Tests\Castle.Facilities.NHibernateIntegration.Tests.csproj", "{C32FFF8C-67F7-428D-AD36-B24328095E24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -77,27 +68,24 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5E3FDB17-A6C1-4FA2-8834-17AA672746D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D68E0C9-FFC1-4271-8194-1AD17C318433}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DF7A7B-A54B-495C-943F-B134C06085DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DF7A7B-A54B-495C-943F-B134C06085DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DF7A7B-A54B-495C-943F-B134C06085DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DF7A7B-A54B-495C-943F-B134C06085DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C32FFF8C-67F7-428D-AD36-B24328095E24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C32FFF8C-67F7-428D-AD36-B24328095E24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C32FFF8C-67F7-428D-AD36-B24328095E24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C32FFF8C-67F7-428D-AD36-B24328095E24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD} = {31144CF9-AFCB-4A8C-80A7-3A834D6AAFE2}
-		{D7F0D6E6-A41E-4F41-B7FD-65B07D5BA6E0} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
-		{47F2F74D-7773-450C-B6E7-2D3B7C8814A8} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
-		{CD342E79-A425-4922-8CFE-4B990EACF71E} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
-		{E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B} = {34CB1007-C1A1-4CCE-A4C9-56FCFE3988DD}
-		{BCD8397A-74D5-42B2-8DEC-21971F5B8D4D} = {E7CE75B9-1581-4F8B-AB44-85AB5BD59E0B}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {A4EC0140-6DD7-4D6D-8F91-38F891D8DC44}
+		{5F7B9F1B-217C-49AF-8298-74367EE0FFA3} = {854CB877-2A9E-4D7A-B5ED-C2225289004C}
+		{5B28214B-C4BF-4151-92AB-BEABBD436DC9} = {854CB877-2A9E-4D7A-B5ED-C2225289004C}
+		{BBAFF222-AC65-4137-AC35-8B5E2536C435} = {854CB877-2A9E-4D7A-B5ED-C2225289004C}
+		{A5F5C950-E591-459D-8AB9-A957A4FABFC5} = {BBAFF222-AC65-4137-AC35-8B5E2536C435}
+		{68DF7A7B-A54B-495C-943F-B134C06085DF} = {4DC9D87F-0C2A-436D-9E9D-095AE1DB0462}
+		{C32FFF8C-67F7-428D-AD36-B24328095E24} = {712661E7-D72D-45FE-ABC2-3BB18960B9DB}
 	EndGlobalSection
 EndGlobal
