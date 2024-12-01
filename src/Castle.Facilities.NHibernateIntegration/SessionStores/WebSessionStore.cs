@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores;
 
-using System;
-using System.Collections.Generic;
 #if NETFRAMEWORK
 using System.Web;
 #endif
@@ -91,7 +89,8 @@ public class WebSessionStore : AbstractDictionaryStackSessionStore
     private HttpContext GetWebContext()
     {
         var context = HttpContextAccessor?.HttpContext;
-        if (context == null)
+
+        if (context is null)
         {
             throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
         }
@@ -102,7 +101,7 @@ public class WebSessionStore : AbstractDictionaryStackSessionStore
     private HttpContext GetWebContext()
     {
         var context = HttpContext.Current;
-        if (context == null)
+        if (context is null)
         {
             throw new FacilityException($"'{nameof(WebSessionStore)}': Could not obtain reference to '{nameof(HttpContext)}'.");
         }

@@ -16,7 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities103;
 
-using System;
 using System.Data;
 
 using Castle.Facilities.NHibernateIntegration.SessionStores;

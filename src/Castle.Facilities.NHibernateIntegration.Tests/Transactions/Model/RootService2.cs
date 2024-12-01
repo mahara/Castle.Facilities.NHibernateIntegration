@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
 
-using System;
-
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 
 using Castle.Services.Transaction;

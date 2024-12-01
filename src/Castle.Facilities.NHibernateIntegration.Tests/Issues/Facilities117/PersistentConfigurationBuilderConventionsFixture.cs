@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117;
 
-using System;
-using System.Collections.Generic;
-
 using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;

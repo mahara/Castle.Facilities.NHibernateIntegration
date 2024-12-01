@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
 
-using System;
-
 using Castle.Services.Transaction;
 
 using NHibernate;

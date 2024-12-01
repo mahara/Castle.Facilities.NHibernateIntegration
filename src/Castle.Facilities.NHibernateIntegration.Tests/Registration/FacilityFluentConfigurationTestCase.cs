@@ -41,7 +41,7 @@ public class FacilityFluentConfigurationTestCase
 
         var sessionStore = container.Resolve<ISessionStore>();
 
-        Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
+        Assert.That(sessionStore, Is.InstanceOf<AsyncLocalSessionStore>());
     }
 
     [Test]
@@ -65,7 +65,7 @@ public class FacilityFluentConfigurationTestCase
 
         var sessionStore = container.Resolve<ISessionStore>();
 
-        Assert.That(sessionStore, Is.InstanceOf(typeof(DummySessionStore)));
+        Assert.That(sessionStore, Is.InstanceOf<DummySessionStore>());
     }
 
     [Test]
@@ -124,7 +124,7 @@ public class FacilityFluentConfigurationTestCase
 
         var sessionStore = container.Resolve<ISessionStore>();
 
-        Assert.That(sessionStore, Is.InstanceOf(typeof(WebSessionStore)));
+        Assert.That(sessionStore, Is.InstanceOf<WebSessionStore>());
     }
 }
 
