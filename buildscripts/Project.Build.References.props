@@ -7,7 +7,7 @@
     </PackageReference>
     <PackageReference Include="NETStandard.Library" />
   </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net48'))">
     <!--
@@ -16,8 +16,8 @@
     -->
     <Reference Include="System.Transactions" />
 
-    <PackageReference Include="IndexRange" />
     <PackageReference Include="Microsoft.Bcl.HashCode" />
+    <PackageReference Include="Microsoft.Bcl.Memory" />
     <!--
       https://andrewlock.net/using-reference-assemblies-to-build-net-framework-libararies-on-linux-without-mono/
       https://github.com/Microsoft/dotnet/tree/main/releases/reference-assemblies
