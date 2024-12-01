@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
 
-using System;
-
 using Castle.MicroKernel.Registration;
 
 using NUnit.Framework;
@@ -78,9 +76,9 @@ public class TransactionWithTwoDatabasesTestCase : AbstractNHibernateTestCase
         Assert.That(blogs, Is.Not.Null);
         Assert.That(blogitems, Is.Not.Null);
         Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs.Length, Is.EqualTo(0));
-        Assert.That(blogitems.Length, Is.EqualTo(0));
-        Assert.That(orders.Length, Is.EqualTo(0));
+        Assert.That(blogs, Is.Empty);
+        Assert.That(blogitems, Is.Empty);
+        Assert.That(orders, Is.Empty);
     }
 
     [Test]
@@ -125,8 +123,8 @@ public class TransactionWithTwoDatabasesTestCase : AbstractNHibernateTestCase
         Assert.That(blogs, Is.Not.Null);
         Assert.That(blogItems, Is.Not.Null);
         Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs.Length, Is.EqualTo(0));
-        Assert.That(blogItems.Length, Is.EqualTo(0));
-        Assert.That(orders.Length, Is.EqualTo(0));
+        Assert.That(blogs, Is.Empty);
+        Assert.That(blogItems, Is.Empty);
+        Assert.That(orders, Is.Empty);
     }
 }

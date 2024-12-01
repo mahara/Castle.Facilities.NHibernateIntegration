@@ -17,7 +17,6 @@
 #if NETFRAMEWORK
 namespace Castle.Facilities.NHibernateIntegration.Components.Web;
 
-using System;
 using System.Web;
 
 using Castle.MicroKernel.Facilities;
@@ -99,7 +98,7 @@ public class SessionWebModule : IHttpModule
 
         var container = containerAccessor.Container;
 
-        if (container == null)
+        if (container is null)
         {
             throw new FacilityException("The container seems to be unavailable (null) " +
                                         $"in your '{nameof(HttpApplication)}' subclass.");

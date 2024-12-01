@@ -28,7 +28,7 @@ using NUnit.Framework;
 
 public abstract class AbstractNHibernateTestCase
 {
-    protected IWindsorContainer Container;
+    protected IWindsorContainer Container = null!;
 
     public AbstractNHibernateTestCase()
     {

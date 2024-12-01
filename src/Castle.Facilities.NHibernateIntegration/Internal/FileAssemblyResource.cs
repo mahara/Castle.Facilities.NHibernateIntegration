@@ -50,6 +50,8 @@ public class FileAssemblyResource : IResource
     public void Dispose()
     {
         _innerResource.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

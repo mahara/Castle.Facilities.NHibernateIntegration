@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores;
 
-using System.Collections.Generic;
-using System.Threading;
-
 /// <summary>
 /// An implementation of <see cref="ISessionStore" />
 /// which relies on <see cref="AsyncLocal{T}" />.

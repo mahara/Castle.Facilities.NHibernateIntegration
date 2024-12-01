@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao;
 
-using System;
-
 using Castle.Facilities.NHibernateIntegration.Util;
 
 using NHibernate;
@@ -73,10 +71,14 @@ public class NHibernateGenericDao : INHibernateGenericDao
     /// <param name="instance">The instance.</param>
     public void InitializeLazyProperties(object? instance)
     {
-        if (instance == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(instance);
+#else
+        if (instance is null)
         {
             throw new ArgumentNullException(nameof(instance));
         }
+#endif
 
         using var session = GetSession();
 
@@ -100,10 +102,14 @@ public class NHibernateGenericDao : INHibernateGenericDao
     /// <param name="propertyName">The name of the property.</param>
     public void InitializeLazyProperty(object? instance, string? propertyName)
     {
-        if (instance == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(instance);
+#else
+        if (instance is null)
         {
             throw new ArgumentNullException(nameof(instance));
         }
+#endif
 
         if (string.IsNullOrEmpty(propertyName))
         {
@@ -111,21 +117,21 @@ public class NHibernateGenericDao : INHibernateGenericDao
         }
 
         var properties = ReflectionUtility.GetPropertiesDictionary(instance);
-        if (!properties.ContainsKey(propertyName!))
+        if (!properties.TryGetValue(propertyName!, out var value))
         {
-            throw new ArgumentOutOfRangeException(nameof(propertyName),
-                                                  $"Property {propertyName} doest not exist for type {instance.GetType()}.");
+            throw new ArgumentOutOfRangeException(
+                nameof(propertyName),
+                $"Property '{propertyName}' doest not exist for type '{instance.GetType()}'.");
         }
 
         using var session = GetSession();
-
-        var value = properties[propertyName!];
 
         if (value is INHibernateProxy or IPersistentCollection)
         {
             if (!NHibernateUtil.IsInitialized(value))
             {
                 session.Lock(instance, LockMode.None);
+
                 NHibernateUtil.Initialize(value);
             }
         }
@@ -502,7 +508,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
         {
             var criteria = session.CreateCriteria(type);
 
-            if (criterias != null)
+            if (criterias is not null)
             {
                 foreach (var cond in criterias)
                 {
@@ -510,7 +516,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
                 }
             }
 
-            if (sortItems != null)
+            if (sortItems is not null)
             {
                 foreach (var order in sortItems)
                 {
@@ -582,7 +588,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
             }
 
             var result = query.List();
-            if (result == null || result.Count == 0)
+            if (result is null || result.Count == 0)
             {
                 return null;
             }
@@ -627,7 +633,8 @@ public class NHibernateGenericDao : INHibernateGenericDao
         try
         {
             var query = session.GetNamedQuery(namedQuery);
-            if (query == null)
+
+            if (query is null)
             {
                 throw new ArgumentException("Cannot find named query", nameof(namedQuery));
             }
@@ -643,7 +650,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
             }
 
             var result = query.List();
-            if (result == null || result.Count == 0)
+            if (result is null || result.Count == 0)
             {
                 return null;
             }
@@ -716,7 +723,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
         {
             var criteria = session.CreateCriteria(type);
 
-            if (criterias != null)
+            if (criterias is not null)
             {
                 foreach (var cond in criterias)
                 {
@@ -724,7 +731,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
                 }
             }
 
-            if (sortItems != null)
+            if (sortItems is not null)
             {
                 foreach (var order in sortItems)
                 {
@@ -796,7 +803,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
             }
 
             var result = query.List();
-            if (result == null || result.Count == 0)
+            if (result is null || result.Count == 0)
             {
                 return null;
             }
@@ -841,7 +848,8 @@ public class NHibernateGenericDao : INHibernateGenericDao
         try
         {
             var query = session.GetNamedQuery(namedQuery);
-            if (query == null)
+
+            if (query is null)
             {
                 throw new ArgumentException("Cannot find named query", nameof(namedQuery));
             }
@@ -857,7 +865,7 @@ public class NHibernateGenericDao : INHibernateGenericDao
             }
 
             var result = query.List();
-            if (result == null || result.Count == 0)
+            if (result is null || result.Count == 0)
             {
                 return null;
             }

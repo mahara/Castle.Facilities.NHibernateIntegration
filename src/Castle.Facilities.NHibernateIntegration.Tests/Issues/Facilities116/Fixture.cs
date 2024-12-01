@@ -16,10 +16,8 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116;
 
-using System;
 using System.Configuration;
 using System.IO;
-using System.Threading;
 
 using Castle.Core.Configuration;
 using Castle.Core.Resource;
