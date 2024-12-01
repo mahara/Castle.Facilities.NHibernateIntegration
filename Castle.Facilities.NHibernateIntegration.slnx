@@ -6,7 +6,7 @@
     <File Path=".globalconfig" />
     <File Path="Build.Properties.cmd" />
     <File Path="BuildPackages.cmd" />
-    <File Path="Castle.Facilities.NHibernateIntegration.sln.licenseheader" />
+    <File Path="Castle.Facilities.NHibernateIntegration.slnx.licenseheader" />
     <File Path="CleanPackages.cmd" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Build.targets" />

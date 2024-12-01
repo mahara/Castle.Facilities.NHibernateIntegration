@@ -85,7 +85,7 @@ FOR %%G IN (%BUILD_PARAMETERS%) DO (
 
 SET ARTIFACTS_PACKAGES___CONFIGURATION___FOLDER_PATH=%ARTIFACTS_PACKAGES_FOLDER_PATH%\%BUILD_PARAMETER___CONFIGURATION%
 
-dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.sln" --configuration Release
+dotnet build "tools\Explicit.NuGet.Versions\Explicit.NuGet.Versions.slnx" --configuration Release
 
 FOR %%G IN (%PACKAGE_PARAMETERS%) DO (
     SET PACKAGE_PARAMETER___PACKAGE_ID_PREFIX_FILTER=%%G
