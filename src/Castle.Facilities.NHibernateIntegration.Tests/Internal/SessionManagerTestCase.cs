@@ -49,7 +49,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         session = manager.OpenSession(sessionAlias);
 
-        session.Get(typeof(Order), 1);
+        session.Get<Order>(1);
 
         session.Close();
 
@@ -108,7 +108,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
         Assert.That(session1.IsConnected, Is.True);
 
         session1.Dispose();
@@ -163,7 +163,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
         Assert.That(session1.IsConnected, Is.True);
 
         session1.Dispose();
@@ -196,7 +196,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session.Dispose();
 
@@ -233,7 +233,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session2.Dispose();
         session1.Dispose();
@@ -266,7 +266,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session.Dispose();
 
@@ -303,7 +303,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session2.Dispose();
         session1.Dispose();
@@ -348,7 +348,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         session = manager.OpenSession(sessionAlias);
 
-        session.Get(typeof(Order), 1);
+        session.Get<Order>(1);
 
         session.Close();
 
@@ -403,7 +403,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session1.Dispose();
 
@@ -452,7 +452,7 @@ public class SessionManagerTestCase : AbstractNHibernateTestCase
 
         tx.Commit();
 
-        Assert.That(tx.Status == TransactionStatus.Committed, Is.True);
+        Assert.That(tx.Status, Is.EqualTo(TransactionStatus.Committed));
 
         session1.Dispose();
 

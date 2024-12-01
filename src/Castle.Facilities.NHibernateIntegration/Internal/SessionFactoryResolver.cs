@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-using System;
-using System.Collections.Generic;
-
 using Castle.MicroKernel;
 using Castle.MicroKernel.Facilities;
 
@@ -37,7 +34,7 @@ using NHibernate;
 /// </remarks>
 public class SessionFactoryResolver : ISessionFactoryResolver
 {
-    private readonly IDictionary<string, string> _dictionary = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _dictionary = [];
     private readonly IKernel _kernel;
 
     /// <summary>
