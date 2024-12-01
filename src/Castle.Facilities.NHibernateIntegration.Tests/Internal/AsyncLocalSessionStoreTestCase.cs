@@ -14,182 +14,181 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
+namespace Castle.Facilities.NHibernateIntegration.Tests.Internals;
+
+using System;
+using System.Threading;
+
+using Castle.Facilities.NHibernateIntegration.SessionStores;
+
+using NHibernate;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
 {
-    using System;
-    using System.Threading;
+    private readonly AutoResetEvent _event = new(false);
 
-    using Castle.Facilities.NHibernateIntegration.SessionStores;
+    protected override string ConfigurationFile =>
+        "Internal/AsyncLocalSessionStoreConfiguration.xml";
 
-    using NHibernate;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
+    [Test]
+    public void ShouldUseAsyncLocalSessionStore()
     {
-        private readonly AutoResetEvent _event = new(false);
+        var sessionStore = Container.Resolve<ISessionStore>();
 
-        protected override string ConfigurationFile =>
-            "Internal/AsyncLocalSessionStoreConfiguration.xml";
+        Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
+    }
 
-        [Test]
-        public void ShouldUseAsyncLocalSessionStore()
-        {
-            var sessionStore = Container.Resolve<ISessionStore>();
+    [Test]
+    public void NoSessionWithNullAlias()
+    {
+        var store = Container.Resolve<ISessionStore>();
 
-            Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
-        }
+        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleSession(null));
+    }
 
-        [Test]
-        public void NoSessionWithNullAlias()
-        {
-            var store = Container.Resolve<ISessionStore>();
+    [Test]
+    public void FindCompatibleSession()
+    {
+        var store = Container.Resolve<ISessionStore>();
+        var factory = Container.Resolve<ISessionFactory>();
 
-            Assert.Throws<ArgumentNullException>(() => store.FindCompatibleSession(null));
-        }
+        ISession? session1 = store.FindCompatibleSession(Constants.DefaultAlias);
+        Assert.That(session1, Is.Null);
 
-        [Test]
-        public void FindCompatibleSession()
-        {
-            var store = Container.Resolve<ISessionStore>();
-            var factory = Container.Resolve<ISessionFactory>();
+        session1 = factory.OpenSession();
+        var sessionDelegate1 = new SessionDelegate(session1, store, true);
+        store.Store(Constants.DefaultAlias, sessionDelegate1);
+        Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
-            ISession? session1 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.That(session1, Is.Null);
+        ISession? session2 = store.FindCompatibleSession("something in the way she moves");
+        Assert.That(session2, Is.Null);
 
-            session1 = factory.OpenSession();
-            var sessionDelegate1 = new SessionDelegate(session1, store, true);
-            store.Store(Constants.DefaultAlias, sessionDelegate1);
-            Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
+        session2 = store.FindCompatibleSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
+        Assert.That(session2, Is.SameAs(sessionDelegate1));
 
-            ISession? session2 = store.FindCompatibleSession("something in the way she moves");
-            Assert.That(session2, Is.Null);
+        session1.Dispose();
 
-            session2 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
-            Assert.That(session2, Is.SameAs(sessionDelegate1));
+        store.Remove(sessionDelegate1);
 
-            session1.Dispose();
+        session1 = store.FindCompatibleSession(Constants.DefaultAlias);
+        Assert.That(session1, Is.Null);
 
-            store.Remove(sessionDelegate1);
+        Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
+    }
 
-            session1 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.That(session1, Is.Null);
+    [Test]
+    public void FindCompatibleSessionWithTwoThreads()
+    {
+        var store = Container.Resolve<ISessionStore>();
+        var factory = Container.Resolve<ISessionFactory>();
 
-            Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
-        }
+        var session1 = factory.OpenSession();
+        var sessionDelegate1 = new SessionDelegate(session1, store, true);
+        store.Store(Constants.DefaultAlias, sessionDelegate1);
+        ISession? session2 = store.FindCompatibleSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
+        Assert.That(session2, Is.SameAs(sessionDelegate1));
 
-        [Test]
-        public void FindCompatibleSessionWithTwoThreads()
-        {
-            var store = Container.Resolve<ISessionStore>();
-            var factory = Container.Resolve<ISessionFactory>();
+        var newThread = new Thread(FindCompatibleSessionOnOtherThread);
+        newThread.Start();
 
-            var session1 = factory.OpenSession();
-            var sessionDelegate1 = new SessionDelegate(session1, store, true);
-            store.Store(Constants.DefaultAlias, sessionDelegate1);
-            ISession? session2 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
-            Assert.That(session2, Is.SameAs(sessionDelegate1));
+        _event.WaitOne();
 
-            var newThread = new Thread(FindCompatibleSessionOnOtherThread);
-            newThread.Start();
+        sessionDelegate1.Dispose();
 
-            _event.WaitOne();
+        Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
+    }
 
-            sessionDelegate1.Dispose();
+    private void FindCompatibleSessionOnOtherThread()
+    {
+        var store = Container.Resolve<ISessionStore>();
 
-            Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
-        }
+        ISession? session1 = store.FindCompatibleSession("something in the way she moves");
+        Assert.That(session1, Is.Null);
 
-        private void FindCompatibleSessionOnOtherThread()
-        {
-            var store = Container.Resolve<ISessionStore>();
+        ISession? session2 = store.FindCompatibleSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
 
-            ISession? session1 = store.FindCompatibleSession("something in the way she moves");
-            Assert.That(session1, Is.Null);
+        _event.Set();
+    }
 
-            ISession? session2 = store.FindCompatibleSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
+    [Test]
+    public void NullAliasStatelessSession()
+    {
+        var store = Container.Resolve<ISessionStore>();
 
-            _event.Set();
-        }
+        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleStatelessSession(null));
+    }
 
-        [Test]
-        public void NullAliasStatelessSession()
-        {
-            var store = Container.Resolve<ISessionStore>();
+    [Test]
+    public void FindCompatibleStatelessSession()
+    {
+        var store = Container.Resolve<ISessionStore>();
+        var factory = Container.Resolve<ISessionFactory>();
 
-            Assert.Throws<ArgumentNullException>(() => store.FindCompatibleStatelessSession(null));
-        }
+        IStatelessSession? session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
+        Assert.That(session1, Is.Null);
 
-        [Test]
-        public void FindCompatibleStatelessSession()
-        {
-            var store = Container.Resolve<ISessionStore>();
-            var factory = Container.Resolve<ISessionFactory>();
+        session1 = factory.OpenStatelessSession();
+        var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
+        store.Store(Constants.DefaultAlias, sessionDelegate1);
+        Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
 
-            IStatelessSession? session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.That(session1, Is.Null);
+        IStatelessSession? session2 = store.FindCompatibleStatelessSession("something in the way she moves");
+        Assert.That(session2, Is.Null);
 
-            session1 = factory.OpenStatelessSession();
-            var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
-            store.Store(Constants.DefaultAlias, sessionDelegate1);
-            Assert.That(sessionDelegate1.SessionStoreCookie, Is.Not.Null);
+        session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
+        Assert.That(session2, Is.SameAs(sessionDelegate1));
 
-            IStatelessSession? session2 = store.FindCompatibleStatelessSession("something in the way she moves");
-            Assert.That(session2, Is.Null);
+        session1.Dispose();
 
-            session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
-            Assert.That(session2, Is.SameAs(sessionDelegate1));
+        store.Remove(sessionDelegate1);
 
-            session1.Dispose();
+        session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
+        Assert.That(session1, Is.Null);
 
-            store.Remove(sessionDelegate1);
+        Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
+    }
 
-            session1 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.That(session1, Is.Null);
+    [Test]
+    public void FindCompatibleStatelessSessionWithTwoThreads()
+    {
+        var store = Container.Resolve<ISessionStore>();
+        var factory = Container.Resolve<ISessionFactory>();
 
-            Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
-        }
+        var session1 = factory.OpenStatelessSession();
+        var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
+        store.Store(Constants.DefaultAlias, sessionDelegate1);
 
-        [Test]
-        public void FindCompatibleStatelessSessionWithTwoThreads()
-        {
-            var store = Container.Resolve<ISessionStore>();
-            var factory = Container.Resolve<ISessionFactory>();
+        IStatelessSession? session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
+        Assert.That(session2, Is.SameAs(sessionDelegate1));
 
-            var session1 = factory.OpenStatelessSession();
-            var sessionDelegate1 = new StatelessSessionDelegate(session1, store, true);
-            store.Store(Constants.DefaultAlias, sessionDelegate1);
+        var newThread = new Thread(FindCompatibleStatelessSessionOnOtherThread);
+        newThread.Start();
 
-            IStatelessSession? session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
-            Assert.That(session2, Is.SameAs(sessionDelegate1));
+        _event.WaitOne();
 
-            var newThread = new Thread(FindCompatibleStatelessSessionOnOtherThread);
-            newThread.Start();
+        sessionDelegate1.Dispose();
 
-            _event.WaitOne();
+        Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
+    }
 
-            sessionDelegate1.Dispose();
+    private void FindCompatibleStatelessSessionOnOtherThread()
+    {
+        var store = Container.Resolve<ISessionStore>();
 
-            Assert.That(store.IsCurrentActivityEmptyFor(Constants.DefaultAlias), Is.True);
-        }
+        IStatelessSession? session1 = store.FindCompatibleStatelessSession("something in the way she moves");
+        Assert.That(session1, Is.Null);
 
-        private void FindCompatibleStatelessSessionOnOtherThread()
-        {
-            var store = Container.Resolve<ISessionStore>();
+        IStatelessSession? session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
+        Assert.That(session2, Is.Not.Null);
 
-            IStatelessSession? session1 = store.FindCompatibleStatelessSession("something in the way she moves");
-            Assert.That(session1, Is.Null);
-
-            IStatelessSession? session2 = store.FindCompatibleStatelessSession(Constants.DefaultAlias);
-            Assert.That(session2, Is.Not.Null);
-
-            _event.Set();
-        }
+        _event.Set();
     }
 }

@@ -14,48 +14,47 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
-{
-    using System.Linq;
-    using System.Reflection;
+namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-    using Castle.Core;
-    using Castle.MicroKernel;
-    using Castle.MicroKernel.ModelBuilder;
+using System.Linq;
+using System.Reflection;
+
+using Castle.Core;
+using Castle.MicroKernel;
+using Castle.MicroKernel.ModelBuilder;
+
+/// <summary>
+/// Inspect components searching for Session Aware services.
+/// </summary>
+public class NHibernateSessionComponentInspector : IContributeComponentModelConstruction
+{
+    internal const string SessionRequiredMetaInfo = "nhfacility.sessionRequiredMetaInfo";
+
+    private const string ComponentModelName = "session.interceptor";
+
+    private static readonly BindingFlags BindingFlags =
+        BindingFlags.Instance |
+        BindingFlags.NonPublic |
+        BindingFlags.Public |
+        BindingFlags.FlattenHierarchy;
 
     /// <summary>
-    /// Inspect components searching for Session Aware services.
+    /// Process the model.
     /// </summary>
-    public class NHibernateSessionComponentInspector : IContributeComponentModelConstruction
+    public void ProcessModel(IKernel kernel, ComponentModel model)
     {
-        internal const string SessionRequiredMetaInfo = "nhfacility.sessionRequiredMetaInfo";
-
-        private const string ComponentModelName = "session.interceptor";
-
-        private static readonly BindingFlags BindingFlags =
-            BindingFlags.Instance |
-            BindingFlags.NonPublic |
-            BindingFlags.Public |
-            BindingFlags.FlattenHierarchy;
-
-        /// <summary>
-        /// Process the model.
-        /// </summary>
-        public void ProcessModel(IKernel kernel, ComponentModel model)
+        if (model.Implementation.IsDefined(typeof(NHSessionAwareAttribute), true))
         {
-            if (model.Implementation.IsDefined(typeof(NHSessionAwareAttribute), true))
-            {
-                model.Dependencies.Add(
-                    new DependencyModel(ComponentModelName, typeof(NHibernateSessionInterceptor), false));
+            model.Dependencies.Add(
+                new DependencyModel(ComponentModelName, typeof(NHibernateSessionInterceptor), false));
 
-                var methods = model.Implementation
-                                   .GetMethods(BindingFlags)
-                                   .Where(m => m.IsDefined(typeof(NHSessionRequiredAttribute), false));
-                model.ExtendedProperties[SessionRequiredMetaInfo] = methods.ToArray();
+            var methods = model.Implementation
+                               .GetMethods(BindingFlags)
+                               .Where(m => m.IsDefined(typeof(NHSessionRequiredAttribute), false));
+            model.ExtendedProperties[SessionRequiredMetaInfo] = methods.ToArray();
 
-                model.Interceptors.Add(
-                    new InterceptorReference(typeof(NHibernateSessionInterceptor)));
-            }
+            model.Interceptors.Add(
+                new InterceptorReference(typeof(NHibernateSessionInterceptor)));
         }
     }
 }

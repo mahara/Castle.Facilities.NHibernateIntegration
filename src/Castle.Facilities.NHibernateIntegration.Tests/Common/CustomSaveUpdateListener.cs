@@ -14,24 +14,23 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common
+namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
+
+using System.Threading;
+using System.Threading.Tasks;
+
+using NHibernate.Event;
+
+public class CustomSaveUpdateListener : ISaveOrUpdateEventListener
 {
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using NHibernate.Event;
-
-    public class CustomSaveUpdateListener : ISaveOrUpdateEventListener
+    /// <inheritdoc />
+    public Task OnSaveOrUpdateAsync(SaveOrUpdateEvent @event, CancellationToken cancellationToken)
     {
-        /// <inheritdoc />
-        public Task OnSaveOrUpdateAsync(SaveOrUpdateEvent @event, CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
+    }
 
-        /// <inheritdoc />
-        public void OnSaveOrUpdate(SaveOrUpdateEvent @event)
-        {
-        }
+    /// <inheritdoc />
+    public void OnSaveOrUpdate(SaveOrUpdateEvent @event)
+    {
     }
 }

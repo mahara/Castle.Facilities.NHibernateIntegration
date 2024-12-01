@@ -14,16 +14,15 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests
+namespace Castle.Facilities.NHibernateIntegration.Tests;
+
+public class Order
 {
-    public class Order
+    public Order()
     {
-        public Order()
-        {
-        }
-
-        public virtual int Id { get; set; }
-
-        public virtual double Value { get; set; }
     }
+
+    public virtual int Id { get; set; }
+
+    public virtual double Value { get; set; }
 }

@@ -14,85 +14,84 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Internal
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
+namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-    using Castle.Core;
-    using Castle.Core.Interceptor;
-    using Castle.Core.Logging;
-    using Castle.DynamicProxy;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+
+using Castle.Core;
+using Castle.Core.Interceptor;
+using Castle.Core.Logging;
+using Castle.DynamicProxy;
+
+/// <summary>
+/// Interceptor in charge of the automatic session management.
+/// </summary>
+[Transient]
+public class NHibernateSessionInterceptor : IInterceptor, IOnBehalfAware
+{
+    private readonly ISessionManager _sessionManager;
+    private IEnumerable<MethodInfo>? _metaInfo;
 
     /// <summary>
-    /// Interceptor in charge of the automatic session management.
+    /// Constructor.
     /// </summary>
-    [Transient]
-    public class NHibernateSessionInterceptor : IInterceptor, IOnBehalfAware
+    public NHibernateSessionInterceptor(ISessionManager sessionManager)
     {
-        private readonly ISessionManager _sessionManager;
-        private IEnumerable<MethodInfo>? _metaInfo;
+        _sessionManager = sessionManager;
+    }
 
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        public NHibernateSessionInterceptor(ISessionManager sessionManager)
+    /// <summary>
+    /// Gets or sets the logger.
+    /// </summary>
+    /// <value>The logger.</value>
+    public ILogger Logger { get; set; } =
+        NullLogger.Instance;
+
+    /// <summary>
+    /// Intercepts the specified invocation and creates a transaction if necessary.
+    /// </summary>
+    /// <param name="invocation">The invocation.</param>
+    /// <returns></returns>
+    public void Intercept(IInvocation invocation)
+    {
+        MethodInfo methodInfo;
+
+        if (invocation.Method.DeclaringType!.IsInterface)
         {
-            _sessionManager = sessionManager;
+            methodInfo = invocation.MethodInvocationTarget;
+        }
+        else
+        {
+            methodInfo = invocation.Method;
         }
 
-        /// <summary>
-        /// Gets or sets the logger.
-        /// </summary>
-        /// <value>The logger.</value>
-        public ILogger Logger { get; set; } =
-            NullLogger.Instance;
-
-        /// <summary>
-        /// Intercepts the specified invocation and creates a transaction if necessary.
-        /// </summary>
-        /// <param name="invocation">The invocation.</param>
-        /// <returns></returns>
-        public void Intercept(IInvocation invocation)
+        if (_metaInfo == null || !_metaInfo.Contains(methodInfo))
         {
-            MethodInfo methodInfo;
+            invocation.Proceed();
 
-            if (invocation.Method.DeclaringType!.IsInterface)
-            {
-                methodInfo = invocation.MethodInvocationTarget;
-            }
-            else
-            {
-                methodInfo = invocation.Method;
-            }
-
-            if (_metaInfo == null || !_metaInfo.Contains(methodInfo))
-            {
-                invocation.Proceed();
-
-                return;
-            }
-
-            var session = _sessionManager.OpenSession();
-
-            try
-            {
-                invocation.Proceed();
-            }
-            finally
-            {
-                session.Dispose();
-            }
+            return;
         }
 
-        /// <summary>
-        /// Sets the intercepted component's ComponentModel.
-        /// </summary>
-        /// <param name="target">The target's ComponentModel</param>
-        public void SetInterceptedComponentModel(ComponentModel target)
+        var session = _sessionManager.OpenSession();
+
+        try
         {
-            _metaInfo = (MethodInfo[]) target.ExtendedProperties[NHibernateSessionComponentInspector.SessionRequiredMetaInfo];
+            invocation.Proceed();
         }
+        finally
+        {
+            session.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Sets the intercepted component's ComponentModel.
+    /// </summary>
+    /// <param name="target">The target's ComponentModel</param>
+    public void SetInterceptedComponentModel(ComponentModel target)
+    {
+        _metaInfo = (MethodInfo[]) target.ExtendedProperties[NHibernateSessionComponentInspector.SessionRequiredMetaInfo];
     }
 }

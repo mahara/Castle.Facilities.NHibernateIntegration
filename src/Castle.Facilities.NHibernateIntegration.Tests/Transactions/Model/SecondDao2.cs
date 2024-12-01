@@ -14,51 +14,50 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
+
+using System;
+
+public class SecondDao2
 {
-    using System;
+    private readonly ISessionManager _sessionManager;
 
-    public class SecondDao2
+    public SecondDao2(ISessionManager sessionManager)
     {
-        private readonly ISessionManager _sessionManager;
+        _sessionManager = sessionManager;
+    }
 
-        public SecondDao2(ISessionManager sessionManager)
+    public BlogItem Create(Blog blog)
+    {
+        using var session = _sessionManager.OpenSession();
+
+        var item = new BlogItem
         {
-            _sessionManager = sessionManager;
-        }
+            ParentBlog = blog,
+            Title = "splinter cell is cool!",
+            Text = "x",
+            DateTime = DateTime.Now,
+        };
 
-        public BlogItem Create(Blog blog)
+        session.Save(item);
+
+        return item;
+    }
+
+    public BlogItem CreateStateless(Blog blog)
+    {
+        using var session = _sessionManager.OpenStatelessSession();
+
+        var item = new BlogItem
         {
-            using var session = _sessionManager.OpenSession();
+            ParentBlog = blog,
+            Title = "splinter cell is cool!",
+            Text = "x",
+            DateTime = DateTime.Now,
+        };
 
-            var item = new BlogItem
-            {
-                ParentBlog = blog,
-                Title = "splinter cell is cool!",
-                Text = "x",
-                DateTime = DateTime.Now,
-            };
+        session.Insert(item);
 
-            session.Save(item);
-
-            return item;
-        }
-
-        public BlogItem CreateStateless(Blog blog)
-        {
-            using var session = _sessionManager.OpenStatelessSession();
-
-            var item = new BlogItem
-            {
-                ParentBlog = blog,
-                Title = "splinter cell is cool!",
-                Text = "x",
-                DateTime = DateTime.Now,
-            };
-
-            session.Insert(item);
-
-            return item;
-        }
+        return item;
     }
 }

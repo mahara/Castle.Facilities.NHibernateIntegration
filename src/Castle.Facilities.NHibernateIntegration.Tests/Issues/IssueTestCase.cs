@@ -14,20 +14,19 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues
-{
-    public class IssueTestCase : AbstractNHibernateTestCase
-    {
-        protected virtual string BugNumber
-        {
-            get
-            {
-                var ns = GetType().Namespace!;
-                return ns[(ns.LastIndexOf('.') + 1)..];
-            }
-        }
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues;
 
-        protected override string ConfigurationFile =>
-            $"Issues/{BugNumber}/facility.xml";
+public class IssueTestCase : AbstractNHibernateTestCase
+{
+    protected virtual string BugNumber
+    {
+        get
+        {
+            var ns = GetType().Namespace!;
+            return ns[(ns.LastIndexOf('.') + 1)..];
+        }
     }
+
+    protected override string ConfigurationFile =>
+        $"Issues/{BugNumber}/facility.xml";
 }

@@ -14,22 +14,21 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration
+namespace Castle.Facilities.NHibernateIntegration;
+
+using Castle.Core.Configuration;
+
+using NHibernate.Cfg;
+
+/// <summary>
+/// Builds up the NHibernate <see cref="Configuration" />.
+/// </summary>
+public interface IConfigurationBuilder
 {
-    using Castle.Core.Configuration;
-
-    using NHibernate.Cfg;
-
     /// <summary>
-    /// Builds up the NHibernate <see cref="Configuration" />.
+    /// Builds the NHibernate <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
     /// </summary>
-    public interface IConfigurationBuilder
-    {
-        /// <summary>
-        /// Builds the NHibernate <see cref="Configuration" /> object from the specified facility <see cref="IConfiguration" />.
-        /// </summary>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-        Configuration GetConfiguration(IConfiguration facilityConfiguration);
-    }
+    /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+    /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+    Configuration GetConfiguration(IConfiguration facilityConfiguration);
 }

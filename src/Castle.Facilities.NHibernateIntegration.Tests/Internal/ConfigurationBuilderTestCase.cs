@@ -14,30 +14,29 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
+namespace Castle.Facilities.NHibernateIntegration.Tests.Internals;
+
+using Common;
+
+using NHibernate.Cfg;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
 {
-    using Common;
+    protected override string ConfigurationFile =>
+        "Internal/TwoDatabaseConfiguration.xml";
 
-    using NHibernate.Cfg;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class ConfigurationBuilderTestCase : AbstractNHibernateTestCase
+    [Test]
+    public void SaveUpdateListenerAdded()
     {
-        protected override string ConfigurationFile =>
-            "Internal/TwoDatabaseConfiguration.xml";
+        var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
 
-        [Test]
-        public void SaveUpdateListenerAdded()
-        {
-            var configuration = Container.Resolve<Configuration>("sessionFactory4.cfg");
+        Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners, Has.Length.EqualTo(1));
+        Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType(), Is.EqualTo(typeof(CustomSaveUpdateListener)));
 
-            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners, Has.Length.EqualTo(1));
-            Assert.That(configuration.EventListeners.SaveOrUpdateEventListeners[0].GetType(), Is.EqualTo(typeof(CustomSaveUpdateListener)));
-
-            Assert.That(configuration.EventListeners.DeleteEventListeners, Has.Length.EqualTo(1));
-            Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
-        }
+        Assert.That(configuration.EventListeners.DeleteEventListeners, Has.Length.EqualTo(1));
+        Assert.That(configuration.EventListeners.DeleteEventListeners[0].GetType(), Is.EqualTo(typeof(CustomDeleteListener)));
     }
 }

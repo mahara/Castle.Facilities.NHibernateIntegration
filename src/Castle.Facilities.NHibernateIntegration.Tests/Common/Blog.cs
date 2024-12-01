@@ -14,21 +14,20 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests
+namespace Castle.Facilities.NHibernateIntegration.Tests;
+
+using System.Collections.Generic;
+
+public class Blog
 {
-    using System.Collections.Generic;
-
-    public class Blog
+    public Blog()
     {
-        public Blog()
-        {
-            Items = new List<BlogItem>();
-        }
-
-        public virtual int Id { get; set; }
-
-        public virtual string Name { get; set; } = string.Empty;
-
-        public virtual IList<BlogItem> Items { get; set; }
+        Items = new List<BlogItem>();
     }
+
+    public virtual int Id { get; set; }
+
+    public virtual string Name { get; set; } = string.Empty;
+
+    public virtual IList<BlogItem> Items { get; set; }
 }

@@ -14,118 +14,117 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.SessionStores
+namespace Castle.Facilities.NHibernateIntegration.SessionStores;
+
+using System;
+using System.Collections.Generic;
+
+/// <summary>
+///
+/// </summary>
+public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
 {
-    using System;
-    using System.Collections.Generic;
+    private readonly object _lock = new();
+
+    protected AbstractDictionaryStackSessionStore()
+    {
+        SessionSlotKey =
+            $"nh.facility.stacks.session.{Guid.NewGuid()}";
+        StatelessSessionSlotKey =
+            $"nh.facility.stacks.statelessSession.{Guid.NewGuid()}";
+    }
 
     /// <summary>
-    ///
+    /// The <see cref="SessionDelegate" /> storage key.
     /// </summary>
-    public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
+    protected string SessionSlotKey { get; }
+
+    /// <summary>
+    /// The <see cref="StatelessSessionDelegate" /> storage key.
+    /// </summary>
+    protected string StatelessSessionSlotKey { get; }
+
+    /// <inheritdoc />
+    protected override Stack<SessionDelegate> GetSessionStackFor(string? alias)
     {
-        private readonly object _lock = new();
-
-        protected AbstractDictionaryStackSessionStore()
+        lock (_lock)
         {
-            SessionSlotKey =
-                $"nh.facility.stacks.session.{Guid.NewGuid()}";
-            StatelessSessionSlotKey =
-                $"nh.facility.stacks.statelessSession.{Guid.NewGuid()}";
-        }
-
-        /// <summary>
-        /// The <see cref="SessionDelegate" /> storage key.
-        /// </summary>
-        protected string SessionSlotKey { get; }
-
-        /// <summary>
-        /// The <see cref="StatelessSessionDelegate" /> storage key.
-        /// </summary>
-        protected string StatelessSessionSlotKey { get; }
-
-        /// <inheritdoc />
-        protected override Stack<SessionDelegate> GetSessionStackFor(string? alias)
-        {
-            lock (_lock)
+            if (alias == null)
             {
-                if (alias == null)
-                {
-                    throw new ArgumentNullException(nameof(alias));
-                }
-
-                var dictionary = GetSessionDictionary();
-                if (dictionary == null)
-                {
-                    dictionary = new Dictionary<string, Stack<SessionDelegate>>();
-
-                    StoreSessionDictionary(dictionary);
-                }
-
-                var stackFound = dictionary.TryGetValue(alias, out var stack);
-                if (!stackFound || (stackFound && stack is null))
-                {
-                    stack = new Stack<SessionDelegate>();
-
-                    dictionary[alias] = stack;
-                }
-
-                return stack!;
+                throw new ArgumentNullException(nameof(alias));
             }
-        }
 
-        /// <summary>
-        /// Gets the <see cref="SessionDelegate" /> dictionary.
-        /// </summary>
-        /// <returns></returns>
-        protected abstract IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary();
-
-        /// <summary>
-        /// Stores the <see cref="SessionDelegate" /> dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected abstract void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary);
-
-        /// <inheritdoc />
-        protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias)
-        {
-            lock (_lock)
+            var dictionary = GetSessionDictionary();
+            if (dictionary == null)
             {
-                if (alias == null)
-                {
-                    throw new ArgumentNullException(nameof(alias));
-                }
+                dictionary = new Dictionary<string, Stack<SessionDelegate>>();
 
-                var dictionary = GetStatelessSessionDictionary();
-                if (dictionary == null)
-                {
-                    dictionary = new Dictionary<string, Stack<StatelessSessionDelegate>>();
-
-                    StoreStatelessSessionDictionary(dictionary);
-                }
-
-                var found = dictionary.TryGetValue(alias, out var stack);
-                if (!found || (found && stack is null))
-                {
-                    stack = new Stack<StatelessSessionDelegate>();
-
-                    dictionary[alias] = stack;
-                }
-
-                return stack!;
+                StoreSessionDictionary(dictionary);
             }
+
+            var stackFound = dictionary.TryGetValue(alias, out var stack);
+            if (!stackFound || (stackFound && stack is null))
+            {
+                stack = new Stack<SessionDelegate>();
+
+                dictionary[alias] = stack;
+            }
+
+            return stack!;
         }
-
-        /// <summary>
-        /// Gets the <see cref="StatelessSessionDelegate" /> dictionary.
-        /// </summary>
-        /// <returns>A dictionary.</returns>
-        protected abstract IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary();
-
-        /// <summary>
-        /// Stores the <see cref="StatelessSessionDelegate" /> dictionary.
-        /// </summary>
-        /// <param name="dictionary">The dictionary.</param>
-        protected abstract void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary);
     }
+
+    /// <summary>
+    /// Gets the <see cref="SessionDelegate" /> dictionary.
+    /// </summary>
+    /// <returns></returns>
+    protected abstract IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary();
+
+    /// <summary>
+    /// Stores the <see cref="SessionDelegate" /> dictionary.
+    /// </summary>
+    /// <param name="dictionary">The dictionary.</param>
+    protected abstract void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary);
+
+    /// <inheritdoc />
+    protected override Stack<StatelessSessionDelegate> GetStatelessSessionStackFor(string? alias)
+    {
+        lock (_lock)
+        {
+            if (alias == null)
+            {
+                throw new ArgumentNullException(nameof(alias));
+            }
+
+            var dictionary = GetStatelessSessionDictionary();
+            if (dictionary == null)
+            {
+                dictionary = new Dictionary<string, Stack<StatelessSessionDelegate>>();
+
+                StoreStatelessSessionDictionary(dictionary);
+            }
+
+            var found = dictionary.TryGetValue(alias, out var stack);
+            if (!found || (found && stack is null))
+            {
+                stack = new Stack<StatelessSessionDelegate>();
+
+                dictionary[alias] = stack;
+            }
+
+            return stack!;
+        }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="StatelessSessionDelegate" /> dictionary.
+    /// </summary>
+    /// <returns>A dictionary.</returns>
+    protected abstract IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary();
+
+    /// <summary>
+    /// Stores the <see cref="StatelessSessionDelegate" /> dictionary.
+    /// </summary>
+    /// <param name="dictionary">The dictionary.</param>
+    protected abstract void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary);
 }

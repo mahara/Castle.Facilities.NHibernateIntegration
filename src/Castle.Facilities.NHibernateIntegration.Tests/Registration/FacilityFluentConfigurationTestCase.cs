@@ -14,163 +14,162 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
+namespace Castle.Facilities.NHibernateIntegration.Tests.Registration;
+
+using Castle.Core.Configuration;
+using Castle.Facilities.AutoTx;
+using Castle.Facilities.NHibernateIntegration.SessionStores;
+using Castle.MicroKernel.Facilities;
+using Castle.Windsor;
+
+using NHibernate.Cfg;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class FacilityFluentConfigurationTestCase
 {
-    using Castle.Core.Configuration;
-    using Castle.Facilities.AutoTx;
-    using Castle.Facilities.NHibernateIntegration.SessionStores;
-    using Castle.MicroKernel.Facilities;
-    using Castle.Windsor;
-
-    using NHibernate.Cfg;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class FacilityFluentConfigurationTestCase
+    [Test]
+    public void ShouldUseDefaultSessionStore()
     {
-        [Test]
-        public void ShouldUseDefaultSessionStore()
-        {
-            var container = new WindsorContainer();
+        var container = new WindsorContainer();
 
-            container.AddFacility<AutoTxFacility>();
+        container.AddFacility<AutoTxFacility>();
 
-            container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+        container.AddFacility<NHibernateFacility>(
+            f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
-            var sessionStore = container.Resolve<ISessionStore>();
+        var sessionStore = container.Resolve<ISessionStore>();
 
-            Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
-        }
-
-        [Test]
-        public void ShouldOverrideDefaultSessionStore()
-        {
-            var container = new WindsorContainer();
-
-            container.AddFacility<AutoTxFacility>();
-
-            // Starts with AsyncLocalSessionStore
-            // then change it to WebSessionStore
-            // then change it to LogicalCallContextSessionStore.
-            // then change it again to DummySessionStore.
-            // The last set session store should be DummySessionStore.
-            container.AddFacility<NHibernateFacility>(
-                f => f.IsWeb()
-                      .SessionStore<LogicalCallContextSessionStore>()
-                      .SessionStore<CallContextSessionStore>()
-                      .SessionStore<DummySessionStore>()
-                      .ConfigurationBuilder<DummyConfigurationBuilder>());
-
-            var sessionStore = container.Resolve<ISessionStore>();
-
-            Assert.That(sessionStore, Is.InstanceOf(typeof(DummySessionStore)));
-        }
-
-        [Test]
-        public void ShouldBeAbleToResolveISessionManager()
-        {
-            var container = new WindsorContainer();
-
-            container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<TestConfigurationBuilder>());
-
-            var sessionManager = container.Resolve<ISessionManager>();
-            sessionManager.OpenSession();
-
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
-                        Is.EqualTo(typeof(TestConfigurationBuilder)));
-        }
-
-        [Test]
-        public void ShouldNotAcceptNonImplementorsOfIConfigurationBuilderForOverride()
-        {
-            void Method()
-            {
-                var container = new WindsorContainer();
-
-                container.AddFacility<NHibernateFacility>(
-                    f => f.ConfigurationBuilder(GetType()));
-            }
-
-            Assert.That(Method, Throws.TypeOf<FacilityException>());
-        }
-
-        [Test]
-        public void ShouldOverrideDefaultConfigurationBuilder()
-        {
-            var container = new WindsorContainer();
-
-            container.AddFacility<AutoTxFacility>();
-
-            container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
-
-            Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
-                        Is.EqualTo(typeof(DummyConfigurationBuilder)));
-        }
-
-        [Test]
-        public void ShouldOverrideIsWeb()
-        {
-            var container = new WindsorContainer();
-
-            container.AddFacility<AutoTxFacility>();
-
-            container.AddFacility<NHibernateFacility>(
-                f => f.IsWeb()
-                      .ConfigurationBuilder<DummyConfigurationBuilder>());
-
-            var sessionStore = container.Resolve<ISessionStore>();
-
-            Assert.That(sessionStore, Is.InstanceOf(typeof(WebSessionStore)));
-        }
+        Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
     }
 
-    internal class DummyConfigurationBuilder : IConfigurationBuilder
+    [Test]
+    public void ShouldOverrideDefaultSessionStore()
     {
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
-        {
-            return new Configuration();
-        }
+        var container = new WindsorContainer();
+
+        container.AddFacility<AutoTxFacility>();
+
+        // Starts with AsyncLocalSessionStore
+        // then change it to WebSessionStore
+        // then change it to LogicalCallContextSessionStore.
+        // then change it again to DummySessionStore.
+        // The last set session store should be DummySessionStore.
+        container.AddFacility<NHibernateFacility>(
+            f => f.IsWeb()
+                  .SessionStore<LogicalCallContextSessionStore>()
+                  .SessionStore<CallContextSessionStore>()
+                  .SessionStore<DummySessionStore>()
+                  .ConfigurationBuilder<DummyConfigurationBuilder>());
+
+        var sessionStore = container.Resolve<ISessionStore>();
+
+        Assert.That(sessionStore, Is.InstanceOf(typeof(DummySessionStore)));
     }
 
-    internal class DummySessionStore : ISessionStore
+    [Test]
+    public void ShouldBeAbleToResolveISessionManager()
     {
-        public bool IsCurrentActivityEmptyFor(string? alias)
+        var container = new WindsorContainer();
+
+        container.AddFacility<NHibernateFacility>(
+            f => f.ConfigurationBuilder<TestConfigurationBuilder>());
+
+        var sessionManager = container.Resolve<ISessionManager>();
+        sessionManager.OpenSession();
+
+        Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
+                    Is.EqualTo(typeof(TestConfigurationBuilder)));
+    }
+
+    [Test]
+    public void ShouldNotAcceptNonImplementorsOfIConfigurationBuilderForOverride()
+    {
+        void Method()
         {
-            throw new System.NotImplementedException();
+            var container = new WindsorContainer();
+
+            container.AddFacility<NHibernateFacility>(
+                f => f.ConfigurationBuilder(GetType()));
         }
 
-        public SessionDelegate? FindCompatibleSession(string? alias)
-        {
-            throw new System.NotImplementedException();
-        }
+        Assert.That(Method, Throws.TypeOf<FacilityException>());
+    }
 
-        public void Store(string alias, SessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
+    [Test]
+    public void ShouldOverrideDefaultConfigurationBuilder()
+    {
+        var container = new WindsorContainer();
 
-        public void Remove(SessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
+        container.AddFacility<AutoTxFacility>();
 
-        public StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias)
-        {
-            throw new System.NotImplementedException();
-        }
+        container.AddFacility<NHibernateFacility>(
+            f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
-        public void Store(string alias, StatelessSessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
+        Assert.That(container.Resolve<IConfigurationBuilder>().GetType(),
+                    Is.EqualTo(typeof(DummyConfigurationBuilder)));
+    }
 
-        public void Remove(StatelessSessionDelegate session)
-        {
-            throw new System.NotImplementedException();
-        }
+    [Test]
+    public void ShouldOverrideIsWeb()
+    {
+        var container = new WindsorContainer();
+
+        container.AddFacility<AutoTxFacility>();
+
+        container.AddFacility<NHibernateFacility>(
+            f => f.IsWeb()
+                  .ConfigurationBuilder<DummyConfigurationBuilder>());
+
+        var sessionStore = container.Resolve<ISessionStore>();
+
+        Assert.That(sessionStore, Is.InstanceOf(typeof(WebSessionStore)));
+    }
+}
+
+internal class DummyConfigurationBuilder : IConfigurationBuilder
+{
+    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    {
+        return new Configuration();
+    }
+}
+
+internal class DummySessionStore : ISessionStore
+{
+    public bool IsCurrentActivityEmptyFor(string? alias)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public SessionDelegate? FindCompatibleSession(string? alias)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Store(string alias, SessionDelegate session)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Remove(SessionDelegate session)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public StatelessSessionDelegate? FindCompatibleStatelessSession(string? alias)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Store(string alias, StatelessSessionDelegate session)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void Remove(StatelessSessionDelegate session)
+    {
+        throw new System.NotImplementedException();
     }
 }

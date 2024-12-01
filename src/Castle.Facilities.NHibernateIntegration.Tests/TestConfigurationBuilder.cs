@@ -14,53 +14,52 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests
+namespace Castle.Facilities.NHibernateIntegration.Tests;
+
+using System.Configuration;
+using System.IO;
+
+using Castle.Core.Configuration;
+using Castle.Facilities.NHibernateIntegration.Builders;
+
+using NUnit.Framework;
+
+using Configuration = NHibernate.Cfg.Configuration;
+
+public class TestConfigurationBuilder : IConfigurationBuilder
 {
-    using System.Configuration;
-    using System.IO;
+    private readonly IConfigurationBuilder _configurationBuilder;
 
-    using Castle.Core.Configuration;
-    using Castle.Facilities.NHibernateIntegration.Builders;
-
-    using NUnit.Framework;
-
-    using Configuration = NHibernate.Cfg.Configuration;
-
-    public class TestConfigurationBuilder : IConfigurationBuilder
+    public TestConfigurationBuilder()
     {
-        private readonly IConfigurationBuilder _configurationBuilder;
+        _configurationBuilder = new DefaultConfigurationBuilder();
+    }
 
-        public TestConfigurationBuilder()
-        {
-            _configurationBuilder = new DefaultConfigurationBuilder();
-        }
-
-        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
-        {
-            var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
+    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    {
+        var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
 
 #if NET
-            var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
-            var configurationFileName = Path.GetFileName(configurationFilePath);
-            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
-                                                        "testhost.x86.dll.config"));
+        var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
+        var configurationFileName = Path.GetFileName(configurationFilePath);
+        Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
+                                                    "testhost.x86.dll.config"));
 #endif
 
-            configuration.Properties["dialect"] =
-                ConfigurationManager.AppSettings["nhf.dialect"];
-            configuration.Properties["connection.driver_class"] =
-                ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-            configuration.Properties["connection.provider"] =
-                ConfigurationManager.AppSettings["nhf.connection.provider"];
+        configuration.Properties["dialect"] =
+            ConfigurationManager.AppSettings["nhf.dialect"];
+        configuration.Properties["connection.driver_class"] =
+            ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+        configuration.Properties["connection.provider"] =
+            ConfigurationManager.AppSettings["nhf.connection.provider"];
+        configuration.Properties["connection.connection_string"] =
+            ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
+        if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
+        {
             configuration.Properties["connection.connection_string"] =
-                ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-            if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
-            {
-                configuration.Properties["connection.connection_string"] =
-                    ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
-            }
-
-            return configuration;
+                ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
         }
+
+        return configuration;
     }
 }

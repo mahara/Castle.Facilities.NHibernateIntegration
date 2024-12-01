@@ -14,109 +14,108 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
+
+using Castle.Services.Transaction;
+
+using NHibernate;
+
+using NUnit.Framework;
+
+[Transactional]
+public class FirstDao
 {
-    using Castle.Services.Transaction;
+    private readonly ISessionManager _sessionManager;
 
-    using NHibernate;
-
-    using NUnit.Framework;
-
-    [Transactional]
-    public class FirstDao
+    public FirstDao(ISessionManager sessionManager)
     {
-        private readonly ISessionManager _sessionManager;
+        _sessionManager = sessionManager;
+    }
 
-        public FirstDao(ISessionManager sessionManager)
+    [Transaction]
+    public virtual Blog Create()
+    {
+        return Create("Xbox Blog");
+    }
+
+    [Transaction]
+    public virtual Blog Create(string name)
+    {
+        using var session = _sessionManager.OpenSession();
+
+        var transaction = session.GetCurrentTransaction();
+        Assert.That(transaction, Is.Not.Null);
+        Assert.That(transaction.IsActive, Is.True);
+
+        var blog = new Blog
         {
-            _sessionManager = sessionManager;
-        }
+            Name = name
+        };
 
-        [Transaction]
-        public virtual Blog Create()
+        session.Save(blog);
+
+        return blog;
+    }
+
+    [Transaction]
+    public virtual void Delete(string name)
+    {
+        using var session = _sessionManager.OpenSession();
+
+        var transaction = session.GetCurrentTransaction();
+        Assert.That(transaction, Is.Not.Null);
+
+        session.Delete($"from Blog b where b.Name ='{name}'");
+        session.Flush();
+    }
+
+    public virtual void AddBlogRef(BlogRef blogRef)
+    {
+        using var session = _sessionManager.OpenSession();
+
+        session.Save(blogRef);
+    }
+
+    [Transaction]
+    public virtual Blog CreateStateless()
+    {
+        return CreateStateless("Xbox Blog");
+    }
+
+    [Transaction]
+    public virtual Blog CreateStateless(string name)
+    {
+        using var session = _sessionManager.OpenStatelessSession();
+
+        var transaction = session.GetCurrentTransaction();
+        Assert.That(transaction, Is.Not.Null);
+        Assert.That(transaction.IsActive, Is.True);
+
+        var blog = new Blog
         {
-            return Create("Xbox Blog");
-        }
+            Name = name
+        };
 
-        [Transaction]
-        public virtual Blog Create(string name)
-        {
-            using var session = _sessionManager.OpenSession();
+        session.Insert(blog);
 
-            var transaction = session.GetCurrentTransaction();
-            Assert.That(transaction, Is.Not.Null);
-            Assert.That(transaction.IsActive, Is.True);
+        return blog;
+    }
 
-            var blog = new Blog
-            {
-                Name = name
-            };
+    [Transaction]
+    public virtual void DeleteStateless(string name)
+    {
+        using var session = _sessionManager.OpenStatelessSession();
 
-            session.Save(blog);
+        var transaction = session.GetCurrentTransaction();
+        Assert.That(transaction, Is.Not.Null);
 
-            return blog;
-        }
+        session.Delete($"from Blog b where b.Name ='{name}'");
+    }
 
-        [Transaction]
-        public virtual void Delete(string name)
-        {
-            using var session = _sessionManager.OpenSession();
+    public virtual void AddBlogRefStateless(BlogRef blogRef)
+    {
+        using var session = _sessionManager.OpenStatelessSession();
 
-            var transaction = session.GetCurrentTransaction();
-            Assert.That(transaction, Is.Not.Null);
-
-            session.Delete($"from Blog b where b.Name ='{name}'");
-            session.Flush();
-        }
-
-        public virtual void AddBlogRef(BlogRef blogRef)
-        {
-            using var session = _sessionManager.OpenSession();
-
-            session.Save(blogRef);
-        }
-
-        [Transaction]
-        public virtual Blog CreateStateless()
-        {
-            return CreateStateless("Xbox Blog");
-        }
-
-        [Transaction]
-        public virtual Blog CreateStateless(string name)
-        {
-            using var session = _sessionManager.OpenStatelessSession();
-
-            var transaction = session.GetCurrentTransaction();
-            Assert.That(transaction, Is.Not.Null);
-            Assert.That(transaction.IsActive, Is.True);
-
-            var blog = new Blog
-            {
-                Name = name
-            };
-
-            session.Insert(blog);
-
-            return blog;
-        }
-
-        [Transaction]
-        public virtual void DeleteStateless(string name)
-        {
-            using var session = _sessionManager.OpenStatelessSession();
-
-            var transaction = session.GetCurrentTransaction();
-            Assert.That(transaction, Is.Not.Null);
-
-            session.Delete($"from Blog b where b.Name ='{name}'");
-        }
-
-        public virtual void AddBlogRefStateless(BlogRef blogRef)
-        {
-            using var session = _sessionManager.OpenStatelessSession();
-
-            session.Insert(blogRef);
-        }
+        session.Insert(blogRef);
     }
 }

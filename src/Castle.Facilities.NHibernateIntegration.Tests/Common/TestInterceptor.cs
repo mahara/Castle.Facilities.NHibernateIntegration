@@ -14,102 +14,101 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common
+namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
+
+using System.Collections;
+
+using NHibernate;
+using NHibernate.Type;
+
+/// <summary>
+/// An implementation of the <see cref="IInterceptor" /> interface for testing purposes.
+/// </summary>
+public class TestInterceptor : EmptyInterceptor
 {
-    using System.Collections;
+    private bool _instantiationCall;
+    private bool _onSaveCall;
 
-    using NHibernate;
-    using NHibernate.Type;
-
-    /// <summary>
-    /// An implementation of the <see cref="IInterceptor" /> interface for testing purposes.
-    /// </summary>
-    public class TestInterceptor : EmptyInterceptor
+    public bool ConfirmInstantiationCall()
     {
-        private bool _instantiationCall;
-        private bool _onSaveCall;
+        return _instantiationCall;
+    }
 
-        public bool ConfirmInstantiationCall()
-        {
-            return _instantiationCall;
-        }
+    public bool ConfirmOnSaveCall()
+    {
+        return _onSaveCall;
+    }
 
-        public bool ConfirmOnSaveCall()
-        {
-            return _onSaveCall;
-        }
+    public void ResetState()
+    {
+        _instantiationCall = false;
+        _onSaveCall = false;
+    }
 
-        public void ResetState()
-        {
-            _instantiationCall = false;
-            _onSaveCall = false;
-        }
+    #region IInterceptor Members
 
-        #region IInterceptor Members
+    public override int[]? FindDirty(object entity,
+                                     object id,
+                                     object[] currentState,
+                                     object[] previousState,
+                                     string[] propertyNames,
+                                     IType[] types)
+    {
+        return null;
+    }
 
-        public override int[]? FindDirty(object entity,
-                                         object id,
-                                         object[] currentState,
-                                         object[] previousState,
-                                         string[] propertyNames,
-                                         IType[] types)
-        {
-            return null;
-        }
+    public override object? Instantiate(string clazz, object id)
+    {
+        _instantiationCall = true;
 
-        public override object? Instantiate(string clazz, object id)
-        {
-            _instantiationCall = true;
+        return null;
+    }
 
-            return null;
-        }
-
-        public override bool OnFlushDirty(object entity,
-                                          object id,
-                                          object[] currentState,
-                                          object[] previousState,
-                                          string[] propertyNames,
-                                          IType[] types)
-        {
-            return false;
-        }
-
-        public override bool OnLoad(object entity,
-                                    object id,
-                                    object[] state,
-                                    string[] propertyNames,
-                                    IType[] types)
-        {
-            return false;
-        }
-
-        public override bool OnSave(object entity,
-                                    object id,
-                                    object[] state,
-                                    string[] propertyNames,
-                                    IType[] types)
-        {
-            _onSaveCall = true;
-
-            return false;
-        }
-
-        public override void OnDelete(object entity,
+    public override bool OnFlushDirty(object entity,
                                       object id,
-                                      object[] state,
+                                      object[] currentState,
+                                      object[] previousState,
                                       string[] propertyNames,
                                       IType[] types)
-        {
-        }
-
-        public override void PreFlush(ICollection entities)
-        {
-        }
-
-        public override void PostFlush(ICollection entities)
-        {
-        }
-
-        #endregion
+    {
+        return false;
     }
+
+    public override bool OnLoad(object entity,
+                                object id,
+                                object[] state,
+                                string[] propertyNames,
+                                IType[] types)
+    {
+        return false;
+    }
+
+    public override bool OnSave(object entity,
+                                object id,
+                                object[] state,
+                                string[] propertyNames,
+                                IType[] types)
+    {
+        _onSaveCall = true;
+
+        return false;
+    }
+
+    public override void OnDelete(object entity,
+                                  object id,
+                                  object[] state,
+                                  string[] propertyNames,
+                                  IType[] types)
+    {
+    }
+
+    public override void PreFlush(ICollection entities)
+    {
+    }
+
+    public override void PostFlush(ICollection entities)
+    {
+    }
+
+    #endregion
 }

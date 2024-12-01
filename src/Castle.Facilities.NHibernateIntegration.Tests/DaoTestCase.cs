@@ -14,41 +14,40 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common
+namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
+
+using Castle.MicroKernel.Registration;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class DaoTestCase : AbstractNHibernateTestCase
 {
-    using Castle.MicroKernel.Registration;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class DaoTestCase : AbstractNHibernateTestCase
+    [Test]
+    public void CommonUsage()
     {
-        [Test]
-        public void CommonUsage()
-        {
-            Container.Register(Component.For<BlogDao>().Named("blogdao"));
+        Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-            var dao = Container.Resolve<BlogDao>("blogdao");
-            dao.CreateBlog("my blog");
+        var dao = Container.Resolve<BlogDao>("blogdao");
+        dao.CreateBlog("my blog");
 
-            var blogs = dao.ObtainBlogs();
+        var blogs = dao.ObtainBlogs();
 
-            Assert.That(blogs, Is.Not.Null);
-            Assert.That(blogs, Has.Count.EqualTo(1));
-        }
+        Assert.That(blogs, Is.Not.Null);
+        Assert.That(blogs, Has.Count.EqualTo(1));
+    }
 
-        [Test]
-        public void CommonUsageStateless()
-        {
-            Container.Register(Component.For<BlogDao>().Named("blogdao"));
+    [Test]
+    public void CommonUsageStateless()
+    {
+        Container.Register(Component.For<BlogDao>().Named("blogdao"));
 
-            var dao = Container.Resolve<BlogDao>("blogdao");
-            dao.CreateBlog("my blog");
+        var dao = Container.Resolve<BlogDao>("blogdao");
+        dao.CreateBlog("my blog");
 
-            var blogs = dao.ObtainBlogsStateless();
+        var blogs = dao.ObtainBlogsStateless();
 
-            Assert.That(blogs, Is.Not.Null);
-            Assert.That(blogs, Has.Count.EqualTo(1));
-        }
+        Assert.That(blogs, Is.Not.Null);
+        Assert.That(blogs, Has.Count.EqualTo(1));
     }
 }
