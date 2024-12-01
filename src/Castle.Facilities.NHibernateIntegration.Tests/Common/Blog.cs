@@ -16,13 +16,11 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests;
 
-using System.Collections.Generic;
-
 public class Blog
 {
     public Blog()
     {
-        Items = new List<BlogItem>();
+        Items = [];
     }
 
     public virtual int Id { get; set; }

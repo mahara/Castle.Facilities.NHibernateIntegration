@@ -16,7 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-using System.Linq;
 using System.Reflection;
 
 using Castle.Core;

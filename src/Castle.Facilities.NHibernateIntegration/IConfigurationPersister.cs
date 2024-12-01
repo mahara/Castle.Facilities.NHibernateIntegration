@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration;
 
-using System.Collections.Generic;
-
 using NHibernate.Cfg;
 
 /// <summary>

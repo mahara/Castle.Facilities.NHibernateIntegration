@@ -17,9 +17,6 @@
 #if NETFRAMEWORK
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals;
 
-using System;
-using System.Threading;
-
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 
 using NHibernate;
@@ -39,7 +36,7 @@ public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var sessionStore = Container.Resolve<ISessionStore>();
 
-        Assert.That(sessionStore, Is.InstanceOf(typeof(LogicalCallContextSessionStore)));
+        Assert.That(sessionStore, Is.InstanceOf<LogicalCallContextSessionStore>());
     }
 
     [Test]
@@ -47,7 +44,8 @@ public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var store = Container.Resolve<ISessionStore>();
 
-        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleSession(null));
+        Assert.Throws<ArgumentNullException>(
+            () => store.FindCompatibleSession(null));
     }
 
     [Test]
@@ -123,7 +121,8 @@ public class LogicalCallContextSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var store = Container.Resolve<ISessionStore>();
 
-        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleStatelessSession(null));
+        Assert.Throws<ArgumentNullException>(
+            () => store.FindCompatibleStatelessSession(null));
     }
 
     [Test]

@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests;
 
-using System.Collections;
-using System.Collections.Generic;
-
 using Castle.MicroKernel;
 
 public class BlogDao
@@ -39,7 +36,7 @@ public class BlogDao
         var blog = new Blog
         {
             Name = name,
-            Items = new List<BlogItem>()
+            Items = []
         };
 
         session.Save(blog);

@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
 
-using System;
-
 public class SecondDao2
 {
     private readonly ISessionManager _sessionManager;
