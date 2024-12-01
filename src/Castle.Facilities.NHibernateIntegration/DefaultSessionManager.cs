@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration;
 
-using System;
-using System.Collections.Generic;
 using System.Data;
 
 using Castle.Facilities.NHibernateIntegration.Internal;
@@ -89,19 +87,23 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     /// <returns></returns>
     public ISession OpenSession(string? alias)
     {
-        if (alias == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(alias);
+#else
+        if (alias is null)
         {
             throw new ArgumentNullException(nameof(alias));
         }
+#endif
 
         var transaction = GetCurrentTransaction();
 
         var wrappedSession = _sessionStore.FindCompatibleSession(alias);
-        if (wrappedSession == null)
+        if (wrappedSession is null)
         {
             var session = CreateSession(alias);
 
-            wrappedSession = WrapSession(transaction != null, session);
+            wrappedSession = WrapSession(transaction is not null, session);
             EnlistIfNecessary(true, transaction, wrappedSession);
             _sessionStore.Store(alias, wrappedSession);
         }
@@ -130,19 +132,23 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     /// <returns></returns>
     public IStatelessSession OpenStatelessSession(string? alias)
     {
-        if (alias == null)
+#if NET8_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(alias);
+#else
+        if (alias is null)
         {
             throw new ArgumentNullException(nameof(alias));
         }
+#endif
 
         var transaction = GetCurrentTransaction();
 
         var wrappedSession = _sessionStore.FindCompatibleStatelessSession(alias);
-        if (wrappedSession == null)
+        if (wrappedSession is null)
         {
             var session = CreateStatelessSession(alias);
 
-            wrappedSession = WrapStatelessSession(transaction != null, session);
+            wrappedSession = WrapStatelessSession(transaction is not null, session);
             EnlistIfNecessary(true, transaction, wrappedSession);
             _sessionStore.Store(alias, wrappedSession);
         }
@@ -166,7 +172,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
                                             ITransaction? transaction,
                                             SessionDelegate session)
     {
-        if (transaction == null)
+        if (transaction is null)
         {
             return false;
         }
@@ -175,9 +181,9 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
 
         transaction.Context.TryGetValueAs(SessionEnlistedContextKey,
                                           out IList<ISession>? list);
-        if (list == null)
+        if (list is null)
         {
-            list = new List<ISession>();
+            list = [];
 
             shouldEnlist = true;
         }
@@ -204,7 +210,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
             //
             var sessionTransaction = session.Transaction;
             //var sessionTransaction = session.GetCurrentTransaction();
-            if (sessionTransaction == null || !sessionTransaction.IsActive)
+            if (sessionTransaction is null || !sessionTransaction.IsActive)
             {
                 transaction.Context[SessionEnlistedContextKey] = list;
 
@@ -234,7 +240,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
                                             ITransaction? transaction,
                                             StatelessSessionDelegate statelessSession)
     {
-        if (transaction == null)
+        if (transaction is null)
         {
             return false;
         }
@@ -243,9 +249,9 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
 
         transaction.Context.TryGetValueAs(StatelessSessionEnlistedContextKey,
                                           out IList<IStatelessSession>? list);
-        if (list == null)
+        if (list is null)
         {
-            list = new List<IStatelessSession>();
+            list = [];
 
             shouldEnlist = true;
         }
@@ -272,7 +278,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
             //
             var sessionTransaction = statelessSession.Transaction;
             //var sessionTransaction = statelessSession.GetCurrentTransaction();
-            if (sessionTransaction == null || !sessionTransaction.IsActive)
+            if (sessionTransaction is null || !sessionTransaction.IsActive)
             {
                 transaction.Context[StatelessSessionEnlistedContextKey] = list;
 
@@ -326,7 +332,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     {
         var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
 
-        if (sessionFactory == null)
+        if (sessionFactory is null)
         {
             throw new FacilityException(
                 $"No '{nameof(ISessionFactory)}' implementation " +
@@ -367,7 +373,7 @@ public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     {
         var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
 
-        if (sessionFactory == null)
+        if (sessionFactory is null)
         {
             throw new FacilityException(
                 $"No '{nameof(ISessionFactory)}' implementation " +

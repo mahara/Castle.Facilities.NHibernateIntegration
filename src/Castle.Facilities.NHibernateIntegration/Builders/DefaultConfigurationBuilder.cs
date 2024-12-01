@@ -16,7 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Builders;
 
-using System;
 using System.Configuration;
 using System.IO;
 using System.Reflection;
@@ -54,7 +53,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
     /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
     protected static void ApplyConfigurationSettings(Configuration configuration, IConfiguration facilityConfiguration)
     {
-        if (facilityConfiguration == null)
+        if (facilityConfiguration is null)
         {
             return;
         }
@@ -75,7 +74,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
     /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
     protected static void RegisterResources(Configuration configuration, IConfiguration facilityConfiguration)
     {
-        if (facilityConfiguration == null)
+        if (facilityConfiguration is null)
         {
             return;
         }
@@ -84,7 +83,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
         {
             var name = item.Attributes["name"]!;
             var assemblyName = item.Attributes["assembly"];
-            if (assemblyName != null)
+            if (assemblyName is not null)
             {
                 configuration.AddResource(name, LoadAssembly(assemblyName));
             }
@@ -102,7 +101,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
     /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
     protected static void RegisterListeners(Configuration configuration, IConfiguration facilityConfiguration)
     {
-        if (facilityConfiguration == null)
+        if (facilityConfiguration is null)
         {
             return;
         }
@@ -122,7 +121,11 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
             //if (classType == null)
             //    throw new ConfigurationErrorsException("The full type name of the listener class must be specified.");
 
+#if NET
+            var listenerType = Enum.Parse<ListenerType>(eventName);
+#else
             var listenerType = (ListenerType) Enum.Parse(typeof(ListenerType), eventName);
+#endif
             var listenerInstance = Activator.CreateInstance(classType);
 
             configuration.SetListener(listenerType, listenerInstance);
@@ -136,7 +139,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
     /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
     protected static void RegisterAssemblies(Configuration configuration, IConfiguration facilityConfiguration)
     {
-        if (facilityConfiguration == null)
+        if (facilityConfiguration is null)
         {
             return;
         }
@@ -192,7 +195,7 @@ public class DefaultConfigurationBuilder : IConfigurationBuilder
             configuration.AddInputStream(
                 (MemoryStream) serializeMethod.Invoke(
                     hbmSerializer,
-                    new object[] { Assembly.Load(targetAssemblyName) })!);
+                    [Assembly.Load(targetAssemblyName)])!);
         }
     }
 

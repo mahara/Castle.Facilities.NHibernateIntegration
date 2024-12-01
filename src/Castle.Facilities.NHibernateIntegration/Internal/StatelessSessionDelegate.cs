@@ -16,13 +16,9 @@
 
 namespace Castle.Facilities.NHibernateIntegration;
 
-using System;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 using NHibernate;
 using NHibernate.Engine;
@@ -60,6 +56,8 @@ public class StatelessSessionDelegate : MarshalByRefObject, IStatelessSession
     public void Dispose()
     {
         DoClose(false);
+
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

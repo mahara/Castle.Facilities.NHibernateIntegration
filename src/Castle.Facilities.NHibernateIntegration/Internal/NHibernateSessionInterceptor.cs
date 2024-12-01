@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 
 using Castle.Core;
@@ -67,7 +65,7 @@ public class NHibernateSessionInterceptor : IInterceptor, IOnBehalfAware
             methodInfo = invocation.Method;
         }
 
-        if (_metaInfo == null || !_metaInfo.Contains(methodInfo))
+        if (_metaInfo is null || !_metaInfo.Contains(methodInfo))
         {
             invocation.Proceed();
 

@@ -16,7 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Util;
 
-using System;
 using System.Buffers;
 #if NET
 using System.Security.Cryptography;

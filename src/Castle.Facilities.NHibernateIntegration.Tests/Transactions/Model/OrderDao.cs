@@ -72,7 +72,7 @@ public class OrderDao : NHibernateGenericDao
         var transaction = session.GetCurrentTransaction();
         Assert.That(transaction, Is.Not.Null);
 
-        var order = (Order) session.Load(typeof(Order), orderId);
+        var order = session.Load<Order>(orderId);
 
         session.Delete(order);
     }

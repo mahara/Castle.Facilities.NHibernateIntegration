@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao;
 
-using System;
-
 using NHibernate.Criterion;
 
 using Array = System.Array;

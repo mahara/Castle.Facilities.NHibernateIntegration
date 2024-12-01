@@ -16,7 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Builders;
 
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using Castle.Core.Configuration;
@@ -106,7 +105,7 @@ public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
         var list = new List<string>();
 
         var assemblies = facilityConfiguration.Children["assemblies"];
-        if (assemblies != null)
+        if (assemblies is not null)
         {
             foreach (var assembly in assemblies.Children)
             {
@@ -115,7 +114,7 @@ public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
         }
 
         var dependsOn = facilityConfiguration.Children["dependsOn"];
-        if (dependsOn != null)
+        if (dependsOn is not null)
         {
             foreach (var on in dependsOn.Children)
             {

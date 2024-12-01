@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Components;
 
-using System;
-using System.Collections.Generic;
-
 using Castle.Facilities.NHibernateIntegration.Util;
 
 using NUnit.Framework;
@@ -36,10 +33,10 @@ public class ReflectionUtilityTests
         var blog = new Blog
         {
             Name = "osman",
-            Items = new List<BlogItem>()
-            {
+            Items =
+            [
                 new() { }
-            }
+            ]
         };
 
         var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);

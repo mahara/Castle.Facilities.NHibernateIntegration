@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Components;
 
-using System;
-
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 using Castle.MicroKernel.Registration;
 
@@ -375,7 +373,7 @@ public class NHibernateGenericDaoTests : AbstractNHibernateTestCase
         using var session = _sessionManager.OpenSession();
 
         var blog = new Blog { Name = "myblog4" };
-        var blogId = _nhGenericDao1.Create(blog);
+        var blogId = (int) _nhGenericDao1.Create(blog);
 
         Assert.That(blogId, Is.GreaterThan(0));
     }
@@ -556,7 +554,8 @@ public class NHibernateGenericDaoTests : AbstractNHibernateTestCase
     {
         using var session = _sessionManager.OpenStatelessSession();
 
-        Assert.Throws<ArgumentNullException>(() => _nhGenericDao1.FindAllWithNamedQueryStateless(null));
+        Assert.Throws<ArgumentNullException>(
+            () => _nhGenericDao1.FindAllWithNamedQueryStateless(null));
     }
 
     [Test]
@@ -564,7 +563,8 @@ public class NHibernateGenericDaoTests : AbstractNHibernateTestCase
     {
         using var session = _sessionManager.OpenStatelessSession();
 
-        Assert.Throws<DataException>(() => _nhGenericDao1.FindAllWithNamedQueryStateless("getMyBlogs"));
+        Assert.Throws<DataException>(
+            () => _nhGenericDao1.FindAllWithNamedQueryStateless("getMyBlogs"));
     }
 
     [Test]

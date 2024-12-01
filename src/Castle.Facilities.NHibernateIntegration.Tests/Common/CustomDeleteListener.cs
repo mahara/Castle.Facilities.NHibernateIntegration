@@ -16,10 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
 using NHibernate.Event;
 
 public class CustomDeleteListener : IDeleteEventListener

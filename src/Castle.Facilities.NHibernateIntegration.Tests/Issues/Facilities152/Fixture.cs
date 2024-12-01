@@ -38,7 +38,7 @@ public class Fixture
         var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
         var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
 
-        Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf(typeof(WebSessionStore)));
-        Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
+        Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf<WebSessionStore>());
+        Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf<AsyncLocalSessionStore>());
     }
 }

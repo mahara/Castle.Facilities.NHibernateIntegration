@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Internal;
 
-using System;
-
 using Castle.Services.Transaction;
 
 using ITransaction = NHibernate.ITransaction;
@@ -47,6 +45,8 @@ public class ResourceAdapter : IResource, IDisposable
     public void Dispose()
     {
         _transaction.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

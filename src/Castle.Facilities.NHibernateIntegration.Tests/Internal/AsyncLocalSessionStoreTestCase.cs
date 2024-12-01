@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests.Internals;
 
-using System;
-using System.Threading;
-
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 
 using NHibernate;
@@ -38,7 +35,7 @@ public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var sessionStore = Container.Resolve<ISessionStore>();
 
-        Assert.That(sessionStore, Is.InstanceOf(typeof(AsyncLocalSessionStore)));
+        Assert.That(sessionStore, Is.InstanceOf<AsyncLocalSessionStore>());
     }
 
     [Test]
@@ -46,7 +43,8 @@ public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var store = Container.Resolve<ISessionStore>();
 
-        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleSession(null));
+        Assert.Throws<ArgumentNullException>(
+            () => store.FindCompatibleSession(null));
     }
 
     [Test]
@@ -121,7 +119,8 @@ public class AsyncLocalSessionStoreTestCase : AbstractNHibernateTestCase
     {
         var store = Container.Resolve<ISessionStore>();
 
-        Assert.Throws<ArgumentNullException>(() => store.FindCompatibleStatelessSession(null));
+        Assert.Throws<ArgumentNullException>(
+            () => store.FindCompatibleStatelessSession(null));
     }
 
     [Test]

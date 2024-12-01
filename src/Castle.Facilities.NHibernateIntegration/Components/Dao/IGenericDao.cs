@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Components.Dao;
 
-using System;
-
 /// <summary>
 /// Summary description for IGenericDao.
 /// </summary>

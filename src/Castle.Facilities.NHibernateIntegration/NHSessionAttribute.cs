@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration;
 
-using System;
-
 /// <summary>
 /// Tells to the facility that the class needs a valid Session.
 /// </summary>

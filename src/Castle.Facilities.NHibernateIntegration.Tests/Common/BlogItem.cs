@@ -16,8 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.Tests;
 
-using System;
-
 public class BlogItem
 {
     public virtual int Id { get; set; }

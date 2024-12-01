@@ -16,15 +16,18 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores;
 
-using System;
-using System.Collections.Generic;
-
 /// <summary>
 ///
 /// </summary>
 public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
 {
-    private readonly object _lock = new();
+    private readonly
+#if NET9_0_OR_GREATER
+        Lock
+#else
+        object
+#endif
+        _lock = new();
 
     protected AbstractDictionaryStackSessionStore()
     {
@@ -49,13 +52,17 @@ public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
     {
         lock (_lock)
         {
-            if (alias == null)
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
+            if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             var dictionary = GetSessionDictionary();
-            if (dictionary == null)
+            if (dictionary is null)
             {
                 dictionary = new Dictionary<string, Stack<SessionDelegate>>();
 
@@ -91,13 +98,17 @@ public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
     {
         lock (_lock)
         {
-            if (alias == null)
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
+            if (alias is null)
             {
                 throw new ArgumentNullException(nameof(alias));
             }
+#endif
 
             var dictionary = GetStatelessSessionDictionary();
-            if (dictionary == null)
+            if (dictionary is null)
             {
                 dictionary = new Dictionary<string, Stack<StatelessSessionDelegate>>();
 

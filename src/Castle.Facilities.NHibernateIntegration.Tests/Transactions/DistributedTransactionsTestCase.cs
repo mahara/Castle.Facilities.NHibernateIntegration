@@ -17,7 +17,6 @@
 #if NETFRAMEWORK
 namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
 
-using System;
 using System.Transactions;
 
 using Castle.MicroKernel.Registration;
@@ -52,7 +51,7 @@ public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
         }
         catch (Exception ex)
         {
-            if (ex.InnerException != null &&
+            if (ex.InnerException is not null &&
                 ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
             {
                 Assert.Ignore("MTS is not available.");
@@ -105,9 +104,9 @@ public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
         Assert.That(blogs, Is.Not.Null);
         Assert.That(blogitems, Is.Not.Null);
         Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs.Length, Is.EqualTo(0));
-        Assert.That(blogitems.Length, Is.EqualTo(0));
-        Assert.That(orders.Length, Is.EqualTo(0));
+        Assert.That(blogs, Is.Empty);
+        Assert.That(blogitems, Is.Empty);
+        Assert.That(orders, Is.Empty);
     }
 
     [Test]
@@ -123,7 +122,7 @@ public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
         }
         catch (Exception ex)
         {
-            if (ex.InnerException != null &&
+            if (ex.InnerException is not null &&
                 ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
             {
                 Assert.Ignore("MTS is not available.");
@@ -176,9 +175,9 @@ public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
         Assert.That(blogs, Is.Not.Null);
         Assert.That(blogitems, Is.Not.Null);
         Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs.Length, Is.EqualTo(0));
-        Assert.That(blogitems.Length, Is.EqualTo(0));
-        Assert.That(orders.Length, Is.EqualTo(0));
+        Assert.That(blogs, Is.Empty);
+        Assert.That(blogitems, Is.Empty);
+        Assert.That(orders, Is.Empty);
     }
 }
 #endif

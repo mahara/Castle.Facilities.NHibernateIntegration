@@ -16,9 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores;
 
-using System;
-using System.Collections.Generic;
-
 using NHibernate;
 
 /// <summary>
@@ -81,7 +78,7 @@ public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
     {
         var stack = (Stack<SessionDelegate>?) session.SessionStoreCookie;
 
-        if (stack == null)
+        if (stack is null)
         {
             throw new InvalidProgramException(
                 $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(SessionDelegate)})' called with no cookie.");
@@ -153,7 +150,7 @@ public abstract class AbstractSessionStore : MarshalByRefObject, ISessionStore
     {
         var stack = (Stack<StatelessSessionDelegate>?) statelessSession.SessionStoreCookie;
 
-        if (stack == null)
+        if (stack is null)
         {
             throw new InvalidProgramException(
                 $"'{nameof(AbstractSessionStore)}.{nameof(Remove)}({nameof(StatelessSessionDelegate)})' called with no cookie.");
