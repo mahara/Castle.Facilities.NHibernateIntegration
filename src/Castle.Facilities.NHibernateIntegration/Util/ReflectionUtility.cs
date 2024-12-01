@@ -14,62 +14,61 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Util
+namespace Castle.Facilities.NHibernateIntegration.Util;
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+
+/// <summary>
+/// Utility classes for NHibernate.
+/// Contains methods to get properties of an entity, etc.
+/// </summary>
+public class ReflectionUtility
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+    private static readonly BindingFlags BindingFlags =
+        BindingFlags.Instance |
+        BindingFlags.Public |
+        BindingFlags.NonPublic |
+        BindingFlags.GetProperty;
 
     /// <summary>
-    /// Utility classes for NHibernate.
-    /// Contains methods to get properties of an entity, etc.
+    /// Gets the readable (non indexed) properties names and values.
+    /// The keys holds the names of the properties.
+    /// The values are the values of the properties.
     /// </summary>
-    public class ReflectionUtility
+    public static IDictionary<string, object?> GetPropertiesDictionary(object obj)
     {
-        private static readonly BindingFlags BindingFlags =
-            BindingFlags.Instance |
-            BindingFlags.Public |
-            BindingFlags.NonPublic |
-            BindingFlags.GetProperty;
+        var dictionary = new Dictionary<string, object?>();
 
-        /// <summary>
-        /// Gets the readable (non indexed) properties names and values.
-        /// The keys holds the names of the properties.
-        /// The values are the values of the properties.
-        /// </summary>
-        public static IDictionary<string, object?> GetPropertiesDictionary(object obj)
+        foreach (var property in obj.GetType().GetProperties(BindingFlags))
         {
-            var dictionary = new Dictionary<string, object?>();
-
-            foreach (var property in obj.GetType().GetProperties(BindingFlags))
+            if (property.CanRead && property.GetIndexParameters().Length == 0)
             {
-                if (property.CanRead && property.GetIndexParameters().Length == 0)
-                {
-                    dictionary[property.Name] = property.GetValue(obj, null);
-                }
+                dictionary[property.Name] = property.GetValue(obj, null);
             }
-
-            return dictionary;
         }
 
-        /// <summary>
-        /// Determines whether type is simple enough to need just ToString() to show its state.
-        /// string, int, bool, and enums are simple. Anything else is false.
-        /// </summary>
-        public static bool IsSimpleType(Type type)
+        return dictionary;
+    }
+
+    /// <summary>
+    /// Determines whether type is simple enough to need just ToString() to show its state.
+    /// string, int, bool, and enums are simple. Anything else is false.
+    /// </summary>
+    public static bool IsSimpleType(Type type)
+    {
+        if (type == typeof(string) ||
+            type.IsPrimitive ||
+            type == typeof(DateTime) ||
+            type == typeof(DateTimeOffset) ||
+            type.IsEnum)
         {
-            if (type == typeof(string) ||
-                type.IsPrimitive ||
-                type == typeof(DateTime) ||
-                type == typeof(DateTimeOffset) ||
-                type.IsEnum)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }
