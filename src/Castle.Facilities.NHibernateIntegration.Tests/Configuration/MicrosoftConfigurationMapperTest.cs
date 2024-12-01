@@ -224,7 +224,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
             AssertSetting(
                 sessionFactory1Settings,
                 NHibernate.Cfg.Environment.ConnectionString,
-                "Server=.; Initial Catalog=test; Integrated Security=SSPI");
+                "Server=.; Initial Catalog=test; Integrated Security=SSPI; TrustServerCertificate=true");
 
             AssertSetting(
                 sessionFactory1Settings,
@@ -234,7 +234,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
             AssertSetting(
                 sessionFactory1Settings,
                 NHibernate.Cfg.Environment.ConnectionDriver,
-                "NHibernate.Driver.Sql2008ClientDriver");
+                "NHibernate.Driver.MicrosoftDataSqlClientDriver");
 
             AssertSetting(
                 sessionFactory1Settings,
@@ -271,7 +271,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
             AssertSetting(
                 sessionFactory2Settings,
                 NHibernate.Cfg.Environment.ConnectionString,
-                "Server=.; Initial Catalog=test2; Integrated Security=SSPI");
+                "Server=.; Initial Catalog=test2; Integrated Security=SSPI; TrustServerCertificate=true");
 
             AssertSetting(
                 sessionFactory2Settings,
@@ -281,7 +281,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Configuration
             AssertSetting(
                 sessionFactory2Settings,
                 NHibernate.Cfg.Environment.ConnectionDriver,
-                "NHibernate.Driver.Sql2008ClientDriver");
+                "NHibernate.Driver.MicrosoftDataSqlClientDriver");
 
             AssertSetting(
                 sessionFactory2Settings,
