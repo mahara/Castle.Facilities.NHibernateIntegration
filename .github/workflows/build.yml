@@ -18,7 +18,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
         project:
           - 'Castle.Facilities.NHibernateIntegration.sln'
-        framework: [net8.0, net7.0, net6.0, net48]
+        framework: [net9.0, net8.0, net48]
         configuration: [Release]
         exclude:
           - os: ubuntu-latest
@@ -36,12 +36,12 @@ jobs:
     steps:
 
       - name: Checkout Source Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
         # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
         # https://github.com/orgs/community/discussions/25713
@@ -74,7 +74,7 @@ jobs:
           dotnet test ${{matrix.project}} --configuration ${{matrix.configuration}} --framework ${{matrix.framework}} --no-build --no-restore --blame-hang --blame-hang-dump-type mini --blame-hang-timeout 10minutes --results-directory:"${{github.workspace}}/${{env.TestResults_ArtifactName}}/${{env.ProjectName}}" --logger:"console;verbosity=detailed" --logger:"trx;LogFileName=${{env.TestResults_Trx_FileName}}" --logger "nunit;LogFileName=${{env.TestResults_NUnit_FileName}};format=nunit3" --logger:"liquid.md;LogFileName=${{env.TestResults_MarkDown_FileName}};Title=${{env.Title}};"
 
       - name: Upload Test Results Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{always()}}
         with:
           name: '${{env.TestResults_ArtifactName}}'
