@@ -1,6 +1,5 @@
 namespace Castle.Facilities.NHibernateIntegration.Util;
 
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 public static class DictionaryExtensions

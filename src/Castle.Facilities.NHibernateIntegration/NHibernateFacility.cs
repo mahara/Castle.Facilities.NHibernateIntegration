@@ -16,10 +16,7 @@
 
 namespace Castle.Facilities.NHibernateIntegration;
 
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 
 using Castle.Core.Configuration;
 using Castle.Core.Logging;
@@ -224,7 +221,7 @@ public class NHibernateFacility : AbstractFacility
         {
             var configNode = new MutableConfiguration(SessionManagerKey);
 
-            IConfiguration properties = new MutableConfiguration("parameters");
+            var properties = new MutableConfiguration("parameters");
             configNode.Children.Add(properties);
 
             properties.Children.Add(new MutableConfiguration("DefaultFlushMode", defaultFlushMode));
@@ -377,7 +374,7 @@ public class NHibernateFacility : AbstractFacility
         }
 
         var factoriesConfig = FacilityConfig.Children["factory"];
-        if (factoriesConfig == null)
+        if (factoriesConfig is null)
         {
             const string message = $"You need to configure at least one factory to use the '{nameof(NHibernateFacility)}'.";
             throw new ConfigurationErrorsException(message);
@@ -467,7 +464,7 @@ internal class NHibernateFacilityConfiguration
     {
         _configurationBuilder = configurationBuilder;
 
-        FactoryConfigurations = Enumerable.Empty<NHibernateFactoryConfiguration>();
+        FactoryConfigurations = [];
     }
 
     public string? DefaultFlushMode { get; set; }
@@ -508,7 +505,7 @@ internal class NHibernateFacilityConfiguration
 
             try
             {
-                ConfigurationBuilder((Type) converter.PerformConversion(builder, typeof(Type)));
+                ConfigurationBuilder(converter.PerformConversion<Type>(builder));
             }
             catch (ConverterException)
             {
@@ -521,23 +518,23 @@ internal class NHibernateFacilityConfiguration
 
         DefaultFlushMode = _facilityConfiguration.Attributes[NHibernateFacility.DefaultFlushModeConfigurationKey];
 
-        bool.TryParse(_facilityConfiguration.Attributes[NHibernateFacility.IsWebConfigurationKey], out _isWeb);
+        _ = bool.TryParse(_facilityConfiguration.Attributes[NHibernateFacility.IsWebConfigurationKey], out _isWeb);
 
-        if (_facilityConfiguration.Attributes[NHibernateFacility.SessionStoreConfigurationKey] != null)
+        if (_facilityConfiguration.Attributes[NHibernateFacility.SessionStoreConfigurationKey] is not null)
         {
             var sessionStoreType = _facilityConfiguration.Attributes[NHibernateFacility.SessionStoreConfigurationKey];
             var converter = (ITypeConverter) _kernel.GetSubSystem(SubSystemConstants.ConversionManagerKey);
-            SessionStore((Type) converter.PerformConversion(sessionStoreType, typeof(Type)));
+            SessionStore(converter.PerformConversion<Type>(sessionStoreType));
         }
     }
 
     public bool IsValid =>
-        _facilityConfiguration != null ||
-        _configurationBuilder != null ||
-        _configurationBuilderType != null;
+        _facilityConfiguration is not null ||
+        _configurationBuilder is not null ||
+        _configurationBuilderType is not null;
 
     private bool ConfigurationIsValid =>
-        _facilityConfiguration != null &&
+        _facilityConfiguration is not null &&
         _facilityConfiguration.Children.Count > 0;
 
     public bool HasValidFactory =>
@@ -552,10 +549,10 @@ internal class NHibernateFacilityConfiguration
     }
 
     public bool HasConfigurationBuilderType =>
-        _configurationBuilderType != null;
+        _configurationBuilderType is not null;
 
     public bool HasConcreteConfigurationBuilder =>
-        _configurationBuilder != null && !HasConfigurationBuilderType;
+        _configurationBuilder is not null && !HasConfigurationBuilderType;
 
     public Type GetConfigurationBuilderType()
     {
@@ -577,7 +574,7 @@ internal class NHibernateFacilityConfiguration
     {
         get
         {
-            if (_facilityConfiguration != null)
+            if (_facilityConfiguration is not null)
             {
                 if (bool.TryParse(_facilityConfiguration.Attributes[NHibernateFacility.UseReflectionOptimizerConfigurationKey], out var result))
                 {
@@ -605,7 +602,7 @@ internal class NHibernateFacilityConfiguration
             sessionStoreType = typeof(WebSessionStore);
         }
 
-        if (_sessionStoreType != null)
+        if (_sessionStoreType is not null)
         {
             sessionStoreType = _sessionStoreType;
         }

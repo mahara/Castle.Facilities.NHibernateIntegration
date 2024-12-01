@@ -16,10 +16,6 @@
 
 namespace Castle.Facilities.NHibernateIntegration.SessionStores;
 
-#if NET
-using System;
-#endif
-using System.Collections.Generic;
 #if NETFRAMEWORK
 using System.Runtime.Remoting.Messaging;
 
