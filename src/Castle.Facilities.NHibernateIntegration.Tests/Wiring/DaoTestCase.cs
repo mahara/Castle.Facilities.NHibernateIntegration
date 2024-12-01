@@ -14,28 +14,27 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
+namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring;
+
+using Castle.MicroKernel.Registration;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class DaoTestCase : AbstractNHibernateTestCase
 {
-    using Castle.MicroKernel.Registration;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class DaoTestCase : AbstractNHibernateTestCase
+    protected override void ConfigureContainer()
     {
-        protected override void ConfigureContainer()
-        {
-            Container.Register(Component.For<MyDao>().Named("mydao"));
-        }
+        Container.Register(Component.For<MyDao>().Named("mydao"));
+    }
 
-        [Test]
-        public void NHComponentsAvailableToWire()
-        {
-            var dao = Container.Resolve<MyDao>();
+    [Test]
+    public void NHComponentsAvailableToWire()
+    {
+        var dao = Container.Resolve<MyDao>();
 
-            Assert.That(dao, Is.Not.Null);
-            Assert.That(dao.Configuration, Is.Not.Null);
-            Assert.That(dao.SessionFactory, Is.Not.Null);
-        }
+        Assert.That(dao, Is.Not.Null);
+        Assert.That(dao.Configuration, Is.Not.Null);
+        Assert.That(dao.SessionFactory, Is.Not.Null);
     }
 }
