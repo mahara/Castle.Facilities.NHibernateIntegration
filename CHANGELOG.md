@@ -1,7 +1,18 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.5.0 (2024-11-xx)
+## 5.5.0 (2024-12-xx)
+
+Improvements:
+- Added support for **`.NET 9.0`**.
+
+Breaking Changes:
+- Removed support for **`.NET 7.0`** and **`.NET 6.0`**.
+- Updated **`Castle.Services.Transaction`** to 5.5.0.
+- Updated **`Castle.Facilities.AutoTx`** to 5.5.0.
+- Updated **`NHibernate`** to 5.5.2.
+- Replaced **`IndexRange`** with **`Microsoft.Bcl.Memory`**.
+- Replaced **`System.Data.SqlClient`** with **`Microsoft.Data.SqlClient`** for tests.
 
 
 ## 5.4.0 (2024-11-30)
