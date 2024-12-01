@@ -17,8 +17,8 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         project:
-          - 'Castle.Facilities.NHibernateIntegration.sln'
-        framework: [net8.0, net7.0, net6.0, net48]
+          - 'Castle.Facilities.NHibernateIntegration.slnx'
+        framework: [net9.0, net8.0, net48]
         configuration: [Release]
         exclude:
           - os: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
         # https://www.jamescroft.co.uk/setting-github-actions-environment-variables-in-powershell/
         # https://github.com/orgs/community/discussions/25713
