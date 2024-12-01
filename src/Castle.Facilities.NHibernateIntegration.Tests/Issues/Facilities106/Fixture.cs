@@ -14,36 +14,35 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities106;
+
+using Castle.Core.Configuration;
+using Castle.Facilities.NHibernateIntegration.Builders;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class Fixture : IssueTestCase
 {
-    using Castle.Core.Configuration;
-    using Castle.Facilities.NHibernateIntegration.Builders;
+    protected override string ConfigurationFile =>
+        "EmptyConfiguration.xml";
 
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class Fixture : IssueTestCase
+    [Test]
+    public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
     {
-        protected override string ConfigurationFile =>
-            "EmptyConfiguration.xml";
-
-        [Test]
-        public void CanReadNHConfigFileAsTheSourceOfSessionFactory()
-        {
-            IConfiguration facilityConfiguration = new MutableConfiguration("myConfig");
-            facilityConfiguration.Attributes["nhibernateConfigFile"] =
-                "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
-            var builder = new XmlConfigurationBuilder();
-            var configuration = builder.GetConfiguration(facilityConfiguration);
-            Assert.That(configuration, Is.Not.Null);
-            var value = configuration.Properties["connection.provider"];
-            Assert.That(value, Is.EqualTo("DummyProvider"));
-            value = configuration.Properties["connection.connection_string"];
-            Assert.That(value, Is.Not.Empty);
-            value = configuration.Properties["connection.driver_class"];
-            Assert.That(value, Is.Not.Empty);
-            value = configuration.Properties["dialect"];
-            Assert.That(value, Is.Not.Empty);
-        }
+        IConfiguration facilityConfiguration = new MutableConfiguration("myConfig");
+        facilityConfiguration.Attributes["nhibernateConfigFile"] =
+            "Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities106/factory1.xml";
+        var builder = new XmlConfigurationBuilder();
+        var configuration = builder.GetConfiguration(facilityConfiguration);
+        Assert.That(configuration, Is.Not.Null);
+        var value = configuration.Properties["connection.provider"];
+        Assert.That(value, Is.EqualTo("DummyProvider"));
+        value = configuration.Properties["connection.connection_string"];
+        Assert.That(value, Is.Not.Empty);
+        value = configuration.Properties["connection.driver_class"];
+        Assert.That(value, Is.Not.Empty);
+        value = configuration.Properties["dialect"];
+        Assert.That(value, Is.Not.Empty);
     }
 }
