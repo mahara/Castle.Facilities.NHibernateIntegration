@@ -5,12 +5,12 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks>net8.0-windows</WinExeTargetFrameworks>
-    <WinTestTargetFrameworks>net8.0-windows</WinTestTargetFrameworks>
-    <WinLibTargetFrameworks>net8.0-windows;net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks>net8.0</ExeTargetFrameworks>
-    <TestTargetFrameworks>net8.0;net7.0;net6.0;net48</TestTargetFrameworks>
-    <LibTargetFrameworks>net8.0;net7.0;net6.0;net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks>net9.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks>net9.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks>net9.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net9.0</ExeTargetFrameworks>
+    <TestTargetFrameworks>net9.0;net8.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks>net9.0;net8.0;net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
 
