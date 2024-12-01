@@ -19,6 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Castle.LoggingFacility" />
     <PackageReference Include="LiquidTestReports.Markdown" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Microsoft.TestPlatform.ObjectModel" />
     <PackageReference Include="Moq" />
@@ -30,7 +31,6 @@
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="NUnitLite" />
     <PackageReference Include="NunitXml.TestLogger" />
-    <PackageReference Include="System.Data.SqlClient" />
     <PackageReference Include="System.Private.Uri" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0'">
