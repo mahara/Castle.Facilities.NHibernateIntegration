@@ -14,42 +14,41 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities113;
+
+using Castle.MicroKernel.Registration;
+
+using Moq;
+
+using NHibernate;
+using NHibernate.Cfg;
+
+using NUnit.Framework;
+
+[TestFixture]
+public class Fixture : IssueTestCase
 {
-    using Castle.MicroKernel.Registration;
+    protected override string ConfigurationFile =>
+        "DefaultConfiguration.xml";
 
-    using Moq;
-
-    using NHibernate;
-    using NHibernate.Cfg;
-
-    using NUnit.Framework;
-
-    [TestFixture]
-    public class Fixture : IssueTestCase
+    [Test]
+    public void CallsConfigurationContributorsBeforeSessionFactoryIsInitialized()
     {
-        protected override string ConfigurationFile =>
-            "DefaultConfiguration.xml";
+        var configurator1 = new Mock<IConfigurationContributor>().Object;
+        var configurator2 = new Mock<IConfigurationContributor>().Object;
+        Container.Register(
+            Component.For<IConfigurationContributor>()
+                     .Named("c1")
+                     .Instance(configurator1));
+        Container.Register(
+            Component.For<IConfigurationContributor>()
+                     .Named("c2")
+                     .Instance(configurator2));
 
-        [Test]
-        public void CallsConfigurationContributorsBeforeSessionFactoryIsInitialized()
-        {
-            var configurator1 = new Mock<IConfigurationContributor>().Object;
-            var configurator2 = new Mock<IConfigurationContributor>().Object;
-            Container.Register(
-                Component.For<IConfigurationContributor>()
-                         .Named("c1")
-                         .Instance(configurator1));
-            Container.Register(
-                Component.For<IConfigurationContributor>()
-                         .Named("c2")
-                         .Instance(configurator2));
+        var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
+        Container.Resolve<ISessionFactory>("sessionFactory1");
 
-            var configuration = Container.Resolve<Configuration>("sessionFactory1.cfg");
-            Container.Resolve<ISessionFactory>("sessionFactory1");
-
-            Mock.Get(configurator1).Verify(x => x.Process("sessionFactory1", configuration));
-            Mock.Get(configurator2).Verify(x => x.Process("sessionFactory1", configuration));
-        }
+        Mock.Get(configurator1).Verify(x => x.Process("sessionFactory1", configuration));
+        Mock.Get(configurator2).Verify(x => x.Process("sessionFactory1", configuration));
     }
 }

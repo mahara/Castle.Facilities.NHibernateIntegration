@@ -14,53 +14,52 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Persisters
+namespace Castle.Facilities.NHibernateIntegration.Persisters;
+
+using System.Collections.Generic;
+using System.IO;
+
+using NHibernate.Cfg;
+
+/// <summary>
+/// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
+/// and whether that file should be trusted or a new Configuration should be built.
+/// </summary>
+public class DefaultConfigurationPersister : IConfigurationPersister
 {
-    using System.Collections.Generic;
-    using System.IO;
+    private readonly IObjectPersister<Configuration> _persister =
+        ObjectPersisterFactory.Create<Configuration>();
 
-    using NHibernate.Cfg;
-
-    /// <summary>
-    /// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
-    /// and whether that file should be trusted or a new Configuration should be built.
-    /// </summary>
-    public class DefaultConfigurationPersister : IConfigurationPersister
+    /// <inheritdoc />
+    public virtual Configuration ReadConfiguration(string filePath)
     {
-        private readonly IObjectPersister<Configuration> _persister =
-            ObjectPersisterFactory.Create<Configuration>();
+        return _persister.Read(filePath);
+    }
 
-        /// <inheritdoc />
-        public virtual Configuration ReadConfiguration(string filePath)
+    /// <inheritdoc />
+    public virtual void WriteConfiguration(Configuration configuration, string filePath)
+    {
+        _persister.Write(configuration, filePath);
+    }
+
+    /// <inheritdoc />
+    public virtual bool IsNewConfigurationRequired(string filePath, IList<string> dependencies)
+    {
+        if (!File.Exists(filePath))
         {
-            return _persister.Read(filePath);
+            return true;
         }
 
-        /// <inheritdoc />
-        public virtual void WriteConfiguration(Configuration configuration, string filePath)
+        var lastModified = File.GetLastWriteTime(filePath);
+
+        var requiresNew = false;
+
+        for (var i = 0; i < dependencies.Count && !requiresNew; i++)
         {
-            _persister.Write(configuration, filePath);
+            var dependencyLastModified = File.GetLastWriteTime(dependencies[i]);
+            requiresNew |= dependencyLastModified > lastModified;
         }
 
-        /// <inheritdoc />
-        public virtual bool IsNewConfigurationRequired(string filePath, IList<string> dependencies)
-        {
-            if (!File.Exists(filePath))
-            {
-                return true;
-            }
-
-            var lastModified = File.GetLastWriteTime(filePath);
-
-            var requiresNew = false;
-
-            for (var i = 0; i < dependencies.Count && !requiresNew; i++)
-            {
-                var dependencyLastModified = File.GetLastWriteTime(dependencies[i]);
-                requiresNew |= dependencyLastModified > lastModified;
-            }
-
-            return requiresNew;
-        }
+        return requiresNew;
     }
 }

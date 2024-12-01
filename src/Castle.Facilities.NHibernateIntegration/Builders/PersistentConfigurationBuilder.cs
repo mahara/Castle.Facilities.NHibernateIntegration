@@ -14,116 +14,115 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Builders
+namespace Castle.Facilities.NHibernateIntegration.Builders;
+
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+using Castle.Core.Configuration;
+using Castle.Core.Logging;
+using Castle.Facilities.NHibernateIntegration.Persisters;
+
+using NHibernate.Cfg;
+
+/// <summary>
+/// Serializes the <see cref="Configuration" /> for subsequent initializations.
+/// </summary>
+public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
 {
-    using System.Collections.Generic;
-    using System.Text.RegularExpressions;
+    private const string DEFAULT_EXTENSION = ".dat";
 
-    using Castle.Core.Configuration;
-    using Castle.Core.Logging;
-    using Castle.Facilities.NHibernateIntegration.Persisters;
+    private readonly ILogger _logger = NullLogger.Instance;
 
-    using NHibernate.Cfg;
+    private readonly IConfigurationPersister _configurationPersister;
 
     /// <summary>
-    /// Serializes the <see cref="Configuration" /> for subsequent initializations.
+    /// Initializes the persistent <see cref="Configuration" /> builder
+    /// with an specific <see cref="IConfigurationPersister" />
     /// </summary>
-    public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
+    public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
     {
-        private const string DEFAULT_EXTENSION = ".dat";
+        _configurationPersister = configurationPersister;
+    }
 
-        private readonly ILogger _logger = NullLogger.Instance;
+    /// <summary>
+    /// Initializes the persistent <see cref="Configuration" /> builder
+    /// using the default <see cref="IConfigurationPersister" />
+    /// </summary>
+    public PersistentConfigurationBuilder() :
+        this(new DefaultConfigurationPersister())
+    {
+    }
 
-        private readonly IConfigurationPersister _configurationPersister;
-
-        /// <summary>
-        /// Initializes the persistent <see cref="Configuration" /> builder
-        /// with an specific <see cref="IConfigurationPersister" />
-        /// </summary>
-        public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
+    /// <summary>
+    /// Returns the deserialized NHibernate <see cref="Configuration" />.
+    /// </summary>
+    /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+    /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+    public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    {
+        if (_logger.IsDebugEnabled)
         {
-            _configurationPersister = configurationPersister;
+            _logger.Debug("Building the Configuration.");
         }
 
-        /// <summary>
-        /// Initializes the persistent <see cref="Configuration" /> builder
-        /// using the default <see cref="IConfigurationPersister" />
-        /// </summary>
-        public PersistentConfigurationBuilder() :
-            this(new DefaultConfigurationPersister())
-        {
-        }
+        var filePath = GetFilePathFrom(facilityConfiguration);
+        var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
 
-        /// <summary>
-        /// Returns the deserialized NHibernate <see cref="Configuration" />.
-        /// </summary>
-        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-        public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        Configuration configuration;
+        if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
         {
             if (_logger.IsDebugEnabled)
             {
-                _logger.Debug("Building the Configuration.");
+                _logger.Debug("Configuration is either old or some of the dependencies have changed.");
             }
 
-            var filePath = GetFilePathFrom(facilityConfiguration);
-            var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
-
-            Configuration configuration;
-            if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
-            {
-                if (_logger.IsDebugEnabled)
-                {
-                    _logger.Debug("Configuration is either old or some of the dependencies have changed.");
-                }
-
-                configuration = base.GetConfiguration(facilityConfiguration);
-                _configurationPersister.WriteConfiguration(configuration, filePath);
-            }
-            else
-            {
-                configuration = _configurationPersister.ReadConfiguration(filePath);
-            }
-
-            return configuration;
+            configuration = base.GetConfiguration(facilityConfiguration);
+            _configurationPersister.WriteConfiguration(configuration, filePath);
         }
-
-        private static string GetFilePathFrom(IConfiguration facilityConfiguration)
+        else
         {
-            var filename = facilityConfiguration.Attributes["fileName"] ??
-                           facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
-
-            return StripInvalidCharacters(filename);
+            configuration = _configurationPersister.ReadConfiguration(filePath);
         }
 
-        private static string StripInvalidCharacters(string input)
+        return configuration;
+    }
+
+    private static string GetFilePathFrom(IConfiguration facilityConfiguration)
+    {
+        var filename = facilityConfiguration.Attributes["fileName"] ??
+                       facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
+
+        return StripInvalidCharacters(filename);
+    }
+
+    private static string StripInvalidCharacters(string input)
+    {
+        return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
+    }
+
+    private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
+    {
+        var list = new List<string>();
+
+        var assemblies = facilityConfiguration.Children["assemblies"];
+        if (assemblies != null)
         {
-            return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
+            foreach (var assembly in assemblies.Children)
+            {
+                list.Add(assembly.Value + ".dll");
+            }
         }
 
-        private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
+        var dependsOn = facilityConfiguration.Children["dependsOn"];
+        if (dependsOn != null)
         {
-            var list = new List<string>();
-
-            var assemblies = facilityConfiguration.Children["assemblies"];
-            if (assemblies != null)
+            foreach (var on in dependsOn.Children)
             {
-                foreach (var assembly in assemblies.Children)
-                {
-                    list.Add(assembly.Value + ".dll");
-                }
+                list.Add(on.Value);
             }
-
-            var dependsOn = facilityConfiguration.Children["dependsOn"];
-            if (dependsOn != null)
-            {
-                foreach (var on in dependsOn.Children)
-                {
-                    list.Add(on.Value);
-                }
-            }
-
-            return list;
         }
+
+        return list;
     }
 }
