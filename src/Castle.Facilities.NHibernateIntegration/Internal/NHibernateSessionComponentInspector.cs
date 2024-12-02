@@ -42,7 +42,7 @@ namespace Castle.Facilities.NHibernateIntegration.Internal
 
                 var methods = model.Implementation
                                    .GetMethods(MethodBindingFlags)
-                                   .Where(m => m.IsDefined(typeof(NHibernateSessionRequiredAttribute), false))
+                                   .Where(static m => m.IsDefined(typeof(NHibernateSessionRequiredAttribute), false))
                                    .ToArray();
                 model.ExtendedProperties[Constants.Contributor_SessionComponentInspector_SessionRequiredMethods_PropertyName] = methods;
 
