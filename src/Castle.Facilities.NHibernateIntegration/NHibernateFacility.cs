@@ -715,7 +715,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             SessionFactoryConfigurations =
                 _facilityConfiguration.Children
-                                      .Select(configuration => new NHibernateFacilitySessionFactoryConfiguration(configuration));
+                                      .Select(static configuration => new NHibernateFacilitySessionFactoryConfiguration(configuration));
         }
     }
 
