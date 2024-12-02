@@ -18,8 +18,20 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
     {
-        private readonly object _sessionLock = new();
-        private readonly object _statelessSessionLock = new();
+        private readonly
+#if NET9_0_OR_GREATER
+            Lock
+#else
+            object
+#endif
+            _sessionLock = new();
+        private readonly
+#if NET9_0_OR_GREATER
+            Lock
+#else
+            object
+#endif
+            _statelessSessionLock = new();
 
         /// <summary>
         /// The <see cref="SessionDelegate" /> stacks slot name.
