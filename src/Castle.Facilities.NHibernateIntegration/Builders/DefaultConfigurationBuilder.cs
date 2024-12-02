@@ -106,7 +106,7 @@ namespace Castle.Facilities.NHibernateIntegration.Builders
 
             // Check if "NHibernate.Mapping.Attributes" assembly is referenced in targetAssembly.
             if (Array.Exists(referencedAssemblies,
-                             (AssemblyName assemblyName) =>
+                             static assemblyName =>
                              string.Equals(assemblyName.Name,
                                            NHibernateMappingAttributesAssemblyName,
                                            StringComparison.Ordinal)))
