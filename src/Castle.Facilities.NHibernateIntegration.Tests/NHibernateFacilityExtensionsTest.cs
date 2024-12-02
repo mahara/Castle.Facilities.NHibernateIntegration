@@ -47,7 +47,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
 
             _container.AddNHibernateFacility<NHibernateFacility>(
                 microsoftConfiguration,
-                f => f.ConfigurationBuilder<DefaultConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<DefaultConfigurationBuilder>());
         }
 
         protected override void OnTearDown()
