@@ -737,7 +737,7 @@ namespace Castle.Facilities.NHibernateIntegration
                                       sessionFactoriesNode.Children :       // <sessionFactories><sessionFactory>...</sessionFactory></sessionFactories>
                                       _facilityConfiguration.Children;      // <sessionFactory>...</sessionFactory>
 
-            SessionFactoryConfigurations = sessionFactoryNodes.Select(configuration => new NHibernateFacilitySessionFactoryConfiguration(configuration));
+            SessionFactoryConfigurations = sessionFactoryNodes.Select(static configuration => new NHibernateFacilitySessionFactoryConfiguration(configuration));
         }
     }
 
