@@ -575,7 +575,7 @@ namespace Castle.Facilities.NHibernateIntegration
         {
             SessionFactoryFacilityConfigurations =
                 _configuration!.Children
-                               .Select(configuration => new NHibernateSessionFactoryFacilityConfiguration(configuration));
+                               .Select(static configuration => new NHibernateSessionFactoryFacilityConfiguration(configuration));
         }
 
         public Type GetSessionStoreType()
