@@ -55,7 +55,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
         {
             //_localSession = new AsyncLocalSessionStore();
             _localSession = new AsyncLocal<Wrapper>(
-                (args) =>
+                static (args) =>
                 {
                     Console.WriteLine($"Changed from '{args.PreviousValue}' to '{args.CurrentValue}' (thread context changed: {args.ThreadContextChanged}).");
                 });

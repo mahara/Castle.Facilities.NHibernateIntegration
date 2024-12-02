@@ -37,7 +37,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
             Assert.That(container.Resolve<IConfigurationBuilder>().GetType(), Is.EqualTo(typeof(DummyConfigurationBuilder)));
         }
@@ -64,7 +64,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
@@ -85,7 +85,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             // and then finally change it to DummySessionStore.
             // The latest session store set should be DummySessionStore.
             container.AddFacility<NHibernateFacility>(
-                f =>
+                static f =>
                 f.IsWeb()
 #if NETFRAMEWORK
                  .SessionStore<LogicalCallContextSessionStore>()
@@ -107,7 +107,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             container.AddFacility<AutoTxFacility>();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.IsWeb().ConfigurationBuilder<DummyConfigurationBuilder>());
+                static f => f.IsWeb().ConfigurationBuilder<DummyConfigurationBuilder>());
 
             var sessionStore = container.Resolve<ISessionStore>();
 
@@ -120,7 +120,7 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Registration
             var container = new WindsorContainer();
 
             container.AddFacility<NHibernateFacility>(
-                f => f.ConfigurationBuilder<TestConfigurationBuilder>());
+                static f => f.ConfigurationBuilder<TestConfigurationBuilder>());
 
             var sessionManager = container.Resolve<ISessionManager>();
 

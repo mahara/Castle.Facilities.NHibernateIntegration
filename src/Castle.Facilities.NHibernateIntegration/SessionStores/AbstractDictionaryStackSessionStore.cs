@@ -18,7 +18,13 @@ namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
     public abstract class AbstractDictionaryStackSessionStore : AbstractSessionStore
     {
-        private readonly object _lock = new();
+        private readonly
+#if NET9_0_OR_GREATER
+            Lock
+#else
+            object
+#endif
+            _lock = new();
 
         /// <summary>
         /// The <see cref="SessionDelegate" /> storage key.
