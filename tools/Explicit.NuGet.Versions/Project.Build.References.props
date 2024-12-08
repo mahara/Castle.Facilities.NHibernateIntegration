@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Drawing.Common" />
+    <PackageReference Include="Microsoft.Win32.SystemEvents" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net9.0' OR '$(TargetFramework)' == 'net8.0'">
   </ItemGroup>

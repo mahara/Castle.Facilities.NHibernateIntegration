@@ -13,6 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="ProDotNetZip" />
+    <PackageReference Include="System.Security.Permissions" />
+    <PackageReference Include="System.Text.Encoding.CodePages" />
+    <PackageReference Include="System.Windows.Extensions" />
   </ItemGroup>
 
 </Project>

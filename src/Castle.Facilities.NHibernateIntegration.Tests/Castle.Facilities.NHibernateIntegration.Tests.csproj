@@ -21,7 +21,6 @@
     <PackageReference Include="LiquidTestReports.Markdown" />
     <PackageReference Include="Microsoft.Data.SqlClient" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
-    <PackageReference Include="Microsoft.TestPlatform.ObjectModel" />
     <PackageReference Include="Moq" />
     <PackageReference Include="NUnit" />
     <PackageReference Include="NUnit.Analyzers">

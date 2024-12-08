@@ -107,11 +107,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--
-      https://andrewlock.net/using-reference-assemblies-to-build-net-framework-libararies-on-linux-without-mono/
-    -->
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" />
-
     <PackageReference Include="CSharpIsNullAnalyzer">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -121,6 +116,11 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <PackageReference Include="IndexRange" />
+    <!--
+      https://github.com/Microsoft/dotnet/tree/main/releases/reference-assemblies
+      https://andrewlock.net/using-reference-assemblies-to-build-net-framework-libararies-on-linux-without-mono/
+    -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" />
     <PackageReference Include="Nullable">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
