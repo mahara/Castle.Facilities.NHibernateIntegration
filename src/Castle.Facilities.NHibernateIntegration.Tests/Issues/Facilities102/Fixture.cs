@@ -14,34 +14,35 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102;
-
 using NHibernate;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class Fixture : IssueTestCase
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities102
 {
-    [Test]
-    public void HasAliassedSessionHasFlushModeSet()
+    [TestFixture]
+    public class Fixture : IssueTestCase
     {
-        var manager = Container.Resolve<ISessionManager>();
-        var previous = manager.DefaultFlushMode;
-        manager.DefaultFlushMode = (FlushMode) 100;
-        var session = manager.OpenSession("intercepted");
-        Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
-        manager.DefaultFlushMode = previous;
-    }
+        [Test]
+        public void HasAliassedSessionHasFlushModeSet()
+        {
+            var manager = Container.Resolve<ISessionManager>();
+            var previous = manager.DefaultFlushMode;
+            manager.DefaultFlushMode = (FlushMode) 100;
+            var session = manager.OpenSession("intercepted");
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
+            manager.DefaultFlushMode = previous;
+        }
 
-    [Test]
-    public void SessionHasFlushModeSet()
-    {
-        var manager = Container.Resolve<ISessionManager>();
-        var previous = manager.DefaultFlushMode;
-        manager.DefaultFlushMode = (FlushMode) 100;
-        var session = manager.OpenSession();
-        Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
-        manager.DefaultFlushMode = previous;
+        [Test]
+        public void SessionHasFlushModeSet()
+        {
+            var manager = Container.Resolve<ISessionManager>();
+            var previous = manager.DefaultFlushMode;
+            manager.DefaultFlushMode = (FlushMode) 100;
+            var session = manager.OpenSession();
+            Assert.That(session.FlushMode, Is.EqualTo(manager.DefaultFlushMode));
+            manager.DefaultFlushMode = previous;
+        }
     }
 }

@@ -15,6 +15,3 @@
 #endregion
 
 [assembly: CLSCompliant(true)]
-
-
-

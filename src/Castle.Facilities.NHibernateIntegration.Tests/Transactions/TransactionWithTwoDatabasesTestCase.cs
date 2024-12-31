@@ -14,117 +14,118 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
-
 using Castle.MicroKernel.Registration;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class TransactionWithTwoDatabasesTestCase : AbstractNHibernateTestCase
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    protected override string ConfigurationFile =>
-        "Transactions/TwoDatabaseConfiguration.xml";
-
-    protected override void ConfigureContainer()
+    [TestFixture]
+    public class TransactionWithTwoDatabasesTestCase : AbstractNHibernateTestCase
     {
-        Container.Register(Component.For<RootService>().Named("root"));
-        Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
-        Container.Register(Component.For<SecondDao>().Named("myseconddao"));
-        Container.Register(Component.For<OrderDao>().Named("myorderdao"));
-    }
+        protected override string ConfigurationFile =>
+            "Transactions/TwoDatabaseConfiguration.xml";
 
-    [Test]
-    public void SuccessfulSituationWithTwoDatabases()
-    {
-        var service = Container.Resolve<RootService>();
-        var orderDao = Container.Resolve<OrderDao>("myorderdao");
-
-        service.TwoDbOperationCreate(false);
-
-        var blogs = service.FindAll(typeof(Blog));
-        var blogItems = service.FindAll(typeof(BlogItem));
-        var orders = orderDao.FindAll(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogItems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Has.Length.EqualTo(1));
-        Assert.That(blogItems, Has.Length.EqualTo(1));
-        Assert.That(orders, Has.Length.EqualTo(1));
-    }
-
-    [Test]
-    public void ExceptionOnEndWithTwoDatabases()
-    {
-        var service = Container.Resolve<RootService>();
-        var orderDao = Container.Resolve<OrderDao>("myorderdao");
-
-        try
+        protected override void ConfigureContainer()
         {
-            service.TwoDbOperationCreate(true);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
+            Container.Register(Component.For<RootService>().Named("root"));
+            Container.Register(Component.For<FirstDao>().Named("myfirstdao"));
+            Container.Register(Component.For<SecondDao>().Named("myseconddao"));
+            Container.Register(Component.For<OrderDao>().Named("myorderdao"));
         }
 
-        var blogs = service.FindAll(typeof(Blog));
-        var blogitems = service.FindAll(typeof(BlogItem));
-        var orders = orderDao.FindAll(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogitems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Is.Empty);
-        Assert.That(blogitems, Is.Empty);
-        Assert.That(orders, Is.Empty);
-    }
-
-    [Test]
-    public void SuccessfulSituationWithTwoDatabasesStateless()
-    {
-        var service = Container.Resolve<RootService>();
-        var orderDao = Container.Resolve<OrderDao>("myorderdao");
-
-        service.TwoDbOperationCreateStateless(false);
-
-        var blogs = service.FindAllStateless(typeof(Blog));
-        var blogItems = service.FindAllStateless(typeof(BlogItem));
-        var orders = orderDao.FindAllStateless(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogItems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Has.Length.EqualTo(1));
-        Assert.That(blogItems, Has.Length.EqualTo(1));
-        Assert.That(orders, Has.Length.EqualTo(1));
-    }
-
-    [Test]
-    public void ExceptionOnEndWithTwoDatabasesStateless()
-    {
-        var service = Container.Resolve<RootService>();
-        var orderDao = Container.Resolve<OrderDao>("myorderdao");
-
-        try
+        [Test]
+        public void SuccessfulSituationWithTwoDatabases()
         {
-            service.TwoDbOperationCreateStateless(true);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
+            var service = Container.Resolve<RootService>();
+            var orderDao = Container.Resolve<OrderDao>("myorderdao");
+
+            service.TwoDbOperationCreate(false);
+
+            var blogs = service.FindAll(typeof(Blog));
+            var blogItems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogItems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
-        var blogs = service.FindAllStateless(typeof(Blog));
-        var blogItems = service.FindAllStateless(typeof(BlogItem));
-        var orders = orderDao.FindAllStateless(typeof(Order));
+        [Test]
+        public void ExceptionOnEndWithTwoDatabases()
+        {
+            var service = Container.Resolve<RootService>();
+            var orderDao = Container.Resolve<OrderDao>("myorderdao");
 
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogItems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Is.Empty);
-        Assert.That(blogItems, Is.Empty);
-        Assert.That(orders, Is.Empty);
+            try
+            {
+                service.TwoDbOperationCreate(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
+            Assert.That(orders, Is.Empty);
+        }
+
+        [Test]
+        public void SuccessfulSituationWithTwoDatabasesStateless()
+        {
+            var service = Container.Resolve<RootService>();
+            var orderDao = Container.Resolve<OrderDao>("myorderdao");
+
+            service.TwoDbOperationCreateStateless(false);
+
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogItems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogItems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
+        }
+
+        [Test]
+        public void ExceptionOnEndWithTwoDatabasesStateless()
+        {
+            var service = Container.Resolve<RootService>();
+            var orderDao = Container.Resolve<OrderDao>("myorderdao");
+
+            try
+            {
+                service.TwoDbOperationCreateStateless(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogItems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogItems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogItems, Is.Empty);
+            Assert.That(orders, Is.Empty);
+        }
     }
 }

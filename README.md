@@ -23,6 +23,3 @@ But due to NHibernate's features, you can change the database server to any of y
 
 2. Modify the connection information properties in "Castle.Facilities.NHibernateIntegration.Tests" project to use the databases created.
    See "App.config" and all "\*Configuration\*.xml" files for full details.
-
-
-

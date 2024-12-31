@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration;
-
 using System.Data;
 
 using Castle.Facilities.NHibernateIntegration.Internal;
@@ -28,360 +26,363 @@ using NHibernate;
 
 using ITransaction = Castle.Services.Transaction.ITransaction;
 
-/// <summary>
-/// Default session manager implementation.
-/// </summary>
-public class DefaultSessionManager : MarshalByRefObject, ISessionManager
+namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Default <see cref="IInterceptor" /> component key.
+    /// Default session manager implementation.
     /// </summary>
-    public const string InterceptorKey = "nhibernate.session.interceptor";
-
-    /// <summary>
-    /// Format string for <see cref="IInterceptor" /> component key.
-    /// </summary>
-    public const string InterceptorKeyFormat = "nhibernate.session.interceptor.{0}";
-
-    internal const string SessionEnlistedContextKey = "nh.session.enlisted";
-    internal const string StatelessSessionEnlistedContextKey = "nh.statelessSession.enlisted";
-
-    private readonly IKernel _kernel;
-    private readonly ISessionStore _sessionStore;
-    private readonly ISessionFactoryResolver _sessionFactoryResolver;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultSessionManager" /> class.
-    /// </summary>
-    /// <param name="kernel">The <see cref="IKernel" />.</param>
-    /// <param name="sessionStore">The <see cref="ISessionStore" />.</param>
-    /// <param name="sessionFactoryResolver">The <see cref="ISessionFactoryResolver" />.</param>
-    public DefaultSessionManager(IKernel kernel,
-                                 ISessionStore sessionStore,
-                                 ISessionFactoryResolver sessionFactoryResolver)
+    public class DefaultSessionManager : MarshalByRefObject, ISessionManager
     {
-        _kernel = kernel;
-        _sessionStore = sessionStore;
-        _sessionFactoryResolver = sessionFactoryResolver;
-    }
+        /// <summary>
+        /// Default <see cref="IInterceptor" /> component key.
+        /// </summary>
+        public const string InterceptorKey = "nhibernate.session.interceptor";
 
-    /// <summary>
-    /// The default <see cref="ISession" /> flush mode.
-    /// </summary>
-    public FlushMode DefaultFlushMode { get; set; } =
-        FlushMode.Auto;
+        /// <summary>
+        /// Format string for <see cref="IInterceptor" /> component key.
+        /// </summary>
+        public const string InterceptorKeyFormat = "nhibernate.session.interceptor.{0}";
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="ISession" /> instance.
-    /// </summary>
-    /// <returns></returns>
-    public ISession OpenSession()
-    {
-        return OpenSession(Constants.DefaultAlias);
-    }
+        internal const string SessionEnlistedContextKey = "nh.session.enlisted";
+        internal const string StatelessSessionEnlistedContextKey = "nh.statelessSession.enlisted";
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="ISession" /> instance for the given connection alias.
-    /// </summary>
-    /// <param name="alias"></param>
-    /// <returns></returns>
-    public ISession OpenSession(string? alias)
-    {
-#if NET8_0_OR_GREATER
-        ArgumentNullException.ThrowIfNull(alias);
-#else
-        if (alias is null)
+        private readonly IKernel _kernel;
+        private readonly ISessionStore _sessionStore;
+        private readonly ISessionFactoryResolver _sessionFactoryResolver;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultSessionManager" /> class.
+        /// </summary>
+        /// <param name="kernel">The <see cref="IKernel" />.</param>
+        /// <param name="sessionStore">The <see cref="ISessionStore" />.</param>
+        /// <param name="sessionFactoryResolver">The <see cref="ISessionFactoryResolver" />.</param>
+        public DefaultSessionManager(IKernel kernel,
+                                     ISessionStore sessionStore,
+                                     ISessionFactoryResolver sessionFactoryResolver)
         {
-            throw new ArgumentNullException(nameof(alias));
+            _kernel = kernel;
+            _sessionStore = sessionStore;
+            _sessionFactoryResolver = sessionFactoryResolver;
         }
+
+        /// <summary>
+        /// The default <see cref="ISession" /> flush mode.
+        /// </summary>
+        public FlushMode DefaultFlushMode { get; set; } =
+            FlushMode.Auto;
+
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="ISession" /> instance.
+        /// </summary>
+        /// <returns></returns>
+        public ISession OpenSession()
+        {
+            return OpenSession(Constants.DefaultAlias);
+        }
+
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="ISession" /> instance for the given connection alias.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public ISession OpenSession(string? alias)
+        {
+#if NET8_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(alias);
+#else
+            if (alias is null)
+            {
+                throw new ArgumentNullException(nameof(alias));
+            }
 #endif
 
-        var transaction = GetCurrentTransaction();
+            var transaction = GetCurrentTransaction();
 
-        var wrappedSession = _sessionStore.FindCompatibleSession(alias);
-        if (wrappedSession is null)
-        {
-            var session = CreateSession(alias);
+            var wrappedSession = _sessionStore.FindCompatibleSession(alias);
+            if (wrappedSession is null)
+            {
+                var session = CreateSession(alias);
 
-            wrappedSession = WrapSession(transaction is not null, session);
-            EnlistIfNecessary(true, transaction, wrappedSession);
-            _sessionStore.Store(alias, wrappedSession);
+                wrappedSession = WrapSession(transaction is not null, session);
+                EnlistIfNecessary(true, transaction, wrappedSession);
+                _sessionStore.Store(alias, wrappedSession);
+            }
+            else
+            {
+                EnlistIfNecessary(false, transaction, wrappedSession);
+                wrappedSession = WrapSession(true, wrappedSession.InnerSession);
+            }
+
+            return wrappedSession;
         }
-        else
+
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance.
+        /// </summary>
+        /// <returns></returns>
+        public IStatelessSession OpenStatelessSession()
         {
-            EnlistIfNecessary(false, transaction, wrappedSession);
-            wrappedSession = WrapSession(true, wrappedSession.InnerSession);
+            return OpenStatelessSession(Constants.DefaultAlias);
         }
 
-        return wrappedSession;
-    }
-
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance.
-    /// </summary>
-    /// <returns></returns>
-    public IStatelessSession OpenStatelessSession()
-    {
-        return OpenStatelessSession(Constants.DefaultAlias);
-    }
-
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance for the given connection alias.
-    /// </summary>
-    /// <param name="alias"></param>
-    /// <returns></returns>
-    public IStatelessSession OpenStatelessSession(string? alias)
-    {
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance for the given connection alias.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        public IStatelessSession OpenStatelessSession(string? alias)
+        {
 #if NET8_0_OR_GREATER
-        ArgumentNullException.ThrowIfNull(alias);
+            ArgumentNullException.ThrowIfNull(alias);
 #else
-        if (alias is null)
-        {
-            throw new ArgumentNullException(nameof(alias));
-        }
+            if (alias is null)
+            {
+                throw new ArgumentNullException(nameof(alias));
+            }
 #endif
 
-        var transaction = GetCurrentTransaction();
+            var transaction = GetCurrentTransaction();
 
-        var wrappedSession = _sessionStore.FindCompatibleStatelessSession(alias);
-        if (wrappedSession is null)
-        {
-            var session = CreateStatelessSession(alias);
-
-            wrappedSession = WrapStatelessSession(transaction is not null, session);
-            EnlistIfNecessary(true, transaction, wrappedSession);
-            _sessionStore.Store(alias, wrappedSession);
-        }
-        else
-        {
-            EnlistIfNecessary(false, transaction, wrappedSession);
-            wrappedSession = WrapStatelessSession(true, wrappedSession.InnerSession);
-        }
-
-        return wrappedSession;
-    }
-
-    /// <summary>
-    /// Enlists if necessary.
-    /// </summary>
-    /// <param name="weAreSessionOwner">if set to <c>true</c> [we are session owner].</param>
-    /// <param name="transaction">The transaction.</param>
-    /// <param name="session">The session.</param>
-    /// <returns></returns>
-    protected static bool EnlistIfNecessary(bool weAreSessionOwner,
-                                            ITransaction? transaction,
-                                            SessionDelegate session)
-    {
-        if (transaction is null)
-        {
-            return false;
-        }
-
-        bool shouldEnlist;
-
-        transaction.Context.TryGetValueAs(SessionEnlistedContextKey,
-                                          out IList<ISession>? list);
-        if (list is null)
-        {
-            list = [];
-
-            shouldEnlist = true;
-        }
-        else
-        {
-            shouldEnlist = true;
-
-            foreach (var s in list)
+            var wrappedSession = _sessionStore.FindCompatibleStatelessSession(alias);
+            if (wrappedSession is null)
             {
-                if (SessionDelegate.AreEqual(session, s))
-                {
-                    shouldEnlist = false;
+                var session = CreateStatelessSession(alias);
 
-                    break;
+                wrappedSession = WrapStatelessSession(transaction is not null, session);
+                EnlistIfNecessary(true, transaction, wrappedSession);
+                _sessionStore.Store(alias, wrappedSession);
+            }
+            else
+            {
+                EnlistIfNecessary(false, transaction, wrappedSession);
+                wrappedSession = WrapStatelessSession(true, wrappedSession.InnerSession);
+            }
+
+            return wrappedSession;
+        }
+
+        /// <summary>
+        /// Enlists if necessary.
+        /// </summary>
+        /// <param name="weAreSessionOwner">if set to <c>true</c> [we are session owner].</param>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        protected static bool EnlistIfNecessary(bool weAreSessionOwner,
+                                                ITransaction? transaction,
+                                                SessionDelegate session)
+        {
+            if (transaction is null)
+            {
+                return false;
+            }
+
+            bool shouldEnlist;
+
+            transaction.Context.TryGetValueAs(SessionEnlistedContextKey,
+                                              out IList<ISession>? list);
+            if (list is null)
+            {
+                list = [];
+
+                shouldEnlist = true;
+            }
+            else
+            {
+                shouldEnlist = true;
+
+                foreach (var s in list)
+                {
+                    if (SessionDelegate.AreEqual(session, s))
+                    {
+                        shouldEnlist = false;
+
+                        break;
+                    }
                 }
             }
-        }
 
-        if (shouldEnlist)
-        {
-            //
-            // NOTE:    SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
-            //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
-            //
-            var sessionTransaction = session.Transaction;
-            //var sessionTransaction = session.GetCurrentTransaction();
-            if (sessionTransaction is null || !sessionTransaction.IsActive)
+            if (shouldEnlist)
             {
-                transaction.Context[SessionEnlistedContextKey] = list;
-
-                var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
-                transaction.Enlist(new ResourceAdapter(session.BeginTransaction(level), transaction.IsAmbient));
-
-                list.Add(session);
-            }
-
-            if (weAreSessionOwner)
-            {
-                transaction.RegisterSynchronization(new SessionDisposeSynchronization(session));
-            }
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// Enlists if necessary.
-    /// </summary>
-    /// <param name="weAreSessionOwner">If set to <c>true</c> [we are session owner].</param>
-    /// <param name="transaction">The transaction.</param>
-    /// <param name="statelessSession">The stateless session.</param>
-    /// <returns></returns>
-    protected static bool EnlistIfNecessary(bool weAreSessionOwner,
-                                            ITransaction? transaction,
-                                            StatelessSessionDelegate statelessSession)
-    {
-        if (transaction is null)
-        {
-            return false;
-        }
-
-        bool shouldEnlist;
-
-        transaction.Context.TryGetValueAs(StatelessSessionEnlistedContextKey,
-                                          out IList<IStatelessSession>? list);
-        if (list is null)
-        {
-            list = [];
-
-            shouldEnlist = true;
-        }
-        else
-        {
-            shouldEnlist = true;
-
-            foreach (var s in list)
-            {
-                if (StatelessSessionDelegate.AreEqual(statelessSession, s))
+                //
+                // NOTE:    SessionDelegate.Transaction, with slightly-modified implementation of ISession.GetCurrentTransaction(),
+                //          is used here to workaround a mocking issue (in Facilities103 issue) of ISession.GetSessionImplementation().
+                //
+                var sessionTransaction = session.Transaction;
+                //var sessionTransaction = session.GetCurrentTransaction();
+                if (sessionTransaction is null || !sessionTransaction.IsActive)
                 {
-                    shouldEnlist = false;
+                    transaction.Context[SessionEnlistedContextKey] = list;
 
-                    break;
+                    var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
+                    transaction.Enlist(new ResourceAdapter(session.BeginTransaction(level), transaction.IsAmbient));
+
+                    list.Add(session);
+                }
+
+                if (weAreSessionOwner)
+                {
+                    transaction.RegisterSynchronization(new SessionDisposeSynchronization(session));
                 }
             }
+
+            return true;
         }
 
-        if (shouldEnlist)
+        /// <summary>
+        /// Enlists if necessary.
+        /// </summary>
+        /// <param name="weAreSessionOwner">If set to <c>true</c> [we are session owner].</param>
+        /// <param name="transaction">The transaction.</param>
+        /// <param name="statelessSession">The stateless session.</param>
+        /// <returns></returns>
+        protected static bool EnlistIfNecessary(bool weAreSessionOwner,
+                                                ITransaction? transaction,
+                                                StatelessSessionDelegate statelessSession)
         {
-            //
-            // NOTE:    StatelessSessionDelegate.Transaction, with slightly-modified implementation of IStatelessSession.GetCurrentTransaction(),
-            //          is used here to workaround a mocking issue (in Facilities103 issue) of IStatelessSession.GetSessionImplementation().
-            //
-            var sessionTransaction = statelessSession.Transaction;
-            //var sessionTransaction = statelessSession.GetCurrentTransaction();
-            if (sessionTransaction is null || !sessionTransaction.IsActive)
+            if (transaction is null)
             {
-                transaction.Context[StatelessSessionEnlistedContextKey] = list;
-
-                var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
-                transaction.Enlist(new ResourceAdapter(statelessSession.BeginTransaction(level), transaction.IsAmbient));
-
-                list.Add(statelessSession);
+                return false;
             }
 
-            if (weAreSessionOwner)
+            bool shouldEnlist;
+
+            transaction.Context.TryGetValueAs(StatelessSessionEnlistedContextKey,
+                                              out IList<IStatelessSession>? list);
+            if (list is null)
             {
-                transaction.RegisterSynchronization(new StatelessSessionDisposeSynchronization(statelessSession));
+                list = [];
+
+                shouldEnlist = true;
             }
+            else
+            {
+                shouldEnlist = true;
+
+                foreach (var s in list)
+                {
+                    if (StatelessSessionDelegate.AreEqual(statelessSession, s))
+                    {
+                        shouldEnlist = false;
+
+                        break;
+                    }
+                }
+            }
+
+            if (shouldEnlist)
+            {
+                //
+                // NOTE:    StatelessSessionDelegate.Transaction, with slightly-modified implementation of IStatelessSession.GetCurrentTransaction(),
+                //          is used here to workaround a mocking issue (in Facilities103 issue) of IStatelessSession.GetSessionImplementation().
+                //
+                var sessionTransaction = statelessSession.Transaction;
+                //var sessionTransaction = statelessSession.GetCurrentTransaction();
+                if (sessionTransaction is null || !sessionTransaction.IsActive)
+                {
+                    transaction.Context[StatelessSessionEnlistedContextKey] = list;
+
+                    var level = TranslateTransactionIsolationLevel(transaction.IsolationLevel);
+                    transaction.Enlist(new ResourceAdapter(statelessSession.BeginTransaction(level), transaction.IsAmbient));
+
+                    list.Add(statelessSession);
+                }
+
+                if (weAreSessionOwner)
+                {
+                    transaction.RegisterSynchronization(new StatelessSessionDisposeSynchronization(statelessSession));
+                }
+            }
+
+            return true;
         }
 
-        return true;
-    }
-
-    private static IsolationLevel TranslateTransactionIsolationLevel(
-        System.Transactions.IsolationLevel isolationLevel)
-    {
-        return isolationLevel switch
+        private static IsolationLevel TranslateTransactionIsolationLevel(
+            System.Transactions.IsolationLevel isolationLevel)
         {
-            System.Transactions.IsolationLevel.Serializable => IsolationLevel.Serializable,
-            System.Transactions.IsolationLevel.RepeatableRead => IsolationLevel.RepeatableRead,
-            System.Transactions.IsolationLevel.ReadCommitted => IsolationLevel.ReadCommitted,
-            System.Transactions.IsolationLevel.ReadUncommitted => IsolationLevel.ReadUncommitted,
-            System.Transactions.IsolationLevel.Snapshot => IsolationLevel.Snapshot,
-            System.Transactions.IsolationLevel.Chaos => IsolationLevel.Chaos,
-            _ => IsolationLevel.Unspecified,
-        };
-    }
-
-    private ITransaction? GetCurrentTransaction()
-    {
-        var transactionManager = _kernel.Resolve<ITransactionManager>();
-        return transactionManager.CurrentTransaction;
-    }
-
-    private SessionDelegate WrapSession(bool hasTransaction, ISession session)
-    {
-        return new SessionDelegate(session, _sessionStore, !hasTransaction);
-    }
-
-    private StatelessSessionDelegate WrapStatelessSession(bool hasTransaction, IStatelessSession statelessSession)
-    {
-        return new StatelessSessionDelegate(statelessSession, _sessionStore, !hasTransaction);
-    }
-
-    private ISession CreateSession(string alias)
-    {
-        var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
-
-        if (sessionFactory is null)
-        {
-            throw new FacilityException(
-                $"No '{nameof(ISessionFactory)}' implementation " +
-                $"associated with the given '{nameof(ISession)}' alias: '{alias}'.");
+            return isolationLevel switch
+            {
+                System.Transactions.IsolationLevel.Serializable => IsolationLevel.Serializable,
+                System.Transactions.IsolationLevel.RepeatableRead => IsolationLevel.RepeatableRead,
+                System.Transactions.IsolationLevel.ReadCommitted => IsolationLevel.ReadCommitted,
+                System.Transactions.IsolationLevel.ReadUncommitted => IsolationLevel.ReadUncommitted,
+                System.Transactions.IsolationLevel.Snapshot => IsolationLevel.Snapshot,
+                System.Transactions.IsolationLevel.Chaos => IsolationLevel.Chaos,
+                _ => IsolationLevel.Unspecified,
+            };
         }
 
-        ISession session;
-
-        var aliasedInterceptorId = string.Format(InterceptorKeyFormat, alias);
-
-        if (_kernel.HasComponent(aliasedInterceptorId))
+        private ITransaction? GetCurrentTransaction()
         {
-            var interceptor = _kernel.Resolve<IInterceptor>(aliasedInterceptorId);
-
-            session = sessionFactory.WithOptions()
-                                    .Interceptor(interceptor)
-                                    .OpenSession();
-        }
-        else if (_kernel.HasComponent(InterceptorKey))
-        {
-            var interceptor = _kernel.Resolve<IInterceptor>(InterceptorKey);
-
-            session = sessionFactory.WithOptions()
-                                    .Interceptor(interceptor)
-                                    .OpenSession();
-        }
-        else
-        {
-            session = sessionFactory.OpenSession();
+            var transactionManager = _kernel.Resolve<ITransactionManager>();
+            return transactionManager.CurrentTransaction;
         }
 
-        session.FlushMode = DefaultFlushMode;
-
-        return session;
-    }
-
-    private IStatelessSession CreateStatelessSession(string alias)
-    {
-        var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
-
-        if (sessionFactory is null)
+        private SessionDelegate WrapSession(bool hasTransaction, ISession session)
         {
-            throw new FacilityException(
-                $"No '{nameof(ISessionFactory)}' implementation " +
-                $"associated with the given '{nameof(IStatelessSession)}' alias: '{alias}'.");
+            return new SessionDelegate(session, _sessionStore, !hasTransaction);
         }
 
-        var session = sessionFactory.OpenStatelessSession();
+        private StatelessSessionDelegate WrapStatelessSession(bool hasTransaction, IStatelessSession statelessSession)
+        {
+            return new StatelessSessionDelegate(statelessSession, _sessionStore, !hasTransaction);
+        }
 
-        return session;
+        private ISession CreateSession(string alias)
+        {
+            var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
+
+            if (sessionFactory is null)
+            {
+                throw new FacilityException(
+                    $"No '{nameof(ISessionFactory)}' implementation " +
+                    $"associated with the given '{nameof(ISession)}' alias: '{alias}'.");
+            }
+
+            ISession session;
+
+            var aliasedInterceptorId = string.Format(InterceptorKeyFormat, alias);
+
+            if (_kernel.HasComponent(aliasedInterceptorId))
+            {
+                var interceptor = _kernel.Resolve<IInterceptor>(aliasedInterceptorId);
+
+                session = sessionFactory.WithOptions()
+                                        .Interceptor(interceptor)
+                                        .OpenSession();
+            }
+            else if (_kernel.HasComponent(InterceptorKey))
+            {
+                var interceptor = _kernel.Resolve<IInterceptor>(InterceptorKey);
+
+                session = sessionFactory.WithOptions()
+                                        .Interceptor(interceptor)
+                                        .OpenSession();
+            }
+            else
+            {
+                session = sessionFactory.OpenSession();
+            }
+
+            session.FlushMode = DefaultFlushMode;
+
+            return session;
+        }
+
+        private IStatelessSession CreateStatelessSession(string alias)
+        {
+            var sessionFactory = _sessionFactoryResolver.GetSessionFactory(alias);
+
+            if (sessionFactory is null)
+            {
+                throw new FacilityException(
+                    $"No '{nameof(ISessionFactory)}' implementation " +
+                    $"associated with the given '{nameof(IStatelessSession)}' alias: '{alias}'.");
+            }
+
+            var session = sessionFactory.OpenStatelessSession();
+
+            return session;
+        }
     }
 }

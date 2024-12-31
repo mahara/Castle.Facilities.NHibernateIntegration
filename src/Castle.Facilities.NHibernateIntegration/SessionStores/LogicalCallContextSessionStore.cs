@@ -14,60 +14,62 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.SessionStores;
-
 #if NETFRAMEWORK
 using System.Runtime.Remoting.Messaging;
-
-/// <summary>
-/// An implementation of <see cref="ISessionStore" />
-/// which relies on logical <see cref="CallContext" />.
-/// </summary>
-#else
-
-/// <summary>
-/// An implementation of <see cref="ISessionStore" />
-/// which relies on .NET Framework logical CallContext.
-/// </summary>
-/// <exception cref="PlatformNotSupportedException">
-/// This is not supported anymore in .NET.
-/// </exception>
 #endif
-public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
+
+namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-    protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
-    {
 #if NETFRAMEWORK
-        return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionSlotKey);
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on logical <see cref="CallContext" />.
+    /// </summary>
 #else
-        throw new PlatformNotSupportedException();
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on .NET Framework logical CallContext.
+    /// </summary>
+    /// <exception cref="PlatformNotSupportedException">
+    /// This is not supported anymore in .NET.
+    /// </exception>
 #endif
-    }
+    public class LogicalCallContextSessionStore : AbstractDictionaryStackSessionStore
+    {
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
+        {
+#if NETFRAMEWORK
+            return (IDictionary<string, Stack<SessionDelegate>>) CallContext.LogicalGetData(SessionSlotKey);
+#else
+            throw new PlatformNotSupportedException();
+#endif
+        }
 
-    protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
-    {
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
+        {
 #if NETFRAMEWORK
-        CallContext.LogicalSetData(SessionSlotKey, dictionary);
+            CallContext.LogicalSetData(SessionSlotKey, dictionary);
 #else
-        throw new PlatformNotSupportedException();
+            throw new PlatformNotSupportedException();
 #endif
-    }
+        }
 
-    protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
-    {
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
+        {
 #if NETFRAMEWORK
-        return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionSlotKey);
+            return (IDictionary<string, Stack<StatelessSessionDelegate>>) CallContext.LogicalGetData(StatelessSessionSlotKey);
 #else
-        throw new PlatformNotSupportedException();
+            throw new PlatformNotSupportedException();
 #endif
-    }
+        }
 
-    protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
-    {
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
+        {
 #if NETFRAMEWORK
-        CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
+            CallContext.LogicalSetData(StatelessSessionSlotKey, dictionary);
 #else
-        throw new PlatformNotSupportedException();
+            throw new PlatformNotSupportedException();
 #endif
+        }
     }
 }

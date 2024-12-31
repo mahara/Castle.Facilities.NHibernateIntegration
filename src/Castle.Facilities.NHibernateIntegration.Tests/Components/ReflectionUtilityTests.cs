@@ -14,44 +14,45 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Components;
-
 using Castle.Facilities.NHibernateIntegration.Util;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class ReflectionUtilityTests
+namespace Castle.Facilities.NHibernateIntegration.Tests.Components
 {
-    private enum MyEnum
+    [TestFixture]
+    public class ReflectionUtilityTests
     {
-    }
-
-    [Test]
-    public void CanGetPropertiesAsDictionary()
-    {
-        var blog = new Blog
+        private enum MyEnum
         {
-            Name = "osman",
-            Items =
-            [
-                new() { }
-            ]
-        };
+        }
 
-        var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);
-        Assert.That(dictionary.ContainsKey("Name"));
-        Assert.That(dictionary.ContainsKey("Id"));
-        Assert.That(dictionary.ContainsKey("Items"));
-        Assert.That(dictionary["Name"], Is.EqualTo("osman"));
-    }
+        [Test]
+        public void CanGetPropertiesAsDictionary()
+        {
+            var blog = new Blog
+            {
+                Name = "osman",
+                Items =
+                [
+                    new() { }
+                ]
+            };
 
-    [Test]
-    public void SimpleTypeReturnsTrueForEnumStringDatetimeAndPrimitiveTypes()
-    {
-        Assert.That(ReflectionUtility.IsSimpleType(typeof(string)), Is.True);
-        Assert.That(ReflectionUtility.IsSimpleType(typeof(DateTime)), Is.True);
-        Assert.That(ReflectionUtility.IsSimpleType(typeof(MyEnum)), Is.True);
-        Assert.That(ReflectionUtility.IsSimpleType(typeof(char)), Is.True);
+            var dictionary = ReflectionUtility.GetPropertiesDictionary(blog);
+            Assert.That(dictionary.ContainsKey("Name"));
+            Assert.That(dictionary.ContainsKey("Id"));
+            Assert.That(dictionary.ContainsKey("Items"));
+            Assert.That(dictionary["Name"], Is.EqualTo("osman"));
+        }
+
+        [Test]
+        public void SimpleTypeReturnsTrueForEnumStringDatetimeAndPrimitiveTypes()
+        {
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(string)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(DateTime)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(MyEnum)), Is.True);
+            Assert.That(ReflectionUtility.IsSimpleType(typeof(char)), Is.True);
+        }
     }
 }

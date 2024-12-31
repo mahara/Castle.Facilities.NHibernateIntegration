@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests;
-
 using Castle.Core.Resource;
 using Castle.Facilities.AutoTx;
 using Castle.Windsor;
@@ -26,72 +24,75 @@ using NHibernate.Tool.hbm2ddl;
 
 using NUnit.Framework;
 
-public abstract class AbstractNHibernateTestCase
+namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    protected IWindsorContainer Container = null!;
-
-    public AbstractNHibernateTestCase()
+    public abstract class AbstractNHibernateTestCase
     {
-    }
+        protected IWindsorContainer Container = null!;
 
-    protected virtual string ConfigurationFile =>
-        "DefaultConfiguration.xml";
-
-    [SetUp]
-    public virtual void SetUp()
-    {
-        Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
-
-        Container.AddFacility<AutoTxFacility>();
-
-        ConfigureContainer();
-        CreateDatabaseSchemas();
-        OnSetUp();
-    }
-
-    protected string GetContainerFile()
-    {
-        return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
-    }
-
-    protected virtual void ConfigureContainer()
-    {
-    }
-
-    protected virtual void CreateDatabaseSchemas()
-    {
-        var cfgs = Container.ResolveAll<Configuration>();
-        foreach (var cfg in cfgs)
+        public AbstractNHibernateTestCase()
         {
-            var export = new SchemaExport(cfg);
-            export.Create(false, true);
         }
-    }
 
-    protected virtual void OnSetUp()
-    {
-    }
+        protected virtual string ConfigurationFile =>
+            "DefaultConfiguration.xml";
 
-    [TearDown]
-    public virtual void TearDown()
-    {
-        OnTearDown();
-        DropDatabaseSchemas();
-        Container.Dispose();
-        Container = null!;
-    }
-
-    protected virtual void OnTearDown()
-    {
-    }
-
-    protected virtual void DropDatabaseSchemas()
-    {
-        var cfgs = Container.ResolveAll<Configuration>();
-        foreach (var cfg in cfgs)
+        [SetUp]
+        public virtual void SetUp()
         {
-            var export = new SchemaExport(cfg);
-            export.Drop(false, true);
+            Container = new WindsorContainer(new XmlInterpreter(new AssemblyResource(GetContainerFile())));
+
+            Container.AddFacility<AutoTxFacility>();
+
+            ConfigureContainer();
+            CreateDatabaseSchemas();
+            OnSetUp();
+        }
+
+        protected string GetContainerFile()
+        {
+            return "Castle.Facilities.NHibernateIntegration.Tests/" + ConfigurationFile;
+        }
+
+        protected virtual void ConfigureContainer()
+        {
+        }
+
+        protected virtual void CreateDatabaseSchemas()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Create(false, true);
+            }
+        }
+
+        protected virtual void OnSetUp()
+        {
+        }
+
+        [TearDown]
+        public virtual void TearDown()
+        {
+            OnTearDown();
+            DropDatabaseSchemas();
+            Container.Dispose();
+            Container = null!;
+        }
+
+        protected virtual void OnTearDown()
+        {
+        }
+
+        protected virtual void DropDatabaseSchemas()
+        {
+            var cfgs = Container.ResolveAll<Configuration>();
+            foreach (var cfg in cfgs)
+            {
+                var export = new SchemaExport(cfg);
+                export.Drop(false, true);
+            }
         }
     }
 }

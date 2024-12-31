@@ -92,6 +92,3 @@ Breaking Changes:
 - Upgraded [Castle.Windsor] version to 3.3.0
 - Upgraded [Castle.Services.Transaction] version to 3.3.0
 - Upgraded [Castle.Facilities.AutoTx] version to 3.3.0
-
-
-

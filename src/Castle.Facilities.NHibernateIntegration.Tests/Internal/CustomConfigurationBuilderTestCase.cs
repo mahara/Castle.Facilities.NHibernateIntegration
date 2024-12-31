@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Internals;
-
 using System.Configuration;
 
 using Castle.Core.Configuration;
@@ -29,97 +27,100 @@ using NUnit.Framework;
 
 using Configuration = NHibernate.Cfg.Configuration;
 
-public class CustomConfigurationBuilder : IConfigurationBuilder
+namespace Castle.Facilities.NHibernateIntegration.Tests.Internals
 {
-    public int ConfigurationsCreated { get; private set; }
-
-    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    public class CustomConfigurationBuilder : IConfigurationBuilder
     {
-        ConfigurationsCreated++;
+        public int ConfigurationsCreated { get; private set; }
 
-        var configuration = new DefaultConfigurationBuilder().GetConfiguration(facilityConfiguration);
-
-        configuration.Properties["dialect"] =
-            ConfigurationManager.AppSettings["nhf.dialect"];
-        configuration.Properties["connection.driver_class"] =
-            ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-        configuration.Properties["connection.provider"] =
-            ConfigurationManager.AppSettings["nhf.connection.provider"];
-        configuration.Properties["connection.connection_string"] =
-            ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-        if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
+            ConfigurationsCreated++;
+
+            var configuration = new DefaultConfigurationBuilder().GetConfiguration(facilityConfiguration);
+
+            configuration.Properties["dialect"] =
+                ConfigurationManager.AppSettings["nhf.dialect"];
+            configuration.Properties["connection.driver_class"] =
+                ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+            configuration.Properties["connection.provider"] =
+                ConfigurationManager.AppSettings["nhf.connection.provider"];
             configuration.Properties["connection.connection_string"] =
-                ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
+                ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
+            if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
+            {
+                configuration.Properties["connection.connection_string"] =
+                    ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
+            }
+
+            return configuration;
         }
-
-        return configuration;
-    }
-}
-
-public class CustomNHibernateFacility : NHibernateFacility
-{
-    public CustomNHibernateFacility() :
-        base(new CustomConfigurationBuilder())
-    {
-    }
-}
-
-public abstract class AbstractCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
-{
-    [Test]
-    public void Invoked()
-    {
-        var session = Container.Resolve<ISessionManager>().OpenSession();
-
-        var configurationBuilder = (CustomConfigurationBuilder) Container.Resolve<IConfigurationBuilder>();
-
-        Assert.That(configurationBuilder.ConfigurationsCreated, Is.EqualTo(1));
-
-        session.Close();
-    }
-}
-
-[TestFixture]
-public class CustomConfigurationBuilderTestCase : AbstractCustomConfigurationBuilderTestCase
-{
-    protected override string ConfigurationFile =>
-        "CustomConfigurationBuilder.xml";
-}
-
-[TestFixture]
-public class CustomConfigurationBuilderRegressionTestCase : AbstractCustomConfigurationBuilderTestCase
-{
-    protected override string ConfigurationFile =>
-        "ConfigurationBuilderRegression.xml";
-}
-
-[TestFixture]
-public class InvalidCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
-{
-    public override void SetUp()
-    {
     }
 
-    public override void TearDown()
+    public class CustomNHibernateFacility : NHibernateFacility
     {
-    }
-
-    protected override string ConfigurationFile =>
-        "InvalidConfigurationBuilder.xml";
-
-    [Test]
-    public void ThrowsWithMessage()
-    {
-        void Method()
+        public CustomNHibernateFacility() :
+            base(new CustomConfigurationBuilder())
         {
-            Container = new WindsorContainer(
-                new XmlInterpreter(
-                    new AssemblyResource(GetContainerFile())));
+        }
+    }
+
+    public abstract class AbstractCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
+    {
+        [Test]
+        public void Invoked()
+        {
+            var session = Container.Resolve<ISessionManager>().OpenSession();
+
+            var configurationBuilder = (CustomConfigurationBuilder) Container.Resolve<IConfigurationBuilder>();
+
+            Assert.That(configurationBuilder.ConfigurationsCreated, Is.EqualTo(1));
+
+            session.Close();
+        }
+    }
+
+    [TestFixture]
+    public class CustomConfigurationBuilderTestCase : AbstractCustomConfigurationBuilderTestCase
+    {
+        protected override string ConfigurationFile =>
+            "CustomConfigurationBuilder.xml";
+    }
+
+    [TestFixture]
+    public class CustomConfigurationBuilderRegressionTestCase : AbstractCustomConfigurationBuilderTestCase
+    {
+        protected override string ConfigurationFile =>
+            "ConfigurationBuilderRegression.xml";
+    }
+
+    [TestFixture]
+    public class InvalidCustomConfigurationBuilderTestCase : AbstractNHibernateTestCase
+    {
+        public override void SetUp()
+        {
         }
 
-        Assert.That(Method,
-                    Throws.TypeOf<FacilityException>()
-                          .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found."));
+        public override void TearDown()
+        {
+        }
+
+        protected override string ConfigurationFile =>
+            "InvalidConfigurationBuilder.xml";
+
+        [Test]
+        public void ThrowsWithMessage()
+        {
+            void Method()
+            {
+                Container = new WindsorContainer(
+                    new XmlInterpreter(
+                        new AssemblyResource(GetContainerFile())));
+            }
+
+            Assert.That(Method,
+                        Throws.TypeOf<FacilityException>()
+                              .With.Message.EqualTo("ConfigurationBuilder type 'InvalidType' is invalid or not found."));
+        }
     }
 }

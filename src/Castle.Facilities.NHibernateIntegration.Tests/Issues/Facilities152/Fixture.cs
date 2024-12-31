@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities152;
-
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.SessionStores;
 using Castle.Windsor;
@@ -23,22 +21,25 @@ using Castle.Windsor.Configuration.Interpreters;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class Fixture
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities152
 {
-    [Test]
-    public void ShouldReadIsWebConfigurationFromXmlRegistration()
+    [TestFixture]
+    public class Fixture
     {
-        var file1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
-        var file2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
+        [Test]
+        public void ShouldReadIsWebConfigurationFromXmlRegistration()
+        {
+            var file1 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilityweb.xml";
+            var file2 = "Castle.Facilities.NHibernateIntegration.Tests/Issues.Facilities152.facilitynonweb.xml";
 
-        var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file1)));
-        var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file2)));
+            var containerWhenIsWebTrue = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file1)));
+            var containerWhenIsWebFalse = new WindsorContainer(new XmlInterpreter(new AssemblyResource(file2)));
 
-        var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
-        var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
+            var sessionStoreWhenIsWebTrue = containerWhenIsWebTrue.Resolve<ISessionStore>();
+            var sessionStoreWhenIsWebFalse = containerWhenIsWebFalse.Resolve<ISessionStore>();
 
-        Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf<WebSessionStore>());
-        Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf<AsyncLocalSessionStore>());
+            Assert.That(sessionStoreWhenIsWebTrue, Is.InstanceOf<WebSessionStore>());
+            Assert.That(sessionStoreWhenIsWebFalse, Is.InstanceOf<AsyncLocalSessionStore>());
+        }
     }
 }

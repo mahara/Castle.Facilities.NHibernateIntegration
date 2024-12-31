@@ -14,48 +14,49 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
-
-public class SecondDao2
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    private readonly ISessionManager _sessionManager;
-
-    public SecondDao2(ISessionManager sessionManager)
+    public class SecondDao2
     {
-        _sessionManager = sessionManager;
-    }
+        private readonly ISessionManager _sessionManager;
 
-    public BlogItem Create(Blog blog)
-    {
-        using var session = _sessionManager.OpenSession();
-
-        var item = new BlogItem
+        public SecondDao2(ISessionManager sessionManager)
         {
-            ParentBlog = blog,
-            Title = "splinter cell is cool!",
-            Text = "x",
-            DateTime = DateTime.Now,
-        };
+            _sessionManager = sessionManager;
+        }
 
-        session.Save(item);
-
-        return item;
-    }
-
-    public BlogItem CreateStateless(Blog blog)
-    {
-        using var session = _sessionManager.OpenStatelessSession();
-
-        var item = new BlogItem
+        public BlogItem Create(Blog blog)
         {
-            ParentBlog = blog,
-            Title = "splinter cell is cool!",
-            Text = "x",
-            DateTime = DateTime.Now,
-        };
+            using var session = _sessionManager.OpenSession();
 
-        session.Insert(item);
+            var item = new BlogItem
+            {
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTime.Now,
+            };
 
-        return item;
+            session.Save(item);
+
+            return item;
+        }
+
+        public BlogItem CreateStateless(Blog blog)
+        {
+            using var session = _sessionManager.OpenStatelessSession();
+
+            var item = new BlogItem
+            {
+                ParentBlog = blog,
+                Title = "splinter cell is cool!",
+                Text = "x",
+                DateTime = DateTime.Now,
+            };
+
+            session.Insert(item);
+
+            return item;
+        }
     }
 }

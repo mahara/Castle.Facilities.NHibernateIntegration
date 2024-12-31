@@ -14,18 +14,19 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests;
-
-public class Blog
+namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    public Blog()
+    public class Blog
     {
-        Items = [];
+        public Blog()
+        {
+            Items = [];
+        }
+
+        public virtual int Id { get; set; }
+
+        public virtual string Name { get; set; } = string.Empty;
+
+        public virtual IList<BlogItem> Items { get; set; }
     }
-
-    public virtual int Id { get; set; }
-
-    public virtual string Name { get; set; } = string.Empty;
-
-    public virtual IList<BlogItem> Items { get; set; }
 }

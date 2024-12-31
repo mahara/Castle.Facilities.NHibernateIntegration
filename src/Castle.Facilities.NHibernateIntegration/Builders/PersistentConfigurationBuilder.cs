@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Builders;
-
 using System.Text.RegularExpressions;
 
 using Castle.Core.Configuration;
@@ -24,104 +22,107 @@ using Castle.Facilities.NHibernateIntegration.Persisters;
 
 using NHibernate.Cfg;
 
-/// <summary>
-/// Serializes the <see cref="Configuration" /> for subsequent initializations.
-/// </summary>
-public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
+namespace Castle.Facilities.NHibernateIntegration.Builders
 {
-    private const string DEFAULT_EXTENSION = ".dat";
-
-    private readonly ILogger _logger = NullLogger.Instance;
-
-    private readonly IConfigurationPersister _configurationPersister;
-
     /// <summary>
-    /// Initializes the persistent <see cref="Configuration" /> builder
-    /// with an specific <see cref="IConfigurationPersister" />
+    /// Serializes the <see cref="Configuration" /> for subsequent initializations.
     /// </summary>
-    public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
+    public class PersistentConfigurationBuilder : DefaultConfigurationBuilder
     {
-        _configurationPersister = configurationPersister;
-    }
+        private const string DEFAULT_EXTENSION = ".dat";
 
-    /// <summary>
-    /// Initializes the persistent <see cref="Configuration" /> builder
-    /// using the default <see cref="IConfigurationPersister" />
-    /// </summary>
-    public PersistentConfigurationBuilder() :
-        this(new DefaultConfigurationPersister())
-    {
-    }
+        private readonly ILogger _logger = NullLogger.Instance;
 
-    /// <summary>
-    /// Returns the deserialized NHibernate <see cref="Configuration" />.
-    /// </summary>
-    /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-    /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-    public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
-    {
-        if (_logger.IsDebugEnabled)
+        private readonly IConfigurationPersister _configurationPersister;
+
+        /// <summary>
+        /// Initializes the persistent <see cref="Configuration" /> builder
+        /// with an specific <see cref="IConfigurationPersister" />
+        /// </summary>
+        public PersistentConfigurationBuilder(IConfigurationPersister configurationPersister)
         {
-            _logger.Debug("Building the Configuration.");
+            _configurationPersister = configurationPersister;
         }
 
-        var filePath = GetFilePathFrom(facilityConfiguration);
-        var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
+        /// <summary>
+        /// Initializes the persistent <see cref="Configuration" /> builder
+        /// using the default <see cref="IConfigurationPersister" />
+        /// </summary>
+        public PersistentConfigurationBuilder() :
+            this(new DefaultConfigurationPersister())
+        {
+        }
 
-        Configuration configuration;
-        if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
+        /// <summary>
+        /// Returns the deserialized NHibernate <see cref="Configuration" />.
+        /// </summary>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        public override Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
             if (_logger.IsDebugEnabled)
             {
-                _logger.Debug("Configuration is either old or some of the dependencies have changed.");
+                _logger.Debug("Building the Configuration.");
             }
 
-            configuration = base.GetConfiguration(facilityConfiguration);
-            _configurationPersister.WriteConfiguration(configuration, filePath);
-        }
-        else
-        {
-            configuration = _configurationPersister.ReadConfiguration(filePath);
-        }
+            var filePath = GetFilePathFrom(facilityConfiguration);
+            var dependentFilePaths = GetDependentFilePathsFrom(facilityConfiguration);
 
-        return configuration;
-    }
-
-    private static string GetFilePathFrom(IConfiguration facilityConfiguration)
-    {
-        var filename = facilityConfiguration.Attributes["fileName"] ??
-                       facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
-
-        return StripInvalidCharacters(filename);
-    }
-
-    private static string StripInvalidCharacters(string input)
-    {
-        return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
-    }
-
-    private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
-    {
-        var list = new List<string>();
-
-        var assemblies = facilityConfiguration.Children["assemblies"];
-        if (assemblies is not null)
-        {
-            foreach (var assembly in assemblies.Children)
+            Configuration configuration;
+            if (_configurationPersister.IsNewConfigurationRequired(filePath, dependentFilePaths))
             {
-                list.Add(assembly.Value + ".dll");
-            }
-        }
+                if (_logger.IsDebugEnabled)
+                {
+                    _logger.Debug("Configuration is either old or some of the dependencies have changed.");
+                }
 
-        var dependsOn = facilityConfiguration.Children["dependsOn"];
-        if (dependsOn is not null)
-        {
-            foreach (var on in dependsOn.Children)
+                configuration = base.GetConfiguration(facilityConfiguration);
+                _configurationPersister.WriteConfiguration(configuration, filePath);
+            }
+            else
             {
-                list.Add(on.Value);
+                configuration = _configurationPersister.ReadConfiguration(filePath);
             }
+
+            return configuration;
         }
 
-        return list;
+        private static string GetFilePathFrom(IConfiguration facilityConfiguration)
+        {
+            var filename = facilityConfiguration.Attributes["fileName"] ??
+                           facilityConfiguration.Attributes["id"] + DEFAULT_EXTENSION;
+
+            return StripInvalidCharacters(filename);
+        }
+
+        private static string StripInvalidCharacters(string input)
+        {
+            return Regex.Replace(input, "[:*?\"<>\\\\/]", "", RegexOptions.IgnoreCase);
+        }
+
+        private static List<string> GetDependentFilePathsFrom(IConfiguration facilityConfiguration)
+        {
+            var list = new List<string>();
+
+            var assemblies = facilityConfiguration.Children["assemblies"];
+            if (assemblies is not null)
+            {
+                foreach (var assembly in assemblies.Children)
+                {
+                    list.Add(assembly.Value + ".dll");
+                }
+            }
+
+            var dependsOn = facilityConfiguration.Children["dependsOn"];
+            if (dependsOn is not null)
+            {
+                foreach (var on in dependsOn.Children)
+                {
+                    list.Add(on.Value);
+                }
+            }
+
+            return list;
+        }
     }
 }

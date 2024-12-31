@@ -14,24 +14,24 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests;
-
+using Castle.Facilities.NHibernateIntegration.Tests.Common;
 using Castle.MicroKernel.Registration;
-
-using Common;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
+namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    [Test]
-    public void SessionRequiredAttributeShouldAutomaticallyOpenASessionUnderTheHood()
+    [TestFixture]
+    public class SessionManagementInterceptorsTestCase : AbstractNHibernateTestCase
     {
-        Container.Register(Component.For<BlogRepository>());
+        [Test]
+        public void SessionRequiredAttributeShouldAutomaticallyOpenASessionUnderTheHood()
+        {
+            Container.Register(Component.For<BlogRepository>());
 
-        Container.Resolve<BlogRepository>().FetchAll();
+            Container.Resolve<BlogRepository>().FetchAll();
 
-        Assert.That(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias), Is.Null);
+            Assert.That(Container.Resolve<ISessionStore>().FindCompatibleSession(Constants.DefaultAlias), Is.Null);
+        }
     }
 }

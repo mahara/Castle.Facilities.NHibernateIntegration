@@ -14,160 +14,161 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
-
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 using Castle.Services.Transaction;
 
 using NHibernate.Criterion;
 
-[Transactional]
-public class RootService : NHibernateGenericDao
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    private readonly FirstDao _firstDao;
-    private readonly SecondDao _secondDao;
-
-    public RootService(ISessionManager sessionManager, FirstDao firstDao, SecondDao secondDao) :
-        base(sessionManager)
+    [Transactional]
+    public class RootService : NHibernateGenericDao
     {
-        _firstDao = firstDao;
-        _secondDao = secondDao;
-    }
+        private readonly FirstDao _firstDao;
+        private readonly SecondDao _secondDao;
 
-    public OrderDao OrderDao { get; set; } = null!;
-
-    [Transaction]
-    public virtual Blog CreateBlogUsingDetachedCriteria(string name)
-    {
-        return _firstDao.Create(name);
-    }
-
-    [Transaction]
-    public virtual Blog FindBlogUsingDetachedCriteria(string name)
-    {
-        var dc = DetachedCriteria.For<Blog>();
-        dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
-
-        var session = SessionManager.OpenSession();
-        return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
-    }
-
-    [Transaction]
-    public virtual BlogItem SuccessfulCall()
-    {
-        var blog = _firstDao.Create();
-
-        return _secondDao.Create(blog);
-    }
-
-    [Transaction]
-    public virtual void CallWithException()
-    {
-        var blog = _firstDao.Create();
-
-        _secondDao.CreateWithException(blog);
-    }
-
-    [Transaction]
-    public virtual void CallWithException2()
-    {
-        var blog = _firstDao.Create();
-
-        _secondDao.CreateWithException2(blog);
-    }
-
-    [Transaction]
-    public virtual void DoBlogRefOperation(Blog blog)
-    {
-        var blogRef = new BlogRef
+        public RootService(ISessionManager sessionManager, FirstDao firstDao, SecondDao secondDao) :
+            base(sessionManager)
         {
-            ParentBlog = blog,
-            Title = "title"
-        };
-
-        _firstDao.AddBlogRef(blogRef);
-
-        _firstDao.Delete("Blog1");
-    }
-
-    [Transaction]
-    public virtual void TwoDbOperationCreate(bool throwException)
-    {
-        var blog = _firstDao.Create();
-
-        _secondDao.Create(blog);
-
-        OrderDao.Create(1.122f);
-
-        if (throwException)
-        {
-            throw new InvalidOperationException("Nah, giving up.");
+            _firstDao = firstDao;
+            _secondDao = secondDao;
         }
-    }
 
-    [Transaction]
-    public virtual Blog CreateBlogStatelessUsingDetachedCriteria(string name)
-    {
-        return _firstDao.CreateStateless(name);
-    }
+        public OrderDao OrderDao { get; set; } = null!;
 
-    [Transaction]
-    public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
-    {
-        var dc = DetachedCriteria.For<Blog>();
-        dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
-
-        var session = SessionManager.OpenStatelessSession();
-        return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
-    }
-
-    [Transaction]
-    public virtual BlogItem SuccessfulCallStateless()
-    {
-        var blog = _firstDao.CreateStateless();
-        return _secondDao.CreateStateless(blog);
-    }
-
-    [Transaction]
-    public virtual void CallWithExceptionStateless()
-    {
-        var blog = _firstDao.CreateStateless();
-        _secondDao.CreateWithExceptionStateless(blog);
-    }
-
-    [Transaction]
-    public virtual void CallWithExceptionStateless2()
-    {
-        var blog = _firstDao.CreateStateless();
-        _secondDao.CreateWithExceptionStateless2(blog);
-    }
-
-    [Transaction]
-    public virtual void DoBlogRefOperationStateless(Blog blog)
-    {
-        var blogRef = new BlogRef
+        [Transaction]
+        public virtual Blog CreateBlogUsingDetachedCriteria(string name)
         {
-            ParentBlog = blog,
-            Title = "title"
-        };
+            return _firstDao.Create(name);
+        }
 
-        _firstDao.AddBlogRefStateless(blogRef);
-
-        _firstDao.DeleteStateless("Blog1");
-    }
-
-    [Transaction]
-    public virtual void TwoDbOperationCreateStateless(bool throwException)
-    {
-        var blog = _firstDao.CreateStateless();
-
-        _secondDao.CreateStateless(blog);
-
-        OrderDao.CreateStateless(1.122f);
-
-        if (throwException)
+        [Transaction]
+        public virtual Blog FindBlogUsingDetachedCriteria(string name)
         {
-            throw new InvalidOperationException("Nah, giving up.");
+            var dc = DetachedCriteria.For<Blog>();
+            dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
+
+            var session = SessionManager.OpenSession();
+            return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
+        }
+
+        [Transaction]
+        public virtual BlogItem SuccessfulCall()
+        {
+            var blog = _firstDao.Create();
+
+            return _secondDao.Create(blog);
+        }
+
+        [Transaction]
+        public virtual void CallWithException()
+        {
+            var blog = _firstDao.Create();
+
+            _secondDao.CreateWithException(blog);
+        }
+
+        [Transaction]
+        public virtual void CallWithException2()
+        {
+            var blog = _firstDao.Create();
+
+            _secondDao.CreateWithException2(blog);
+        }
+
+        [Transaction]
+        public virtual void DoBlogRefOperation(Blog blog)
+        {
+            var blogRef = new BlogRef
+            {
+                ParentBlog = blog,
+                Title = "title"
+            };
+
+            _firstDao.AddBlogRef(blogRef);
+
+            _firstDao.Delete("Blog1");
+        }
+
+        [Transaction]
+        public virtual void TwoDbOperationCreate(bool throwException)
+        {
+            var blog = _firstDao.Create();
+
+            _secondDao.Create(blog);
+
+            OrderDao.Create(1.122f);
+
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
+        }
+
+        [Transaction]
+        public virtual Blog CreateBlogStatelessUsingDetachedCriteria(string name)
+        {
+            return _firstDao.CreateStateless(name);
+        }
+
+        [Transaction]
+        public virtual Blog FindBlogStatelessUsingDetachedCriteria(string name)
+        {
+            var dc = DetachedCriteria.For<Blog>();
+            dc.Add(Property.ForName(nameof(Blog.Name)).Eq(name));
+
+            var session = SessionManager.OpenStatelessSession();
+            return dc.GetExecutableCriteria(session).UniqueResult<Blog>();
+        }
+
+        [Transaction]
+        public virtual BlogItem SuccessfulCallStateless()
+        {
+            var blog = _firstDao.CreateStateless();
+            return _secondDao.CreateStateless(blog);
+        }
+
+        [Transaction]
+        public virtual void CallWithExceptionStateless()
+        {
+            var blog = _firstDao.CreateStateless();
+            _secondDao.CreateWithExceptionStateless(blog);
+        }
+
+        [Transaction]
+        public virtual void CallWithExceptionStateless2()
+        {
+            var blog = _firstDao.CreateStateless();
+            _secondDao.CreateWithExceptionStateless2(blog);
+        }
+
+        [Transaction]
+        public virtual void DoBlogRefOperationStateless(Blog blog)
+        {
+            var blogRef = new BlogRef
+            {
+                ParentBlog = blog,
+                Title = "title"
+            };
+
+            _firstDao.AddBlogRefStateless(blogRef);
+
+            _firstDao.DeleteStateless("Blog1");
+        }
+
+        [Transaction]
+        public virtual void TwoDbOperationCreateStateless(bool throwException)
+        {
+            var blog = _firstDao.CreateStateless();
+
+            _secondDao.CreateStateless(blog);
+
+            OrderDao.CreateStateless(1.122f);
+
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
         }
     }
 }

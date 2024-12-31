@@ -14,31 +14,32 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Common;
-
 using NHibernate.Event;
 
-public class CustomDeleteListener : IDeleteEventListener
+namespace Castle.Facilities.NHibernateIntegration.Tests.Common
 {
-    /// <inheritdoc />
-    public Task OnDeleteAsync(DeleteEvent @event, CancellationToken cancellationToken)
+    public class CustomDeleteListener : IDeleteEventListener
     {
-        return Task.CompletedTask;
-    }
+        /// <inheritdoc />
+        public Task OnDeleteAsync(DeleteEvent @event, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
 
-    /// <inheritdoc />
-    public Task OnDeleteAsync(DeleteEvent @event, ISet<object> transientEntities, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
+        /// <inheritdoc />
+        public Task OnDeleteAsync(DeleteEvent @event, ISet<object> transientEntities, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
 
-    /// <inheritdoc />
-    public void OnDelete(DeleteEvent @event)
-    {
-    }
+        /// <inheritdoc />
+        public void OnDelete(DeleteEvent @event)
+        {
+        }
 
-    /// <inheritdoc />
-    public void OnDelete(DeleteEvent @event, ISet<object> transientEntities)
-    {
+        /// <inheritdoc />
+        public void OnDelete(DeleteEvent @event, ISet<object> transientEntities)
+        {
+        }
     }
 }

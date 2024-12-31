@@ -14,45 +14,46 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration;
-
 using NHibernate;
 
-/// <summary>
-/// A bridge to NHibernate,
-/// allowing the implementation to cache created session (through an invocation)
-/// and enlist it on transaction if one is detected on the thread.
-/// </summary>
-public interface ISessionManager
+namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// The default flush mode.
+    /// A bridge to NHibernate,
+    /// allowing the implementation to cache created session (through an invocation)
+    /// and enlist it on transaction if one is detected on the thread.
     /// </summary>
-    FlushMode DefaultFlushMode { get; set; }
+    public interface ISessionManager
+    {
+        /// <summary>
+        /// The default flush mode.
+        /// </summary>
+        FlushMode DefaultFlushMode { get; set; }
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="ISession" /> instance.
-    /// </summary>
-    /// <returns></returns>
-    ISession OpenSession();
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="ISession" /> instance.
+        /// </summary>
+        /// <returns></returns>
+        ISession OpenSession();
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="ISession" /> instance for the given connection alias.
-    /// </summary>
-    /// <param name="alias"></param>
-    /// <returns></returns>
-    ISession OpenSession(string? alias);
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="ISession" /> instance for the given connection alias.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        ISession OpenSession(string? alias);
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance.
-    /// </summary>
-    /// <returns></returns>
-    IStatelessSession OpenStatelessSession();
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance.
+        /// </summary>
+        /// <returns></returns>
+        IStatelessSession OpenStatelessSession();
 
-    /// <summary>
-    /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance for the given connection alias.
-    /// </summary>
-    /// <param name="alias"></param>
-    /// <returns></returns>
-    IStatelessSession OpenStatelessSession(string? alias);
+        /// <summary>
+        /// Returns a valid opened and connected <see cref="IStatelessSession" /> instance for the given connection alias.
+        /// </summary>
+        /// <param name="alias"></param>
+        /// <returns></returns>
+        IStatelessSession OpenStatelessSession(string? alias);
+    }
 }

@@ -14,20 +14,21 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring;
-
 using NHibernate;
 using NHibernate.Cfg;
 
-public class MyDao
+namespace Castle.Facilities.NHibernateIntegration.Tests.Wiring
 {
-    public MyDao(ISessionFactory sessionFactory, Configuration configuration)
+    public class MyDao
     {
-        SessionFactory = sessionFactory;
-        Configuration = configuration;
+        public MyDao(ISessionFactory sessionFactory, Configuration configuration)
+        {
+            SessionFactory = sessionFactory;
+            Configuration = configuration;
+        }
+
+        public ISessionFactory SessionFactory { get; }
+
+        public Configuration Configuration { get; }
     }
-
-    public ISessionFactory SessionFactory { get; }
-
-    public Configuration Configuration { get; }
 }

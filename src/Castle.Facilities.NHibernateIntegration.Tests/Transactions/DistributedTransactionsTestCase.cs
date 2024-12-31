@@ -14,9 +14,6 @@
 // limitations under the License.
 #endregion
 
-#if NETFRAMEWORK
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
-
 using System.Transactions;
 
 using Castle.MicroKernel.Registration;
@@ -24,160 +21,164 @@ using Castle.Services.Transaction;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
+#if NETFRAMEWORK
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    protected override string ConfigurationFile =>
-        "Transactions/TwoDatabaseConfiguration.xml";
-
-    protected override void ConfigureContainer()
+    [TestFixture]
+    public class DistributedTransactionsTestCase : AbstractNHibernateTestCase
     {
-        Container.Register(Component.For<RootService2>().Named("root"));
-        Container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
-        Container.Register(Component.For<SecondDao2>().Named("myseconddao"));
-        Container.Register(Component.For<OrderDao2>().Named("myorderdao"));
-    }
+        protected override string ConfigurationFile =>
+            "Transactions/TwoDatabaseConfiguration.xml";
 
-    [Test]
-    [Explicit("Requires MSDTC to be running.")]
-    public void SuccessfulSituationWithTwoDatabases()
-    {
-        var service = Container.Resolve<RootService2>();
-        var orderDao = Container.Resolve<OrderDao2>("myorderdao");
-
-        try
+        protected override void ConfigureContainer()
         {
-            service.TwoDbOperationCreate(false);
+            Container.Register(Component.For<RootService2>().Named("root"));
+            Container.Register(Component.For<FirstDao2>().Named("myfirstdao"));
+            Container.Register(Component.For<SecondDao2>().Named("myseconddao"));
+            Container.Register(Component.For<OrderDao2>().Named("myorderdao"));
         }
-        catch (Exception ex)
+
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void SuccessfulSituationWithTwoDatabases()
         {
-            if (ex.InnerException is not null &&
-                ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+
+            try
             {
-                Assert.Ignore("MTS is not available.");
+                service.TwoDbOperationCreate(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is not null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+                {
+                    Assert.Ignore("MTS is not available.");
+                }
+
+                throw;
             }
 
-            throw;
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
-        var blogs = service.FindAll(typeof(Blog));
-        var blogitems = service.FindAll(typeof(BlogItem));
-        var orders = orderDao.FindAll(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogitems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Has.Length.EqualTo(1));
-        Assert.That(blogitems, Has.Length.EqualTo(1));
-        Assert.That(orders, Has.Length.EqualTo(1));
-    }
-
-    [Test]
-    [Explicit("Requires MSDTC to be running.")]
-    public void ExceptionOnEndWithTwoDatabases()
-    {
-        var service = Container.Resolve<RootService2>();
-        var orderDao = Container.Resolve<OrderDao2>("myorderdao");
-
-        try
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void ExceptionOnEndWithTwoDatabases()
         {
-            service.TwoDbOperationCreate(true);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
-        }
-        catch (RollbackResourceException e)
-        {
-            foreach (var resource in e.FailedResources)
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+
+            try
             {
-                Console.WriteLine(resource.Second);
+                service.TwoDbOperationCreate(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+            catch (RollbackResourceException e)
+            {
+                foreach (var resource in e.FailedResources)
+                {
+                    Console.WriteLine(resource.Second);
+                }
+
+                throw;
             }
 
-            throw;
+            var blogs = service.FindAll(typeof(Blog));
+            var blogitems = service.FindAll(typeof(BlogItem));
+            var orders = orderDao.FindAll(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
+            Assert.That(orders, Is.Empty);
         }
 
-        var blogs = service.FindAll(typeof(Blog));
-        var blogitems = service.FindAll(typeof(BlogItem));
-        var orders = orderDao.FindAll(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogitems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Is.Empty);
-        Assert.That(blogitems, Is.Empty);
-        Assert.That(orders, Is.Empty);
-    }
-
-    [Test]
-    [Explicit("Requires MSDTC to be running.")]
-    public void SuccessfulSituationWithTwoDatabasesStateless()
-    {
-        var service = Container.Resolve<RootService2>();
-        var orderDao = Container.Resolve<OrderDao2>("myorderdao");
-
-        try
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void SuccessfulSituationWithTwoDatabasesStateless()
         {
-            service.TwoDbOperationCreateStateless(false);
-        }
-        catch (Exception ex)
-        {
-            if (ex.InnerException is not null &&
-                ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+
+            try
             {
-                Assert.Ignore("MTS is not available.");
+                service.TwoDbOperationCreateStateless(false);
+            }
+            catch (Exception ex)
+            {
+                if (ex.InnerException is not null &&
+                    ex.InnerException.GetType().Name == nameof(TransactionManagerCommunicationException))
+                {
+                    Assert.Ignore("MTS is not available.");
+                }
+
+                throw;
             }
 
-            throw;
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Has.Length.EqualTo(1));
+            Assert.That(blogitems, Has.Length.EqualTo(1));
+            Assert.That(orders, Has.Length.EqualTo(1));
         }
 
-        var blogs = service.FindAllStateless(typeof(Blog));
-        var blogitems = service.FindAllStateless(typeof(BlogItem));
-        var orders = orderDao.FindAllStateless(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogitems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Has.Length.EqualTo(1));
-        Assert.That(blogitems, Has.Length.EqualTo(1));
-        Assert.That(orders, Has.Length.EqualTo(1));
-    }
-
-    [Test]
-    [Explicit("Requires MSDTC to be running.")]
-    public void ExceptionOnEndWithTwoDatabasesStateless()
-    {
-        var service = Container.Resolve<RootService2>();
-        var orderDao = Container.Resolve<OrderDao2>("myorderdao");
-
-        try
+        [Test]
+        [Explicit("Requires MSDTC to be running.")]
+        public void ExceptionOnEndWithTwoDatabasesStateless()
         {
-            service.TwoDbOperationCreateStateless(true);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected
-        }
-        catch (RollbackResourceException e)
-        {
-            foreach (var resource in e.FailedResources)
+            var service = Container.Resolve<RootService2>();
+            var orderDao = Container.Resolve<OrderDao2>("myorderdao");
+
+            try
             {
-                Console.WriteLine(resource.Second);
+                service.TwoDbOperationCreateStateless(true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Expected
+            }
+            catch (RollbackResourceException e)
+            {
+                foreach (var resource in e.FailedResources)
+                {
+                    Console.WriteLine(resource.Second);
+                }
+
+                throw;
             }
 
-            throw;
+            var blogs = service.FindAllStateless(typeof(Blog));
+            var blogitems = service.FindAllStateless(typeof(BlogItem));
+            var orders = orderDao.FindAllStateless(typeof(Order));
+
+            Assert.That(blogs, Is.Not.Null);
+            Assert.That(blogitems, Is.Not.Null);
+            Assert.That(orders, Is.Not.Null);
+            Assert.That(blogs, Is.Empty);
+            Assert.That(blogitems, Is.Empty);
+            Assert.That(orders, Is.Empty);
         }
-
-        var blogs = service.FindAllStateless(typeof(Blog));
-        var blogitems = service.FindAllStateless(typeof(BlogItem));
-        var orders = orderDao.FindAllStateless(typeof(Order));
-
-        Assert.That(blogs, Is.Not.Null);
-        Assert.That(blogitems, Is.Not.Null);
-        Assert.That(orders, Is.Not.Null);
-        Assert.That(blogs, Is.Empty);
-        Assert.That(blogitems, Is.Empty);
-        Assert.That(orders, Is.Empty);
     }
 }
 #endif

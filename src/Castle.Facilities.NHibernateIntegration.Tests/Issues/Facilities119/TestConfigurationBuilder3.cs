@@ -14,18 +14,19 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119;
-
 using Castle.Core.Configuration;
 
 using NHibernate.Cfg;
 
-public class TestConfigurationBuilder3 : IConfigurationBuilder
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities119
 {
-    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    public class TestConfigurationBuilder3 : IConfigurationBuilder
     {
-        var configuration = new Configuration();
-        configuration.SetProperty("test", "test3");
-        return configuration;
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        {
+            var configuration = new Configuration();
+            configuration.SetProperty("test", "test3");
+            return configuration;
+        }
     }
 }

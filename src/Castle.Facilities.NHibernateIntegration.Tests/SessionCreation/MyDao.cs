@@ -14,88 +14,89 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation;
-
 using NHibernate;
 
 using NUnit.Framework;
 
-public class MyDao
+namespace Castle.Facilities.NHibernateIntegration.Tests.SessionCreation
 {
-    private readonly ISessionManager _sessionManager;
-    private readonly MySecondDao _secondDao;
-
-    public MyDao(ISessionManager sessionManager, MySecondDao secondDao)
+    public class MyDao
     {
-        _sessionManager = sessionManager;
-        _secondDao = secondDao;
-    }
+        private readonly ISessionManager _sessionManager;
+        private readonly MySecondDao _secondDao;
 
-    public void PerformComplexOperation1()
-    {
-        using var session = _sessionManager.OpenSession();
-
-        Assert.That(session, Is.Not.Null);
-
-        _secondDao.PerformSimpleOperation(session);
-    }
-
-    public void PerformComplexOperation2()
-    {
-        ISession? previousSession = null;
-
-        using (var session = _sessionManager.OpenSession())
+        public MyDao(ISessionManager sessionManager, MySecondDao secondDao)
         {
-            previousSession = session;
+            _sessionManager = sessionManager;
+            _secondDao = secondDao;
         }
 
-        _secondDao.PerformSimpleOperation2(previousSession);
-    }
-
-    public void DoOpenCloseAndDisposeOperation()
-    {
-        using var session = _sessionManager.OpenSession();
-
-        Assert.That(session.IsConnected, Is.True);
-        Assert.That(session.IsOpen, Is.True);
-
-        session.Close();
-
-        Assert.That(session.IsConnected, Is.False);
-        Assert.That(session.IsOpen, Is.False);
-    }
-
-    public void PerformComplexStatelessOperation1()
-    {
-        using var session = _sessionManager.OpenStatelessSession();
-
-        Assert.That(session, Is.Not.Null);
-
-        _secondDao.PerformSimpleStatelessOperation(session);
-    }
-
-    public void PerformComplexStatelessOperation2()
-    {
-        IStatelessSession? previousSession = null;
-
-        using (var session = _sessionManager.OpenStatelessSession())
+        public void PerformComplexOperation1()
         {
-            previousSession = session;
+            using var session = _sessionManager.OpenSession();
+
+            Assert.That(session, Is.Not.Null);
+
+            _secondDao.PerformSimpleOperation(session);
         }
 
-        _secondDao.PerformSimpleStatelessOperation2(previousSession);
-    }
+        public void PerformComplexOperation2()
+        {
+            ISession? previousSession = null;
 
-    public void DoStatelessOpenCloseAndDisposeOperation()
-    {
-        using var session = _sessionManager.OpenStatelessSession();
+            using (var session = _sessionManager.OpenSession())
+            {
+                previousSession = session;
+            }
 
-        Assert.That(session.IsConnected, Is.True);
-        Assert.That(session.IsOpen, Is.True);
+            _secondDao.PerformSimpleOperation2(previousSession);
+        }
 
-        session.Close();
+        public void DoOpenCloseAndDisposeOperation()
+        {
+            using var session = _sessionManager.OpenSession();
 
-        Assert.That(session.IsConnected, Is.False);
-        Assert.That(session.IsOpen, Is.False);
+            Assert.That(session.IsConnected, Is.True);
+            Assert.That(session.IsOpen, Is.True);
+
+            session.Close();
+
+            Assert.That(session.IsConnected, Is.False);
+            Assert.That(session.IsOpen, Is.False);
+        }
+
+        public void PerformComplexStatelessOperation1()
+        {
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session, Is.Not.Null);
+
+            _secondDao.PerformSimpleStatelessOperation(session);
+        }
+
+        public void PerformComplexStatelessOperation2()
+        {
+            IStatelessSession? previousSession = null;
+
+            using (var session = _sessionManager.OpenStatelessSession())
+            {
+                previousSession = session;
+            }
+
+            _secondDao.PerformSimpleStatelessOperation2(previousSession);
+        }
+
+        public void DoStatelessOpenCloseAndDisposeOperation()
+        {
+            using var session = _sessionManager.OpenStatelessSession();
+
+            Assert.That(session.IsConnected, Is.True);
+            Assert.That(session.IsOpen, Is.True);
+
+            session.Close();
+
+            Assert.That(session.IsConnected, Is.False);
+            Assert.That(session.IsOpen, Is.False);
+        }
     }
 }

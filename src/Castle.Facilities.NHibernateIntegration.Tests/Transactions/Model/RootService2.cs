@@ -14,54 +14,55 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions;
-
 using Castle.Facilities.NHibernateIntegration.Components.Dao;
 
 using Castle.Services.Transaction;
 
-[Transactional]
-public class RootService2 : NHibernateGenericDao
+namespace Castle.Facilities.NHibernateIntegration.Tests.Transactions
 {
-    private readonly FirstDao2 _firstDao;
-    private readonly SecondDao2 _secondDao;
-
-    public RootService2(ISessionManager sessionManager, FirstDao2 firstDao, SecondDao2 secondDao) :
-        base(sessionManager)
+    [Transactional]
+    public class RootService2 : NHibernateGenericDao
     {
-        _firstDao = firstDao;
-        _secondDao = secondDao;
-    }
+        private readonly FirstDao2 _firstDao;
+        private readonly SecondDao2 _secondDao;
 
-    public OrderDao2 OrderDao { get; set; } = null!;
-
-    [Transaction(IsDistributed = true)]
-    public virtual void TwoDbOperationCreate(bool throwException)
-    {
-        var blog = _firstDao.Create();
-
-        _secondDao.Create(blog);
-
-        OrderDao.Create(1.122f);
-
-        if (throwException)
+        public RootService2(ISessionManager sessionManager, FirstDao2 firstDao, SecondDao2 secondDao) :
+            base(sessionManager)
         {
-            throw new InvalidOperationException("Nah, giving up.");
+            _firstDao = firstDao;
+            _secondDao = secondDao;
         }
-    }
 
-    [Transaction(IsDistributed = true)]
-    public virtual void TwoDbOperationCreateStateless(bool throwException)
-    {
-        var blog = _firstDao.CreateStateless();
+        public OrderDao2 OrderDao { get; set; } = null!;
 
-        _secondDao.CreateStateless(blog);
-
-        OrderDao.CreateStateless(1.122f);
-
-        if (throwException)
+        [Transaction(IsDistributed = true)]
+        public virtual void TwoDbOperationCreate(bool throwException)
         {
-            throw new InvalidOperationException("Nah, giving up.");
+            var blog = _firstDao.Create();
+
+            _secondDao.Create(blog);
+
+            OrderDao.Create(1.122f);
+
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
+        }
+
+        [Transaction(IsDistributed = true)]
+        public virtual void TwoDbOperationCreateStateless(bool throwException)
+        {
+            var blog = _firstDao.CreateStateless();
+
+            _secondDao.CreateStateless(blog);
+
+            OrderDao.CreateStateless(1.122f);
+
+            if (throwException)
+            {
+                throw new InvalidOperationException("Nah, giving up.");
+            }
         }
     }
 }

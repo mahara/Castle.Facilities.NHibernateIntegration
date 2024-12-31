@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Builders;
-
 using System.Xml;
 
 using Castle.Core.Configuration;
@@ -24,30 +22,33 @@ using Castle.Facilities.NHibernateIntegration.Internal;
 
 using NHibernate.Cfg;
 
-/// <summary>
-/// The configuration builder for NHibernate's own cfg.xml.
-/// </summary>
-public class XmlConfigurationBuilder : IConfigurationBuilder
+namespace Castle.Facilities.NHibernateIntegration.Builders
 {
     /// <summary>
-    /// Returns the <see cref="Configuration" /> object for the given xml.
+    /// The configuration builder for NHibernate's own cfg.xml.
     /// </summary>
-    /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
-    /// <returns>An NHibernate <see cref="Configuration" />.</returns>
-    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+    public class XmlConfigurationBuilder : IConfigurationBuilder
     {
-        Configuration configuration;
-
-        var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"] ??
-                                throw new ArgumentNullException(nameof(facilityConfiguration));
-
-        using (var configurationResource = new FileAssemblyResource(configurationFile))
+        /// <summary>
+        /// Returns the <see cref="Configuration" /> object for the given xml.
+        /// </summary>
+        /// <param name="facilityConfiguration">The facility <see cref="IConfiguration" />.</param>
+        /// <returns>An NHibernate <see cref="Configuration" />.</returns>
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
         {
-            using var reader = XmlReader.Create(configurationResource.GetStreamReader());
-            configuration = new Configuration();
-            configuration.Configure(reader);
-        }
+            Configuration configuration;
 
-        return configuration;
+            var configurationFile = facilityConfiguration.Attributes["nhibernateConfigFile"] ??
+                                    throw new ArgumentNullException(nameof(facilityConfiguration));
+
+            using (var configurationResource = new FileAssemblyResource(configurationFile))
+            {
+                using var reader = XmlReader.Create(configurationResource.GetStreamReader());
+                configuration = new Configuration();
+                configuration.Configure(reader);
+            }
+
+            return configuration;
+        }
     }
 }

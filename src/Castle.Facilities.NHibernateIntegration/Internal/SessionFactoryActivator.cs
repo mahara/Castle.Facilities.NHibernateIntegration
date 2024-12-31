@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Internal;
-
 using Castle.Core;
 using Castle.MicroKernel;
 using Castle.MicroKernel.ComponentActivator;
@@ -24,56 +22,59 @@ using Castle.MicroKernel.Context;
 using NHibernate;
 using NHibernate.Cfg;
 
-/// <summary>
-/// Postpones the initiation of SessionFactory until Resolve.
-/// </summary>
-public class SessionFactoryActivator : DefaultComponentActivator
+namespace Castle.Facilities.NHibernateIntegration.Internal
 {
     /// <summary>
-    /// Constructor for SessionFactoryActivator.
+    /// Postpones the initiation of SessionFactory until Resolve.
     /// </summary>
-    /// <param name="model"></param>
-    /// <param name="kernel"></param>
-    /// <param name="onCreation"></param>
-    /// <param name="onDestruction"></param>
-    public SessionFactoryActivator(ComponentModel model,
-                                   IKernelInternal kernel,
-                                   ComponentInstanceDelegate onCreation,
-                                   ComponentInstanceDelegate onDestruction) :
-        base(model, kernel, onCreation, onDestruction)
+    public class SessionFactoryActivator : DefaultComponentActivator
     {
-    }
-
-    /// <summary>
-    /// Creates the <see cref="ISessionFactory" /> from the configuration.
-    /// </summary>
-    /// <param name="context"></param>
-    /// <param name="burden"></param>
-    /// <returns></returns>
-    public override object Create(CreationContext context, Burden burden)
-    {
-        RaiseCreatingSessionFactory();
-
-        var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactoryConfiguration];
-
-        var sessionFactory = configuration.BuildSessionFactory();
-
-        burden.SetRootInstance(sessionFactory);
-
-        return sessionFactory;
-    }
-
-    /// <summary>
-    /// Calls the contributors.
-    /// </summary>
-    protected virtual void RaiseCreatingSessionFactory()
-    {
-        if (Model.ExtendedProperties[Constants.SessionFactoryConfiguration] is Configuration configuration)
+        /// <summary>
+        /// Constructor for SessionFactoryActivator.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="kernel"></param>
+        /// <param name="onCreation"></param>
+        /// <param name="onDestruction"></param>
+        public SessionFactoryActivator(ComponentModel model,
+                                       IKernelInternal kernel,
+                                       ComponentInstanceDelegate onCreation,
+                                       ComponentInstanceDelegate onDestruction) :
+            base(model, kernel, onCreation, onDestruction)
         {
-            var contributors = Kernel.ResolveAll<IConfigurationContributor>();
-            foreach (var contributor in contributors)
+        }
+
+        /// <summary>
+        /// Creates the <see cref="ISessionFactory" /> from the configuration.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="burden"></param>
+        /// <returns></returns>
+        public override object Create(CreationContext context, Burden burden)
+        {
+            RaiseCreatingSessionFactory();
+
+            var configuration = (Configuration) Model.ExtendedProperties[Constants.SessionFactoryConfiguration];
+
+            var sessionFactory = configuration.BuildSessionFactory();
+
+            burden.SetRootInstance(sessionFactory);
+
+            return sessionFactory;
+        }
+
+        /// <summary>
+        /// Calls the contributors.
+        /// </summary>
+        protected virtual void RaiseCreatingSessionFactory()
+        {
+            if (Model.ExtendedProperties[Constants.SessionFactoryConfiguration] is Configuration configuration)
             {
-                contributor.Process(Model.Name, configuration);
+                var contributors = Kernel.ResolveAll<IConfigurationContributor>();
+                foreach (var contributor in contributors)
+                {
+                    contributor.Process(Model.Name, configuration);
+                }
             }
         }
     }

@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests;
-
 using System.Configuration;
 using System.IO;
 
@@ -26,40 +24,43 @@ using NUnit.Framework;
 
 using Configuration = NHibernate.Cfg.Configuration;
 
-public class TestConfigurationBuilder : IConfigurationBuilder
+namespace Castle.Facilities.NHibernateIntegration.Tests
 {
-    private readonly IConfigurationBuilder _configurationBuilder;
-
-    public TestConfigurationBuilder()
+    public class TestConfigurationBuilder : IConfigurationBuilder
     {
-        _configurationBuilder = new DefaultConfigurationBuilder();
-    }
+        private readonly IConfigurationBuilder _configurationBuilder;
 
-    public Configuration GetConfiguration(IConfiguration facilityConfiguration)
-    {
-        var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
-
-#if NET
-        var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
-        var configurationFileName = Path.GetFileName(configurationFilePath);
-        Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
-                                                    "testhost.x86.dll.config"));
-#endif
-
-        configuration.Properties["dialect"] =
-            ConfigurationManager.AppSettings["nhf.dialect"];
-        configuration.Properties["connection.driver_class"] =
-            ConfigurationManager.AppSettings["nhf.connection.driver_class"];
-        configuration.Properties["connection.provider"] =
-            ConfigurationManager.AppSettings["nhf.connection.provider"];
-        configuration.Properties["connection.connection_string"] =
-            ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
-        if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
+        public TestConfigurationBuilder()
         {
-            configuration.Properties["connection.connection_string"] =
-                ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
+            _configurationBuilder = new DefaultConfigurationBuilder();
         }
 
-        return configuration;
+        public Configuration GetConfiguration(IConfiguration facilityConfiguration)
+        {
+            var configuration = _configurationBuilder.GetConfiguration(facilityConfiguration);
+
+#if NET
+            var configurationFilePath = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).FilePath;
+            var configurationFileName = Path.GetFileName(configurationFilePath);
+            Assert.That(configurationFileName, Is.AnyOf("testhost.dll.config",
+                                                        "testhost.x86.dll.config"));
+#endif
+
+            configuration.Properties["dialect"] =
+                ConfigurationManager.AppSettings["nhf.dialect"];
+            configuration.Properties["connection.driver_class"] =
+                ConfigurationManager.AppSettings["nhf.connection.driver_class"];
+            configuration.Properties["connection.provider"] =
+                ConfigurationManager.AppSettings["nhf.connection.provider"];
+            configuration.Properties["connection.connection_string"] =
+                ConfigurationManager.AppSettings["nhf.connection.connection_string.1"];
+            if (facilityConfiguration.Attributes["id"] != "sessionFactory1")
+            {
+                configuration.Properties["connection.connection_string"] =
+                    ConfigurationManager.AppSettings["nhf.connection.connection_string.2"];
+            }
+
+            return configuration;
+        }
     }
 }

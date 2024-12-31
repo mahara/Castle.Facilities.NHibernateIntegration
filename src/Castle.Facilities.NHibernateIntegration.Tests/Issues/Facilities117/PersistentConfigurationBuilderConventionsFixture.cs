@@ -14,8 +14,6 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117;
-
 using Castle.Core.Configuration;
 using Castle.Core.Resource;
 using Castle.Facilities.NHibernateIntegration.Builders;
@@ -27,55 +25,58 @@ using Moq;
 
 using NUnit.Framework;
 
-[TestFixture]
-public class PersistentConfigurationBuilderConventionsFixture
+namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities117
 {
-    private IConfiguration _facilityConfiguration;
-
-    [SetUp]
-    public void SetUp()
+    [TestFixture]
+    public class PersistentConfigurationBuilderConventionsFixture
     {
-        var configurationStore = new DefaultConfigurationStore();
-        var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
-        var xmlInterpreter = new XmlInterpreter(resource);
-        xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
-        _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
-    }
+        private IConfiguration _facilityConfiguration;
 
-    [Test]
-    public void DerivesValidFilenameFromSessionFactoryIdWhenNotExplicitlySpecified()
-    {
-        var configurationPersister = new Mock<IConfigurationPersister>().Object;
-        Mock.Get(configurationPersister)
-            .Setup(x =>
-                   x.IsNewConfigurationRequired(
-                       It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
-                       It.IsAny<IList<string>>()))
-            .Returns(false)
-            .Verifiable();
+        [SetUp]
+        public void SetUp()
+        {
+            var configurationStore = new DefaultConfigurationStore();
+            var resource = new AssemblyResource("Castle.Facilities.NHibernateIntegration.Tests/Issues/Facilities117/facility.xml");
+            var xmlInterpreter = new XmlInterpreter(resource);
+            xmlInterpreter.ProcessResource(resource, configurationStore, new DefaultKernel());
+            _facilityConfiguration = configurationStore.GetFacilityConfiguration(typeof(NHibernateFacility).FullName).Children["factory"];
+        }
 
-        var builder = new PersistentConfigurationBuilder(configurationPersister);
-        builder.GetConfiguration(_facilityConfiguration);
+        [Test]
+        public void DerivesValidFilenameFromSessionFactoryIdWhenNotExplicitlySpecified()
+        {
+            var configurationPersister = new Mock<IConfigurationPersister>().Object;
+            Mock.Get(configurationPersister)
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(
+                           It.Is<string>(x => x.Equals("sessionFactory1.dat", StringComparison.OrdinalIgnoreCase)),
+                           It.IsAny<IList<string>>()))
+                .Returns(false)
+                .Verifiable();
 
-        Mock.Get(configurationPersister).VerifyAll();
-    }
+            var builder = new PersistentConfigurationBuilder(configurationPersister);
+            builder.GetConfiguration(_facilityConfiguration);
 
-    [Test]
-    public void IncludesMappingAssembliesInDependentFileList()
-    {
-        var dependencies = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
+            Mock.Get(configurationPersister).VerifyAll();
+        }
 
-        var configurationPersister = new Mock<IConfigurationPersister>().Object;
-        Mock.Get(configurationPersister)
-            .Setup(x =>
-                   x.IsNewConfigurationRequired(It.IsAny<string>(),
-                                                It.Is<IList<string>>(x => x.Contains(dependencies[0]))))
-            .Returns(false)
-            .Verifiable();
+        [Test]
+        public void IncludesMappingAssembliesInDependentFileList()
+        {
+            var dependencies = new List<string> { "Castle.Facilities.NHibernateIntegration.Tests.dll" };
 
-        var builder = new PersistentConfigurationBuilder(configurationPersister);
-        builder.GetConfiguration(_facilityConfiguration);
+            var configurationPersister = new Mock<IConfigurationPersister>().Object;
+            Mock.Get(configurationPersister)
+                .Setup(x =>
+                       x.IsNewConfigurationRequired(It.IsAny<string>(),
+                                                    It.Is<IList<string>>(x => x.Contains(dependencies[0]))))
+                .Returns(false)
+                .Verifiable();
 
-        Mock.Get(configurationPersister).VerifyAll();
+            var builder = new PersistentConfigurationBuilder(configurationPersister);
+            builder.GetConfiguration(_facilityConfiguration);
+
+            Mock.Get(configurationPersister).VerifyAll();
+        }
     }
 }

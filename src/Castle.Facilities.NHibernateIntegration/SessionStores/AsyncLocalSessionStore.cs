@@ -14,34 +14,35 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration.SessionStores;
-
-/// <summary>
-/// An implementation of <see cref="ISessionStore" />
-/// which relies on <see cref="AsyncLocal{T}" />.
-/// </summary>
-public class AsyncLocalSessionStore : AbstractDictionaryStackSessionStore
+namespace Castle.Facilities.NHibernateIntegration.SessionStores
 {
-    private readonly AsyncLocal<IDictionary<string, Stack<SessionDelegate>>> _sessionAsyncLocal = new();
-    private readonly AsyncLocal<IDictionary<string, Stack<StatelessSessionDelegate>>> _statelessSessionAsyncLocal = new();
-
-    protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
+    /// <summary>
+    /// An implementation of <see cref="ISessionStore" />
+    /// which relies on <see cref="AsyncLocal{T}" />.
+    /// </summary>
+    public class AsyncLocalSessionStore : AbstractDictionaryStackSessionStore
     {
-        return _sessionAsyncLocal.Value!;
-    }
+        private readonly AsyncLocal<IDictionary<string, Stack<SessionDelegate>>> _sessionAsyncLocal = new();
+        private readonly AsyncLocal<IDictionary<string, Stack<StatelessSessionDelegate>>> _statelessSessionAsyncLocal = new();
 
-    protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
-    {
-        _sessionAsyncLocal.Value = dictionary;
-    }
+        protected override IDictionary<string, Stack<SessionDelegate>> GetSessionDictionary()
+        {
+            return _sessionAsyncLocal.Value!;
+        }
 
-    protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
-    {
-        return _statelessSessionAsyncLocal.Value!;
-    }
+        protected override void StoreSessionDictionary(IDictionary<string, Stack<SessionDelegate>> dictionary)
+        {
+            _sessionAsyncLocal.Value = dictionary;
+        }
 
-    protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
-    {
-        _statelessSessionAsyncLocal.Value = dictionary;
+        protected override IDictionary<string, Stack<StatelessSessionDelegate>> GetStatelessSessionDictionary()
+        {
+            return _statelessSessionAsyncLocal.Value!;
+        }
+
+        protected override void StoreStatelessSessionDictionary(IDictionary<string, Stack<StatelessSessionDelegate>> dictionary)
+        {
+            _statelessSessionAsyncLocal.Value = dictionary;
+        }
     }
 }

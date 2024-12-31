@@ -15,8 +15,6 @@
 #endregion
 
 #if NETFRAMEWORK
-namespace Castle.Facilities.NHibernateIntegration.Components.Web;
-
 using System.Web;
 
 using Castle.MicroKernel.Facilities;
@@ -24,87 +22,90 @@ using Castle.Windsor;
 
 using NHibernate;
 
-/// <summary>
-/// HttpModule to set up a session for the request lifetime.
-/// <seealso cref="ISessionManager" />
-/// </summary>
-/// <remarks>
-/// To install the module, you must:
-/// <para>
-/// <list type="number">
-/// <item>
-/// <description>
-/// Add the module to the <c>httpModules</c> configuration section within <c>system.web</c>.
-/// </description>
-/// </item>
-/// <item>
-/// <description>Extend the <see cref="HttpApplication" /> if you haven't.</description>
-/// </item>
-/// <item>
-/// <description>
-/// Make your <c>HttpApplication</c> subclass implement <see cref="IContainerAccessor" />
-/// so the module can access the container instance.</description>
-/// </item>
-/// </list>
-/// </para>
-/// </remarks>
-public class SessionWebModule : IHttpModule
+namespace Castle.Facilities.NHibernateIntegration.Components.Web
 {
     /// <summary>
-    ///
+    /// HttpModule to set up a session for the request lifetime.
+    /// <seealso cref="ISessionManager" />
     /// </summary>
-    protected static readonly string SessionKey = "SessionWebModule.session";
-
-    /// <summary>
-    /// Initializes a module and prepares it to handle requests.
-    /// </summary>
-    /// <param name="app">The app.</param>
-    public void Init(HttpApplication app)
+    /// <remarks>
+    /// To install the module, you must:
+    /// <para>
+    /// <list type="number">
+    /// <item>
+    /// <description>
+    /// Add the module to the <c>httpModules</c> configuration section within <c>system.web</c>.
+    /// </description>
+    /// </item>
+    /// <item>
+    /// <description>Extend the <see cref="HttpApplication" /> if you haven't.</description>
+    /// </item>
+    /// <item>
+    /// <description>
+    /// Make your <c>HttpApplication</c> subclass implement <see cref="IContainerAccessor" />
+    /// so the module can access the container instance.</description>
+    /// </item>
+    /// </list>
+    /// </para>
+    /// </remarks>
+    public class SessionWebModule : IHttpModule
     {
-        app.BeginRequest += OnBeginRequest;
-        app.EndRequest += OnEndRequest;
-    }
+        /// <summary>
+        ///
+        /// </summary>
+        protected static readonly string SessionKey = "SessionWebModule.session";
 
-    /// <summary>
-    /// Disposes of the resources (other than memory) used by the module that implements <see cref="T:System.Web.IHttpModule" />.
-    /// </summary>
-    public void Dispose()
-    {
-    }
-
-    private void OnBeginRequest(object sender, EventArgs e)
-    {
-        var container = ObtainContainer();
-
-        var sessManager = container.Resolve<ISessionManager>();
-
-        HttpContext.Current.Items.Add(SessionKey, sessManager.OpenSession());
-    }
-
-    private void OnEndRequest(object sender, EventArgs e)
-    {
-        var session = (ISession) HttpContext.Current.Items[SessionKey];
-
-        session?.Dispose();
-    }
-
-    private static IWindsorContainer ObtainContainer()
-    {
-        if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
+        /// <summary>
+        /// Initializes a module and prepares it to handle requests.
+        /// </summary>
+        /// <param name="app">The app.</param>
+        public void Init(HttpApplication app)
         {
-            throw new FacilityException($"You must extend the '{nameof(HttpApplication)}' in your web project " +
-                                        $"and implement the '{nameof(IContainerAccessor)}' to properly expose your container instance.");
+            app.BeginRequest += OnBeginRequest;
+            app.EndRequest += OnEndRequest;
         }
 
-        var container = containerAccessor.Container;
-
-        if (container is null)
+        /// <summary>
+        /// Disposes of the resources (other than memory) used by the module that implements <see cref="T:System.Web.IHttpModule" />.
+        /// </summary>
+        public void Dispose()
         {
-            throw new FacilityException("The container seems to be unavailable (null) " +
-                                        $"in your '{nameof(HttpApplication)}' subclass.");
         }
 
-        return container;
+        private void OnBeginRequest(object sender, EventArgs e)
+        {
+            var container = ObtainContainer();
+
+            var sessManager = container.Resolve<ISessionManager>();
+
+            HttpContext.Current.Items.Add(SessionKey, sessManager.OpenSession());
+        }
+
+        private void OnEndRequest(object sender, EventArgs e)
+        {
+            var session = (ISession) HttpContext.Current.Items[SessionKey];
+
+            session?.Dispose();
+        }
+
+        private static IWindsorContainer ObtainContainer()
+        {
+            if (HttpContext.Current.ApplicationInstance is not IContainerAccessor containerAccessor)
+            {
+                throw new FacilityException($"You must extend the '{nameof(HttpApplication)}' in your web project " +
+                                            $"and implement the '{nameof(IContainerAccessor)}' to properly expose your container instance.");
+            }
+
+            var container = containerAccessor.Container;
+
+            if (container is null)
+            {
+                throw new FacilityException("The container seems to be unavailable (null) " +
+                                            $"in your '{nameof(HttpApplication)}' subclass.");
+            }
+
+            return container;
+        }
     }
 }
 #endif

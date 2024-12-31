@@ -14,35 +14,36 @@
 // limitations under the License.
 #endregion
 
-namespace Castle.Facilities.NHibernateIntegration;
-
 using NHibernate.Cfg;
 
-/// <summary>
-/// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
-/// and whether that file should be trusted or a new Configuration should be built.
-/// </summary>
-public interface IConfigurationPersister
+namespace Castle.Facilities.NHibernateIntegration
 {
     /// <summary>
-    /// Gets the <see cref="Configuration" /> from the file.
+    /// Knows how to read/write an NHibernate <see cref="Configuration" /> from a given filename,
+    /// and whether that file should be trusted or a new Configuration should be built.
     /// </summary>
-    /// <param name="filePath">The path of the file to read from.</param>
-    /// <returns>The <see cref="Configuration" />.</returns>
-    Configuration ReadConfiguration(string filePath);
+    public interface IConfigurationPersister
+    {
+        /// <summary>
+        /// Gets the <see cref="Configuration" /> from the file.
+        /// </summary>
+        /// <param name="filePath">The path of the file to read from.</param>
+        /// <returns>The <see cref="Configuration" />.</returns>
+        Configuration ReadConfiguration(string filePath);
 
-    /// <summary>
-    /// Writes the <see cref="Configuration" /> to the file.
-    /// </summary>
-    /// <param name="configuration">The <see cref="Configuration" />.</param>
-    /// <param name="filePath">The path of the file to write to.</param>
-    void WriteConfiguration(Configuration configuration, string filePath);
+        /// <summary>
+        /// Writes the <see cref="Configuration" /> to the file.
+        /// </summary>
+        /// <param name="configuration">The <see cref="Configuration" />.</param>
+        /// <param name="filePath">The path of the file to write to.</param>
+        void WriteConfiguration(Configuration configuration, string filePath);
 
-    /// <summary>
-    /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
-    /// </summary>
-    /// <param name="filePath">The path of the file containing the <see cref="Configuration" />.</param>
-    /// <param name="dependencies">The files that the serialized configuration depends on.</param>
-    /// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
-    bool IsNewConfigurationRequired(string filePath, IList<string> dependencies);
+        /// <summary>
+        /// Checks if a new <see cref="Configuration" /> is required or a serialized one should be used.
+        /// </summary>
+        /// <param name="filePath">The path of the file containing the <see cref="Configuration" />.</param>
+        /// <param name="dependencies">The files that the serialized configuration depends on.</param>
+        /// <returns>Whether the <see cref="Configuration" /> should be created or not.</returns>
+        bool IsNewConfigurationRequired(string filePath, IList<string> dependencies);
+    }
 }
