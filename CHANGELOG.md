@@ -1,7 +1,7 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.5.0 (2024-12-xx)
+## 5.5.0 (2025-11-11)
 
 Improvements:
 - Added support for **`.NET 9.0`**.
