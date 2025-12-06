@@ -3,6 +3,14 @@
 
 ## 5.6.0 (2025-xx-xx)
 
+Improvements:
+- Added support for **`.NET 10.0`**.
+
+Breaking Changes:
+- Updated **`Castle.Services.Transaction`** to 5.6.0.
+- Updated **`Castle.Facilities.AutoTx`** to 5.6.0.
+- Updated **`NHibernate`** to 5.6.1.
+
 
 ## 5.5.0 (2025-11-11)
 
