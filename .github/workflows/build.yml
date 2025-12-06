@@ -20,7 +20,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
         configuration: [Release]
-        framework: [net9.0, net8.0, net48]
+        framework: [net10.0, net9.0, net8.0, net48]
         exclude:
           - os: ubuntu-latest
             framework: net48
@@ -42,7 +42,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Validate Build Infrastructure
         run: |
