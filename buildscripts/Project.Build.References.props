@@ -20,6 +20,11 @@
       https://github.com/Microsoft/dotnet/tree/main/releases/reference-assemblies
     -->
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="All" />
+    <!--
+      https://github.com/dotnet/maintenance-packages/issues/243
+        https://github.com/dotnet/msbuild/issues/12780
+    -->
+    <PackageReference Include="System.ValueTuple" />
   </ItemGroup>
 
 </Project>
