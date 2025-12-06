@@ -12,37 +12,47 @@
 
   <ItemGroup>
     <PackageVersion Include="Castle.Core" Version="[4.4.1,5)" />
-    <PackageVersion Include="Castle.Facilities.AutoTx" Version="[5.5.0,5.6)" />
+    <PackageVersion Include="Castle.Facilities.AutoTx" Version="[5.6.0,5.7)" />
     <PackageVersion Include="Castle.LoggingFacility" Version="[5.1.2,6)" />
-    <PackageVersion Include="Castle.Services.Transaction" Version="[5.5.0,5.6)" />
+    <PackageVersion Include="Castle.Services.Transaction" Version="[5.6.0,5.7)" />
     <PackageVersion Include="Castle.Windsor" Version="[5.1.2,6)" />
-    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="CSharpIsNullAnalyzer" Version="0.1.593" />
+    <PackageVersion Include="coverlet.collector" Version="10.1.0" />
+    <PackageVersion Include="CSharpIsNullAnalyzer" Version="0.2.19" />
     <PackageVersion Include="Iesi.Collections" Version="4.1.1" />
     <PackageVersion Include="LiquidTestReports.Markdown" Version="1.0.9" />
     <PackageVersion Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
     <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.14" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.2" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <PackageVersion Include="Moq" Version="4.17.2" />
     <PackageVersion Include="NETStandard.Library" Version="2.0.3" />
-    <PackageVersion Include="NHibernate" Version="[5.5.2,6)" />
+    <PackageVersion Include="NHibernate" Version="[5.6.2,6)" />
     <PackageVersion Include="Nullable" Version="1.3.1" />
     <PackageVersion Include="NUnit" Version="4.4.0" />
     <PackageVersion Include="NUnit.Analyzers" Version="4.10.0" />
     <PackageVersion Include="NUnit3TestAdapter" Version="5.2.0" />
-    <PackageVersion Include="NunitXml.TestLogger" Version="7.0.2" />
+    <PackageVersion Include="NunitXml.TestLogger" Version="8.0.0" />
     <PackageVersion Include="ProDotNetZip" Version="1.20.0" />
     <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <PackageVersion Include="System.Runtime.Serialization.Formatters" Version="9.0.0" />
-    <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="8.0.2" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    <PackageVersion Include="System.ValueTuple" Version="4.6.2" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">
     <PackageVersion Remove="Microsoft.Extensions.Configuration.Json" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageVersion Remove="System.Security.Cryptography.Pkcs" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="9.0.21" />
+  </ItemGroup>
+  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
+    <PackageVersion Remove="Microsoft.Extensions.Configuration.Json" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
+    <PackageVersion Remove="System.Security.Cryptography.Pkcs" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
   </ItemGroup>
 
 </Project>
