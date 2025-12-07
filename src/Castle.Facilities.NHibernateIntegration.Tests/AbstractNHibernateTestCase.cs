@@ -19,6 +19,8 @@ using Castle.Facilities.AutoTx;
 using Castle.Windsor;
 using Castle.Windsor.Configuration.Interpreters;
 
+using Microsoft.Data.SqlClient;
+
 using NHibernate.Tool.hbm2ddl;
 
 using NUnit.Framework;
@@ -30,6 +32,11 @@ namespace Castle.Facilities.NHibernateIntegration.Tests
     public abstract class AbstractNHibernateTestCase
     {
         protected IWindsorContainer Container;
+
+        static AbstractNHibernateTestCase()
+        {
+            SqlClientFeatures.AsyncBehavior.ConfigurePacketMultiplexing(true);
+        }
 
         protected virtual string ConfigurationFilePath =>
             "DefaultConfiguration.xml";
