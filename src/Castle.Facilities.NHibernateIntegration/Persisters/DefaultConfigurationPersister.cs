@@ -14,6 +14,9 @@
 // limitations under the License.
 #endregion
 
+using NHibernate;
+using NHibernate.Util;
+
 using NHibernateConfiguration = NHibernate.Cfg.Configuration;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
@@ -22,6 +25,13 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     ///     Default <see cref="IConfigurationPersister" /> implementation
     ///     backed by <see cref="ObjectPersisterFactory.Create{T}" />.
     /// </summary>
+    /// <remarks>
+    ///     Uses <see cref="BinaryFormatterObjectPersister{T}" /> by default.
+    ///     On .NET 9.0 and later, applications using configuration persistence must call
+    ///     <see cref="NHibernateFeatures.BinaryFormatterSerialization.Enable" />
+    ///     or configure a custom <see cref="ISerializationStrategy" />
+    ///     via <see cref="SerializationConfiguration.Strategy" />.
+    /// </remarks>
     public class DefaultConfigurationPersister : IConfigurationPersister
     {
         private readonly IObjectPersister<NHibernateConfiguration> _persister =

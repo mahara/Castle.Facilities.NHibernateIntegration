@@ -14,6 +14,7 @@
 // limitations under the License.
 #endregion
 
+using NHibernate;
 using NHibernate.Util;
 
 namespace Castle.Facilities.NHibernateIntegration.Persisters
@@ -75,6 +76,12 @@ namespace Castle.Facilities.NHibernateIntegration.Persisters
     ///     to <see cref="SerializationHelper" />.
     /// </summary>
     /// <typeparam name="T">The type of object to persist.</typeparam>
+    /// <remarks>
+    ///     On .NET 9.0 and later, NHibernate defaults to <see cref="ThrowingSerializationStrategy" />.
+    ///     Applications must call <see cref="NHibernateFeatures.BinaryFormatterSerialization.Enable" />
+    ///     or configure a custom <see cref="ISerializationStrategy" />
+    ///     via <see cref="SerializationConfiguration.Strategy" /> prior to persistence operations.
+    /// </remarks>
     public class BinaryFormatterObjectPersister<T> : IObjectPersister<T>
     {
         /// <inheritdoc />
