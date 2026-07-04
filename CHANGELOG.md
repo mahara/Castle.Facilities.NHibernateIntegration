@@ -1,7 +1,10 @@
 # Castle.Facilities.NHibernateIntegration - Changelog
 
 
-## 5.7.0 (2026-02-xx)
+## 5.7.0 (2026-07-xx)
+
+Breaking Changes:
+- Updated **`NHibernate`** to 5.7.1.
 
 
 ## 5.6.0 (2026-02-28)

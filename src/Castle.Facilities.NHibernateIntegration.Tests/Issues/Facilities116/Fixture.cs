@@ -23,6 +23,8 @@ using Castle.MicroKernel;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor.Configuration.Interpreters;
 
+using NHibernate;
+
 using NUnit.Framework;
 
 using CastleConfiguration = Castle.Core.Configuration.IConfiguration;
@@ -46,6 +48,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         protected override void OnSetUp()
         {
+            NHibernateFeatures.EnableBinaryFormatterSerialization();
+
             CleanUpFiles();
 
             var configurationStore = new DefaultConfigurationStore();
@@ -60,7 +64,14 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues.Facilities116
 
         protected override void OnTearDown()
         {
-            File.Delete(FilePath);
+            try
+            {
+                File.Delete(FilePath);
+            }
+            finally
+            {
+                NHibernateFeatures.DisableBinaryFormatterSerialization();
+            }
         }
 
         private static void CleanUpFiles()
