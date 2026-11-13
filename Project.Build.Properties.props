@@ -9,16 +9,18 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks>net10.0-windows</WinExeTargetFrameworks>
-    <WinTestTargetFrameworks>net10.0-windows</WinTestTargetFrameworks>
-    <WinLibTargetFrameworks>net10.0-windows;net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks>net10.0</ExeTargetFrameworks>
-    <TestTargetFrameworks>net10.0;net9.0;net8.0;net48</TestTargetFrameworks>
-    <LibTargetFrameworks>net10.0;net9.0;net8.0;net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks>net11.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks>net11.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks>net11.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks>net11.0</ExeTargetFrameworks>
+    <TestTargetFrameworks>net11.0;net10.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks>net11.0;net10.0;net48</LibTargetFrameworks>
 
     <LangVersion>latest</LangVersion>
 
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+
+    <EnableRuntimeAsync>true</EnableRuntimeAsync>
 
     <!--
       CA2252: Opt in to preview features before using them
