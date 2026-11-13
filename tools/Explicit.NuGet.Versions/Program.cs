@@ -14,10 +14,9 @@
 // limitations under the License.
 #endregion
 
+using System.IO.Compression;
 using System.Text;
 using System.Xml;
-
-using Ionic.Zip;
 
 namespace Explicit.NuGet.Versions
 {
@@ -60,18 +59,18 @@ namespace Explicit.NuGet.Versions
 
             foreach (var packageFilePath in packageDiscoveryDirectory.GetFiles("*.nupkg", SearchOption.AllDirectories))
             {
-                using var zipFile = ZipFile.Read(packageFilePath.FullName);
+                using var archive = ZipFile.OpenRead(packageFilePath.FullName);
 
-                foreach (var zipEntry in zipFile.Entries)
+                foreach (var entry in archive.Entries)
                 {
-                    if (zipEntry.FileName.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase))
+                    if (entry.FullName.EndsWith(".nuspec", StringComparison.OrdinalIgnoreCase))
                     {
-                        using var zipEntryReader = new StreamReader(zipEntry.OpenReader(), Utf8Encoding);
+                        using var entryReader = new StreamReader(entry.Open(), Utf8Encoding);
 
-                        var nuspecXml = zipEntryReader.ReadToEnd();
+                        var nuspecXml = entryReader.ReadToEnd();
                         packageNuspecDictionary[packageFilePath.FullName] = new NuspecContentEntry
                         {
-                            EntryName = zipEntry.FileName,
+                            EntryName = entry.FullName,
                             Contents = nuspecXml,
                         };
 
@@ -117,8 +116,8 @@ namespace Explicit.NuGet.Versions
                     var version = element.GetAttribute("version");
                     if (!string.IsNullOrEmpty(version) &&
                         !version.Contains('*', StringComparison.Ordinal) &&
-                        !version.StartsWith('[') && !version.StartsWith('(') &&
-                        !version.EndsWith(']') && !version.EndsWith(')'))
+                        !version.StartsWith('[', StringComparison.Ordinal) && !version.StartsWith('(', StringComparison.Ordinal) &&
+                        !version.EndsWith(']', StringComparison.Ordinal) && !version.EndsWith(')', StringComparison.Ordinal))
                     {
                         element.SetAttribute("version", $"[{version}]");
                     }
@@ -143,18 +142,22 @@ namespace Explicit.NuGet.Versions
         {
             foreach (var packageFile in packageMetaData)
             {
-                using var zipFile = ZipFile.Read(packageFile.Key);
+                using var archive = ZipFile.Open(packageFile.Key, ZipArchiveMode.Update);
 
-                zipFile.UpdateEntry(packageFile.Value.EntryName, Utf8Encoding.GetBytes(packageFile.Value.Contents));
-                zipFile.Save();
+                var existingEntry = archive.GetEntry(packageFile.Value.EntryName);
+                existingEntry?.Delete();
+
+                var updatedEntry = archive.CreateEntry(packageFile.Value.EntryName);
+                using var entryStream = updatedEntry.Open();
+                entryStream.Write(Utf8Encoding.GetBytes(packageFile.Value.Contents));
             }
         }
 
         record NuspecContentEntry
         {
-            public string EntryName { get; init; } = string.Empty;
+            public required string EntryName { get; init; }
 
-            public string Contents { get; set; } = string.Empty;
+            public required string Contents { get; set; }
         }
 
         sealed class StringWriterWithEncoding : StringWriter

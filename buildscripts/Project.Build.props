@@ -26,12 +26,12 @@
   -->
 
   <PropertyGroup>
-    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net10.0-windows</WinExeTargetFrameworks>
-    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net10.0-windows</WinTestTargetFrameworks>
-    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net10.0-windows;net48</WinLibTargetFrameworks>
-    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net10.0</ExeTargetFrameworks>
-    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net10.0;net9.0;net8.0;net48</TestTargetFrameworks>
-    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net10.0;net9.0;net8.0;net48</LibTargetFrameworks>
+    <WinExeTargetFrameworks Condition="'$(WinExeTargetFrameworks)' == ''">net11.0-windows</WinExeTargetFrameworks>
+    <WinTestTargetFrameworks Condition="'$(WinTestTargetFrameworks)' == ''">net11.0-windows</WinTestTargetFrameworks>
+    <WinLibTargetFrameworks Condition="'$(WinLibTargetFrameworks)' == ''">net11.0-windows;net48</WinLibTargetFrameworks>
+    <ExeTargetFrameworks Condition="'$(ExeTargetFrameworks)' == ''">net11.0</ExeTargetFrameworks>
+    <TestTargetFrameworks Condition="'$(TestTargetFrameworks)' == ''">net11.0;net10.0;net48</TestTargetFrameworks>
+    <LibTargetFrameworks Condition="'$(LibTargetFrameworks)' == ''">net11.0;net10.0;net48</LibTargetFrameworks>
 
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
     <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
@@ -39,6 +39,8 @@
 
     <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == ''">false</TreatWarningsAsErrors>
     <NoWarn>CS1591</NoWarn>
+
+    <EnableRuntimeAsync Condition="'$(EnableRuntimeAsync)' == ''">true</EnableRuntimeAsync>
 
     <!--
       CA2252: Opt in to preview features before using them
@@ -99,7 +101,7 @@
     <NetConstants>$(BaseConstants)</NetConstants>
     <NetFrameworkConstants>$(BaseConstants)</NetFrameworkConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
     <DefineConstants>$(NetConstants)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net48'))">
