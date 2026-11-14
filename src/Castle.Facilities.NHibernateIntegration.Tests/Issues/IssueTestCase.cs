@@ -14,6 +14,10 @@
 // limitations under the License.
 #endregion
 
+#if !NET11_0_OR_GREATER
+using Castle.Services.Transaction.Utilities;
+#endif
+
 namespace Castle.Facilities.NHibernateIntegration.Tests.Issues
 {
     public class IssueTestCase : AbstractNHibernateTestCase
@@ -23,8 +27,8 @@ namespace Castle.Facilities.NHibernateIntegration.Tests.Issues
             get
             {
                 var @namespace = GetType().Namespace!;
-                //return @namespace.Substring(@namespace.LastIndexOf('.') + 1);
-                return @namespace[(@namespace.LastIndexOf('.') + 1)..];
+                //return @namespace.Substring(@namespace.LastIndexOf('.', StringComparison.Ordinal) + 1);
+                return @namespace[(@namespace.LastIndexOf('.', StringComparison.Ordinal) + 1)..];
             }
         }
 
